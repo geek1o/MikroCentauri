@@ -10,5 +10,8 @@ that candidate directly on a LAN/WAN without scoped firewall. The mixed listener
 is for prototype/Socksify comparison and has no authentication configuration yet.
 
 Not implemented: product auth/CSRF/rate limits, subscription SSRF defenses, encrypted
-backup, safe diagnostics export, durable router journaling, full IPv6 policy and native
-watchdog. These are tracked requirements, not claims that the system is hardened.
+backup, safe diagnostics export and full IPv6 policy. A durable lab controller and
+native lab watchdog now exist; production ownership, placement, capability and
+activation integration remain incomplete. Health uses one controlled lab canary;
+production requires configured trusted HTTPS and explicit outbound policy. These
+are tracked requirements, not claims that the system is hardened.

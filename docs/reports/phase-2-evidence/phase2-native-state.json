@@ -1,0 +1,62 @@
+{
+  "nat": [
+    {
+      ".id": "*3",
+      "action": "dst-nat",
+      "bytes": "0",
+      "chain": "dstnat",
+      "comment": "mikrocentauri:lab:nat:dns-tcp",
+      "disabled": "true",
+      "dst-address": "192.168.88.1",
+      "dst-port": "53",
+      "dynamic": "false",
+      "in-interface": "bridge-lan",
+      "invalid": "false",
+      "packets": "0",
+      "protocol": "tcp",
+      "to-addresses": "172.30.0.2",
+      "to-ports": "5353"
+    },
+    {
+      ".id": "*4",
+      "action": "dst-nat",
+      "bytes": "1416",
+      "chain": "dstnat",
+      "comment": "mikrocentauri:lab:nat:dns-udp",
+      "disabled": "true",
+      "dst-address": "192.168.88.1",
+      "dst-port": "53",
+      "dynamic": "false",
+      "in-interface": "bridge-lan",
+      "invalid": "false",
+      "packets": "20",
+      "protocol": "udp",
+      "to-addresses": "172.30.0.2",
+      "to-ports": "5353"
+    },
+    {
+      ".id": "*6",
+      "action": "dst-nat",
+      "bytes": "8514",
+      "chain": "dstnat",
+      "comment": "mikrocentauri:lab:nat:cached-selected",
+      "disabled": "false",
+      "dst-address": "198.18.0.2",
+      "dynamic": "false",
+      "in-interface": "bridge-lan",
+      "invalid": "false",
+      "packets": "18",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    }
+  ],
+  "container": [
+    {
+      "name": "mc-gateway-phase2",
+      "running": "true",
+      "privileged": "false",
+      "user": "0:0",
+      "root-dir": "/pcie2/mc-gateway-phase2"
+    }
+  ]
+}

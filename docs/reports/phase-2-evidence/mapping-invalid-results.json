@@ -1,0 +1,9 @@
+{
+  "malformed_mapping_up_refused": true,
+  "disabled": {
+    "mikrocentauri:lab:route:fakeip": "true",
+    "mikrocentauri:lab:nat:dns-tcp": "true",
+    "mikrocentauri:lab:nat:dns-udp": "true",
+    "mikrocentauri:lab:nat:cached-selected": "true"
+  }
+}

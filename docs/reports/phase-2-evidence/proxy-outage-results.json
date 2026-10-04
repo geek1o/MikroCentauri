@@ -1,0 +1,145 @@
+{
+  "outage": {
+    "observed_ms": 2327,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true,
+      "mikrocentauri:lab:nat:cached-selected": false
+    },
+    "netwatch": "down",
+    "health": {
+      "ready": false,
+      "local_ready": true,
+      "consecutive_failures": 2,
+      "consecutive_successes": 0,
+      "samples": 256,
+      "error": "proxy canary failed"
+    },
+    "clients": {
+      "cached_tcp": {
+        "request_id": 63,
+        "resolved_ipv4": "198.18.0.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/cached-phase2",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/cached-phase2\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 13
+      },
+      "cached_udp": {
+        "request_id": 64,
+        "resolved_ipv4": "198.18.0.2",
+        "payload": "mikrocentauri-udp-probe",
+        "elapsed_ms": 7
+      },
+      "cached_http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 49
+      },
+      "fresh_selected": {
+        "request_id": 65,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/fresh-phase2",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/fresh-phase2\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 8
+      },
+      "unselected": {
+        "request_id": 66,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/test",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/test\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 7
+      }
+    }
+  },
+  "recovery": {
+    "observed_ms": 3286,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:cached-selected": true
+    },
+    "netwatch": "up",
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 284
+    },
+    "clients": {
+      "cached_tcp": {
+        "request_id": 67,
+        "resolved_ipv4": "198.18.0.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/cached-phase2",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/cached-phase2\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 25
+      },
+      "cached_udp": {
+        "request_id": 68,
+        "resolved_ipv4": "198.18.0.2",
+        "payload": "mikrocentauri-udp-probe",
+        "elapsed_ms": 15
+      },
+      "cached_http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 53
+      },
+      "fresh_selected": {
+        "request_id": 69,
+        "resolved_ipv4": "198.18.0.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/fresh-phase2",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/fresh-phase2\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 19
+      },
+      "unselected": {
+        "request_id": 70,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/test",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/test\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 10
+      }
+    }
+  }
+}

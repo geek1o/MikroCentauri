@@ -1,0 +1,10 @@
+{
+  "lost_create_reply": "mutation outcome unresolved; recovery required",
+  "new_process_recovery": "PASS",
+  "create": "verified lab changes: 1",
+  "update": "verified lab changes: 1",
+  "idempotence": "verified lab changes: 0",
+  "cleanup": "verified lab changes: 1",
+  "private_journal_permissions": "0700/0600",
+  "scope": "disabled route only; reserved stage2"
+}

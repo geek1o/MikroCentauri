@@ -1,0 +1,583 @@
+[
+  {
+    "file": "phase2-lan.pcap",
+    "sha256": "44408b3dd9908de079dd64b2cf4c43c507d2c06464ba454312b7d6f4b4d2e277",
+    "bytes": 257502,
+    "ethernet_packets": 1567,
+    "ipv6_frames": 18,
+    "flows": [
+      {
+        "protocol": "tcp",
+        "source": "192.168.88.10",
+        "destination": "10.77.0.20",
+        "destination_port": 8080,
+        "packets": 116
+      },
+      {
+        "protocol": "tcp",
+        "source": "192.168.88.10",
+        "destination": "172.30.0.2",
+        "destination_port": 9099,
+        "packets": 11
+      },
+      {
+        "protocol": "tcp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "destination_port": 8080,
+        "packets": 149
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "192.168.88.1",
+        "destination_port": 53,
+        "packets": 35
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "destination_port": 9000,
+        "packets": 17
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "destination_port": 9443,
+        "packets": 101
+      }
+    ],
+    "realip_udp_marker": [],
+    "proxy_udp_marker": [
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 43918,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 43918
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 34418,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 34418
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 46288,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 46288
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 52020,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 52020
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 59703,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 59703
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 37129,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 37129
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 50837,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 50837
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 35505,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 35505
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 50980,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 50980
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 52131,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 52131
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 44422,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 44422
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 55289,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 55289
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 58381,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 58381
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 56419,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 56419
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 56874,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 56874
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 58866,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 58866
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.2",
+        "source_port": 32905,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "198.18.0.2",
+        "destination": "192.168.88.10",
+        "source_port": 9000,
+        "destination_port": 32905
+      }
+    ],
+    "scope": "Selected service-port endpoint counts only; full summaries and PCAP retained locally; not TCP reconstruction, packet-loss or loop proof",
+    "flow_count_before_filter": 128
+  },
+  {
+    "file": "phase2-wan.pcap",
+    "sha256": "5c3d805595d1c267e533c520a669aae6a99b702799bc297c651e64347cc97e20",
+    "bytes": 934900,
+    "ethernet_packets": 6951,
+    "ipv6_frames": 63,
+    "flows": [
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "destination_port": 8443,
+        "packets": 3193
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "destination_port": 8080,
+        "packets": 146
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "destination_port": 53,
+        "packets": 22
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "destination_port": 9000,
+        "packets": 6
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "destination_port": 9443,
+        "packets": 36
+      }
+    ],
+    "realip_udp_marker": [],
+    "proxy_udp_marker": [
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 32982,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 32982
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33226,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33226
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33502,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33502
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 52020,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 52020
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33542,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33542
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 37129,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 37129
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33588,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33588
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33834,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33834
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 50980,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 50980
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33872,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33872
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 44422,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 44422
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 33914,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 33914
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58381,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 58381
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 34258,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 34258
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 34734,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 34734
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58866,
+        "destination_port": 9000
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.20",
+        "destination": "10.77.0.1",
+        "source_port": 9000,
+        "destination_port": 58866
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 35318,
+        "destination_port": 8443
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.10",
+        "destination": "10.77.0.1",
+        "source_port": 8443,
+        "destination_port": 35318
+      }
+    ],
+    "scope": "Selected service-port endpoint counts only; full summaries and PCAP retained locally; not TCP reconstruction, packet-loss or loop proof",
+    "flow_count_before_filter": 725
+  }
+]

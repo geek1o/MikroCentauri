@@ -20,6 +20,8 @@ stable: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/versio
   TUN ingress with privileged=no, retained sources and distinct proxy/DIRECT egress.
 - Real CHR selected TCP/UDP/HTTP3, source priority, bounded full-gateway and Socksify
   comparisons, native Netwatch stop/recovery, boot guard and FastTrack exceptions.
+- Proxy canary health with hysteresis, cached-IP failover for one static mapping,
+  and durable lab controller recovery after a lost REST reply on actual CHR.
 - Phase-0 research, license inventory, UX specification, eight ADRs and a draft `/app` manifest.
 
 ## Try the local prototype
@@ -40,11 +42,13 @@ Full-gateway and Socksify have bounded CHR experiments, not production modes.
 
 ## Remaining gates
 
-The transparent CHR path is proved for the lab cases. Complete fail-open, IPv6,
-version/device coverage and production controller durability remain open. See
-[current phase report](docs/reports/phase-1-dataplane.md), [dataplane ADR](docs/adr/0001-dataplane.md)
-and [lab guide](docs/lab.md). Cached FakeIP does not become a public address after
-container failure; that is an explicit architectural acceptance issue.
+The transparent CHR path and one pinned cached-IP fallback are proved for lab cases.
+Complete dynamic FakeIP fail-open, IPv6, version/device coverage and production
+controller activation remain open. See [current phase report](docs/reports/phase-2-resilience.md),
+[Phase-1 comparison](docs/reports/phase-1-dataplane.md),
+[dataplane ADR](docs/adr/0001-dataplane.md) and [lab guide](docs/lab.md).
+The next step is durable dynamic DNS-to-router mapping publication before returning
+FakeIP answers; a static lab mapping does not solve arbitrary domain caches.
 
 No full subscription/group/rule manager, supervisor/LKG lifecycle, auth API, UI or
 release image yet. Full frontend work starts only after dataplane acceptance.

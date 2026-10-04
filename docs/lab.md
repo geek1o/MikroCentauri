@@ -84,8 +84,8 @@ Run `make quic-test` for a real loopback HTTP/3/TLS fixture test.
 Start each long-running process in its own terminal, **switches before VMs**:
 
 ```sh
-python3 scripts/lab-switch.py --port 19188 --pcap .cache/dataplane/lan.pcap
-python3 scripts/lab-switch.py --port 19177 --pcap .cache/dataplane/wan.pcap
+python3 scripts/lab-switch.py --port 19188 --capture .cache/dataplane/lan.pcap
+python3 scripts/lab-switch.py --port 19177 --capture .cache/dataplane/wan.pcap
 python3 scripts/chr-lab.py --image /absolute/path/official-chr.img --lan-connect --wan-socket 19177
 python3 scripts/linux-lab.py --role client --socket 127.0.0.1:19188
 python3 scripts/linux-lab.py --role server --socket 127.0.0.1:19177 --mac 52:54:00:77:00:10
@@ -150,3 +150,41 @@ stop them before hashing. `scripts/summarize-lab-pcap.py` produces endpoint coun
 and capture hashes, not a packet-loss or TCP-reconstruction proof. Keep captures
 local and publish only sanitized summaries. Gracefully stop the gateway and
 shutdown CHR/client/server; never reset the user's original image.
+
+
+## Phase 2: proxy health, static cached-IP fallback and durable controller
+
+Continue the isolated topology above; stop older gateway generations before sharing
+`mc-probe`. Build the current gateway with `scripts/build-gateway-lab.py` into a
+new archive and import it into a **new root directory**, named `mc-gateway-phase2`.
+Stop both experiment Netwatch entries before replacing the gateway; keep the
+real-IP experiment disabled. Copy/import `lab/chr/cached-fallback.rsc` once after
+`watchdog.rsc`: it replaces the existing watchdog sources and owns one pinned
+mapping `198.18.0.2 -> 10.77.0.20`. Duplicate imports intentionally fail.
+RouterOS typed addresses are normalized with `:tostr` in shape checks.
+
+Readiness starts HTTP503 and requires three fresh successful SOCKS/VLESS canary
+requests; two failed samples produce DOWN. The canary must report peer10.77.0.10.
+Native Netwatch continues to poll every2s and owns failover when the container dies.
+The internal HTTP control and unauthenticated SOCKS remain lab-only.
+
+```sh
+python3 tests/e2e/chr_cached_fallback.py
+python3 tests/e2e/chr_controller.py
+python3 tests/e2e/chr_mapping_guard.py
+```
+
+For the separate external-proxy case, in the **server VM console** stop its lab
+sing-box process (`kill $(pidof sing-box)`), then on the host run
+`python3 tests/e2e/chr_proxy_health.py down`. Restart in that same VM with
+`/lab/sing-box run -c /lab/server.json >/tmp/vless-restarted.log 2>&1 &`, then run
+`python3 tests/e2e/chr_proxy_health.py up`. Keep the gateway process running throughout.
+Controller tests use only a disabled route in reserved instance `stage2`; they
+simulate a lost creation response, restart the process and recover from a private
+0700/0600 journal. They leave that canary absent. They do not activate product routing.
+
+The earlier `chr_failures.py` records the **Phase-1 negative baseline** and expects
+cached-IP failure and immediate startup readiness. Use the new Phase-2 tests after
+installing the new scripts. Results: [Phase-2 report](reports/phase-2-resilience.md).
+This static map is not general FakeIP fail-open; existing conntrack, boot ordering,
+dynamic mapping publication and capacity are still acceptance gates.

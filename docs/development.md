@@ -19,7 +19,8 @@ invalid-candidate preservation. It is not isolated-VM/RouterOS transparent E2E.
 CLI `generate` accepts a local milestone config and saves a validated private
 candidate. `plan` prints an **offline**, disabled hybrid RouterOS preview against
 empty state. No network mutation command is exposed. `ApplyLab` exists solely for
-mock/lab testing and lacks production durability/capability/order/verification.
+legacy mock/lab testing. The separate `LabController` has disk journaling and
+recovery tests; production capability/order/activation integration is incomplete.
 
 Golden updates require `UPDATE_GOLDEN=1`; review output rather than auto-updating in
 CI. Never commit real URI credentials. Lab UUIDs are public disposable fixtures.
@@ -29,3 +30,6 @@ isolated Ethernet/CHR setup and explicit E2E mode order. `make quic-test` covers
 separate HTTP/3 module. CHR integration tests require a provisioned disposable VM;
 they are not silently part of host-only `make check`. Small actual results and
 capture hashes are committed under `docs/reports/dataplane-evidence`.
+
+Phase-2 native tests and private controller journal setup are described in
+[the lab guide](lab.md#phase-2-proxy-health-static-cached-ip-fallback-and-durable-controller).

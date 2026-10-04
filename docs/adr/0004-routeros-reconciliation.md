@@ -13,13 +13,25 @@ lab-only apply with compensating operations. Before mutation, reject stale IDs,
 changed fields, malformed actions and ownership transfers. Mock proves repeated
 apply→discover→plan is empty and failure restores prior touched values.
 
-No live product apply entrypoint is provided. Outstanding: durable mutation journal,
-capability discovery, version-specific writable field schemas, ordered placement,
-verification of realized state, reconcile startup loop, LKG router revision, concurrency
-serialization/recovery. A successful POST followed by a dropped response is ambiguous;
-controller must rediscover and compensate by ownership. Lab prototype reports that
-limitation, but does not constitute a durable transactional controller.
+No live product apply entrypoint is provided. Phase 2 adds a separate lab-only
+`LabController`: a private fsynced write-ahead journal, per-directory process lock,
+intent before mutation, fresh ownership checks, rediscovery after lost replies,
+realized writable-state verification, and explicit restart recovery. Recovery
+refuses conflicting managed-field edits. Journal errors leave pending state visible.
+Resource allowlists exclude runtime fields and credentials; scripts cannot enter
+rollback payloads. Ordered firewall deletion is refused because recreation loses
+placement. Route rollback may recreate an object under a new ID.
 
-Deletion rollback recreates objects with new RouterOS IDs; current lab code filters
-some runtime fields but full resource-specific writable-field handling is not ready.
-Never present mock tests as real RouterOS REST compatibility proof.
+Actual CHR 7.24.5 tests prove disabled-route create/update/idempotence/delete and
+recovery by a new process after a successfully executed PUT with a lost reply.
+Native compatibility required preserving literal `*` in REST object-ID paths and
+recognizing RouterOS `static` as a runtime flag. Mock tests additionally cover
+crash boundaries, external conflicts, writable-field rejection and process locking.
+See [Phase-2 evidence](../reports/phase-2-resilience.md).
+
+Outstanding: capability discovery, complete release-specific writable schemas,
+ordered placement, whole-generation activation protocol, startup reconciliation,
+LKG router revision and coordination with native watchdog mutations. The journal
+is scoped to one controller destination/instance, not a distributed lock for other
+writers. Exact comments do not secure ownership against an administrator. Lab
+proof is not full production transactional-controller acceptance.
