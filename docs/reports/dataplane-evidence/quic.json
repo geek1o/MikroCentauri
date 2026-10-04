@@ -1,0 +1,22 @@
+{
+  "selected": {
+    "protocol": "HTTP/3.0",
+    "target": {
+      "path": "/quic",
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.10"
+    },
+    "remote_ip": "10.77.0.10",
+    "elapsed_ms": 170
+  },
+  "direct": {
+    "protocol": "HTTP/3.0",
+    "target": {
+      "path": "/quic",
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.1"
+    },
+    "remote_ip": "10.77.0.1",
+    "elapsed_ms": 25
+  }
+}

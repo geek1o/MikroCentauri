@@ -1,6 +1,6 @@
 # ADR-0002: Router-owned fail-open
 
-Status: PROPOSED; implementation and timings NOT RUN.
+Status: NATIVE LAB MECHANISM TESTED; COMPLETE FAILURE CONTRACT OPEN.
 
 Controller inside the failed container cannot repair the router. Use native
 Netwatch against a dedicated container port returning 200 at `/` only when the
@@ -23,4 +23,8 @@ real-IP RouterOS DNS/address-list selection as an alternative in ADR-0001.
 
 Acceptance: kill backend, kill sing-box only, block DNS, isolate VETH, reboot CHR
 with active state, restore process; capture native DOWN/UP transitions, unrelated
-rules and actual client success times. No watchdog object is yet implemented.
+rules and actual client success times. Lab Netwatch/startup scripts are implemented and exercised on CHR 7.24.5.
+See [measured failures](../reports/phase-1-dataplane.md). Single-run timings include
+1s settling/polling overhead; debounce/hysteresis and worst-case bounds remain TODO.
+Remote VLESS outage left local readiness200: proxy health remains a separate gate.
+The observed startup repair at uptime12s does not prove guard-before-packet order.

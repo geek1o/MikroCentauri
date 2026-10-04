@@ -1,6 +1,6 @@
 # ADR-0001: Transparent ingress and selective dataplane
 
-Status: **PROPOSED / BLOCKED ON EXPERIMENTAL ACCEPTANCE**. Date: 2026-10-04.
+Status: **TUN INGRESS PROVED / COMPLETE FAIL-OPEN ACCEPTANCE OPEN**. Date: 2026-10-04.
 
 ## Context
 
@@ -22,14 +22,19 @@ must be measured independently.
 
 ## Experiments
 
-TESTED: real sing-box check for generated A/B/C config shapes; typed FakeIP A and
-managed AAAA suppression over UDP/TCP DNS; process-only selected VLESS TCP versus
-unselected DIRECT; mock RouterOS ownership/idempotence/compensation/stale-plan tests;
-official CHR 7.24.5 boot/container import and TUN creation with privileged=no on QEMU TCG. See `docs/reports/phase-0-1.md`.
+TESTED: CHR 7.24.5 root/privileged=no TUN ingress, retained client source,
+distinct native/proxy egress, selected TCP/UDP/HTTP3, direct-source priority,
+fixture full gateway, native TCP Socksify, Netwatch engine/container stop and
+recovery, eventual startup-guard repair, and managed FastTrack exclusions.
+Real-IP RouterOS FWD/address-list fallback was also compared. Transfer diagnostics
+are limited by TCG and the free CHR license. See
+[Phase-1 evidence](../reports/phase-1-dataplane.md).
 
-NOT RUN: CHR transparent ingress/source retention, distinct egress identity,
-TCP/UDP/QUIC packet capture, FastTrack, watchdog crash/recovery/reboot and benchmarks.
-No dataplane is declared experimentally accepted by these process-level results.
+FAILED ACCEPTANCE: cached FakeIP cannot restore native DIRECT while the gateway
+is dead; remote VLESS outage is not reflected by local engine/DNS readiness.
+NOT ACCEPTED: zero-loss boot ordering, IPv6, full arbitrary device tunnel,
+source-domain matrix, full-group health, durable reconciliation and target-version
+or ARM64 support. Passing CHR functional cases does not establish those gates.
 
 ## Results
 
@@ -42,9 +47,10 @@ cannot be made usable by a plain SOCKS ingress without domain restoration.
 
 ## Decision
 
-Keep A as the primary hypothesis and implement capability/lab tooling first. Keep
-B as a benchmark alternative and C only as a limited comparison. **Do not accept
-ADR-0001 or begin UI work until packet-path and failure evidence passes.** Requested
+Keep A's source-preserving TUN as the proven ingress for further controller work.
+Keep B as a bounded benchmark alternative and C as a limited TCP comparison.
+D is tested but lacks generic UDP/domain parity (ADR-0009). **Do not accept the
+complete fail-open contract or begin UI polish until its remaining gates pass.** Requested
 7.22 remains an installation target, not a verified full transparent support floor.
 
 ## Consequences

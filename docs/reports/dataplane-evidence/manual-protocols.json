@@ -1,0 +1,27 @@
+{
+  "execution": "Linux client serial console, real CHR path",
+  "http3": {
+    "hybrid_selected": {
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 100
+    },
+    "native_direct": {
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.1",
+      "elapsed_ms": 38
+    },
+    "realip_selected_after_dns_refresh": {
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 54
+    }
+  },
+  "socksify": {
+    "original_destination": "203.0.113.20:8080",
+    "upstream_peer": "172.30.0.1",
+    "server_remote_ip": "10.77.0.10",
+    "elapsed_ms": 39
+  },
+  "scope": "Public fixture addresses confined to lab Ethernet; no Internet targets used."
+}

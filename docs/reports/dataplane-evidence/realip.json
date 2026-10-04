@@ -1,0 +1,77 @@
+{
+  "healthy": {
+    "request_id": 4,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/realip-healthy",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/realip-healthy\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 29
+  },
+  "cohost_sniff_direct": {
+    "request_id": 5,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/realip-cohost",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/realip-cohost\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 16
+  },
+  "direct_priority": {
+    "request_id": 6,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/realip-direct-priority",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/realip-direct-priority\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 13
+  },
+  "engine_down_ms": 3013,
+  "cached_real_destination": {
+    "request_id": 7,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/cached-realip-during-failure",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/cached-realip-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 12
+  },
+  "fresh_dns": {
+    "request_id": 8,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/realip-fresh-during-failure",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/realip-fresh-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 15
+  },
+  "engine_up_ms": 2045,
+  "recovered": {
+    "request_id": 9,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/realip-recovered",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/realip-recovered\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 45
+  },
+  "scope": "IPv4 HTTP lab only; shared-IP generic UDP, TTL expiry and ECH remain limitations"
+}

@@ -1,0 +1,13 @@
+{
+  "client": {
+    "request_id": 1,
+    "resolved_ipv4": "10.77.0.20",
+    "error": "Get \"http://selected.test:8080/proxy-endpoint-unavailable\": EOF",
+    "elapsed_ms": 34
+  },
+  "gateway": {
+    "error": "",
+    "ready": true
+  },
+  "watchdog": "up"
+}

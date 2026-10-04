@@ -1,0 +1,12 @@
+{
+  "request_id": 8,
+  "resolved_ipv4": "198.18.0.2",
+  "target": {
+    "local_ip": "10.77.0.20",
+    "path": "/tcp-dns-transparent",
+    "remote_ip": "10.77.0.10"
+  },
+  "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/tcp-dns-transparent\",\"remote_ip\":\"10.77.0.10\"}\n",
+  "proxy_seen_ip": "10.77.0.10",
+  "elapsed_ms": 19
+}

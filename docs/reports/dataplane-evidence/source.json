@@ -1,0 +1,50 @@
+{
+  "direct_priority": {
+    "request_id": 19,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/source-direct-wins",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/source-direct-wins\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 26
+  },
+  "full_direct": {
+    "request_id": 20,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/full-gateway-direct",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/full-gateway-direct\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 80
+  },
+  "source_proxy": {
+    "request_id": 21,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/source-proxy",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/source-proxy\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 28
+  },
+  "fakeip_direct_priority": {
+    "request_id": 9,
+    "resolved_ipv4": "198.18.0.2",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/source-priority-proof",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/source-priority-proof\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 29
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "first_after_boot": {
+    "elapsed_ms": 34286,
+    "uptime": "12s",
+    "disabled": {
+      "mikrocentauri:lab:route:realip": "true",
+      "mikrocentauri:lab:mangle:realip": "true"
+    }
+  },
+  "client": {
+    "request_id": 34,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/after-router-reboot",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/after-router-reboot\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 5039
+  },
+  "logs": [
+    "MC_LAB_REAL_DIRECT: real-IP steering disabled",
+    "MC_LAB_DIRECT: DNS interception and FakeIP steering disabled"
+  ],
+  "preboot_sample_count": 60,
+  "scope": "First REST observation at uptime12s; no proof of guard-before-first-packet ordering. Netwatch deliberately disabled; startup guard independently repaired persisted enabled policy."
+}

@@ -1,98 +1,116 @@
 {
-  "date": "2026-10-04",
+  "date": "2026-10-04 UTC / 2026-10-05 Moscow",
   "routeros": "7.24.5",
-  "status": "NOT RUN",
+  "status": "PARTIAL: CHR transparent cases tested; production acceptance open",
   "scenarios": [
     {
       "id": 1,
       "name": "DIRECT bypass",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Native DIRECT and hybrid bypass"
     },
     {
       "id": 2,
       "name": "Selected domain",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "FakeIP TUN TCP plus UDP/QUIC"
     },
     {
       "id": 3,
       "name": "Distinct egress identity",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Target observes native .1 versus proxy .10"
     },
     {
       "id": 4,
       "name": "Device full tunnel",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "Source .20 proxy for fixture destination; arbitrary full-device tunnel unproved"
     },
     {
       "id": 5,
       "name": "Per-device domain policy",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "DIRECT source .30 overrides selected domain; full device-domain matrix absent"
     },
     {
       "id": 6,
       "name": "DNS on RouterOS",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Router DNS IP retained; UDP/TCP DNAT and native real-IP FWD compared"
     },
     {
       "id": 7,
       "name": "UDP through proxy",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "FakeIP selected UDP echo; marker in VLESS TCP8443 capture and TUN outbound/vless log"
     },
     {
       "id": 8,
       "name": "QUIC",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Verified-certificate real HTTP/3 through VLESS and native DIRECT"
     },
     {
       "id": 9,
       "name": "Proxy failure",
-      "status": "NOT RUN"
+      "status": "FAILED ACCEPTANCE",
+      "evidence": "Remote proxy outage not reflected in local ready=true"
     },
     {
       "id": 10,
       "name": "Container crash fail-open",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "Native DOWN restores new real DNS/DIRECT; cached FakeIP fails"
     },
     {
       "id": 11,
       "name": "Container recovery",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Engine and container restart restore selected VLESS"
     },
     {
       "id": 12,
       "name": "Invalid configuration on router",
-      "status": "NOT RUN"
+      "status": "NOT RUN",
+      "evidence": "Host validator tested separately; invalid active generation on router absent"
     },
     {
       "id": 13,
       "name": "Bad subscription LKG",
-      "status": "NOT RUN"
+      "status": "NOT RUN",
+      "evidence": "Subscription/LKG manager absent"
     },
     {
       "id": 14,
       "name": "Router reboot",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "Startup guard repairs enabled real-IP state; first observation uptime12s, earliest packet ordering unproved"
     },
     {
       "id": 15,
       "name": "App update",
-      "status": "NOT RUN"
+      "status": "NOT RUN",
+      "evidence": "Production app package absent"
     },
     {
       "id": 16,
       "name": "Owned cleanup on router",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "Exact experiment mangle/routes removed; full uninstall controller absent"
     },
     {
       "id": 17,
       "name": "FastTrack",
-      "status": "NOT RUN"
+      "status": "TESTED",
+      "evidence": "Selected conn excludes enabled user FastTrack; native conn fasttrack=true"
     },
     {
       "id": 18,
       "name": "Outbound loop",
-      "status": "NOT RUN"
+      "status": "PARTIAL",
+      "evidence": "Captured successful outgoing VLESS/DNS stay main; exhaustive loop/failover test absent"
     }
   ],
-  "note": "Process-level smoke and mock tests are separately reported; no CHR packet-path evidence yet."
+  "note": "Actual CHR evidence: docs/reports/phase-1-dataplane.md and dataplane-evidence/. Host-only smoke does not independently run these scenarios."
 }

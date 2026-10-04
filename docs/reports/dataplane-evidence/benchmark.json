@@ -1,0 +1,208 @@
+{
+  "environment": "QEMU TCG x86 on macOS arm64; 3 samples/mode, IPv4 HTTP, no load/loss or hardware conclusions",
+  "native_direct": [
+    {
+      "request_id": 15,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2190,
+      "end_to_end_mbps": 0.958,
+      "router_before": {
+        "cpu-load": "6",
+        "free-memory": "150908928",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 16,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2210,
+      "end_to_end_mbps": 0.949,
+      "router_before": {
+        "cpu-load": "0",
+        "free-memory": "150941696",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 17,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2193,
+      "end_to_end_mbps": 0.956,
+      "router_before": {
+        "cpu-load": "0",
+        "free-memory": "150941696",
+        "total-memory": "536870912"
+      }
+    }
+  ],
+  "hybrid_direct": [
+    {
+      "request_id": 19,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2216,
+      "end_to_end_mbps": 0.946,
+      "router_before": {
+        "cpu-load": "4",
+        "free-memory": "150781952",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 20,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2190,
+      "end_to_end_mbps": 0.958,
+      "router_before": {
+        "cpu-load": "0",
+        "free-memory": "150781952",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 21,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2195,
+      "end_to_end_mbps": 0.955,
+      "router_before": {
+        "cpu-load": "0",
+        "free-memory": "150781952",
+        "total-memory": "536870912"
+      }
+    }
+  ],
+  "hybrid_proxy": [
+    {
+      "request_id": 23,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2393,
+      "end_to_end_mbps": 0.876,
+      "router_before": {
+        "cpu-load": "1",
+        "free-memory": "150110208",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 24,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2365,
+      "end_to_end_mbps": 0.887,
+      "router_before": {
+        "cpu-load": "1",
+        "free-memory": "150233088",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 25,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2421,
+      "end_to_end_mbps": 0.866,
+      "router_before": {
+        "cpu-load": "2",
+        "free-memory": "150138880",
+        "total-memory": "536870912"
+      }
+    }
+  ],
+  "full_fixture_direct": [
+    {
+      "request_id": 27,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2286,
+      "end_to_end_mbps": 0.917,
+      "router_before": {
+        "cpu-load": "4",
+        "free-memory": "150233088",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 28,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2198,
+      "end_to_end_mbps": 0.954,
+      "router_before": {
+        "cpu-load": "5",
+        "free-memory": "150171648",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 29,
+      "resolved_ipv4": "10.77.0.20",
+      "proxy_seen_ip": "10.77.0.1",
+      "bytes": 262144,
+      "elapsed_ms": 2340,
+      "end_to_end_mbps": 0.896,
+      "router_before": {
+        "cpu-load": "4",
+        "free-memory": "150171648",
+        "total-memory": "536870912"
+      }
+    }
+  ],
+  "full_fixture_proxy": [
+    {
+      "request_id": 31,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2343,
+      "end_to_end_mbps": 0.895,
+      "router_before": {
+        "cpu-load": "4",
+        "free-memory": "150138880",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 32,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2350,
+      "end_to_end_mbps": 0.892,
+      "router_before": {
+        "cpu-load": "4",
+        "free-memory": "150204416",
+        "total-memory": "536870912"
+      }
+    },
+    {
+      "request_id": 33,
+      "resolved_ipv4": "198.18.0.2",
+      "proxy_seen_ip": "10.77.0.10",
+      "bytes": 262144,
+      "elapsed_ms": 2399,
+      "end_to_end_mbps": 0.874,
+      "router_before": {
+        "cpu-load": "2",
+        "free-memory": "150204416",
+        "total-memory": "536870912"
+      }
+    }
+  ]
+}

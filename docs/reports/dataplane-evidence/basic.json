@@ -1,0 +1,49 @@
+{
+  "baseline": {
+    "routeros": "7.24.5 (stable)",
+    "direct": {
+      "request_id": 1,
+      "resolved_ipv4": "10.77.0.20",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/direct-baseline",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/direct-baseline\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 80
+    }
+  },
+  "hybrid": {
+    "selected": {
+      "request_id": 3,
+      "resolved_ipv4": "198.18.0.2",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/hybrid-selected",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/hybrid-selected\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 76
+    },
+    "direct": {
+      "request_id": 4,
+      "resolved_ipv4": "10.77.0.20",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/hybrid-direct",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/hybrid-direct\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 9
+    },
+    "udp": {
+      "request_id": 5,
+      "resolved_ipv4": "198.18.0.2",
+      "payload": "mikrocentauri-udp-probe",
+      "elapsed_ms": 25
+    }
+  }
+}

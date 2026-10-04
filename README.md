@@ -1,7 +1,7 @@
 # MikroCentauri
 
 RouterOS-native selective routing application. **Current stage: research and
-first dataplane spike, not a functional MVP.** RouterOS remains the main router;
+transparent CHR laboratory, not a functional MVP.** RouterOS remains the main router;
 sing-box is the proposed selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent
@@ -17,7 +17,9 @@ stable: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/versio
 - Private validated atomic output; exact RouterOS ownership planner, scoped REST
   client, mock idempotence/compensation/stale-plan tests.
 - Native QEMU CHR runner, container probe archive builder, and real CHR 7.24.5
-  TUN creation with privileged=no.
+  TUN ingress with privileged=no, retained sources and distinct proxy/DIRECT egress.
+- Real CHR selected TCP/UDP/HTTP3, source priority, bounded full-gateway and Socksify
+  comparisons, native Netwatch stop/recovery, boot guard and FastTrack exceptions.
 - Phase-0 research, license inventory, UX specification, eight ADRs and a draft `/app` manifest.
 
 ## Try the local prototype
@@ -34,12 +36,13 @@ make cross-build
 `generate` writes a validated private sing-box candidate; `plan` prints an offline
 hybrid preview with **disabled** objects against empty router state. It does not
 connect to or mutate your router. Example URI is a disposable lab fixture.
-Full-gateway and Socksify are configuration/experiment candidates, not completed modes.
+Full-gateway and Socksify have bounded CHR experiments, not production modes.
 
 ## Remaining gates
 
-No working RouterOS transparent packet path or fail-open is claimed. See
-[phase report](docs/reports/phase-0-1.md), [dataplane ADR](docs/adr/0001-dataplane.md)
+The transparent CHR path is proved for the lab cases. Complete fail-open, IPv6,
+version/device coverage and production controller durability remain open. See
+[current phase report](docs/reports/phase-1-dataplane.md), [dataplane ADR](docs/adr/0001-dataplane.md)
 and [lab guide](docs/lab.md). Cached FakeIP does not become a public address after
 container failure; that is an explicit architectural acceptance issue.
 

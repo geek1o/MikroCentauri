@@ -1,6 +1,6 @@
 # ADR-0003: DNS selection spike
 
-Status: PROPOSED; local DNS behavior TESTED, RouterOS DNS path NOT RUN.
+Status: DNS/TUN LAB PATH TESTED; FAIL-OPEN/DNS POLICY ACCEPTANCE OPEN.
 
 Pin sing-box 1.14.2 typed UDP bootstrap and typed FakeIP DNS server. Selected exact
 A domains use FakeIP 198.18/15 with TTL 30; selected exact AAAA gets NOERROR/empty.
@@ -19,3 +19,9 @@ can be relied on; macOS explicit proxy tests do not establish TUN behavior.
 Socksify comparison uses real DNS because it lacks domain restoration.
 
 Failure semantics and potential real-IP alternative are governed by ADR-0002.
+
+CHR 7.24.5 now proves transparent selected A over LAN RouterOS DNS and FakeIP
+domain restoration at TUN ingress for TCP/UDP/QUIC. DIRECT source .30 wins over
+selected-domain policy. Cached synthetic addresses fail during engine/container
+absence; real-IP RouterOS FWD alternative is measured in ADR-0009. IPv6 enforcement,
+complex source-domain DNS policies and existing conntrack sessions remain gates.

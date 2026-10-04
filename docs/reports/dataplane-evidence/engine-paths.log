@@ -1,0 +1,80 @@
+mc-gateway-v2: +0000 2026-10-04 20:54:19 WARN inbound/tun[gateway-in]: enable offload: set udp offload: TUNSETOFFLOAD: invalid argument
+mc-gateway-v2: +0000 2026-10-04 20:54:19 INFO inbound/tun[gateway-in]: started at mc-tun
+mc-gateway-v2: +0000 2026-10-04 20:54:42 INFO [2939327644 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:51824
+mc-gateway-v2: +0000 2026-10-04 20:54:42 INFO [2939327644 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v2: +0000 2026-10-04 20:54:42 INFO [2939327644 22ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:54:42 INFO [2939327644 26ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1092630163 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:58050
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1092630163 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1092630163 3ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1092630163 4ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1977363902 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:35884
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1977363902 0ms] inbound/tun[gateway-in]: inbound packet connection to 198.18.0.2:9000
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1977363902 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9000
+mc-gateway-v2: +0000 2026-10-04 20:55:12 INFO [1977363902 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9000
+mc-gateway-v2: +0000 2026-10-04 20:55:26 INFO [3924752902 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:33308
+mc-gateway-v2: +0000 2026-10-04 20:55:26 INFO [3924752902 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:26 INFO [3924752902 3ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:26 INFO [3924752902 5ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v2: +0000 2026-10-04 20:55:37 INFO [1501616997 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:50693
+mc-gateway-v2: +0000 2026-10-04 20:55:37 INFO [1501616997 0ms] inbound/tun[gateway-in]: inbound packet connection to 198.18.0.2:9443
+mc-gateway-v2: +0000 2026-10-04 20:55:37 INFO [1501616997 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v2: +0000 2026-10-04 20:55:37 INFO [1501616997 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v3: +0000 2026-10-04 20:55:41 WARN inbound/tun[gateway-in]: enable offload: set udp offload: TUNSETOFFLOAD: invalid argument
+mc-gateway-v3: +0000 2026-10-04 20:55:41 INFO inbound/tun[gateway-in]: started at mc-tun
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [63605231 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:34698
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [63605231 0ms] inbound/tun[gateway-in]: inbound connection to 10.77.0.20:8080
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [63605231 24ms] outbound/direct[direct]: outbound connection to 10.77.0.20:8080
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [3481054981 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.20:41341
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [3481054981 0ms] inbound/tun[gateway-in]: inbound connection to 10.77.0.20:8080
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [3481054981 4ms] outbound/vless[proxy]: outbound connection to 10.77.0.20:8080
+mc-gateway-v3: +0000 2026-10-04 20:56:16 INFO [3481054981 6ms] outbound/vless[proxy]: outbound connection to 10.77.0.20:8080
+mc-gateway-v3: +0000 2026-10-04 20:56:32 INFO [1996624944 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:54654
+mc-gateway-v3: +0000 2026-10-04 20:56:32 INFO [1996624944 0ms] inbound/tun[gateway-in]: inbound packet connection to 198.18.0.2:9443
+mc-gateway-v3: +0000 2026-10-04 20:56:32 INFO [1996624944 4ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v3: +0000 2026-10-04 20:56:32 INFO [1996624944 4ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v3: +0000 2026-10-04 20:57:19 INFO [1656160616 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:48626
+mc-gateway-v3: +0000 2026-10-04 20:57:19 INFO [1656160616 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 20:57:19 INFO [1656160616 11ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 20:57:19 INFO [1656160616 16ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:11:57 INFO inbound/mixed[explicit-in]: tcp server started at 0.0.0.0:2080
+mc-gateway-v3: +0000 2026-10-04 21:11:57 WARN inbound/tun[gateway-in]: enable offload: set udp offload: TUNSETOFFLOAD: invalid argument
+mc-gateway-v3: +0000 2026-10-04 21:11:57 INFO inbound/tun[gateway-in]: started at mc-tun
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [4119309107 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:50088
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [4119309107 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [4119309107 34ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:55 ERROR [4119309107 44ms] connection: open connection to selected.test:8080 using outbound/vless[proxy]: dial tcp 10.77.0.10:8443: connect: connection refused
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [2374112380 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:50096
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [2374112380 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:55 INFO [2374112380 11ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:55 ERROR [2374112380 16ms] connection: open connection to selected.test:8080 using outbound/vless[proxy]: dial tcp 10.77.0.10:8443: connect: connection refused
+mc-gateway-v3: +0000 2026-10-04 21:13:56 INFO [2147608748 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:50102
+mc-gateway-v3: +0000 2026-10-04 21:13:56 INFO [2147608748 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:56 INFO [2147608748 8ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:13:56 ERROR [2147608748 12ms] connection: open connection to selected.test:8080 using outbound/vless[proxy]: dial tcp 10.77.0.10:8443: connect: connection refused
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [639222148 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:41314
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [639222148 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [639222148 8ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [639222148 12ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1654363217 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:57318
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1654363217 0ms] inbound/tun[gateway-in]: inbound packet connection to 198.18.0.2:9000
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1654363217 1ms] outbound/vless[proxy]: outbound packet connection to selected.test:9000
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1654363217 1ms] outbound/vless[proxy]: outbound packet connection to selected.test:9000
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1925863133 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:41320
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1925863133 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1925863133 2ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1925863133 4ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1371947384 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:42561
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1371947384 0ms] inbound/tun[gateway-in]: inbound packet connection to 198.18.0.2:9443
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1371947384 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1371947384 2ms] outbound/vless[proxy]: outbound packet connection to selected.test:9443
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1572387491 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.10:53420
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1572387491 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1572387491 2ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:19:43 INFO [1572387491 3ms] outbound/vless[proxy]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:20:50 INFO [791100073 0ms] inbound/tun[gateway-in]: inbound connection from 192.168.88.30:57177
+mc-gateway-v3: +0000 2026-10-04 21:20:50 INFO [791100073 0ms] inbound/tun[gateway-in]: inbound connection to 198.18.0.2:8080
+mc-gateway-v3: +0000 2026-10-04 21:20:50 INFO [791100073 5ms] outbound/direct[direct]: outbound connection to selected.test:8080
+mc-gateway-v3: +0000 2026-10-04 21:20:53 INFO [362718533 0ms] inbound/tun[gateway-in]: inbound packet connection from 192.168.88.10:35892
+mc-gateway-v3: +0000 2026-10-04 21:20:53 INFO [362718533 0ms] inbound/tun[gateway-in]: inbound packet connection to 10.77.0.20:9000
+mc-gateway-v3: +0000 2026-10-04 21:20:53 INFO [362718533 1ms] outbound/direct[direct]: outbound packet connection

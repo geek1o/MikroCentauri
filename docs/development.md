@@ -23,3 +23,9 @@ mock/lab testing and lacks production durability/capability/order/verification.
 
 Golden updates require `UPDATE_GOLDEN=1`; review output rather than auto-updating in
 CI. Never commit real URI credentials. Lab UUIDs are public disposable fixtures.
+
+The next lab stage is reproducible with `make dataplane-lab`; see `docs/lab.md` for
+isolated Ethernet/CHR setup and explicit E2E mode order. `make quic-test` covers the
+separate HTTP/3 module. CHR integration tests require a provisioned disposable VM;
+they are not silently part of host-only `make check`. Small actual results and
+capture hashes are committed under `docs/reports/dataplane-evidence`.

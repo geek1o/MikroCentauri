@@ -7,6 +7,9 @@ Controller has no independent authority to modify unowned resources.
 
 Implemented now: strict milestone configuration, VLESS/TCP URI subset, pinned sing-box
 config generator/validator, private atomic output, exact-ownership RouterOS planner,
-REST/mock compensation, lab capability probe and process smoke. Missing full product:
-subscription/group/rules managers, lifecycle supervisor/LKG, native watchdog, API/auth,
-UI, production app image and E2E dataplane. Track gates in ADR-0001 and phase report.
+REST/mock compensation, source-preserving CHR TUN lab, TCP/UDP/HTTP3 traffic,
+native lab watchdog/boot guard and measured alternatives. Missing full product:
+subscription/group/rules managers, lifecycle supervisor/LKG, durable production
+watchdog/controller, API/auth, UI and production app image. Cached FakeIP fallback,
+remote proxy health, full IPv6/device/version policy and zero-loss boot ordering
+remain acceptance gates. Track them in ADR-0001 and the Phase-1 report.

@@ -19,8 +19,8 @@ python3 scripts/chr-lab.py --image /absolute/path/chr-7.24.5.img
 Management binds only 127.0.0.1:22222 (SSH), 18080 (HTTP), LAN socket 19188.
 Use plain console `admin+ct`; set a disposable lab password before enabling HTTP
 REST. Native TCG avoids nested virtualization. A socket-compatible QEMU client NIC
-can connect with `-netdev socket,id=lan,connect=127.0.0.1:19188`. A complete provisioned
-Linux client image is not included; Linux Docker Compose alternative remains future.
+can connect with `-netdev socket,id=lan,connect=127.0.0.1:19188`. Checksum-pinned RAM-root Linux client/server builders are included below; Docker
+is not required.
 
 On a fresh isolated CHR: install matching container package via official NPK upload,
 **graceful `/system/reboot`** (cold QEMU reset is not the install procedure). Enable
@@ -61,8 +61,7 @@ For each A/B/C, collect: TCP, UDP echo, HTTP/3, DNS TCP/UDP, original source, do
 IPv4, IPv6 leak behavior, WAN outbound loop capture, DIRECT through gateway, container
 kill/recovery, router reboot, Netwatch transition times, FastTrack state, throughput,
 latency, packet loss, CPU and RSS. Keep `.pcap` and VM images outside Git; commit small
-sanitized result tables and hashes. `lab/e2e-status.json` records required scenarios
-as NOT RUN until actual CHR packet evidence exists. No fabricated benchmark values.
+sanitized result tables and hashes. `lab/e2e-status.json` distinguishes executed, partial, failed and unrun scenarios. No fabricated benchmark values.
 
 ## Executed CHR result
 
@@ -71,5 +70,83 @@ opened `/dev/net/tun` and created TUN with root `user=0:0`, `privileged=no`. Exa
 capabilities/kernel/feature mask and archive hash are in
 `docs/reports/chr-capability.json`. RouterOS keeps VETH named `mc-probe` inside the
 container; the TUN name must differ (`mc-tun-probe`). The first same-name attempt
-returned EINVAL; privileged mode did not fix the collision. Transparent traffic
-routing and fail-open remain NOT RUN.
+returned EINVAL; privileged mode did not fix the collision. Transparent packet-path/failure experiments are now in
+[the Phase-1 report](reports/phase-1-dataplane.md), with explicit remaining gates.
+
+## Reproduce the isolated Ethernet lab
+
+Run `make bootstrap`, then `make dataplane-lab`. This builds a private gateway
+config, Docker-save archive, static workloads and checksum-pinned Linux RAM-root
+image. It starts no router and accepts no real subscriptions. The musl release is
+explicitly required for Alpine. The separate QUIC module uses its own go.sum.
+Run `make quic-test` for a real loopback HTTP/3/TLS fixture test.
+
+Start each long-running process in its own terminal, **switches before VMs**:
+
+```sh
+python3 scripts/lab-switch.py --port 19188 --pcap .cache/dataplane/lan.pcap
+python3 scripts/lab-switch.py --port 19177 --pcap .cache/dataplane/wan.pcap
+python3 scripts/chr-lab.py --image /absolute/path/official-chr.img --lan-connect --wan-socket 19177
+python3 scripts/linux-lab.py --role client --socket 127.0.0.1:19188
+python3 scripts/linux-lab.py --role server --socket 127.0.0.1:19177 --mac 52:54:00:77:00:10
+python3 -m http.server 18082 --bind 127.0.0.1 --directory .cache/dataplane
+```
+
+Client control: localhost19010; QUIC control19110. Server control19020. The VMs
+have a separate10.0.2.15 control NIC, no control-network IPv4 default route. Control-NIC IPv6 is disabled to avoid
+QEMU RA creating a bypass route; this is lab isolation, not product IPv6 policy. The server
+starts VLESS, target HTTP/DNS/UDP and QUIC; the client starts HTTP workload controls.
+virtio-rng provides fresh boot entropy without disabling TLS checks. LAN aliases
+.20/.30 and server TEST-NET alias203.0.113.20 are local fixtures. RAM-root contents
+are lost on VM shutdown; pinned build inputs remain local.
+
+Prepare only a disposable empty CHR with matching container package/device-mode
+as above. `lab/chr/dataplane.rsc` is an assembled fresh provisioning recipe from
+verified primitives; **its whole fresh one-shot import has not been independently
+replayed**. It rejects existing LAN/account and does not format a disk. It sets up
+LAN, test WAN, gateway VETH, disabled FakeIP and real-IP objects, and a public lab
+REST account. If reusing the older capability-probe disk, inspect existing objects
+instead of importing duplicates. Do not run this on a user/production router.
+
+Inspect the extra container disk and format it manually only on that disposable
+VM. The third NIC changed the observed disk slot to pcie2, so discover actual slots
+rather than assuming pcie1. Transfer the generated gateway-image.tar through the
+admin console; the restricted runtime REST account lacks file-write permission.
+For the observed lab disk layout, import into a fresh root:
+
+```routeros
+/tool/fetch url=http://10.0.2.2:18082/gateway-image.tar dst-path=pcie2/gateway-image.tar
+/container/add file=pcie2/gateway-image.tar interface=mc-probe root-dir=pcie2/mc-gateway logging=yes user=0:0 name=mc-gateway
+/container/start [find where name="mc-gateway"]
+```
+
+Use root with privileged=no, as measured. Do not overwrite a running binary using
+fetch: execution bits are lost and stop is asynchronous. Wait for extraction and
+then for gateway readiness. The fixture's9099 control endpoints are **unauthenticated
+lab controls**, not a deployable management API. They have no RouterOS credentials.
+
+Test A, then install its native watchdog by transferring `lab/chr/watchdog.rsc`
+and importing once through the console. Inspect Netwatch errors; successful import
+alone is not runtime proof. Tests have fixed loopback forwards and lab credentials:
+
+```sh
+python3 tests/e2e/chr_dataplane.py
+python3 tests/e2e/chr_protocols.py
+python3 tests/e2e/chr_failures.py
+```
+
+For D, disable the FakeIP Netwatch, run mc-lab-down, enable the exact static FWD
+record, then import `lab/chr/realip-watchdog.rsc`. Never leave both watchdogs active
+as competing mode controllers. `chr_realip.py` exercises cached real-IP engine
+failure/recovery. `chr_fasttrack.py` installs one-time disposable user FastTrack
+fixtures and managed exceptions in D; it rejects duplicate fixtures.
+`chr_benchmark.py` explicitly switches modes and leaves both watchdogs disabled;
+restore the intended mode manually after it. It measures all **fixture** destinations
+through TUN, not a complete internet exclusion policy.
+
+Read the failure report before interpreting a PASS: cached FakeIP and remote proxy
+outage remain failed acceptance cases. Capture both switches across tests, then
+stop them before hashing. `scripts/summarize-lab-pcap.py` produces endpoint counts
+and capture hashes, not a packet-loss or TCP-reconstruction proof. Keep captures
+local and publish only sanitized summaries. Gracefully stop the gateway and
+shutdown CHR/client/server; never reset the user's original image.

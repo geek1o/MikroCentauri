@@ -1,0 +1,142 @@
+{
+  "selected": {
+    "request_id": 10,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/with-fasttrack",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/with-fasttrack\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 52
+  },
+  "direct": {
+    "request_id": 11,
+    "resolved_ipv4": "203.0.113.20",
+    "target": {
+      "local_ip": "203.0.113.20",
+      "path": "/direct-fasttrack",
+      "remote_ip": "203.0.113.1"
+    },
+    "body": "{\"local_ip\":\"203.0.113.20\",\"path\":\"/direct-fasttrack\",\"remote_ip\":\"203.0.113.1\"}\n",
+    "proxy_seen_ip": "203.0.113.1",
+    "elapsed_ms": 14
+  },
+  "filters": [
+    {
+      ".id": "*2",
+      "action": "passthrough",
+      "bytes": "0",
+      "chain": "forward",
+      "comment": "special dummy rule to show fasttrack counters",
+      "dynamic": "true",
+      "packets": "0"
+    },
+    {
+      ".id": "*4",
+      "action": "accept",
+      "bytes": "863",
+      "chain": "forward",
+      "comment": "mikrocentauri:lab:filter:no-fasttrack",
+      "connection-mark": "mc-lab-selected",
+      "connection-state": "established,related",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "10"
+    },
+    {
+      ".id": "*1",
+      "action": "fasttrack-connection",
+      "bytes": "1659",
+      "chain": "forward",
+      "comment": "disposable-user-fasttrack",
+      "connection-state": "established,related",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "18"
+    },
+    {
+      ".id": "*3",
+      "action": "accept",
+      "bytes": "1659",
+      "chain": "forward",
+      "comment": "disposable-user-established",
+      "connection-state": "established,related",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "18"
+    }
+  ],
+  "lab_connections": [
+    {
+      ".id": "*40",
+      "assured": "true",
+      "confirmed": "true",
+      "dst-address": "203.0.113.20",
+      "dst-port": "8080",
+      "dstnat": "false",
+      "dying": "false",
+      "expected": "false",
+      "fasttrack": "true",
+      "hw-offload": "false",
+      "orig-bytes": "404",
+      "orig-fasttrack-bytes": "0",
+      "orig-fasttrack-packets": "0",
+      "orig-packets": "5",
+      "orig-rate": "0",
+      "protocol": "tcp",
+      "repl-bytes": "476",
+      "repl-fasttrack-bytes": "0",
+      "repl-fasttrack-packets": "0",
+      "repl-packets": "5",
+      "repl-rate": "0",
+      "reply-dst-address": "203.0.113.1",
+      "reply-dst-port": "45650",
+      "reply-src-address": "203.0.113.20",
+      "reply-src-port": "8080",
+      "seen-reply": "true",
+      "src-address": "192.168.88.10",
+      "src-port": "45650",
+      "srcnat": "true",
+      "tcp-state": "time-wait",
+      "timeout": "9s",
+      "uses-helper": "false"
+    },
+    {
+      ".id": "*4C",
+      "assured": "true",
+      "confirmed": "true",
+      "connection-mark": "mc-lab-selected",
+      "dst-address": "10.77.0.20",
+      "dst-port": "8080",
+      "dstnat": "false",
+      "dying": "false",
+      "expected": "false",
+      "fasttrack": "false",
+      "hw-offload": "false",
+      "orig-bytes": "452",
+      "orig-fasttrack-bytes": "0",
+      "orig-fasttrack-packets": "0",
+      "orig-packets": "6",
+      "orig-rate": "0",
+      "protocol": "tcp",
+      "repl-bytes": "471",
+      "repl-fasttrack-bytes": "0",
+      "repl-fasttrack-packets": "0",
+      "repl-packets": "5",
+      "repl-rate": "0",
+      "reply-dst-address": "192.168.88.10",
+      "reply-dst-port": "47158",
+      "reply-src-address": "10.77.0.20",
+      "reply-src-port": "8080",
+      "seen-reply": "true",
+      "src-address": "192.168.88.10",
+      "src-port": "47158",
+      "srcnat": "false",
+      "tcp-state": "time-wait",
+      "timeout": "9s",
+      "uses-helper": "false"
+    }
+  ]
+}

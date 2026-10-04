@@ -1,0 +1,128 @@
+{
+  "engine_stop": {
+    "observed_ms": 2779,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true
+    },
+    "netwatch": "down",
+    "clients": {
+      "direct": {
+        "request_id": 23,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/direct-during-failure",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/direct-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 23
+      },
+      "fresh_selected": {
+        "request_id": 24,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/fresh-dns-during-failure",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/fresh-dns-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 10
+      },
+      "cached_fakeip": {
+        "request_id": 25,
+        "resolved_ipv4": "198.18.0.2",
+        "error": "Get \"http://198.18.0.2:8080/cached-fakeip-during-failure\": dial tcp4 198.18.0.2:8080: i/o timeout",
+        "elapsed_ms": 5004
+      }
+    }
+  },
+  "engine_restart": {
+    "observed_ms": 2886,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false
+    },
+    "netwatch": "up",
+    "client": {
+      "request_id": 26,
+      "resolved_ipv4": "198.18.0.2",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/test",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/test\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 41
+    }
+  },
+  "container_stop": {
+    "observed_ms": 1982,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true
+    },
+    "netwatch": "down",
+    "clients": {
+      "direct": {
+        "request_id": 27,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/direct-during-failure",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/direct-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 20
+      },
+      "fresh_selected": {
+        "request_id": 28,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/fresh-dns-during-failure",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/fresh-dns-during-failure\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 14
+      },
+      "cached_fakeip": {
+        "request_id": 29,
+        "resolved_ipv4": "198.18.0.2",
+        "error": "Get \"http://198.18.0.2:8080/cached-fakeip-during-failure\": dial tcp4 198.18.0.2:8080: i/o timeout",
+        "elapsed_ms": 5002
+      }
+    }
+  },
+  "container_restart": {
+    "observed_ms": 4965,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false
+    },
+    "netwatch": "up",
+    "client": {
+      "request_id": 30,
+      "resolved_ipv4": "198.18.0.2",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/test",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/test\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 35
+    }
+  },
+  "unrelated_filter_mangle_unchanged": true,
+  "acceptance": "FAIL: cached FakeIP cannot recover DIRECT while engine is unavailable"
+}
