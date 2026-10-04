@@ -14,9 +14,26 @@ p = argparse.ArgumentParser()
 p.add_argument('--go', default=str(ROOT / '.cache/go/bin/go'))
 p.add_argument('--config', default=str(ROOT / '.cache/dataplane/gateway.json'))
 p.add_argument('--out', default=str(ROOT / '.cache/dataplane/gateway-image.tar'))
+p.add_argument('--dynamic-dns', action='store_true', help='Explicit isolated dynamic-publication fixture')
 a = p.parse_args()
 out = pathlib.Path(a.out).resolve()
 out.parent.mkdir(parents=True, exist_ok=True)
+config_path = pathlib.Path(a.config)
+if a.dynamic_dns:
+    # Derive the entire fixed lab fixture, not merely its environment switch.
+    candidate = json.loads(config_path.read_text())
+    dns_in = [i for i in candidate['inbounds'] if i.get('tag') == 'dns-in']
+    if len(dns_in) != 1:
+        raise SystemExit('Dynamic lab requires one dns-in listener')
+    dns_in[0]['listen'] = '127.0.0.1'
+    dns_in[0]['listen_port'] = 5354
+    for rules in [candidate['dns']['rules'], candidate['route']['rules']]:
+        for rule in rules:
+            if 'selected.test' in rule.get('domain', []):
+                rule['domain'] = ['selected.test', 'second.test', 'third.test']
+    config_path = out.parent / 'gateway-dynamic.json'
+    config_path.write_text(json.dumps(candidate, indent=2)+'\n')
+    os.chmod(config_path, 0o600)
 binary = out.parent / 'mc-gateway'
 subprocess.run([a.go, 'build', '-buildvcs=false', '-trimpath', '-ldflags=-s -w', '-o', str(binary), './lab/gateway'], cwd=ROOT, env=dict(os.environ, GOOS='linux', GOARCH='amd64', CGO_ENABLED='0'), check=True)
 rootfs = ROOT / '.cache/linux-lab/rootfs.tar.gz'
@@ -31,14 +48,17 @@ with tarfile.open(fileobj=layer, mode='w') as archive:
         member.type = tarfile.DIRTYPE
         member.mode = 0o755
         archive.addfile(member)
-    for name, path, mode in [('bin/mc-gateway', binary, 0o755), ('bin/sing-box', ROOT / '.cache/sing-box-1.14.2-linux-amd64-musl/sing-box', 0o755), ('data/singbox.json', pathlib.Path(a.config), 0o600)]:
+    for name, path, mode in [('bin/mc-gateway', binary, 0o755), ('bin/sing-box', ROOT / '.cache/sing-box-1.14.2-linux-amd64-musl/sing-box', 0o755), ('data/singbox.json', config_path, 0o600)]:
         data = path.read_bytes()
         member = tarfile.TarInfo(name)
         member.mode = mode
         member.size = len(data)
         archive.addfile(member, io.BytesIO(data))
 blob = layer.getvalue()
-config = json.dumps({'architecture': 'amd64', 'os': 'linux', 'config': {'Entrypoint': ['/bin/mc-gateway'], 'Env': ['MC_INTERFACE=mc-probe'], 'WorkingDir': '/'}, 'rootfs': {'type': 'layers', 'diff_ids': ['sha256:' + hashlib.sha256(blob).hexdigest()]}}).encode()
+env = ['MC_INTERFACE=mc-probe']
+if a.dynamic_dns:
+    env += ['MC_DYNAMIC_DNS=1', 'MC_SELECTED_DOMAINS=selected.test,second.test,third.test']
+config = json.dumps({'architecture': 'amd64', 'os': 'linux', 'config': {'Entrypoint': ['/bin/mc-gateway'], 'Env': env, 'WorkingDir': '/'}, 'rootfs': {'type': 'layers', 'diff_ids': ['sha256:' + hashlib.sha256(blob).hexdigest()]}}).encode()
 name = hashlib.sha256(config).hexdigest() + '.json'
 manifest = json.dumps([{'Config': name, 'RepoTags': ['mikrocentauri-gateway:lab'], 'Layers': ['layer/layer.tar']}]).encode()
 with tarfile.open(out, 'w') as archive:

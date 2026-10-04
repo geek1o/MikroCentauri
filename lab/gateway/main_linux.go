@@ -7,9 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"mikrocentauri.local/core/internal/dnsgate"
+	"mikrocentauri.local/core/internal/fakeip"
 	"mikrocentauri.local/core/internal/health"
+	"mikrocentauri.local/core/internal/platform/routeros"
 	"net"
 	"net/http"
+	"net/netip"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -24,6 +28,7 @@ var child *exec.Cmd
 var ready bool
 var lastError string
 var monitor *health.Monitor
+var publisher *fakeip.Publisher
 var _, fakeRange, _ = net.ParseCIDR("198.18.0.0/15")
 
 func ip(args ...string) error { return exec.Command("/sbin/ip", args...).Run() }
@@ -103,6 +108,23 @@ func dnsReady() error {
 type gatewayChecker struct{ proxy health.Checker }
 
 func (g gatewayChecker) Check(ctx context.Context) error {
+	if publisher != nil {
+		if err := publisher.Reconcile(ctx); err != nil {
+			return fmt.Errorf("mapping reconciliation unavailable")
+		}
+		// An engine cache reset must never qualify UP with stale client aliases.
+		resolver := &net.Resolver{PreferGo: true, Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			return (&net.Dialer{}).DialContext(ctx, network, "127.0.0.1:5353")
+		}}
+		for _, m := range publisher.Mappings() {
+			probeCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+			ips, err := resolver.LookupIP(probeCtx, "ip4", m.Domain)
+			cancel()
+			if err != nil || len(ips) != 1 || ips[0].String() != m.Fake.String() {
+				return fmt.Errorf("engine alias generation mismatch")
+			}
+		}
+	}
 	if iface, err := net.InterfaceByName("mc-tun"); err != nil || iface.Flags&net.FlagUp == 0 {
 		return fmt.Errorf("TUN unavailable")
 	}
@@ -138,6 +160,11 @@ func state(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(snapshot)
 }
 func main() {
+	if os.Getenv("MC_DYNAMIC_DNS") == "1" {
+		if err := dynamicDNS(); err != nil {
+			panic(err)
+		}
+	}
 	proxy, err := health.NewHTTPProbe(health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: "http://selected.test:8080/health-canary", ExpectedPeerIP: "10.77.0.10", Timeout: 2 * time.Second})
 	if err != nil {
 		panic(err)
@@ -209,4 +236,50 @@ func main() {
 	if e := http.ListenAndServe(":9099", nil); e != nil {
 		panic(e)
 	}
+}
+
+type labResolver struct{}
+
+func (labResolver) ResolveA(ctx context.Context, domain string) ([]netip.Addr, time.Duration, error) {
+	r := &net.Resolver{PreferGo: true, Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+		return (&net.Dialer{}).DialContext(ctx, network, "10.77.0.20:53")
+	}}
+	ips, err := r.LookupIP(ctx, "ip4", domain)
+	if err != nil {
+		return nil, 0, err
+	}
+	var out []netip.Addr
+	for _, ip := range ips {
+		a, ok := netip.AddrFromSlice(ip)
+		if ok {
+			out = append(out, a.Unmap())
+		}
+	}
+	// Lab upstream TTL is5s. Production resolver needs authoritative TTL/CNAME policy.
+	return out, 5 * time.Second, nil
+}
+func dynamicDNS() error {
+	// Public disposable credentials, only in this explicitly enabled isolated mode.
+	c, err := routeros.NewLabClient("http://172.30.0.1/rest", "mc-lab", "DisposableLabOnly-2026", nil)
+	if err != nil {
+		return err
+	}
+	b, err := routeros.NewLabMappingBackend(c)
+	if err != nil {
+		return err
+	}
+	publisher, err = fakeip.New(fakeip.Config{Directory: "/data/publication", Prefix: netip.MustParsePrefix("198.18.0.0/15"), Capacity: 32}, labResolver{}, b)
+	if err != nil {
+		return err
+	}
+	gate, err := dnsgate.New(dnsgate.Config{InternalAddress: "127.0.0.1:5354", Selected: strings.Split(os.Getenv("MC_SELECTED_DOMAINS"), ",")}, publisher)
+	if err != nil {
+		return err
+	}
+	go func() {
+		if err := gate.Serve(context.Background(), ":5353"); err != nil {
+			panic(err)
+		}
+	}()
+	return nil
 }

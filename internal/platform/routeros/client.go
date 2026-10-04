@@ -82,8 +82,11 @@ func (c *Client) request(ctx context.Context, method, path, id string, fields ma
 	return b, nil
 }
 func (c *Client) Discover(ctx context.Context) ([]Object, error) {
+	return c.discover(ctx, []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch"})
+}
+
+func (c *Client) discover(ctx context.Context, ordered []string) ([]Object, error) {
 	var result []Object
-	ordered := []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch"}
 	for _, path := range ordered {
 		b, e := c.request(ctx, "GET", path, "", nil)
 		if e != nil {

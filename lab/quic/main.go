@@ -44,7 +44,7 @@ type result struct {
 func fixtureCertificate() (tls.Certificate, *x509.CertPool, error) {
 	seed := sha256.Sum256([]byte("MikroCentauri LOCAL QUIC test fixture publicly known key v1"))
 	key := ed25519.NewKeyFromSeed(seed[:])
-	cert := &x509.Certificate{SerialNumber: big.NewInt(777001), Subject: pkix.Name{CommonName: "MikroCentauri LOCAL laboratory"}, NotBefore: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), NotAfter: time.Date(2036, 1, 1, 0, 0, 0, 0, time.UTC), DNSNames: []string{"selected.test", "unselected.test", "localhost"}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("10.77.0.20")}, IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
+	cert := &x509.Certificate{SerialNumber: big.NewInt(777001), Subject: pkix.Name{CommonName: "MikroCentauri LOCAL laboratory"}, NotBefore: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), NotAfter: time.Date(2036, 1, 1, 0, 0, 0, 0, time.UTC), DNSNames: []string{"selected.test", "unselected.test", "second.test", "third.test", "localhost"}, IPAddresses: []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("10.77.0.20")}, IsCA: true, BasicConstraintsValid: true, KeyUsage: x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}}
 	der, err := x509.CreateCertificate(rand.Reader, cert, cert, key.Public(), key)
 	if err != nil {
 		return tls.Certificate{}, nil, err
