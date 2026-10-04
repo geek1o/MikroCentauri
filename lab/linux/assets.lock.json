@@ -1,0 +1,17 @@
+{
+  "version": "3.24.2",
+  "architecture": "x86_64",
+  "assets": [
+    {
+      "name": "netboot.tar.gz",
+      "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-netboot-3.24.2-x86_64.tar.gz",
+      "sha256": "bbdd643360fac384a7933d8bebc7132eb720002e58d1321edcde4a5a3c3b83c6"
+    },
+    {
+      "name": "rootfs.tar.gz",
+      "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-minirootfs-3.24.2-x86_64.tar.gz",
+      "sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677"
+    }
+  ],
+  "checksum_source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/latest-releases.yaml"
+}

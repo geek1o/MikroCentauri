@@ -1,0 +1,39 @@
+{
+  "log": {
+    "level": "info"
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "tag": "lab-vless",
+      "listen": "0.0.0.0",
+      "listen_port": 8443,
+      "users": [
+        {
+          "uuid": "bf000d23-0752-40b4-affe-68f7707a9661"
+        }
+      ]
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct",
+      "inet4_bind_address": "10.77.0.10"
+    }
+  ],
+  "dns": {
+    "servers": [
+      {
+        "type": "udp",
+        "tag": "lab-dns",
+        "server": "10.77.0.20"
+      }
+    ],
+    "final": "lab-dns"
+  },
+  "route": {
+    "final": "direct",
+    "default_domain_resolver": "lab-dns"
+  }
+}
