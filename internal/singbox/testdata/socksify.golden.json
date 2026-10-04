@@ -1,0 +1,88 @@
+{
+  "dns": {
+    "final": "bootstrap",
+    "rules": [],
+    "servers": [
+      {
+        "server": "1.1.1.1",
+        "tag": "bootstrap",
+        "type": "udp"
+      }
+    ]
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "/data/singbox-cache.db",
+      "store_fakeip": true
+    }
+  },
+  "inbounds": [
+    {
+      "listen": "0.0.0.0",
+      "listen_port": 5353,
+      "tag": "dns-in",
+      "type": "direct"
+    },
+    {
+      "listen": "0.0.0.0",
+      "listen_port": 2080,
+      "tag": "explicit-in",
+      "type": "mixed"
+    }
+  ],
+  "log": {
+    "level": "warn"
+  },
+  "outbounds": [
+    {
+      "domain_resolver": "bootstrap",
+      "tag": "direct",
+      "type": "direct"
+    },
+    {
+      "domain_resolver": "bootstrap",
+      "server": "10.77.0.10",
+      "server_port": 8443,
+      "tag": "proxy",
+      "type": "vless",
+      "uuid": "bf000d23-0752-40b4-affe-68f7707a9661"
+    }
+  ],
+  "route": {
+    "default_domain_resolver": "bootstrap",
+    "final": "direct",
+    "rules": [
+      {
+        "action": "hijack-dns",
+        "inbound": [
+          "dns-in"
+        ]
+      },
+      {
+        "action": "sniff"
+      },
+      {
+        "action": "route",
+        "outbound": "direct",
+        "source_ip_cidr": [
+          "192.168.88.30/32"
+        ]
+      },
+      {
+        "action": "route",
+        "outbound": "proxy",
+        "source_ip_cidr": [
+          "192.168.88.20/32"
+        ]
+      },
+      {
+        "action": "route",
+        "domain": [
+          "selected.test"
+        ],
+        "outbound": "proxy"
+      }
+    ]
+  }
+}

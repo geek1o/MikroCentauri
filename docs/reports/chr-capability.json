@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-04",
+  "routeros": "7.24.5",
+  "container_package": "7.24.5",
+  "platform": "CHR x86_64 under QEMU TCG on macOS arm64",
+  "user": "0:0",
+  "privileged": false,
+  "device_mode_container": true,
+  "probe_archive_sha256": "fe88b60b95f8440543ff0d5d83497f5e0688bcb5f44be9a9b95350e18830eba4",
+  "result": {
+    "cap_eff": "0000003fffffffff",
+    "interfaces": "Inter-|   Receive                                                |  Transmit\n face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed\n    lo:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0\nmc-probe:     751      12    0    0    0     0          0         0      810      11    0    0    0     0       0          0\n",
+    "kernel": "Linux version 5.6.3-64 (gitlab-runner@cicd-a13.mt.lv) (gcc version 11.1.0 (GCC)) #1 SMP Tue Sep 29 14:26:47 UTC 2026",
+    "status": "TESTED",
+    "tun_create": true,
+    "tun_device_rdev": 2760,
+    "tun_features": 28979,
+    "tun_features_errno": 0,
+    "tun_open": true
+  },
+  "scope": "TUN device creation only; no transparent forwarding, full dataplane, /app or fail-open proof",
+  "initial_probe_failure": {
+    "requested_tun_name": "mc-probe",
+    "collides_with_veth_name": "mc-probe",
+    "error": "invalid argument",
+    "also_failed_with_privileged": true
+  },
+  "corrected_tun_name": "mc-tun-probe"
+}

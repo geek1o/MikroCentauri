@@ -25,7 +25,7 @@ must be measured independently.
 TESTED: real sing-box check for generated A/B/C config shapes; typed FakeIP A and
 managed AAAA suppression over UDP/TCP DNS; process-only selected VLESS TCP versus
 unselected DIRECT; mock RouterOS ownership/idempotence/compensation/stale-plan tests;
-official CHR 7.24.5 boot on QEMU TCG. See `docs/reports/phase-0-1.md`.
+official CHR 7.24.5 boot/container import and TUN creation with privileged=no on QEMU TCG. See `docs/reports/phase-0-1.md`.
 
 NOT RUN: CHR transparent ingress/source retention, distinct egress identity,
 TCP/UDP/QUIC packet capture, FastTrack, watchdog crash/recovery/reboot and benchmarks.

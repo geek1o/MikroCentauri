@@ -7,7 +7,7 @@ CLI `mikrocentauri`; no project Git remote or public registry has been assigned.
 |---|---|---|
 | RouterOS latest stable | 7.24.5, released 2026-10-01 | [Vendor stable changelog](https://mikrotik.com/download/changelogs?channelFilter=stable) |
 | Minimum installation target | >= 7.22 | [Custom Apps](https://manual.mikrotik.com/docs/containers/apps/); full dataplane support conditional on capability tests, not promised for every 7.22 device |
-| CHR lab | 7.24.5 official raw image | TESTED boot/resource/device-mode only so far; no full packet-path claim |
+| CHR lab | 7.24.5 official raw image | TESTED boot/package/device-mode and non-privileged container TUN creation; no full packet-path claim |
 | sing-box | 1.14.2, `af6e64c3b69e6132ebaee0e1a3d24e93903f6709` | [Release](https://github.com/SagerNet/sing-box/releases/tag/v1.14.2); real check and process smoke executed |
 | Production architectures | linux/arm64, linux/amd64 | Go cross-build targets; RouterOS reports arm64/x86 or CHR x86_64; packaging compatibility not yet tested |
 | Go | 1.27.1 | [Official downloads](https://go.dev/dl/?mode=json); locally verified SHA-256; stdlib only |

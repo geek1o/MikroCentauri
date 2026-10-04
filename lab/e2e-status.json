@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-04",
+  "routeros": "7.24.5",
+  "status": "NOT RUN",
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "DIRECT bypass",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 2,
+      "name": "Selected domain",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 3,
+      "name": "Distinct egress identity",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 4,
+      "name": "Device full tunnel",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 5,
+      "name": "Per-device domain policy",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 6,
+      "name": "DNS on RouterOS",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 7,
+      "name": "UDP through proxy",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 8,
+      "name": "QUIC",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 9,
+      "name": "Proxy failure",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 10,
+      "name": "Container crash fail-open",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 11,
+      "name": "Container recovery",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 12,
+      "name": "Invalid configuration on router",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 13,
+      "name": "Bad subscription LKG",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 14,
+      "name": "Router reboot",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 15,
+      "name": "App update",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 16,
+      "name": "Owned cleanup on router",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 17,
+      "name": "FastTrack",
+      "status": "NOT RUN"
+    },
+    {
+      "id": 18,
+      "name": "Outbound loop",
+      "status": "NOT RUN"
+    }
+  ],
+  "note": "Process-level smoke and mock tests are separately reported; no CHR packet-path evidence yet."
+}

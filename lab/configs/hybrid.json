@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "instance": "lab",
+  "mode": "hybrid",
+  "vless_uri": "vless://bf000d23-0752-40b4-affe-68f7707a9661@10.77.0.10:8443?security=none&type=tcp#Lab-only",
+  "domains": ["selected.test"],
+  "direct_sources": ["192.168.88.30/32"],
+  "proxy_sources": ["192.168.88.20/32"],
+  "fakeip_range": "198.18.0.0/15",
+  "lan_interface": "bridge-lan",
+  "lan_router_ip": "192.168.88.1",
+  "gateway_ip": "172.30.0.2",
+  "dns_upstream": "1.1.1.1"
+}

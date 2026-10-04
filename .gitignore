@@ -12,3 +12,6 @@ state/
 !*.example
 bin/
 coverage.out
+
+__pycache__/
+*.pyc

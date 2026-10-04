@@ -1,6 +1,6 @@
 # RouterOS networking research
 
-Research date: 2026-10-04. Product: MikroCentauri. Evidence labels: **CONFIRMED** means official documentation or release notes; **TESTED** requires a local execution artifact; **ASSUMED** is a design inference; **TODO** requires a RouterOS lab. This document contains no claim that a RouterOS dataplane was executed.
+Research date: 2026-10-04. Product: MikroCentauri. Evidence labels: **CONFIRMED** means official documentation or release notes; **TESTED** requires a local execution artifact; **ASSUMED** is a design inference; **TODO** requires a RouterOS lab. This document contains no claim that a full RouterOS dataplane was executed; the later local capability result is appended below.
 
 ## Version and capability boundaries
 
@@ -101,3 +101,18 @@ RouterOS REST has string-valued scalars, list and singleton responses, `.id` ide
 **TODO before release:** CHR 7.24.5 and a 7.22 compatibility instance; isolated LAN client, direct egress and controlled proxy egress; VETH capture; TUN creation/capability results; TCP/UDP/QUIC checks; FastTrack counter checks; controller/sing-box crash tests; DNS cache behavior; reboot recovery; owned cleanup with unrelated sentinel rules; actual hardware tests for arm64. CHR results establish functionality, not hardware throughput.
 
 Primary aggregate consulted: [RouterOS full manual](https://manual.mikrotik.com/llms-full.txt), fetched locally during research. The live manual has no historical snapshot guarantee; release-specific claims above are separated accordingly.
+
+## Executed capability result (root integration)
+
+**TESTED:** official CHR 7.24.5 on macOS arm64 QEMU TCG, container package 7.24.5,
+device-mode container=yes, imported local amd64 Go probe archive. Container
+`user=0:0`, `privileged=no` opened `/dev/net/tun` and successfully created a distinct
+TUN interface with `TUNSETIFF` (IFF_TUN | IFF_NO_PI). Effective capabilities
+reported `0000003fffffffff`; do not interpret privileged=no as a least-privilege
+network boundary. No router credentials are in the probe.
+
+Initial probe failed EINVAL because its requested interface name matched the
+VETH (`mc-probe`). Renaming TUN to `mc-tun-probe` succeeded; privileged mode alone
+did not fix that collision. See sanitized `docs/reports/chr-capability.json`.
+This proves TUN creation only on this CHR version, not 7.22/hardware, packet
+forwarding, routing setup, source retention, /app import or the complete dataplane.

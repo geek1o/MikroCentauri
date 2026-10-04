@@ -1,0 +1,24 @@
+# DRAFT / NOT IMPORT TESTED: no application image has been published.
+# Replace placeholder only after ADR-0001 and runtime/packaging gates pass.
+name: mikrocentauri
+descr: Selective routing controller and proxy engine
+category: networking
+auto-update: false
+supported-archs:
+  - arm64
+  - x86
+services:
+  core:
+    image: REQUIRED_ACTUAL_IMAGE_AT_IMMUTABLE_DIGEST
+    container_name: mikrocentauri
+    environment:
+      MC_ROUTER_IP: "[routerIP]"
+      MC_CONTAINER_IP: "[containerIP]"
+      MC_CONTAINER_INTERFACE: "[containerInterface]"
+    ports:
+      - "8080:8080:web"
+    volumes:
+      - state:/var/lib/mikrocentauri
+    restart: unless-stopped
+volumes:
+  state:
