@@ -13,5 +13,9 @@
       "sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677"
     }
   ],
-  "checksum_source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/latest-releases.yaml"
+  "checksum_source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/latest-releases.yaml",
+  "sing_box_musl": {
+    "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-amd64-musl.tar.gz",
+    "sha256": "8f6cb4bcf94d2b33c65d52e0d5b142db29a938336f1ff7267f397ac3758fc297"
+  }
 }

@@ -18,8 +18,8 @@ a = p.parse_args()
 out = pathlib.Path(a.out).resolve()
 out.parent.mkdir(parents=True, exist_ok=True)
 binary = out.parent / 'mc-gateway'
-subprocess.run([a.go, 'build', '-trimpath', '-ldflags=-s -w', '-o', str(binary), './lab/gateway'], cwd=ROOT, env=dict(os.environ, GOOS='linux', GOARCH='amd64', CGO_ENABLED='0'), check=True)
-rootfs = ROOT / '.cache/alpine-minirootfs.tar.gz'
+subprocess.run([a.go, 'build', '-buildvcs=false', '-trimpath', '-ldflags=-s -w', '-o', str(binary), './lab/gateway'], cwd=ROOT, env=dict(os.environ, GOOS='linux', GOARCH='amd64', CGO_ENABLED='0'), check=True)
+rootfs = ROOT / '.cache/linux-lab/rootfs.tar.gz'
 assert hashlib.sha256(rootfs.read_bytes()).hexdigest() == 'c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677'
 layer = io.BytesIO()
 with tarfile.open(fileobj=layer, mode='w') as archive:

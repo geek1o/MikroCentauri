@@ -23,6 +23,7 @@ var requestSequence atomic.Uint64
 type workloadRequest struct {
 	Domain  string `json:"domain"`
 	Address string `json:"address"`
+	DNSTCP  bool   `json:"dns_tcp"`
 	Port    int    `json:"port"`
 	Source  string `json:"source"`
 	Path    string `json:"path"`
@@ -36,6 +37,7 @@ type workloadResult struct {
 	Payload      string `json:"payload,omitempty"`
 	ProxySeenIP  string `json:"proxy_seen_ip,omitempty"`
 	Error        string `json:"error,omitempty"`
+	Bytes        int64  `json:"bytes,omitempty"`
 	ElapsedMS    int64  `json:"elapsed_ms"`
 }
 
@@ -94,6 +96,17 @@ func targetHTTP(w http.ResponseWriter, r *http.Request) {
 	localIP := ""
 	if local != nil {
 		localIP = hostOnly(local.String())
+	}
+	if r.URL.Path == "/bench" {
+		n, err := strconv.Atoi(r.URL.Query().Get("bytes"))
+		if err != nil || n < 1 || n > 8*1024*1024 {
+			http.Error(w, "bytes outside lab limit", 400)
+			return
+		}
+		w.Header().Set("Content-Length", strconv.Itoa(n))
+		w.Header().Set("X-Lab-Remote-IP", hostOnly(r.RemoteAddr))
+		_, _ = io.WriteString(w, strings.Repeat("x", n))
+		return
 	}
 	log.Printf("target request remote=%s path=%q", hostOnly(r.RemoteAddr), r.URL.Path)
 	writeJSON(w, map[string]string{"remote_ip": hostOnly(r.RemoteAddr), "local_ip": localIP, "path": r.URL.RequestURI()})
@@ -159,7 +172,12 @@ func labResolver(dns, source string) *net.Resolver {
 }
 func runWorkload(ctx context.Context, dns string, req workloadRequest, udp bool) (out workloadResult) {
 	fail := func(err error) workloadResult { out.Error = err.Error(); return out }
-	ips, err := labResolver(dns, req.Source).LookupIP(ctx, "ip4", req.Domain)
+	resolver := labResolver(dns, req.Source)
+	if req.DNSTCP {
+		dial := resolver.Dial
+		resolver.Dial = func(ctx context.Context, network, address string) (net.Conn, error) { return dial(ctx, "tcp", address) }
+	}
+	ips, err := resolver.LookupIP(ctx, "ip4", req.Domain)
 	if err != nil {
 		return fail(fmt.Errorf("resolve: %w", err))
 	}
@@ -219,6 +237,17 @@ func runWorkload(ctx context.Context, dns string, req workloadRequest, udp bool)
 		return fail(err)
 	}
 	defer response.Body.Close()
+	if response.Header.Get("X-Lab-Remote-IP") != "" {
+		out.ProxySeenIP = response.Header.Get("X-Lab-Remote-IP")
+		out.Bytes, err = io.Copy(io.Discard, io.LimitReader(response.Body, 8*1024*1024+1))
+		if err != nil {
+			return fail(err)
+		}
+		if response.StatusCode != 200 || out.Bytes != response.ContentLength {
+			return fail(errors.New("incomplete benchmark transfer"))
+		}
+		return out
+	}
 	body, err := io.ReadAll(io.LimitReader(response.Body, 65536))
 	if err != nil {
 		return fail(err)

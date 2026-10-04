@@ -1,7 +1,7 @@
-# DISPOSABLE CHR 7.24.5 LAB ONLY. Syntax/runtime and reboot ordering NOT YET TESTED.
+# DISPOSABLE CHR 7.24.5 LAB ONLY. Import and native stop/recovery TESTED; zero-loss boot ordering unproved.
 # Assumes disabled, uniquely commented route + TCP/UDP DNS NAT from instance lab.
 # Dedicated root readiness listener: 172.30.0.2:9099. 200 means applied generation
-# and engine/DNS/forwarding are ready; API liveness must never produce a false 200.
+# and engine/DNS/TUN ingress are ready; remote-proxy readiness remains a gate.
 # Exact object allowlist; do not expand to all mikrocentauri:* objects.
 # One-shot install: abort if any watchdog object already exists.
 :if ([:len [/system/script/find where name="mc-lab-down"]] != 0) do={ :error "mc-lab-down already exists" }

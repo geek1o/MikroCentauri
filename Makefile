@@ -21,3 +21,9 @@ cross-build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-arm64 ./cmd/mikrocentauri
 probe:
 	python3 scripts/build-probe.py --go "$(GO)"
+
+.PHONY: dataplane-lab quic-test
+dataplane-lab:
+	python3 scripts/prepare-dataplane-lab.py
+quic-test:
+	cd lab/quic && $(abspath $(GO)) test -race ./... && $(abspath $(GO)) vet ./...
