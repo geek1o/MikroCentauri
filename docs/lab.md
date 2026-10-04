@@ -188,3 +188,46 @@ cached-IP failure and immediate startup readiness. Use the new Phase-2 tests aft
 installing the new scripts. Results: [Phase-2 report](reports/phase-2-resilience.md).
 This static map is not general FakeIP fail-open; existing conntrack, boot ordering,
 dynamic mapping publication and capacity are still acceptance gates.
+
+
+## Phase 3: dynamic publication gate
+
+Prepare the same Linux assets (additional second.test/third.test DNS and certificate
+names are included), then build the explicit dynamic fixture:
+
+```sh
+make dataplane-lab
+python3 scripts/build-gateway-lab.py --dynamic-dns --out .cache/dataplane/phase3-gateway.tar
+```
+
+The builder derives the private loopback5354 allocator listener, the external5353
+publication gate and the three exact selected domains. It retains native FakeIP
+processing in sing-box, including UDP translation. Use a fresh container root and
+name `mc-gateway-phase3`; stop older generations sharing `mc-probe` first. As admin,
+allow the lab HTTP REST service from `10.0.2.0/24,172.30.0.0/24` using
+`/ip/service/set www available-from=10.0.2.0/24,172.30.0.0/24`. This grants only the
+public isolated fixture path, not a production installation recipe.
+
+Import `lab/chr/dynamic-fallback.rsc` once after the Phase-2 watchdog; it disables
+old static fallback and replaces the existing UP/DOWN sources with a dedicated
+backup-chain jump. Do not leave the real-IP watchdog or older gateway active.
+The initial dynamic chain must have no test mappings; the publisher creates them.
+
+```sh
+python3 tests/e2e/chr_dynamic_publication.py
+```
+
+The runner requires a fresh three-domain fixture. It verifies two initially
+published aliases, rejects the real gateway-to-REST transport (including existing
+HTTP keep-alive sockets), checks that third.test gets no address/new router map,
+restores control and publishes the third alias, stops the entire container and
+checks cached TCP/UDP/HTTP3 DIRECT access, then verifies restored PROXY and stable
+aliases after restart. A temporary exact input-filter rule is removed in `finally`.
+Initial/recovery publication attempts are retained, including any transient DNS
+SERVFAIL; positive readiness is not a promise of error-free cold DNS requests.
+
+Service access-list edits alone do not stop already open control connections.
+The runner therefore rejects only172.30.0.2->172.30.0.1 TCP80 in the disposable
+router, while host management remains accessible. Generic arbitrary-domain,
+CNAME, address churn, alias reuse, capacity and boot/power-loss behavior are outside
+this fixture. See [Phase-3 report](reports/phase-3-publication.md).

@@ -1,0 +1,64 @@
+{
+  "maps": [
+    {
+      ".id": "*11",
+      "action": "dst-nat",
+      "bytes": "1419",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120002",
+      "disabled": "false",
+      "dst-address": "198.18.0.2",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "3",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    },
+    {
+      ".id": "*12",
+      "action": "dst-nat",
+      "bytes": "1419",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+      "disabled": "false",
+      "dst-address": "198.18.0.3",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "3",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    },
+    {
+      ".id": "*13",
+      "action": "dst-nat",
+      "bytes": "1419",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120004",
+      "disabled": "false",
+      "dst-address": "198.18.0.4",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "3",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    }
+  ],
+  "jump": [
+    {
+      ".id": "*7",
+      "action": "jump",
+      "bytes": "4257",
+      "chain": "dstnat",
+      "comment": "mikrocentauri:lab:nat:dynamic-jump",
+      "disabled": "true",
+      "dst-address": "198.18.0.0/15",
+      "dynamic": "false",
+      "in-interface": "bridge-lan",
+      "invalid": "false",
+      "jump-target": "mc-dynamic-backup",
+      "packets": "9",
+      "src-address": "192.168.88.0/24"
+    }
+  ],
+  "temporary_control_filter_absent": true
+}

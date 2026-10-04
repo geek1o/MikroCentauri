@@ -33,3 +33,9 @@ capture hashes are committed under `docs/reports/dataplane-evidence`.
 
 Phase-2 native tests and private controller journal setup are described in
 [the lab guide](lab.md#phase-2-proxy-health-static-cached-ip-fallback-and-durable-controller).
+
+
+`internal/fakeip` implements the bounded durable publication barrier;
+`internal/dnsgate` enforces it on UDP/TCP DNS responses. `PublishAlias` preserves
+sing-box's allocator; standalone `Publish` is a protocol fixture, not an injection
+API into the engine. The RouterOS mapping backend and dynamic gateway stay lab-only.

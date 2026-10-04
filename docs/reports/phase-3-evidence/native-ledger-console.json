@@ -1,0 +1,39 @@
+{
+  "source": "Administrator container console after restart; exact observed fields",
+  "directory_mode": "0700",
+  "file_mode": "0600",
+  "journal": {
+    "version": 1,
+    "prefix": "198.18.0.0/15",
+    "capacity": 32,
+    "records": [
+      {
+        "mapping": {
+          "domain": "selected.test",
+          "fake": "198.18.0.2",
+          "real": "10.77.0.20"
+        },
+        "ttl_seconds": 5,
+        "ready": true
+      },
+      {
+        "mapping": {
+          "domain": "second.test",
+          "fake": "198.18.0.3",
+          "real": "10.77.0.20"
+        },
+        "ttl_seconds": 5,
+        "ready": true
+      },
+      {
+        "mapping": {
+          "domain": "third.test",
+          "fake": "198.18.0.4",
+          "real": "10.77.0.20"
+        },
+        "ttl_seconds": 5,
+        "ready": true
+      }
+    ]
+  }
+}

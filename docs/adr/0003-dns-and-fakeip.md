@@ -25,3 +25,10 @@ domain restoration at TUN ingress for TCP/UDP/QUIC. DIRECT source .30 wins over
 selected-domain policy. Cached synthetic addresses fail during engine/container
 absence; real-IP RouterOS FWD alternative is measured in ADR-0009. IPv6 enforcement,
 complex source-domain DNS policies and existing conntrack sessions remain gates.
+
+
+Phase 3 retains the engine allocator behind a loopback DNS listener and gates
+selected A publication on durable router-map verification. Native fallback now
+handles three pinned aliases after container loss; the earlier failure above is
+Phase-1 history. See [ADR-0011](0011-dynamic-dns-publication.md) and
+[Phase-3 report](../reports/phase-3-publication.md). General cache lifecycle remains open.

@@ -15,3 +15,12 @@ native lab watchdog now exist; production ownership, placement, capability and
 activation integration remain incomplete. Health uses one controlled lab canary;
 production requires configured trusted HTTPS and explicit outbound policy. These
 are tracked requirements, not claims that the system is hardened.
+
+
+Dynamic-publication mode is explicitly lab-only. It uses the public disposable
+REST account from inside the gateway; the example HTTP service is restricted to
+lab management/container subnets. Production TLS, scoped credentials and router
+identity binding are not implemented by that fixture. The engine DNS allocator
+is loopback-only; unverified aliases are never returned by the publication gate.
+The ledger is private and contains no backend credentials. There is no ledger
+inspection endpoint accessible to LAN clients.

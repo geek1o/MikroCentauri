@@ -101,3 +101,9 @@ map cardinality and ownership. Unrelated or broad earlier NAT rules must not sha
 backup translation. No dynamic allocator, durable acknowledgment protocol, complete
 conntrack handoff, measured boot bound, or production capacity claim is implemented
 by this experiment.
+
+
+Phase 3 implements the initial dynamic publication barrier with enabled immutable
+maps in a dedicated chain and a single native mode jump; see
+[ADR-0011](0011-dynamic-dns-publication.md). The static experiment and its production
+blockers remain historical evidence; complete lifecycle/boot acceptance is still open.

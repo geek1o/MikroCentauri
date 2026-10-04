@@ -1,0 +1,141 @@
+{
+  "file": "phase3-lan.pcap",
+  "response_counts": {
+    "second.test:rcode=0": 16,
+    "selected.test:rcode=0": 7,
+    "third.test:rcode=0": 5,
+    "second.test:rcode=2": 8,
+    "third.test:rcode=2": 8
+  },
+  "servfail_without_alias": [
+    {
+      "time_utc_epoch": 1791151648.435192,
+      "id": 42512,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151648.48183,
+      "id": 6464,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151754.044782,
+      "id": 11222,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151754.04952,
+      "id": 34180,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151755.149826,
+      "id": 5908,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151755.19415,
+      "id": 45974,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151947.555333,
+      "id": 39134,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151947.600946,
+      "id": 12155,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151948.463205,
+      "id": 39504,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791151948.468071,
+      "id": 23454,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152297.630854,
+      "id": 49624,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152297.644155,
+      "id": 52780,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152298.191738,
+      "id": 9978,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152298.209279,
+      "id": 7132,
+      "domain": "second.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152298.835229,
+      "id": 19215,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    },
+    {
+      "time_utc_epoch": 1791152298.839706,
+      "id": 26904,
+      "domain": "third.test",
+      "rcode": 2,
+      "answer_count": 0,
+      "a": []
+    }
+  ],
+  "scope": "Public fixture UDP DNS response witnesses; not loss or timing bounds"
+}
