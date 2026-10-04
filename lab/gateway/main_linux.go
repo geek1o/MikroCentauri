@@ -7,11 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"mikrocentauri.local/core/internal/health"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -21,6 +23,7 @@ var mu sync.Mutex
 var child *exec.Cmd
 var ready bool
 var lastError string
+var monitor *health.Monitor
 var _, fakeRange, _ = net.ParseCIDR("198.18.0.0/15")
 
 func ip(args ...string) error { return exec.Command("/sbin/ip", args...).Run() }
@@ -48,6 +51,7 @@ func start() error {
 		if child == cmd {
 			child = nil
 			ready = false
+			monitor.SetLocalReady(false)
 			lastError = fmt.Sprint(e)
 		}
 		mu.Unlock()
@@ -88,29 +92,72 @@ func dnsReady() error {
 	if err != nil {
 		return fmt.Errorf("DNS probe: %w", err)
 	}
-	if len(ips) == 0 || !fakeRange.Contains(ips[0]) {
+	if len(ips) == 0 || !fakeRange.Contains(ips[0]) || ips[0].String() != "198.18.0.2" {
 		return fmt.Errorf("DNS probe: selected fixture not FakeIP")
 	}
 	return nil
 }
+
+// The static cached-IP experiment qualifies its one known mapping before UP.
+// This is not a dynamic DNS publication protocol for arbitrary FakeIP addresses.
+type gatewayChecker struct{ proxy health.Checker }
+
+func (g gatewayChecker) Check(ctx context.Context) error {
+	if iface, err := net.InterfaceByName("mc-tun"); err != nil || iface.Flags&net.FlagUp == 0 {
+		return fmt.Errorf("TUN unavailable")
+	}
+	if err := dnsReady(); err != nil {
+		return err
+	}
+	iface := os.Getenv("MC_INTERFACE")
+	if iface == "" {
+		iface = "mc-probe"
+	}
+	rules, err := exec.CommandContext(ctx, "/sbin/ip", "rule", "list").Output()
+	if err != nil || !strings.Contains(string(rules), "iif "+iface+" lookup 100") {
+		return fmt.Errorf("ingress policy unavailable")
+	}
+	route, err := exec.CommandContext(ctx, "/sbin/ip", "route", "show", "table", "100").Output()
+	if err != nil || !strings.Contains(string(route), "default dev mc-tun") {
+		return fmt.Errorf("ingress route unavailable")
+	}
+	return g.proxy.Check(ctx)
+}
 func state(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
-	ok, reason := ready && child != nil, lastError
+	local := ready && child != nil
 	mu.Unlock()
-	if ok {
-		if iface, err := net.InterfaceByName("mc-tun"); err != nil || iface.Flags&net.FlagUp == 0 {
-			ok, reason = false, "TUN unavailable"
-		} else if err := dnsReady(); err != nil {
-			ok, reason = false, err.Error()
-		}
+	if !local {
+		monitor.SetLocalReady(false)
 	}
+	snapshot := monitor.Snapshot()
 	w.Header().Set("Content-Type", "application/json")
-	if !ok {
+	if !snapshot.Ready {
 		w.WriteHeader(503)
 	}
-	json.NewEncoder(w).Encode(map[string]any{"ready": ok, "error": reason})
+	json.NewEncoder(w).Encode(snapshot)
 }
 func main() {
+	proxy, err := health.NewHTTPProbe(health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: "http://selected.test:8080/health-canary", ExpectedPeerIP: "10.77.0.10", Timeout: 2 * time.Second})
+	if err != nil {
+		panic(err)
+	}
+	monitor, err = health.NewMonitor(gatewayChecker{proxy}, health.Settings{Failures: 2, Successes: 3, Interval: time.Second})
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		ticker := time.NewTicker(time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			mu.Lock()
+			local := ready && child != nil
+			mu.Unlock()
+			monitor.SetLocalReady(local)
+			monitor.Sample(context.Background())
+		}
+	}()
+
 	if e := start(); e != nil {
 		mu.Lock()
 		lastError = e.Error()
@@ -130,6 +177,7 @@ func main() {
 			child.Process.Kill()
 		}
 		mu.Unlock()
+		monitor.SetLocalReady(false)
 		w.WriteHeader(202)
 	})
 	http.HandleFunc("/control/start", func(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +189,9 @@ func main() {
 			http.Error(w, e.Error(), 409)
 			return
 		}
-		state(w, r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(202)
+		json.NewEncoder(w).Encode(map[string]bool{"starting": true})
 	})
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)

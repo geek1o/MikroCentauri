@@ -49,6 +49,9 @@ func (c *Client) request(ctx context.Context, method, path, id string, fields ma
 	u.Path = strings.TrimSuffix(u.Path, "/") + "/" + path
 	if id != "" {
 		u.Path += "/" + id
+		// RouterOS REST does not accept percent-encoded '*' in object IDs.
+		// Preserve that literal character while escaping every other path byte.
+		u.RawPath = strings.ReplaceAll(u.EscapedPath(), "%2A", "*")
 	}
 	var body io.Reader
 	if fields != nil {

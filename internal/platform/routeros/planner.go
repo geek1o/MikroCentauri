@@ -47,7 +47,7 @@ func kind(path string) string {
 }
 func key(o Object) string { return o.Path + "|" + o.Fields["comment"] }
 func Plan(instance string, current, desired []Object) (ChangePlan, error) {
-	p := ChangePlan{Instance: instance, Gate: "NOT RUN: CHR dataplane/capability/FastTrack/watchdog proof required", Changes: []Change{}}
+	p := ChangePlan{Instance: instance, Gate: "NOT RUN: production activation requires dynamic FakeIP fail-open, capability/placement and controller/watchdog integration", Changes: []Change{}}
 	if !instancePattern.MatchString(instance) {
 		return p, errors.New("invalid ownership instance")
 	}
