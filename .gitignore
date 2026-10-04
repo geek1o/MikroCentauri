@@ -1,0 +1,14 @@
+.cache/
+state/
+*.img
+*.qcow2
+*.iso
+*.pcap
+*.pcapng
+*.npk
+*.tar.gz
+.env
+.env.*
+!*.example
+bin/
+coverage.out
