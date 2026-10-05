@@ -22,9 +22,12 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: mikrocentauri generate|plan|router-inspect|router-plan|router-stage|router-reconcile|router-recover|router-managed-plan|router-watchdog-plan|router-apply|router-managed-reconcile|router-managed-recover|router-rollback|router-verify|router-cleanup (see command -h)")
+		return fmt.Errorf("usage: mikrocentauri generate|plan|core-generate|core-check|endpoint-preview|subscription-refresh|subscription-run|subscription-status|router-inspect|router-plan|router-stage|router-reconcile|router-recover|router-managed-plan|router-watchdog-plan|router-apply|router-managed-reconcile|router-managed-recover|router-rollback|router-verify|router-cleanup (see command -h)")
 	}
 	action := os.Args[1]
+	if strings.HasPrefix(action, "core-") || strings.HasPrefix(action, "subscription-") || action == "endpoint-preview" {
+		return coreCommand(action, os.Args[2:])
+	}
 	if strings.HasPrefix(action, "router-") {
 		return routerCommand(action, os.Args[2:])
 	}

@@ -11,6 +11,8 @@ baseline: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/vers
 ## Implemented and verified
 
 - Strict VLESS/TCP URI and milestone configuration parsing, rejecting unsupported options.
+- Generalized core v2: four-protocol URI import, private subscription LKG,
+  selector/URLTest/fallback policy, ordered rules and DNS generation; see [core guide](docs/core.md).
 - Version-pinned sing-box generator, three golden fixtures, real `sing-box check`.
 - Real local VLESS TCP and DIRECT routing smoke, typed FakeIP DNS over UDP/TCP,
   selected AAAA suppression, invalid-candidate preservation.

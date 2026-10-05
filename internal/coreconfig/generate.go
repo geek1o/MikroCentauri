@@ -1,0 +1,128 @@
+package coreconfig
+
+import (
+	"encoding/json"
+	"errors"
+	"strings"
+)
+
+type object = map[string]any
+
+// Options are private process listeners. External DNS publication belongs to
+// dnsgate and traffic activation belongs to the RouterOS activation controller.
+type Options struct {
+	DNSPort   uint16
+	MixedPort uint16
+}
+
+func Generate(m Model) ([]byte, error)       { return GenerateWithOptions(m, Options{5353, 2080}) }
+func GeneratePinned(m Model) ([]byte, error) { return Generate(m) }
+func GenerateWithOptions(m Model, o Options) ([]byte, error) {
+	if e := m.Validate(); e != nil {
+		return nil, e
+	}
+	if o.DNSPort == 0 || o.MixedPort == 0 || o.DNSPort == o.MixedPort {
+		return nil, errors.New("invalid private listener ports")
+	}
+	out := []object{{"type": "direct", "tag": "direct", "domain_resolver": "bootstrap"}}
+	for _, ep := range m.Endpoints {
+		if ep.Enabled {
+			ob := ep.Outbound(ep.ID)
+			ob["domain_resolver"] = "bootstrap"
+			out = append(out, ob)
+		}
+	}
+	for _, g := range m.Groups {
+		typ := g.Type
+		if typ == "fallback" {
+			typ = "selector"
+		}
+		ob := object{"type": typ, "tag": g.ID, "outbounds": g.Members, "interrupt_exist_connections": false}
+		if typ == "selector" {
+			selected := g.Selected
+			if selected == "" {
+				selected = g.Members[0]
+			}
+			ob["default"] = selected
+		} else {
+			if g.URL != "" {
+				ob["url"] = g.URL
+			}
+			if g.Interval != "" {
+				ob["interval"] = g.Interval
+			}
+			if g.Tolerance != 0 {
+				ob["tolerance"] = g.Tolerance
+			}
+		}
+		out = append(out, ob)
+	}
+	route := []object{{"inbound": []string{"dns-in"}, "action": "hijack-dns"}}
+	if len(m.SourceDirect) > 0 {
+		route = append(route, object{"source_ip_cidr": m.SourceDirect, "action": "route", "outbound": "direct"})
+	}
+	for _, s := range m.SourceProxy {
+		route = append(route, object{"source_ip_cidr": s.CIDRs, "action": "route", "outbound": s.Outbound})
+	}
+	// The FakeIP matcher receives rewritten domain metadata, so CIDR-based sniff
+	// exclusion does not preserve alias identity. Terminal exact domain rules must
+	// precede sniff. Classification beyond this known set can use sniff later.
+	if m.Mode != "socksify" {
+		for _, domain := range m.DNS.SelectedDomains {
+			route = append(route, object{"domain": []string{domain}, "action": "route", "outbound": m.SelectedOutbound(domain)})
+		}
+	}
+	route = append(route, object{"action": "sniff"})
+	for _, r := range m.Rules {
+		ob := object{"action": "route", "outbound": r.Outbound}
+		if len(r.Domains) > 0 {
+			ob["domain"] = r.Domains
+		}
+		if len(r.Suffixes) > 0 {
+			ob["domain_suffix"] = r.Suffixes
+		}
+		if len(r.DestinationCIDRs) > 0 {
+			ob["ip_cidr"] = r.DestinationCIDRs
+		}
+		if len(r.Ports) > 0 {
+			ob["port"] = r.Ports
+		}
+		if r.Network != "" {
+			ob["network"] = r.Network
+		}
+		route = append(route, ob)
+	}
+	servers := []object{{"type": "udp", "tag": "bootstrap", "server": m.DNS.Bootstrap}}
+	dnsRules := []object{}
+	if m.Mode != "socksify" && len(m.DNS.SelectedDomains) > 0 {
+		servers = append(servers, object{"type": "fakeip", "tag": "fakeip", "inet4_range": m.DNS.FakeIPRange})
+		dnsRules = append(dnsRules, object{"domain": m.DNS.SelectedDomains, "query_type": []string{"AAAA"}, "action": "predefined", "rcode": "NOERROR"}, object{"domain": m.DNS.SelectedDomains, "query_type": []string{"A"}, "action": "route", "server": "fakeip", "rewrite_ttl": 30})
+	}
+	in := []object{{"type": "direct", "tag": "dns-in", "listen": "127.0.0.1", "listen_port": o.DNSPort}, {"type": "mixed", "tag": "explicit-in", "listen": "127.0.0.1", "listen_port": o.MixedPort}}
+	if m.Mode != "socksify" {
+		in = append(in, object{"type": "tun", "tag": "gateway-in", "interface_name": "mc-tun", "address": []string{"172.31.255.1/30"}, "mtu": 1500, "auto_route": false, "stack": "gvisor"})
+	}
+	result := object{"log": object{"level": "warn"}, "dns": object{"servers": servers, "rules": dnsRules, "final": "bootstrap"}, "inbounds": in, "outbounds": out, "route": object{"rules": route, "final": m.DefaultOutbound, "default_domain_resolver": "bootstrap"}, "experimental": object{"cache_file": object{"enabled": true, "path": m.DNS.CachePath, "store_fakeip": m.Mode != "socksify"}}}
+	return json.MarshalIndent(result, "", "  ")
+}
+
+// SelectedOutbound finds a domain-only route for immutable FakeIP binding.
+// Ports/network qualifiers cannot change a previously published alias identity.
+func (m Model) SelectedOutbound(domain string) string {
+	for _, r := range m.Rules {
+		if len(r.Ports) > 0 || r.Network != "" || len(r.DestinationCIDRs) > 0 {
+			continue
+		}
+		for _, d := range r.Domains {
+			if d == domain {
+				return r.Outbound
+			}
+		}
+		for _, s := range r.Suffixes {
+			if domain == s || strings.HasSuffix(domain, "."+s) {
+				return r.Outbound
+			}
+		}
+	}
+	return m.DefaultOutbound
+}
