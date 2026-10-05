@@ -1,0 +1,89 @@
+[
+  {
+    "file": "phase4-lan.pcap",
+    "sha256": "9a139fa8806f04e9c2720ef732b228a47423329051ce628b2656209e351e5271",
+    "bytes": 214668,
+    "ethernet_packets": 1192,
+    "ipv6_frames": 26,
+    "flows": [
+      {
+        "protocol": "tcp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.3",
+        "destination_port": 8080,
+        "packets": 120
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "192.168.88.1",
+        "destination_port": 53,
+        "packets": 25
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.3",
+        "destination_port": 9000,
+        "packets": 15
+      },
+      {
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.18.0.3",
+        "destination_port": 9443,
+        "packets": 97
+      }
+    ],
+    "realip_udp_marker": [],
+    "proxy_udp_marker": [],
+    "scope": "Endpoint counts, not TCP reconstruction or a packet-loss/loop proof"
+  },
+  {
+    "file": "phase4-wan.pcap",
+    "sha256": "2a66bbd36f88b0bfa4c8443f13de27b29129c36d54f7ae07fc3092afb21f891e",
+    "bytes": 850875,
+    "ethernet_packets": 6737,
+    "ipv6_frames": 69,
+    "flows": [
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "destination_port": 8443,
+        "packets": 2064
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "destination_port": 53,
+        "packets": 1334
+      },
+      {
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.21",
+        "destination_port": 8080,
+        "packets": 45
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.21",
+        "destination_port": 9000,
+        "packets": 9
+      },
+      {
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.21",
+        "destination_port": 9443,
+        "packets": 54
+      }
+    ],
+    "realip_udp_marker": [],
+    "proxy_udp_marker": [],
+    "scope": "Endpoint counts, not TCP reconstruction or a packet-loss/loop proof"
+  }
+]

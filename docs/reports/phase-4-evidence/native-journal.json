@@ -1,0 +1,32 @@
+{
+  "provenance": "Observed via native admin /container/shell number=*E after the extended passing replay; JSON copied exactly from /data/publication/mappings.json. Permissions observed earlier on the same root.",
+  "directory_mode": "0700",
+  "journal_mode": "0600",
+  "journal": {
+    "version": 2,
+    "prefix": "198.18.0.0/15",
+    "capacity": 32,
+    "records": [
+      {
+        "mapping": {
+          "domain": "selected.test",
+          "fake": "198.18.0.2",
+          "real": "10.77.0.20"
+        },
+        "ttl_seconds": 5,
+        "ready": true,
+        "expires_at": "2026-10-05T06:21:47.932688Z"
+      },
+      {
+        "mapping": {
+          "domain": "second.test",
+          "fake": "198.18.0.3",
+          "real": "10.77.0.20"
+        },
+        "ttl_seconds": 5,
+        "ready": true,
+        "expires_at": "2026-10-05T06:21:44.981633Z"
+      }
+    ]
+  }
+}

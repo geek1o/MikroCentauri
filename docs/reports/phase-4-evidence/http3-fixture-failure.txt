@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/geekio/MikroCentauri/tests/e2e/chr_target_refresh.py", line 65, in <module>
+    result['proxy_after_churn'] = protocols(alias, '10.77.0.21', '10.77.0.10')
+                                  ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/geekio/MikroCentauri/tests/e2e/chr_target_refresh.py", line 42, in protocols
+    h3 = quic('second.test', alias)
+  File "/Users/geekio/MikroCentauri/tests/e2e/chr_protocols.py", line 12, in quic
+    assert not result.get('error'),result
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'error': 'Get "https://second.test:9443/quic": timeout: no recent network activity', 'elapsed_ms': 5057}

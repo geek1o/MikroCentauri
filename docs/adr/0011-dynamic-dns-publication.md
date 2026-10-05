@@ -58,6 +58,9 @@ References: [official route actions](https://sing-box.sagernet.org/configuration
 
 ## Remaining policy
 
+Historical Phase-3 scope below. [ADR-0012](0012-real-target-refresh.md) adds wire
+TTL/CNAME handling and journaled real-target refresh, preserving alias bindings.
+
 Selected AAAA returns empty NOERROR; other selected RR types fail closed. Exact
 ASCII names only; no wildcard/service/subscription UI. Unselected answers cannot
 carry aliases in answer, authority or additional sections. DNS frames are capped

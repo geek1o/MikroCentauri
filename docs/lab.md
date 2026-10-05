@@ -231,3 +231,41 @@ The runner therefore rejects only172.30.0.2->172.30.0.1 TCP80 in the disposable
 router, while host management remains accessible. Generic arbitrary-domain,
 CNAME, address churn, alias reuse, capacity and boot/power-loss behavior are outside
 this fixture. See [Phase-3 report](reports/phase-3-publication.md).
+## Phase 4: real-target refresh
+
+Continue the isolated Phase3 dynamic fixture with CHR7.24.5 and sing-box1.14.2.
+The gateway now reads actual positive wire TTLs over TCP, and refreshes the
+real target without releasing its domain/FakeIP reservation. See
+[ADR-0012](adr/0012-real-target-refresh.md) and the
+[Phase4 report](reports/phase-4-target-refresh.md).
+
+Build Linux client/server fixtures with `scripts/prepare-dataplane-lab.py`, then
+build the dynamic gateway with `scripts/build-gateway-lab.py --dynamic-dns`.
+The Linux server has additional address10.77.0.21, explicitly bound UDP echo
+listeners on both targets, and an HTTP/3 listener on all IPv4 interfaces.
+Its lab-only `/dns-fixture` control on host localhost19020 changes only
+`second.test`, with target10.77.0.20/.21, TTL1..30 and optional SERVFAIL.
+No production server or subscription is involved.
+
+Prepare a fresh private root named `mc-gateway-phase4` on the already isolated
+router. Stop prior generations and disable the existing watchdog before removing
+only owned disposable maps for a fresh scenario. Reuse the existing single
+dynamic jump; do not reimport the one-shot Phase3 RSC. This reset is fixture
+preparation, not supported production cache retirement.
+
+Run `python3 tests/e2e/chr_target_refresh.py` after starting the VMs and enabling
+the existing readiness watchdog. It preserves failed DNS attempts and exercises
+target change, full-container restart, upstream DNS failure and a control-link
+failure during target refresh. Cached TCP/UDP requests use `skip_dns=true` and an
+explicit saved alias; HTTP/3 likewise uses its explicit alias. Thus cached-path
+proof does not accidentally depend on a successful new DNS resolution.
+
+The test briefly invokes the owned UP script while readiness remains DOWN, only
+to capture a gate SERVFAIL response during upstream failure. Cleanup restores
+native DOWN and removes its exact disposable transport-blocking filter. Gateway
+`GET /diagnostics/dns` returns bounded category counts and the last32 failures;
+it is unauthenticated and exists only inside this lab.
+
+Artifacts land in ignored `.cache/dataplane`; curated public fixture evidence
+is stored in `docs/reports/phase-4-evidence`. Shut down containers/VMs and disable
+the lab watchdog after collecting evidence. No global conntrack flush is used.

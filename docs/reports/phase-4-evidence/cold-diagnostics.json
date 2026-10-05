@@ -1,0 +1,33 @@
+{
+  "counts": {
+    "publication/ensure_error": 4,
+    "publication/selected_published": 37
+  },
+  "last_failures": [
+    {
+      "stage": "publication",
+      "reason": "ensure_error",
+      "domain": "selected.test",
+      "elapsed_ms": 1214
+    },
+    {
+      "stage": "publication",
+      "reason": "ensure_error",
+      "domain": "second.test",
+      "elapsed_ms": 69
+    },
+    {
+      "stage": "publication",
+      "reason": "ensure_error",
+      "domain": "second.test",
+      "elapsed_ms": 19
+    },
+    {
+      "stage": "publication",
+      "reason": "ensure_error",
+      "domain": "second.test",
+      "elapsed_ms": 32
+    }
+  ],
+  "provenance": "Observed through GET /diagnostics/dns during the instrumented final run before its first container restart; counters reset on restart. No raw error or per-request correlation."
+}
