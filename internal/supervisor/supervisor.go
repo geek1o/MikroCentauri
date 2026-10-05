@@ -52,6 +52,7 @@ type Event struct {
 }
 type journal struct {
 	Schema    int      `json:"schema"`
+	External  bool     `json:"external_commit,omitempty"`
 	Active    string   `json:"active,omitempty"`
 	Pending   string   `json:"pending,omitempty"`
 	PID       int      `json:"pid,omitempty"`
@@ -311,6 +312,9 @@ func (s *Supervisor) Apply(ctx context.Context, data []byte) error {
 func (s *Supervisor) Start(ctx context.Context) error {
 	s.op.Lock()
 	defer s.op.Unlock()
+	if s.j.External {
+		return s.fail("external policy requires staged recovery")
+	}
 	if s.closed {
 		return s.fail("supervisor closed")
 	}
@@ -380,6 +384,9 @@ func (s *Supervisor) Close(ctx context.Context) error {
 	return err
 }
 func (s *Supervisor) launch(ctx context.Context, revision string, candidate bool) error {
+	return s.launchMode(ctx, revision, candidate, false)
+}
+func (s *Supervisor) launchMode(ctx context.Context, revision string, candidate, hold bool) error {
 	path := s.path(revision)
 	data, err := readPrivate(path, 4<<20)
 	if err != nil {
@@ -431,6 +438,16 @@ func (s *Supervisor) launch(ctx context.Context, revision string, candidate bool
 	}
 	if ready.Err() != nil {
 		return errors.New("core readiness timeout")
+	}
+	if hold {
+		s.mu.Lock()
+		c.monitor = true
+		s.status.Revision = revision
+		s.status.State = "staged"
+		s.mu.Unlock()
+		c.armOnce.Do(func() { close(c.arm) })
+		s.event("staged", revision)
+		return nil
 	}
 	if candidate {
 		s.j.Active = revision
@@ -527,6 +544,15 @@ func (s *Supervisor) exited(c *child) {
 		s.mu.Unlock()
 		s.op.Unlock()
 		s.fail("crash recovery blocked")
+		return
+	}
+	if s.j.Pending != "" {
+		s.mu.Lock()
+		s.desired = false
+		s.status.State = "pending-recovery"
+		s.mu.Unlock()
+		s.op.Unlock()
+		s.fail("staged revision requires recovery")
 		return
 	}
 	generation := c.generation
@@ -658,7 +684,7 @@ func (s *Supervisor) load() error {
 	}
 	d := json.NewDecoder(strings.NewReader(string(b)))
 	d.DisallowUnknownFields()
-	if d.Decode(&s.j) != nil || s.j.Schema != 1 || s.j.PID < 0 || s.j.PID > 2147483647 || len(s.j.KnownGood) > 5 {
+	if d.Decode(&s.j) != nil || s.j.Schema != 1 || s.j.PID < 0 || s.j.PID > 2147483647 || len(s.j.KnownGood) > 5 || (s.j.External && s.j.Pending == "") {
 		return errors.New("invalid supervisor journal")
 	}
 	unique := map[string]bool{}
