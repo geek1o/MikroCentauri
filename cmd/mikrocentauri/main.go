@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"mikrocentauri.local/core/internal/config"
@@ -21,9 +22,12 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: mikrocentauri generate|plan -config PATH [-out PATH] [-sing-box PATH]")
+		return fmt.Errorf("usage: mikrocentauri generate|plan|router-inspect|router-plan|router-stage|router-reconcile|router-recover (see command -h)")
 	}
 	action := os.Args[1]
+	if strings.HasPrefix(action, "router-") {
+		return routerCommand(action, os.Args[2:])
+	}
 	fs := flag.NewFlagSet(action, flag.ContinueOnError)
 	input := fs.String("config", "", "local application config (contains secrets)")
 	output := fs.String("out", "", "private candidate output path")

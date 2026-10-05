@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Boot a user-supplied official CHR disk; keep the original and bind management to localhost."""
 import argparse,os,pathlib,shutil,subprocess,sys,termios,socket,time
-p=argparse.ArgumentParser();p.add_argument('--image',required=True);p.add_argument('--qemu',default='qemu-system-x86_64');p.add_argument('--workdir',default='.cache/chr-lab');p.add_argument('--ssh-port',type=int,default=22222);p.add_argument('--http-port',type=int,default=18080);p.add_argument('--lan-socket',type=int,default=19188);p.add_argument('--lan-connect', action='store_true');p.add_argument('--wan-socket', type=int);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--image',required=True);p.add_argument('--qemu',default='qemu-system-x86_64');p.add_argument('--workdir',default='.cache/chr-lab');p.add_argument('--ssh-port',type=int,default=22222);p.add_argument('--http-port',type=int,default=18080);p.add_argument('--https-port',type=int,help='Optional loopback host forward to native www-ssl443');p.add_argument('--lan-socket',type=int,default=19188);p.add_argument('--lan-connect', action='store_true');p.add_argument('--wan-socket', type=int);a=p.parse_args()
 image=pathlib.Path(a.image).resolve();work=pathlib.Path(a.workdir).resolve();work.mkdir(parents=True,exist_ok=True)
 if not image.is_file():p.error('supply an official extracted CHR raw image')
 copy=work/'chr.img'
@@ -21,7 +21,7 @@ for port in ([a.lan_socket] if a.lan_connect else []) + ([a.wan_socket] if a.wan
    time.sleep(.1)
 qemu=shutil.which(a.qemu)
 if not qemu:p.error('QEMU executable unavailable')
-args=[qemu,'-machine','pc','-accel','tcg','-m','512','-smp','2','-drive',f'file={copy},format=raw,if=ide','-drive',f'file={data},format=raw,if=virtio','-netdev',f'user,id=wan,hostfwd=tcp:127.0.0.1:{a.ssh_port}-:22,hostfwd=tcp:127.0.0.1:{a.http_port}-:80','-device','virtio-net-pci,netdev=wan','-netdev',f'socket,id=lan,{"connect" if a.lan_connect else "listen"}=127.0.0.1:{a.lan_socket}','-device','virtio-net-pci,netdev=lan','-display','none','-serial','stdio','-monitor',f'unix:{work}/monitor,server=on,wait=off']
+args=[qemu,'-machine','pc','-accel','tcg','-m','512','-smp','2','-drive',f'file={copy},format=raw,if=ide','-drive',f'file={data},format=raw,if=virtio','-netdev',f'user,id=wan,hostfwd=tcp:127.0.0.1:{a.ssh_port}-:22,hostfwd=tcp:127.0.0.1:{a.http_port}-:80'+(f',hostfwd=tcp:127.0.0.1:{a.https_port}-:443' if a.https_port else ''),'-device','virtio-net-pci,netdev=wan','-netdev',f'socket,id=lan,{"connect" if a.lan_connect else "listen"}=127.0.0.1:{a.lan_socket}','-device','virtio-net-pci,netdev=lan','-display','none','-serial','stdio','-monitor',f'unix:{work}/monitor,server=on,wait=off']
 if a.wan_socket:
  args += ['-netdev', f'socket,id=testwan,connect=127.0.0.1:{a.wan_socket}', '-device', 'virtio-net-pci,netdev=testwan']
 # Pass Ctrl-C to the CHR console rather than killing QEMU. Restore terminal settings on return.

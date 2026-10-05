@@ -1,0 +1,6 @@
+{
+  "sha256": "d20420cb1a6b46f01042d63716443f0607f5b9c75881f24c5377277f07bbd7ac",
+  "build": "go build -buildvcs=false -trimpath ./cmd/mikrocentauri",
+  "host_executed": "darwin/arm64",
+  "native_server": "CHR7.24.5 www-ssl"
+}

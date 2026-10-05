@@ -1,0 +1,144 @@
+{
+  "unrelated_before_sha256": "f0330bfbb6f195c1a0ca9da4991c38da69be3921302a45bd9c3db75ceb027c31",
+  "inspect": {
+    "version": "7.24.5 (stable)",
+    "architecture": "x86_64",
+    "board": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+    "platform": "MikroTik",
+    "packages": [
+      {
+        "name": "container",
+        "version": "7.24.5",
+        "disabled": false
+      },
+      {
+        "name": "routeros",
+        "version": "7.24.5",
+        "disabled": false
+      }
+    ],
+    "resources": {
+      "ip/firewall/filter": true,
+      "ip/firewall/mangle": true,
+      "ip/firewall/nat": true,
+      "ip/route": true,
+      "tool/netwatch": true
+    },
+    "interfaces": [
+      {
+        "name": "ether1",
+        "type": "ether",
+        "disabled": false,
+        "running": true
+      },
+      {
+        "name": "ether2",
+        "type": "ether",
+        "disabled": false,
+        "running": true
+      },
+      {
+        "name": "bridge-lan",
+        "type": "bridge",
+        "disabled": false,
+        "running": true
+      },
+      {
+        "name": "lo",
+        "type": "loopback",
+        "disabled": false,
+        "running": true
+      },
+      {
+        "name": "mc-bridge",
+        "type": "bridge",
+        "disabled": false,
+        "running": true
+      },
+      {
+        "name": "mc-probe",
+        "type": "veth",
+        "disabled": false,
+        "running": false
+      }
+    ],
+    "version_supported": true,
+    "version_support_reason": "matches the verified CHR x86_64 RouterOS 7.24.5 laboratory profile; GET does not prove write permission, device-mode, TUN or production readiness"
+  },
+  "create": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged disabled owned objects verified; traffic activation remains gated\n"
+  },
+  "created": [
+    {
+      ".id": "*8000000A",
+      "comment": "mikrocentauri:stage2secure:route:canary",
+      "disabled": "true",
+      "distance": "1",
+      "dst-address": "203.0.113.124/32",
+      "gateway": "172.30.0.2",
+      "inactive": "false",
+      "routing-table": "main",
+      "static": "true"
+    }
+  ],
+  "idempotent": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged disabled owned objects verified; traffic activation remains gated\n"
+  },
+  "stale_rejected": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "stale plan requires rediscovery\n"
+  },
+  "fresh_reconcile": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged disabled owned objects verified; traffic activation remains gated\n"
+  },
+  "active_rejected": {
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "controller permits only explicitly disabled owned objects\n"
+  },
+  "recover_committed": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged transaction recovered\n"
+  },
+  "cleanup": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged disabled owned objects verified; traffic activation remains gated\n"
+  },
+  "unrelated_after_sha256": "f0330bfbb6f195c1a0ca9da4991c38da69be3921302a45bd9c3db75ceb027c31",
+  "journal": {
+    "version": 1,
+    "target": "https://127.0.0.1:18443/rest",
+    "instance": "stage2secure",
+    "state": "committed",
+    "changes": [
+      {
+        "change": {
+          "action": "delete",
+          "before": {
+            "path": "ip/route",
+            "id": "*8000000A",
+            "fields": {
+              "comment": "mikrocentauri:stage2secure:route:canary",
+              "disabled": "true",
+              "distance": "2",
+              "dst-address": "203.0.113.124/32",
+              "gateway": "172.30.0.2",
+              "routing-table": "main"
+            }
+          }
+        },
+        "attempted": true
+      }
+    ]
+  },
+  "completed": true
+}

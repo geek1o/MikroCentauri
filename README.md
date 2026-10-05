@@ -34,7 +34,9 @@ stable: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/versio
   DIRECT, addition/reactivation and explicit pending recovery on CHR.
 - Integrated serialized activation/recovery with automatic pending/committed
   startup proof, both crash windows and native REST outage acceptance on CHR.
-- Phase-0 research, license inventory, UX specification, sixteen ADRs and a draft `/app` manifest.
+- HTTPS capability discovery and private staged CLI with durable reconcile/recovery,
+  stale-plan refusal and native CHR lost-reply acceptance.
+- Phase-0 research, license inventory, UX specification, seventeen ADRs and a draft `/app` manifest.
 
 The [product roadmap](docs/product/progress.md) has nine phases (0–8).
 Historical engineering report numbers differ from the product phases; current
@@ -55,6 +57,33 @@ make cross-build
 hybrid preview with **disabled** objects against empty router state. It does not
 connect to or mutate your router. Example URI is a disposable lab fixture.
 Full-gateway and Socksify have bounded CHR experiments, not production modes.
+
+## HTTPS staging CLI
+
+The verified mutation baseline is CHR x86_64 RouterOS 7.24.5. Configure the native
+`www-ssl` service and a trusted certificate first. Store connection JSON in a
+regular 0600 file, with no symlink components in its path:
+
+```json
+{"base_url":"https://router.example/rest","username":"controller-user","password":"REPLACE_LOCALLY","ca_file":"/absolute/path/router-ca.pem"}
+```
+
+`ca_file` is optional when the certificate chains to a system trust root.
+Credentials remain in this local file; TLS certificate validation is mandatory.
+
+```sh
+mikrocentauri router-inspect -router-config /absolute/path/router.json
+mikrocentauri router-plan -router-config /absolute/path/router.json -config /absolute/path/app.json -out /absolute/path/plan.json
+mikrocentauri router-stage -router-config /absolute/path/router.json -plan /absolute/path/plan.json -journal /absolute/path/journal
+mikrocentauri router-reconcile -router-config /absolute/path/router.json -plan /absolute/path/plan.json -journal /absolute/path/journal
+mikrocentauri router-recover -router-config /absolute/path/router.json -journal /absolute/path/journal
+```
+
+Review the plan before staging. `router-stage` applies its exact preconditions;
+`router-reconcile` creates a fresh plan from its complete desired set and can
+remove owned disabled objects omitted from that set. All mutations remain
+restricted to explicitly disabled owned objects. See the
+[controller acceptance report](docs/reports/product-phase-2-staged-controller.md).
 
 ## Remaining gates
 

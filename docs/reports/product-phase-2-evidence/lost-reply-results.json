@@ -1,0 +1,74 @@
+{
+  "fault_exit": 1,
+  "fault_error": "mutation outcome unresolved; recovery required\nexit status 1\n",
+  "pending_journal": {
+    "version": 1,
+    "target": "https://127.0.0.1:18443/rest",
+    "instance": "stage2tls",
+    "state": "pending",
+    "changes": [
+      {
+        "change": {
+          "action": "create",
+          "after": {
+            "path": "ip/route",
+            "fields": {
+              "comment": "mikrocentauri:stage2tls:route:canary",
+              "disabled": "true",
+              "distance": "1",
+              "dst-address": "203.0.113.125/32",
+              "gateway": "172.30.0.2",
+              "routing-table": "main"
+            }
+          }
+        },
+        "attempted": true
+      }
+    ]
+  },
+  "actual_after_lost_reply": [
+    {
+      ".id": "*8000000B",
+      "comment": "mikrocentauri:stage2tls:route:canary",
+      "disabled": "true",
+      "distance": "1",
+      "dst-address": "203.0.113.125/32",
+      "gateway": "172.30.0.2",
+      "inactive": "false",
+      "routing-table": "main",
+      "static": "true"
+    }
+  ],
+  "recover": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "staged transaction recovered\n"
+  },
+  "final_journal": {
+    "version": 1,
+    "target": "https://127.0.0.1:18443/rest",
+    "instance": "stage2tls",
+    "state": "rolled-back",
+    "changes": [
+      {
+        "change": {
+          "action": "create",
+          "after": {
+            "path": "ip/route",
+            "fields": {
+              "comment": "mikrocentauri:stage2tls:route:canary",
+              "disabled": "true",
+              "distance": "1",
+              "dst-address": "203.0.113.125/32",
+              "gateway": "172.30.0.2",
+              "routing-table": "main"
+            }
+          }
+        },
+        "attempted": true,
+        "reverted": true
+      }
+    ]
+  },
+  "completed": true
+}

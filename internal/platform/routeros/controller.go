@@ -3,23 +3,28 @@
 package routeros
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
 
-// LabController persists intent before writing. It is deliberately absent from the
-// production CLI. A journal belongs to one router/instance and must not be shared
-// with another destination. Recover compensates an interrupted transaction.
+// LabController persists intent before writing. NewLabController permits lab
+// activation; NewController restricts writes to staged disabled objects. A journal
+// belongs to one router/instance. Recover compensates interrupted transactions.
 type LabController struct {
-	client *Client
-	dir    string
+	client     *Client
+	dir        string
+	stagedOnly bool
+	poisoned   atomic.Bool
 	// fault is a test-only crash boundary; production callers cannot set it.
 	fault func(string) error
 }
@@ -75,9 +80,49 @@ func controllerSame(a, b Object) bool {
 	b.ID = ""
 	return reflect.DeepEqual(a, b)
 }
+
+// Controller provisions disabled owned objects through authenticated TLS. It does
+// not activate routing; activation requires separate dataplane safety barriers.
+type Controller = LabController
+
+func NewController(c *Client, directory string) (*Controller, error) {
+	if c == nil || c.base.Scheme != "https" {
+		return nil, errors.New("controller requires HTTPS RouterOS transport")
+	}
+	controller, err := NewLabController(c, directory)
+	if err != nil {
+		return nil, err
+	}
+	controller.stagedOnly = true
+	return controller, nil
+}
+
+func controllerDirectory(directory string) error {
+	absolute, err := filepath.Abs(directory)
+	if err != nil {
+		return errors.New("invalid journal directory")
+	}
+	for path := absolute; ; path = filepath.Dir(path) {
+		info, err := os.Lstat(path)
+		if err != nil && !os.IsNotExist(err) {
+			return errors.New("cannot inspect journal directory")
+		}
+		if err == nil && (!info.IsDir() || info.Mode()&os.ModeSymlink != 0) {
+			return errors.New("journal directory ancestors must not be symlinks")
+		}
+		if filepath.Dir(path) == path {
+			break
+		}
+	}
+	return nil
+}
+
 func NewLabController(c *Client, directory string) (*LabController, error) {
 	if c == nil || directory == "" {
 		return nil, errors.New("controller requires client and private journal directory")
+	}
+	if e := controllerDirectory(directory); e != nil {
+		return nil, e
 	}
 	if e := os.MkdirAll(directory, 0700); e != nil {
 		return nil, errors.New("cannot create journal directory")
@@ -89,13 +134,31 @@ func NewLabController(c *Client, directory string) (*LabController, error) {
 	return &LabController{client: c, dir: directory}, nil
 }
 func (c *LabController) lock() (func(), error) {
+	if c.poisoned.Load() {
+		return nil, errors.New("controller journal durability unresolved; reopen required")
+	}
+	if e := controllerDirectory(c.dir); e != nil {
+		return nil, e
+	}
+	if info, err := os.Lstat(c.dir); err != nil || !info.IsDir() || info.Mode().Perm()&0077 != 0 {
+		return nil, errors.New("journal directory must remain private")
+	}
 	f, e := os.OpenFile(filepath.Join(c.dir, "controller.lock"), os.O_CREATE|os.O_RDWR|syscall.O_NOFOLLOW, 0600)
 	if e != nil {
 		return nil, errors.New("cannot open controller lock")
 	}
+	if info, err := f.Stat(); err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 {
+		f.Close()
+		return nil, errors.New("controller lock must be private and regular")
+	}
 	if e = syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); e != nil {
 		f.Close()
 		return nil, errors.New("controller transaction already active")
+	}
+	if c.poisoned.Load() {
+		syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
+		f.Close()
+		return nil, errors.New("controller journal durability unresolved; reopen required")
 	}
 	return func() { syscall.Flock(int(f.Fd()), syscall.LOCK_UN); f.Close() }, nil
 }
@@ -135,6 +198,7 @@ func (c *LabController) persist(j controllerJournal) error {
 		}
 	}
 	if e != nil {
+		c.poisoned.Store(true)
 		return errors.New("cannot durably write controller journal")
 	}
 	return nil
@@ -148,22 +212,34 @@ func (c *LabController) read() (*controllerJournal, error) {
 	if e != nil || !s.Mode().IsRegular() || s.Mode().Perm()&0077 != 0 || s.Size() > 4<<20 {
 		return nil, errors.New("invalid private controller journal")
 	}
-	b, e := os.ReadFile(path)
+	f, e := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if e != nil {
 		return nil, errors.New("cannot read controller journal")
 	}
+	defer f.Close()
+	info, e := f.Stat()
+	if e != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 || info.Size() > 4<<20 {
+		return nil, errors.New("invalid private controller journal")
+	}
+	b, e := io.ReadAll(io.LimitReader(f, 4<<20+1))
+	if e != nil || len(b) > 4<<20 {
+		return nil, errors.New("cannot read controller journal")
+	}
 	var j controllerJournal
-	if json.Unmarshal(b, &j) != nil || j.Version != 1 || j.Target != c.client.base.String() || !instancePattern.MatchString(j.Instance) || (j.State != "pending" && j.State != "committed" && j.State != "rolled-back") {
+	if controllerDecode(b, &j) != nil || j.Version != 1 || j.Target != c.client.base.String() || !instancePattern.MatchString(j.Instance) || (j.State != "pending" && j.State != "committed" && j.State != "rolled-back") {
 		return nil, errors.New("invalid controller journal identity or state")
 	}
 	for _, s := range j.Changes {
-		if e = controllerValidateChange(j.Instance, s.Change); e != nil {
+		if e = c.validateChange(j.Instance, s.Change); e != nil {
 			return nil, errors.New("invalid journal change")
 		}
 		if s.Realized != nil && (!Owned(j.Instance, *s.Realized) || key(*s.Realized) != changeKey(s.Change)) {
 			return nil, errors.New("invalid realized ownership")
 		}
 		if s.Realized != nil {
+			if s.Realized.ID == "" || (c.stagedOnly && s.Realized.Fields["disabled"] != "true") {
+				return nil, errors.New("invalid realized staged state")
+			}
 			for field := range s.Realized.Fields {
 				if !controllerWritable[s.Realized.Path][field] {
 					return nil, errors.New("invalid realized writable field")
@@ -173,6 +249,78 @@ func (c *LabController) read() (*controllerJournal, error) {
 	}
 	return &j, nil
 }
+
+// Reject duplicate keys as well as unknown fields: journal ambiguity cannot be
+// resolved safely by silently accepting the last JSON value.
+func controllerDecode(b []byte, out any) error {
+	d := json.NewDecoder(bytes.NewReader(b))
+	var value func(int) error
+	value = func(depth int) error {
+		if depth > 32 {
+			return errors.New("journal nesting exceeds limit")
+		}
+		token, err := d.Token()
+		if err != nil {
+			return err
+		}
+		delim, ok := token.(json.Delim)
+		if !ok {
+			return nil
+		}
+		switch delim {
+		case '{':
+			seen := map[string]bool{}
+			for d.More() {
+				k, err := d.Token()
+				if err != nil {
+					return err
+				}
+				key, ok := k.(string)
+				if !ok || seen[key] {
+					return errors.New("duplicate journal key")
+				}
+				seen[key] = true
+				if err := value(depth + 1); err != nil {
+					return err
+				}
+			}
+		case '[':
+			for d.More() {
+				if err := value(depth + 1); err != nil {
+					return err
+				}
+			}
+		default:
+			return errors.New("invalid journal JSON")
+		}
+		_, err = d.Token()
+		return err
+	}
+	if err := value(0); err != nil {
+		return err
+	}
+	if _, err := d.Token(); err != io.EOF {
+		return errors.New("trailing journal JSON")
+	}
+	d = json.NewDecoder(bytes.NewReader(b))
+	d.DisallowUnknownFields()
+	return d.Decode(out)
+}
+
+func (c *LabController) validateChange(instance string, ch Change) error {
+	if err := controllerValidateChange(instance, ch); err != nil {
+		return err
+	}
+	if c.stagedOnly {
+		for _, object := range []*Object{ch.Before, ch.After} {
+			if object != nil && object.Fields["disabled"] != "true" {
+				return errors.New("controller permits only explicitly disabled owned objects")
+			}
+		}
+	}
+	return nil
+}
+
 func controllerValidateChange(instance string, ch Change) error {
 	switch ch.Action {
 	case "create":
@@ -237,9 +385,15 @@ func (c *LabController) Apply(ctx context.Context, p ChangePlan) error {
 		return e
 	}
 	defer unlock()
+	return c.applyLocked(ctx, p)
+}
+func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 	old, e := c.read()
 	if e != nil {
 		return e
+	}
+	if old != nil && old.Instance != p.Instance {
+		return errors.New("journal belongs to another instance")
 	}
 	if old != nil && old.State == "pending" {
 		return errors.New("pending transaction requires recovery")
@@ -259,7 +413,7 @@ func (c *LabController) Apply(ctx context.Context, p ChangePlan) error {
 			o := controllerProjection(*ch.Before)
 			ch.Before = &o
 		}
-		if e = controllerValidateChange(p.Instance, ch); e != nil {
+		if e = c.validateChange(p.Instance, ch); e != nil {
 			return e
 		}
 		k := changeKey(ch)
@@ -403,6 +557,9 @@ func (c *LabController) Recover(ctx context.Context) error {
 		return e
 	}
 	defer unlock()
+	return c.recoverLocked(ctx)
+}
+func (c *LabController) recoverLocked(ctx context.Context) error {
 	j, e := c.read()
 	if e != nil || j == nil {
 		return e
@@ -476,4 +633,46 @@ func (c *LabController) Recover(ctx context.Context) error {
 	}
 	j.State = "rolled-back"
 	return c.persist(*j)
+}
+
+// Reconcile recovers interrupted writes before creating a fresh plan. All steps
+// share one lock, so a competing controller cannot enter between recovery and
+// discovery. RouterOS edits by other clients are still verified before each write.
+func (c *LabController) Reconcile(ctx context.Context, instance string, desired []Object) error {
+	unlock, err := c.lock()
+	if err != nil {
+		return err
+	}
+	defer unlock()
+	journal, err := c.read()
+	if err != nil {
+		return err
+	}
+	if journal != nil && journal.Instance != instance {
+		return errors.New("journal belongs to another instance")
+	}
+	// Validate caller input before recovery can mutate an interrupted transaction.
+	if _, err := Plan(instance, nil, desired); err != nil {
+		return err
+	}
+	if !instancePattern.MatchString(instance) {
+		return errors.New("invalid instance")
+	}
+	for _, object := range desired {
+		if err := c.validateChange(instance, Change{Action: "create", After: &object}); err != nil {
+			return err
+		}
+	}
+	if err := c.recoverLocked(ctx); err != nil {
+		return err
+	}
+	rows, err := c.client.Discover(ctx)
+	if err != nil {
+		return err
+	}
+	plan, err := Plan(instance, rows, desired)
+	if err != nil {
+		return err
+	}
+	return c.applyLocked(ctx, plan)
 }

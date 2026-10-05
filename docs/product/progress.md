@@ -9,7 +9,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | --- | --- | --- |
 | 0 | Research | Research recorded for the pinned lab architecture; refresh before a release |
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
-| 2 | RouterOS Controller | In progress: REST, ownership planner, journaled lab rollback and native watchdog; bounded activation/recovery verified; production integration remains open |
+| 2 | RouterOS Controller | In progress: HTTPS discovery, private staged CLI, ownership planner and durable reconcile/recovery verified on native CHR; bounded lab activation/watchdog exist; enabled-rule integration, placement-aware rollback and generic watchdog installation remain open |
 | 3 | sing-box Core | In progress: parser, generator, validation, DNS/FakeIP and admission; subscriptions, groups, general rules, supervisor and LKG remain open |
 | 4 | Backend/API | Production API, OpenAPI, authentication and backup remain open |
 | 5 | Web UI | Not started |
@@ -34,3 +34,7 @@ Engineering milestones already recorded:
 Do not use the largest report number as a completion percentage. Product phases
 2–3 are still being completed. Their remaining requirements must be tracked and
 proved before declaring either product phase complete.
+
+The next controller block is documented in
+[HTTPS staging acceptance](../reports/product-phase-2-staged-controller.md). It
+adds secure management-plane proof without declaring the whole phase complete.

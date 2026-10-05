@@ -450,3 +450,38 @@ python3 scripts/verify-activation-capture.py --results .cache/dataplane/activati
 
 These are step-driven new-connection tests, not atomic DNS transport switching,
 power-loss, existing-conntrack, hardware throughput or production auth acceptance.
+
+## Product Phase 2: native HTTPS controller acceptance
+
+The separate management-plane runner is
+`tests/e2e/chr_staged_controller.py`; it requires the disposable CHR 7.24.5 fixture,
+not an installed router. Start `scripts/chr-lab.py` with `--https-port 18443` to
+forward localhost18443 to native guest443. The optional forward does not change
+existing HTTP-only lab invocations.
+
+Prepare a short-lived certificate with SAN IP127.0.0.1, import its PKCS#12 into
+CHR, and assign it to native `www-ssl`. Keep private material under ignored
+`.cache/router-stage` (directory0700, key/archive0600). Save its public PEM as
+`tls.crt` and create private0600 `router.json` with target
+`https://127.0.0.1:18443/rest`, the restricted disposable `mc-lab` fixture account
+and the absolute CA path. The runner expects the existing lab account; never
+reuse its public fixture password outside the disposable guest. Build the CLI
+as `.cache/router-stage/mikrocentauri` before running:
+
+```sh
+go build -buildvcs=false -trimpath -o .cache/router-stage/mikrocentauri ./cmd/mikrocentauri
+python3 tests/e2e/chr_staged_controller.py
+```
+
+The runner owns only instance `stage2secure`, requires a clean canary scope, and
+compares unrelated configured state. The separate `lab/stagedfault` helper fixes
+its target to this same localhost TLS fixture, uses instance `stage2tls`, discards
+a successful PUT reply and blocks subsequent requests. Its expected failure
+leaves a pending journal for a fresh `router-recover` process. Do not enable
+fault injection in the product CLI.
+
+Snapshot service/certificate settings before setup. After testing, remove both
+canary scopes, restore the original `www-ssl` settings, remove the temporary
+certificate/archive and shut down CHR normally. This setup and the accepted
+results are recorded in the
+[product Phase 2 report](reports/product-phase-2-staged-controller.md).

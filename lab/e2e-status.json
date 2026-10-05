@@ -187,5 +187,22 @@
       "Lab-only management, no production auth/CLI activation or LKG",
       "New allocation followed by failure, native request cancellation and Linux cleanup failure not separately injected"
     ]
+  },
+  "product_phase2_controller": {
+    "status": "TESTED: native HTTPS disabled-object staging; product Phase 2 remains open",
+    "report": "docs/reports/product-phase-2-staged-controller.md",
+    "passed": [
+      "Native www-ssl discovery and trusted-CA validation",
+      "Disabled create and idempotent reconcile",
+      "Stale exact plan refusal and fresh desired-state reconcile",
+      "Active candidate refusal and unrelated configured-state preservation",
+      "Lost successful PUT reply with fresh-process durable rollback",
+      "Native TLS settings restored and canaries removed"
+    ],
+    "limits": [
+      "Pinned CHR 7.24.5 x86_64 only",
+      "No enabled traffic activation or placement-aware firewall rollback",
+      "No general native watchdog installation or new dataplane acceptance"
+    ]
   }
 }

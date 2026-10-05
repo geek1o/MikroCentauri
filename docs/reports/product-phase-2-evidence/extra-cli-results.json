@@ -1,0 +1,6 @@
+{
+  "live_plan_created": true,
+  "desired_count": 3,
+  "untrusted_cert_rejected": true,
+  "untrusted_error": "RouterOS capability transport failed\n"
+}
