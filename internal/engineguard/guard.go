@@ -19,7 +19,10 @@ import (
 const CachePath = "/data/singbox-cache.db"
 
 type Config struct {
-	Selected  []string
+	// Selected is the full known namespace, retained for compatibility.
+	Selected []string
+	// Active nil means all known names; a nonnil slice is an explicit subset.
+	Active    []string
 	CachePath string
 }
 
@@ -54,6 +57,28 @@ func Validate(data []byte, cfg Config) error {
 	selected, err := names(cfg.Selected)
 	if err != nil {
 		return err
+	}
+	active := cfg.Active
+	if active == nil {
+		active = cfg.Selected
+	}
+	activeSet := map[string]bool{}
+	if len(active) > 0 {
+		activeSet, err = names(active)
+		if err != nil {
+			return err
+		}
+	}
+	for name := range activeSet {
+		if !selected[name] {
+			return errors.New("active namespace must be a subset of known names")
+		}
+	}
+	retired := []string{}
+	for _, name := range cfg.Selected {
+		if !activeSet[name] {
+			retired = append(retired, name)
+		}
 	}
 	dns, ok := m["dns"].(map[string]any)
 	if !ok || !keys(dns, "final", "rules", "servers") || dns["final"] != "bootstrap" {
@@ -207,24 +232,32 @@ func Validate(data []byte, cfg Config) error {
 		return errors.New("unsupported traffic route policy")
 	}
 	rr, ok := route["rules"].([]any)
-	if !ok || len(rr) != 6 {
-		return errors.New("exactly six ordered traffic rules required")
+	if !ok {
+		return errors.New("ordered traffic rules required")
 	}
-	selectedValues := make([]any, len(cfg.Selected))
-	for i, name := range cfg.Selected {
-		selectedValues[i] = name
-	}
-	// prepareMatchMetadata restores FakeIP domains before rule matching. An
-	// early terminal route therefore binds policy before sniffed Host/SNI.
-	// Source overrides retain precedence; a second domain rule after sniff
-	// preserves the existing real-IP/cohost policy.
+	// Both active and retired stored bindings terminate before Host/SNI sniff.
+	// Source overrides retain priority, including for retired aliases.
 	expectedRules := []any{
 		map[string]any{"action": "hijack-dns", "inbound": []any{"dns-in"}},
 		map[string]any{"action": "route", "source_ip_cidr": []any{"192.168.88.30/32"}, "outbound": "direct"},
 		map[string]any{"action": "route", "source_ip_cidr": []any{"192.168.88.20/32"}, "outbound": "proxy"},
-		map[string]any{"action": "route", "domain": selectedValues, "outbound": "proxy"},
-		map[string]any{"action": "sniff"},
-		map[string]any{"action": "route", "domain": selectedValues, "outbound": "proxy"},
+	}
+	domainRule := func(names []string, outbound string) any {
+		values := make([]any, len(names))
+		for i, name := range names {
+			values[i] = name
+		}
+		return map[string]any{"action": "route", "domain": values, "outbound": outbound}
+	}
+	if len(active) > 0 {
+		expectedRules = append(expectedRules, domainRule(active, "proxy"))
+	}
+	if len(retired) > 0 {
+		expectedRules = append(expectedRules, domainRule(retired, "direct"))
+	}
+	expectedRules = append(expectedRules, map[string]any{"action": "sniff"})
+	if len(active) > 0 {
+		expectedRules = append(expectedRules, domainRule(active, "proxy"))
 	}
 	if !reflect.DeepEqual(rr, expectedRules) {
 		return errors.New("traffic rules must preserve source and binding priority before sniff")

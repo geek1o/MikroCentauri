@@ -383,7 +383,7 @@ func dnsReply(query []byte, target string) ([]byte, error) {
 	// Copy the question only; never copy client-supplied answer or EDNS sections.
 	reply := append([]byte(nil), query[:end+4]...)
 	flags := uint16(0x8400) | (binary.BigEndian.Uint16(query[2:4]) & 0x0100)
-	known := name == "selected.test" || name == "unselected.test" || name == "second.test" || name == "third.test"
+	known := name == "selected.test" || name == "unselected.test" || name == "second.test" || name == "third.test" || name == "fourth.test" || name == "fifth.test"
 	ttl := uint32(5)
 	if override := dnsFixture.Load(); name == "second.test" && override != nil {
 		target, ttl = override.Target, override.TTL

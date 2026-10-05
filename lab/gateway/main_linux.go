@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"mikrocentauri.local/core/internal/dnsgate"
 	"mikrocentauri.local/core/internal/fakeip"
 	"mikrocentauri.local/core/internal/generation"
 	"mikrocentauri.local/core/internal/health"
@@ -28,8 +27,10 @@ import (
 var mu sync.Mutex
 var lifecycleMu sync.Mutex
 var child *exec.Cmd
+var childDone chan struct{}
 var ready bool
 var lastError string
+var lastProbeError string
 var monitor *health.Monitor
 var publisher *fakeip.Publisher
 var admission *generation.Admission
@@ -40,12 +41,33 @@ func ip(args ...string) error { return exec.Command("/sbin/ip", args...).Run() }
 func start() error {
 	lifecycleMu.Lock()
 	defer lifecycleMu.Unlock()
+	if namespaceStore != nil {
+		s, e := namespaceStore.Snapshot()
+		if e != nil {
+			return e
+		}
+		if s.Pending != nil {
+			dnsSwitch.Hold()
+			admission.Revoke()
+			if e := quarantine(); e != nil {
+				return e
+			}
+			return fmt.Errorf("pending namespace requires explicit resume")
+		}
+	}
+	return startLocked()
+}
+
+func startLocked() error {
 	mu.Lock()
 	defer mu.Unlock()
 	if child != nil {
 		return fmt.Errorf("already running")
 	}
 	ready = false
+	if admission != nil {
+		dnsSwitch.Hold()
+	}
 	monitor.SetLocalReady(false)
 	if e := quarantine(); e != nil {
 		return e
@@ -67,14 +89,20 @@ func start() error {
 		return e
 	}
 	child = cmd
+	done := make(chan struct{})
+	childDone = done
 	ready = false
 	lastError = ""
 	go func() {
 		e := cmd.Wait()
+		close(done)
 		mu.Lock()
 		if child == cmd {
 			child = nil
 			ready = false
+			if admission != nil {
+				dnsSwitch.Hold()
+			}
 			if admission != nil && admission.Snapshot().Admitted {
 				admission.Revoke()
 			}
@@ -89,6 +117,7 @@ func start() error {
 		iface = "mc-probe"
 	}
 	fail := func(e error) error {
+		ready = false
 		if admission != nil && admission.Snapshot().Admitted {
 			admission.Revoke()
 		}
@@ -124,9 +153,25 @@ func start() error {
 			return fail(e)
 		}
 	}
+	if namespaceStore != nil {
+		snapshot, e := namespaceStore.Snapshot()
+		if e != nil {
+			return fail(e)
+		}
+		if snapshot.Pending != nil {
+			if _, e = namespaceStore.Commit(snapshot.Pending.Revision); e != nil {
+				return fail(e)
+			}
+		}
+	}
 	// Only forwarded ingress enters TUN; locally originated VLESS/DNS sockets stay in main.
 	if e := ip("route", "replace", "default", "dev", "mc-tun", "table", "100"); e != nil {
 		return fail(fmt.Errorf("TUN ingress route: %w", e))
+	}
+	if admission != nil {
+		if e := dnsSwitch.Release(); e != nil {
+			return fail(e)
+		}
 	}
 	ready = true
 	return nil
@@ -153,14 +198,22 @@ func dnsReady() error {
 // This is not a dynamic DNS publication protocol for arbitrary FakeIP addresses.
 type gatewayChecker struct{ proxy health.Checker }
 
-func (g gatewayChecker) Check(ctx context.Context) error {
+func (g gatewayChecker) Check(ctx context.Context) (probeError error) {
+	defer func() {
+		mu.Lock()
+		defer mu.Unlock()
+		lastProbeError = ""
+		if probeError != nil {
+			lastProbeError = probeError.Error()
+		}
+	}()
+	lifecycleMu.Lock()
+	defer lifecycleMu.Unlock()
 	if admission != nil {
-		lifecycleMu.Lock()
 		mu.Lock()
 		active := ready && child != nil
 		mu.Unlock()
 		if !active {
-			lifecycleMu.Unlock()
 			return fmt.Errorf("engine unavailable")
 		}
 		if err := admission.Validate(ctx); err != nil {
@@ -172,25 +225,24 @@ func (g gatewayChecker) Check(ctx context.Context) error {
 			}
 			mu.Unlock()
 			monitor.SetLocalReady(false)
-			lifecycleMu.Unlock()
 			return fmt.Errorf("engine generation denied")
 		}
-		lifecycleMu.Unlock()
 	}
 	if publisher != nil {
 		if err := publisher.Reconcile(ctx); err != nil {
-			return fmt.Errorf("mapping reconciliation unavailable")
+			return fmt.Errorf("mapping reconciliation unavailable: %w", err)
 		}
-		// An engine cache reset must never qualify UP with stale client aliases.
-		resolver := &net.Resolver{PreferGo: true, Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-			return (&net.Dialer{}).DialContext(ctx, network, "127.0.0.1:5353")
-		}}
-		for _, m := range publisher.Mappings() {
-			probeCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
-			ips, err := resolver.LookupIP(probeCtx, "ip4", m.Domain)
-			cancel()
-			if err != nil || len(ips) != 1 || ips[0].String() != m.Fake.String() {
-				return fmt.Errorf("engine alias generation mismatch")
+		// Full active+retired namespace is checked through the private allocator
+		// by admission.Validate; retired public DNS deliberately returns real IP.
+		if admission == nil {
+			resolver := &net.Resolver{PreferGo: true, Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+				return (&net.Dialer{}).DialContext(ctx, network, "127.0.0.1:5353")
+			}}
+			for _, m := range publisher.Mappings() {
+				ips, err := resolver.LookupIP(ctx, "ip4", m.Domain)
+				if err != nil || len(ips) != 1 || ips[0].String() != m.Fake.String() {
+					return fmt.Errorf("engine alias generation mismatch")
+				}
 			}
 		}
 	}
@@ -275,27 +327,16 @@ func main() {
 			return
 		}
 		lifecycleMu.Lock()
-		defer lifecycleMu.Unlock()
-		mu.Lock()
-		ready = false
-		if admission != nil {
-			admission.Revoke()
-		}
-		if e := quarantine(); e != nil {
-			if child != nil {
-				_ = child.Process.Kill()
-			}
-			mu.Unlock()
-			http.Error(w, "cannot quarantine ingress", 500)
+		e := stopLocked()
+		lifecycleMu.Unlock()
+		if e != nil {
+			http.Error(w, e.Error(), 409)
 			return
 		}
-		if child != nil {
-			child.Process.Kill()
-		}
-		mu.Unlock()
-		monitor.SetLocalReady(false)
 		w.WriteHeader(202)
 	})
+	http.HandleFunc("/diagnostics/namespace", namespaceDiagnostics)
+	http.HandleFunc("/control/namespace", namespaceControl)
 	http.HandleFunc("/control/start", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			w.WriteHeader(405)
@@ -314,17 +355,10 @@ func main() {
 	go func() {
 		<-stop
 		lifecycleMu.Lock()
-		mu.Lock()
-		ready = false
-		if admission != nil {
-			admission.Revoke()
+		if e := stopLocked(); e != nil {
+			fmt.Println("gateway shutdown:", e)
 		}
-		_ = quarantine()
-		if child != nil {
-			child.Process.Signal(syscall.SIGTERM)
-		}
-		mu.Unlock()
-		time.Sleep(time.Second)
+		lifecycleMu.Unlock()
 		os.Exit(0)
 	}()
 	if e := http.ListenAndServe(":9099", nil); e != nil {
@@ -354,22 +388,5 @@ func dynamicDNS() error {
 		return err
 	}
 	selectedNames = strings.Split(os.Getenv("MC_SELECTED_DOMAINS"), ",")
-	allocator, err := dnsgate.NewAllocator("127.0.0.1:5354")
-	if err != nil {
-		return err
-	}
-	admission, err = generation.New(generation.Config{Selected: selectedNames, Prefix: netip.MustParsePrefix("198.18.0.0/15"), Capacity: 32}, allocator, publisher)
-	if err != nil {
-		return err
-	}
-	gate, err := dnsgate.New(dnsgate.Config{InternalAddress: "127.0.0.1:5354", Selected: selectedNames, Observe: observeDNS}, admission)
-	if err != nil {
-		return err
-	}
-	go func() {
-		if err := gate.Serve(context.Background(), ":5353"); err != nil {
-			panic(err)
-		}
-	}()
-	return nil
+	return setupNamespaceDNS()
 }

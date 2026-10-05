@@ -52,7 +52,7 @@ func generationPreflight() error {
 	if err != nil {
 		return errors.New("engine configuration unavailable")
 	}
-	if err = engineguard.Validate(data, engineguard.Config{Selected: selectedNames}); err != nil {
+	if err = engineguard.Validate(data, engineguard.Config{Selected: selectedNames, Active: activeNames}); err != nil {
 		return err
 	}
 	reserved := len(publisher.Mappings()) > 0
@@ -73,7 +73,10 @@ func generationDiagnostics(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(405)
 		return
 	}
-	if admission == nil {
+	mu.Lock()
+	currentAdmission := admission
+	mu.Unlock()
+	if currentAdmission == nil {
 		http.Error(w, "dynamic admission disabled", 404)
 		return
 	}
@@ -81,7 +84,8 @@ func generationDiagnostics(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	running := child != nil
 	setupError := lastError
+	probeError := lastProbeError
 	mu.Unlock()
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"admission": admission.Snapshot(), "engine_running": running, "setup_error": setupError, "ingress_route": string(routes)})
+	_ = json.NewEncoder(w).Encode(map[string]any{"admission": currentAdmission.Snapshot(), "engine_running": running, "setup_error": setupError, "readiness_probe_error": probeError, "ingress_route": string(routes)})
 }

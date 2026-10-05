@@ -16,7 +16,10 @@ p.add_argument('--config', default=str(ROOT / '.cache/dataplane/gateway.json'))
 p.add_argument('--out', default=str(ROOT / '.cache/dataplane/gateway-image.tar'))
 p.add_argument('--dynamic-dns', action='store_true', help='Explicit isolated dynamic-publication fixture')
 p.add_argument('--native-lease', action='store_true', help='Disposable dynamic-map native timeout lease fixture')
+p.add_argument('--namespace-policy', action='store_true', help='Durable active/retired lab namespace controls')
 a = p.parse_args()
+if a.namespace_policy and not a.native_lease:
+    p.error('--namespace-policy requires --native-lease')
 if a.native_lease and not a.dynamic_dns:
     p.error('--native-lease requires --dynamic-dns')
 out = pathlib.Path(a.out).resolve()
@@ -84,6 +87,8 @@ if a.dynamic_dns:
     env += ['MC_DYNAMIC_DNS=1', 'MC_SELECTED_DOMAINS=selected.test,second.test,third.test']
 if a.native_lease:
     env += ['MC_NATIVE_LEASE=1']
+if a.namespace_policy:
+    env += ['MC_NAMESPACE_POLICY=1']
 config = json.dumps({'architecture': 'amd64', 'os': 'linux', 'config': {'Entrypoint': ['/bin/mc-gateway'], 'Env': env, 'WorkingDir': '/'}, 'rootfs': {'type': 'layers', 'diff_ids': ['sha256:' + hashlib.sha256(blob).hexdigest()]}}).encode()
 name = hashlib.sha256(config).hexdigest() + '.json'
 manifest = json.dumps([{'Config': name, 'RepoTags': ['mikrocentauri-gateway:lab'], 'Layers': ['layer/layer.tar']}]).encode()

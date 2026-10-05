@@ -24,6 +24,8 @@ type Ledger interface {
 }
 type Config struct {
 	Selected []string
+	// Active nil retains historical all-selected behavior; explicit subset retires names without deleting aliases.
+	Active   []string
 	Prefix   netip.Prefix
 	Capacity uint32
 }
@@ -73,6 +75,20 @@ func New(config Config, engine Engine, ledger Ledger) (*Admission, error) {
 		seen[canonical] = true
 		config.Selected[i] = canonical
 	}
+	if config.Active == nil {
+		config.Active = append([]string(nil), config.Selected...)
+	} else {
+		config.Active = append([]string{}, config.Active...)
+		active := make(map[string]bool)
+		for i, name := range config.Active {
+			canonical, err := fakeip.CanonicalDomain(name)
+			if err != nil || !seen[canonical] || active[canonical] {
+				return nil, errors.New("active names must be a unique namespace subset")
+			}
+			active[canonical] = true
+			config.Active[i] = canonical
+		}
+	}
 	return &Admission{config: config, engine: engine, ledger: ledger, reason: "not_admitted"}, nil
 }
 
@@ -115,7 +131,32 @@ func (a *Admission) Admit(ctx context.Context) error {
 	defer stop()
 	receipt := make(map[string]netip.Addr)
 	aliases := make(map[netip.Addr]bool)
-	for _, domain := range a.config.Selected {
+	// Check previously issued aliases before querying additions: allocation must not
+	// precede detection of a reset or foreign generation.
+	existing := a.ledger.Mappings()
+	old := make(map[string]netip.Addr)
+	known := make(map[string]bool)
+	for _, name := range a.config.Selected {
+		known[name] = true
+	}
+	for _, m := range existing {
+		if !known[m.Domain] || old[m.Domain].IsValid() {
+			return a.fail(epoch, "ledger_mismatch", ErrDenied)
+		}
+		old[m.Domain] = m.Fake
+	}
+	order := make([]string, 0, len(a.config.Selected))
+	for _, name := range a.config.Selected {
+		if old[name].IsValid() {
+			order = append(order, name)
+		}
+	}
+	for _, name := range a.config.Selected {
+		if !old[name].IsValid() {
+			order = append(order, name)
+		}
+	}
+	for _, domain := range order {
 		alias, err := a.engine.Alias(op, domain)
 		if err != nil {
 			return a.fail(epoch, "engine_error", err)
@@ -125,6 +166,9 @@ func (a *Admission) Admit(ctx context.Context) error {
 		}
 		if !alias.Is4() || !a.config.Prefix.Contains(alias) || aliases[alias] {
 			return a.fail(epoch, "invalid_alias", ErrDenied)
+		}
+		if previous := old[domain]; previous.IsValid() && previous != alias {
+			return a.fail(epoch, "ledger_mismatch", ErrDenied)
 		}
 		aliases[alias] = true
 		receipt[domain] = alias
@@ -184,6 +228,15 @@ func linkedContext(parent, lifetime context.Context) (context.Context, context.C
 // Begin guards an engine DNS exchange before it can allocate an alias. Its
 // context belongs to the admitted epoch and is cancelled immediately on Revoke.
 // The caller must use this context for the exchange and invoke the cleanup.
+func (a *Admission) active(domain string) bool {
+	for _, name := range a.config.Active {
+		if name == domain {
+			return true
+		}
+	}
+	return false
+}
+
 func (a *Admission) Begin(ctx context.Context, domain string) (context.Context, context.CancelFunc, error) {
 	canonical, err := fakeip.CanonicalDomain(domain)
 	if err != nil {
@@ -194,7 +247,7 @@ func (a *Admission) Begin(ctx context.Context, domain string) (context.Context, 
 		a.mu.Unlock()
 		return nil, nil, ErrDenied
 	}
-	if _, ok := a.receipt[canonical]; !ok {
+	if _, ok := a.receipt[canonical]; !ok || !a.active(canonical) {
 		a.mu.Unlock()
 		return nil, nil, ErrDenied
 	}
@@ -249,7 +302,7 @@ func (a *Admission) PublishAlias(ctx context.Context, domain string, alias netip
 		return fakeip.Mapping{}, 0, ErrDenied
 	}
 	a.mu.Lock()
-	if a.receipt == nil || a.receipt[canonical] != alias {
+	if a.receipt == nil || a.receipt[canonical] != alias || !a.active(canonical) {
 		a.mu.Unlock()
 		return fakeip.Mapping{}, 0, ErrDenied
 	}

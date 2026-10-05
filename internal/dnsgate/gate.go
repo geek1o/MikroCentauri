@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"net/netip"
+	"strconv"
 	"strings"
 	"time"
 
@@ -38,8 +39,11 @@ type Event struct {
 type Config struct {
 	InternalAddress string
 	Selected        []string
-	MaxMessage      int
-	Timeout         time.Duration
+	Retired         []string
+	// RealAddress handles retired names and, when set, all nonselected names.
+	RealAddress string
+	MaxMessage  int
+	Timeout     time.Duration
 	// Observe runs synchronously once per Handle call, including failures. It
 	// must be quick and safe for concurrent calls. Observer panics are ignored
 	// so diagnostics cannot replace a validated DNS response.
@@ -50,6 +54,7 @@ type Gate struct {
 	config    Config
 	publisher Publisher
 	selected  map[string]bool
+	retired   map[string]bool
 }
 
 var aliasRange = netip.MustParsePrefix("198.18.0.0/15")
@@ -72,16 +77,37 @@ func New(c Config, p Publisher) (*Gate, error) {
 	if err != nil || parseErr != nil || !ip.IsLoopback() {
 		return nil, errors.New("internal DNS must use a loopback address")
 	}
-	g := &Gate{config: c, publisher: p, selected: make(map[string]bool)}
-	for _, name := range c.Selected {
-		name = strings.ToLower(strings.TrimSuffix(name, "."))
-		if !validName(name) {
-			return nil, errors.New("invalid selected DNS name")
+	if c.RealAddress != "" {
+		host, port, err := net.SplitHostPort(c.RealAddress)
+		ip, parseErr := netip.ParseAddr(host)
+		p, portErr := strconv.Atoi(port)
+		if err != nil || parseErr != nil || portErr != nil || p < 1 || p > 65535 || !ip.Is4() || ip.IsUnspecified() || ip.IsMulticast() || aliasRange.Contains(ip) || c.RealAddress == c.InternalAddress {
+			return nil, errors.New("real DNS requires a distinct real IPv4 endpoint")
 		}
-		g.selected[name] = true
 	}
-	if len(g.selected) == 0 {
-		return nil, errors.New("selected DNS names are required")
+	if len(c.Retired) > 0 && c.RealAddress == "" {
+		return nil, errors.New("retired names require real DNS")
+	}
+	g := &Gate{config: c, publisher: p, selected: make(map[string]bool), retired: make(map[string]bool)}
+	for _, group := range []struct {
+		names  []string
+		target map[string]bool
+	}{{c.Selected, g.selected}, {c.Retired, g.retired}} {
+		for _, name := range group.names {
+			name = strings.ToLower(strings.TrimSuffix(name, "."))
+			if !validName(name) || group.target[name] {
+				return nil, errors.New("invalid or duplicate DNS name")
+			}
+			group.target[name] = true
+		}
+	}
+	for name := range g.retired {
+		if g.selected[name] {
+			return nil, errors.New("selected and retired DNS names overlap")
+		}
+	}
+	if len(g.selected)+len(g.retired) == 0 {
+		return nil, errors.New("DNS policy names are required")
 	}
 	return g, nil
 }
@@ -118,6 +144,7 @@ func (g *Gate) Handle(ctx context.Context, request []byte) []byte {
 	}
 	question := q.questions[0]
 	selected := g.selected[question.name]
+	retired := g.retired[question.name]
 	if selected {
 		event.Domain = question.name
 	}
@@ -148,10 +175,15 @@ func (g *Gate) Handle(ctx context.Context, request []byte) []byte {
 	}
 	event.Stage = "internal_exchange"
 	query := request
-	if selected {
+	if selected || retired {
 		query = canonicalQuery(request, question)
 	}
-	raw, err := g.exchange(ctx, query)
+	address := g.config.InternalAddress
+	if !selected && g.config.RealAddress != "" {
+		address = g.config.RealAddress
+		event.Stage = "real_exchange"
+	}
+	raw, err := g.exchangeAt(ctx, query, address)
 	if err != nil {
 		event.Reason = failureReason(ctx, err, "transport_error")
 		if errors.Is(err, errInvalidFrame) {
@@ -218,6 +250,12 @@ func (g *Gate) Handle(ctx context.Context, request []byte) []byte {
 		}
 	}
 	event.Stage, event.Reason = "internal_exchange", "unselected_forwarded"
+	if g.config.RealAddress != "" {
+		event.Stage = "real_exchange"
+	}
+	if retired {
+		event.Reason = "retired_forwarded"
+	}
 	return raw
 }
 
@@ -260,7 +298,11 @@ func (g *Gate) observe(event Event) {
 var errInvalidFrame = errors.New("internal DNS frame outside bounds")
 
 func (g *Gate) exchange(ctx context.Context, query []byte) ([]byte, error) {
-	c, err := (&net.Dialer{}).DialContext(ctx, "tcp", g.config.InternalAddress)
+	return g.exchangeAt(ctx, query, g.config.InternalAddress)
+}
+
+func (g *Gate) exchangeAt(ctx context.Context, query []byte, address string) ([]byte, error) {
+	c, err := (&net.Dialer{}).DialContext(ctx, "tcp", address)
 	if err != nil {
 		return nil, err
 	}

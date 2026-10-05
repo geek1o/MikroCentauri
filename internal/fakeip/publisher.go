@@ -28,6 +28,11 @@ const MaxTTL = 30 * time.Second
 var ErrCapacity = errors.New("fakeip alias capacity exhausted")
 var ErrClosed = errors.New("fakeip publisher closed")
 
+// ErrLeaseExpiredDuringVerification means backend proof completed after the
+// real-DNS lease fell below one publishable second. The old deadline is never
+// extended; only reconciliation may retry with a freshly resolved lease.
+var ErrLeaseExpiredDuringVerification = errors.New("DNS lease expired during backend verification")
+
 // OperationError identifies the failed publication boundary without exposing
 // resolver or backend error text to diagnostic consumers. Err retains the
 // original contextual message and cause for ordinary Go error inspection.
@@ -501,7 +506,7 @@ func (p *Publisher) refreshReady(ctx context.Context, index int) error {
 		return err
 	}
 	if p.remaining(*r) < time.Second {
-		return errors.New("DNS lease expired during backend verification")
+		return ErrLeaseExpiredDuringVerification
 	}
 	return nil
 }
@@ -558,7 +563,13 @@ func (p *Publisher) Reconcile(ctx context.Context) error {
 		return err
 	}
 	for i := range p.state.Records {
-		if err := p.refreshReady(ctx, i); err != nil {
+		err := p.refreshReady(ctx, i)
+		if errors.Is(err, ErrLeaseExpiredDuringVerification) {
+			// The preceding proof consumed the old lease. Resolve from a new
+			// origin and verify once more; persistent slowness remains an error.
+			err = p.refreshReady(ctx, i)
+		}
+		if err != nil {
 			return err
 		}
 	}

@@ -3,6 +3,7 @@ package dnsgate
 import (
 	"context"
 	"encoding/binary"
+	"errors"
 	"io"
 	"net"
 	"sync"
@@ -12,6 +13,26 @@ import (
 // Serve binds both transports at the supplied address. Cancellation closes all
 // sockets and waits for outstanding bounded requests to finish.
 func (g *Gate) Serve(ctx context.Context, listen string) error {
+	return serve(ctx, listen, g, g.config.MaxMessage, g.config.Timeout)
+}
+
+// Handler supplies one DNS response. A dispatcher may atomically choose an
+// immutable Gate at the start of each Handle call without replacing listeners.
+type Handler interface {
+	Handle(context.Context, []byte) []byte
+}
+
+// Serve keeps transport bounds fixed across handler generations: 4096 bytes,
+// two-second socket deadlines and at most 128 concurrent requests. Handlers
+// remain responsible for request validation and their own exchange deadlines.
+func Serve(ctx context.Context, listen string, handler Handler) error {
+	if handler == nil {
+		return errors.New("DNS handler is required")
+	}
+	return serve(ctx, listen, handler, 4096, 2*time.Second)
+}
+
+func serve(ctx context.Context, listen string, handler Handler, maxMessage int, timeout time.Duration) error {
 	tcp, err := net.Listen("tcp", listen)
 	if err != nil {
 		return err
@@ -56,20 +77,20 @@ func (g *Gate) Serve(ctx context.Context, listen string) error {
 				closeOnCancel := context.AfterFunc(ctx, func() { _ = conn.Close() })
 				defer closeOnCancel()
 				for {
-					_ = conn.SetDeadline(time.Now().Add(g.config.Timeout))
+					_ = conn.SetDeadline(time.Now().Add(timeout))
 					var size [2]byte
 					if _, e := io.ReadFull(conn, size[:]); e != nil {
 						return
 					}
 					n := int(binary.BigEndian.Uint16(size[:]))
-					if n < 12 || n > g.config.MaxMessage {
+					if n < 12 || n > maxMessage {
 						return
 					}
 					request := make([]byte, n)
 					if _, e := io.ReadFull(conn, request); e != nil {
 						return
 					}
-					answer := g.Handle(ctx, request)
+					answer := handler.Handle(ctx, request)
 					packet := make([]byte, 2+len(answer))
 					binary.BigEndian.PutUint16(packet, uint16(len(answer)))
 					copy(packet[2:], answer)
@@ -83,7 +104,7 @@ func (g *Gate) Serve(ctx context.Context, listen string) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		buf := make([]byte, g.config.MaxMessage+1)
+		buf := make([]byte, maxMessage+1)
 		for {
 			n, peer, e := udp.ReadFrom(buf)
 			if e != nil {
@@ -102,7 +123,7 @@ func (g *Gate) Serve(ctx context.Context, listen string) error {
 			go func() {
 				defer wg.Done()
 				defer func() { <-slots }()
-				answer := g.Handle(ctx, request)
+				answer := handler.Handle(ctx, request)
 				_, _ = udp.WriteTo(answer, peer)
 			}()
 		}

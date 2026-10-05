@@ -1,7 +1,7 @@
 # Bounded lab engine preflight
 
 `Validate(data, Config{Selected: selected})` accepts the exact finite DNS policy
-used by the disposable gateway: selected canonical ASCII names receive IPv4
+used by the disposable gateway: known canonical ASCII names receive IPv4
 FakeIP; AAAA receives an empty successful answer; other DNS uses a literal real
 bootstrap server. It requires the sole IPv4 pool `198.18.0.0/15`, durable engine
 cache `/data/singbox-cache.db`, loopback DNS listener `127.0.0.1:5354`, and a DNS
@@ -13,7 +13,7 @@ precondition and must run before launching the engine.
 The explicit SOCKS canary must listen only on 127.0.0.1:2080; an external listener
 would bypass forwarding quarantine during admission.
 
-The six traffic rules must retain this order: internal DNS hijack, device
+For the historical all-active policy, the six traffic rules must retain this order: internal DNS hijack, device
 192.168.88.30 DIRECT, device 192.168.88.20 PROXY, selected-domain PROXY, sniff,
 and selected-domain PROXY again. The first domain rule binds the stored FakeIP
 name before HTTP Host or TLS/QUIC SNI can change domain matching. A terminal
@@ -49,8 +49,17 @@ The gate must send canonical lower-case questions to the internal engine.
 Configuration exact matching alone does not establish a finite storage key
 namespace: stock `FqdnToDomain` strips a trailing dot without converting case.
 A selected domain therefore has one canonical cache key only after gate
-normalization. The configured namespace is immutable for a running generation;
-changing it needs a separate reviewed generation lifecycle. This package does
+normalization. The known allocator namespace remains immutable. `Config.Selected` retains
+that complete namespace for compatibility. `Config.Active == nil` selects all
+known names; a nonnil slice selects an explicit canonical subset, including an
+empty slice for all retired. Duplicates and names outside the known namespace
+are rejected. The ordered route policy places an active PROXY domain rule and
+a retired DIRECT domain rule before sniff, then active PROXY after sniff. Empty
+domain rules are omitted. Retired aliases therefore cannot regain PROXY by
+sniffing an active Host/SNI; source overrides still take precedence. DNS allocator
+rules continue to contain every known name so admission can verify historical
+bindings without allocating from a new namespace. This is a generation-specific
+policy preflight; it does not activate a transition or revoke an old generation. This package does
 not expire, remove, recycle, import, or rewrite aliases.
 
 ## Pinned stock behavior and limitations

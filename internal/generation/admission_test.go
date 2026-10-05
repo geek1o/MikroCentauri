@@ -352,3 +352,43 @@ func TestConfigAndCancellation(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestRetiredAliasAdmittedButNotPubliclyAllocated(t *testing.T) {
+	l := &ledger{items: []fakeip.Mapping{{Domain: names[1], Fake: aliases()[names[1]], Real: addr("10.77.0.20")}}}
+	a, err := New(Config{Selected: names, Active: []string{names[0], names[2]}, Capacity: 4}, engineFunc(func(ctx context.Context, n string) (netip.Addr, error) { return aliases()[n], nil }), l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = a.Admit(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+	if len(a.Snapshot().Bindings) != 3 {
+		t.Fatal("retired binding omitted")
+	}
+	if _, _, err = a.Begin(context.Background(), names[1]); !errors.Is(err, ErrDenied) {
+		t.Fatal("retired allocator exposed", err)
+	}
+	if _, _, err = a.PublishAlias(context.Background(), names[1], aliases()[names[1]]); !errors.Is(err, ErrDenied) {
+		t.Fatal("retired alias published", err)
+	}
+	if err = a.Validate(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+}
+func TestExistingMismatchPrecedesNewAllocation(t *testing.T) {
+	l := &ledger{items: []fakeip.Mapping{{Domain: names[1], Fake: aliases()[names[1]], Real: addr("10.77.0.20")}}}
+	var queried []string
+	a, err := New(Config{Selected: append(append([]string{}, names...), "fourth.test"), Capacity: 4}, engineFunc(func(ctx context.Context, n string) (netip.Addr, error) {
+		queried = append(queried, n)
+		return addr("198.18.0.99"), nil
+	}), l)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(a.Admit(context.Background()), ErrDenied) {
+		t.Fatal("accepted mismatch")
+	}
+	if len(queried) != 1 || queried[0] != names[1] || len(l.calls) != 0 {
+		t.Fatal("allocated addition before old generation check", queried, l.calls)
+	}
+}
