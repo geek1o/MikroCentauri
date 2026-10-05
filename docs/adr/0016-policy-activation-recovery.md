@@ -1,6 +1,7 @@
 # ADR 0016: policy activation and recovery coordinator
 
-Status: accepted for the reusable core; runtime adapter and native integration open.
+Status: accepted for reusable core and opt-in disposable gateway integration;
+production controller and management remain open.
 
 The namespace journal records intent and immutable name reservations, but cannot
 prove that a running engine or RouterOS mapping belongs to that intent. The
@@ -38,7 +39,20 @@ existing exclusive process lock and durable compare-and-swap. All other runtime
 lifecycle operations must share this serialization boundary. Direct Store writes
 or additional Controller instances are outside this contract.
 
-The coordinator is deliberately not connected to the Phase-7 unauthenticated
-lab endpoint or the production CLI yet. Changing native startup behavior requires
-a dedicated adapter and CHR crash replay. Authentication/TLS, supervision,
-last-known-good handling, production deployment and hardware coverage remain open.
+The coordinator now drives the opt-in namespace gateway's startup and HTTP apply.
+The lab adapter separates engine admission from TUN/DNS Release and uses the same
+lifecycle mutex as health/start/stop. `/control/start` in namespace mode deliberately
+replays recovery even for a healthy engine; legacy non-namespace mode still rejects
+an already running engine without stopping it. Startup invokes Recover once. After
+a failed attempt, a repaired runtime requires another start request or process
+restart; there is no background recovery loop.
+
+Native proof covers pending recovery, death after Commit before Release, damaged
+mapping refusal and native control-transport outage. The fixed native-state read
+retries transport failure only under its caller deadline; state-changing requests
+are not blindly retried. Test-only crash markers require MC_ACTIVATION_FAULTS=1;
+the image builder does not enable it by default. See the engineering milestone8
+report for pinned proof and limitations. The management API remains lab-only and
+unauthenticated; the production CLI is still offline. Authentication/TLS,
+supervision, last-known-good handling, production deployment and hardware coverage
+remain open.

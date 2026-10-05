@@ -1,0 +1,68 @@
+SING_BOX_BINARY="/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box" .cache/go/bin/go test -race ./...
+?   	mikrocentauri.local/core/cmd/mikrocentauri	[no test files]
+ok  	mikrocentauri.local/core/internal/activation	(cached)
+ok  	mikrocentauri.local/core/internal/config	(cached)
+ok  	mikrocentauri.local/core/internal/dnsgate	(cached)
+ok  	mikrocentauri.local/core/internal/engineguard	(cached)
+ok  	mikrocentauri.local/core/internal/fakeip	(cached)
+ok  	mikrocentauri.local/core/internal/generation	(cached)
+ok  	mikrocentauri.local/core/internal/health	(cached)
+ok  	mikrocentauri.local/core/internal/namespace	(cached)
+?   	mikrocentauri.local/core/internal/platform	[no test files]
+ok  	mikrocentauri.local/core/internal/platform/routeros	(cached)
+ok  	mikrocentauri.local/core/internal/proxy	(cached)
+ok  	mikrocentauri.local/core/internal/realdns	(cached)
+ok  	mikrocentauri.local/core/internal/singbox	(cached)
+?   	mikrocentauri.local/core/lab/controller	[no test files]
+?   	mikrocentauri.local/core/lab/generationtool	[no test files]
+ok  	mikrocentauri.local/core/lab/workload	(cached)
+.cache/go/bin/go vet ./...
+python3 tests/integration/namespace_policy.py --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS initial second binding PROXY
+PASS graceful expansion retains old aliases and allocates one unique addition {"fourth.test": "198.18.0.5", "second.test": "198.18.0.3", "selected.test": "198.18.0.2", "third.test": "198.18.0.4"}
+PASS retired cached alias HTTP Host=second.test DIRECT
+PASS retired cached alias HTTP Host=selected.test DIRECT
+PASS retired cached alias HTTP Host=SeLeCtEd.TeSt DIRECT
+PASS retired cached alias HTTP Host=selected.test. DIRECT
+PASS retired cached alias HTTP Host=198.18.0.3 DIRECT
+PASS retired cached alias TLS SNI=second.test DIRECT
+PASS retired cached alias TLS SNI=selected.test DIRECT
+PASS retired cached alias TLS SNI=SeLeCtEd.TeSt DIRECT
+PASS active alias cannot sniff into retired PROXY
+PASS new active alias PROXY
+PASS retirement survives engine reopen DIRECT
+PASS direct source precedes retired alias DIRECT
+PASS direct source precedes active alias DIRECT
+PASS proxy source precedes retired alias PROXY
+PASS proxy source precedes active alias PROXY
+PASS reactivation reuses second alias with HTTP foreign Host PROXY
+PASS reactivation reuses second alias with TLS foreign SNI PROXY
+PASS missing retired terminal rule reproduces HTTP reselection PROXY
+PASS missing retired terminal rule reproduces TLS reselection PROXY
+NOT RUN: public DNS retirement, controller durability, native TUN/RouterOS egress, QUIC, abrupt crash
+TLS certificate validation disabled only to isolate SNI policy in this host process fixture
+python3 tests/integration/binding_policy.py --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS FakeIP HTTP Host=selected.test PROXY
+PASS FakeIP HTTP Host=Selected.Test PROXY
+PASS FakeIP HTTP Host=selected.test. PROXY
+PASS FakeIP HTTP Host=198.18.0.2 PROXY
+PASS FakeIP HTTP Host=unselected.test PROXY
+PASS FakeIP TLS SNI=selected.test PROXY
+PASS FakeIP TLS SNI=SeLeCtEd.TeSt PROXY
+PASS FakeIP TLS SNI=unselected.test PROXY
+PASS DIRECT source precedes selected binding DIRECT
+PASS PROXY source precedes unselected destination PROXY
+PASS Real-IP selected cohost remains selected after sniff PROXY
+PASS Real-IP unselected cohost remains DIRECT DIRECT
+PASS Old ordering reproduces Host policy escape DIRECT
+PASS Old ordering reproduces TLS SNI policy escape DIRECT
+NOT RUN: native TUN, RouterOS egress, QUIC, reboot
+python3 tests/integration/smoke.py --go ".cache/go/bin/go" --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS real VLESS TCP request and nonselected DIRECT rule (process logs; not CHR egress proof)
+PASS typed FakeIP DNS on UDP/TCP, managed AAAA suppression and unselected real DNS
+PASS rejected candidate preserves previously validated output and redacts secrets
+NOT RUN: RouterOS packet path, distinct egress, TUN/UDP/QUIC, restart fail-open, reboot, FastTrack
+git diff --check
+mkdir -p .cache/bin
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 .cache/go/bin/go build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-amd64 ./cmd/mikrocentauri
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 .cache/go/bin/go build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-arm64 ./cmd/mikrocentauri

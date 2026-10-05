@@ -112,7 +112,7 @@
       "evidence": "Captured successful outgoing VLESS/DNS stay main; exhaustive loop/failover test absent"
     }
   ],
-  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5, phase6 and phase7 blocks; host smoke does not run CHR scenarios.",
+  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in engineering phase reports and phase5–8 blocks; these report numbers differ from the nine original product phases.",
   "phase5": {
     "date": "2026-10-05",
     "status": "TESTED bounded three-domain admission; production lifecycle OPEN",
@@ -167,6 +167,25 @@
       "Step-driven fresh flows with settled health",
       "No alias deletion/reuse, atomic transport boundary, existing-conntrack or power-loss acceptance",
       "Fixed lab canary, unauthenticated opt-in controls, production controller still open"
+    ]
+  },
+  "phase8": {
+    "status": "TESTED: integrated bounded activation/recovery; original product phases2–3 remain incomplete",
+    "report": "docs/reports/phase-8-activation-recovery.md",
+    "final_revision": 21,
+    "retained_domains": 5,
+    "passed": [
+      "Automatic pending recovery after after-Verify abrupt exit",
+      "Committed generation reproof after before-Release abrupt exit",
+      "Damaged backend refuses startup and stays pending/quarantined; recovery after repair",
+      "Control REST outage denies Prepare and Release; committed policy recovers after repair",
+      "Five-alias HTTP, verified HTTP3 and50 WAN-witnessed UDP workloads; source priorities",
+      "Stale/duplicate/capacity candidates preserve healthy admission epoch"
+    ],
+    "limits": [
+      "Process-death and step-driven new-flow proof, not power loss or atomic transport switching",
+      "Lab-only management, no production auth/CLI activation or LKG",
+      "New allocation followed by failure, native request cancellation and Linux cleanup failure not separately injected"
     ]
   }
 }

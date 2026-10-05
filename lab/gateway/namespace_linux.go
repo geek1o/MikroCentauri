@@ -12,11 +12,11 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"syscall"
 	"time"
 
+	"mikrocentauri.local/core/internal/activation"
 	"mikrocentauri.local/core/internal/dnsgate"
 	"mikrocentauri.local/core/internal/engineguard"
 	"mikrocentauri.local/core/internal/generation"
@@ -24,6 +24,7 @@ import (
 )
 
 var namespaceStore *namespace.Store
+var policyActivation *activation.Controller
 var activeNames []string
 var dnsSwitch = dnsgate.NewSwitcher(nil)
 
@@ -77,6 +78,10 @@ func setupNamespaceDNS() error {
 		if err = installPolicy(s.Known, s.Active); err != nil {
 			return err
 		}
+		policyActivation, err = activation.New(namespaceStore, gatewayActivation{})
+		if err != nil {
+			return err
+		}
 	} else {
 		if err := installPolicy(selectedNames, selectedNames); err != nil {
 			return err
@@ -93,27 +98,31 @@ func setupNamespaceDNS() error {
 // Caller holds lifecycleMu. Waiting on childDone never holds mu, because the
 // sole child reaper needs mu to clear its identity after closing that channel.
 func stopLocked() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
+	defer cancel()
+	return stopLockedContext(ctx)
+}
+func stopLockedContext(ctx context.Context) error {
+	ctx, cancel := context.WithTimeout(ctx, 8*time.Second)
+	defer cancel()
 	mu.Lock()
 	ready = false
 	dnsSwitch.Hold()
 	if admission != nil {
 		admission.Revoke()
 	}
-	err := quarantine()
+	err := quarantineContext(ctx)
 	cmd, done := child, childDone
 	mu.Unlock()
 	monitor.SetLocalReady(false)
-	if err != nil {
-		return err
-	}
 	if cmd != nil {
-		if err = cmd.Process.Signal(syscall.SIGTERM); err != nil && !errors.Is(err, os.ErrProcessDone) {
-			return err
+		if signalErr := cmd.Process.Signal(syscall.SIGTERM); signalErr != nil && !errors.Is(signalErr, os.ErrProcessDone) {
+			return errors.Join(err, signalErr)
 		}
 		select {
 		case <-done:
-		case <-time.After(8 * time.Second):
-			return errors.New("engine graceful close timed out; namespace activation denied")
+		case <-ctx.Done():
+			return errors.Join(err, fmt.Errorf("engine graceful close incomplete: %w", ctx.Err()))
 		}
 		mu.Lock()
 		if child == cmd {
@@ -121,8 +130,10 @@ func stopLocked() error {
 		}
 		mu.Unlock()
 	}
-	return nil
+	return err
 }
+
+var errNativeLeaseTransport = errors.New("native lease transport unavailable")
 
 // Fixed lab-only resources: this helper cannot accept a caller-supplied URL.
 func nativeLeaseRequest(ctx context.Context, method, path string, body io.Reader) ([]byte, error) {
@@ -135,7 +146,7 @@ func nativeLeaseRequest(ctx context.Context, method, path string, body io.Reader
 	client := &http.Client{Timeout: 3 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("native lease transport unavailable")
+		return nil, errNativeLeaseTransport
 	}
 	defer res.Body.Close()
 	raw, err := io.ReadAll(io.LimitReader(res.Body, 1<<20))
@@ -155,6 +166,17 @@ func revokeNativeLease(ctx context.Context) error {
 	// token. Otherwise its stale UP state could renew once during the transition.
 	for {
 		raw, err := nativeLeaseRequest(ctx, "GET", "tool/netwatch", nil)
+		if errors.Is(err, errNativeLeaseTransport) && ctx.Err() == nil {
+			// Container startup may precede native network availability. Retry
+			// only this read under the caller's deadline; never repeat writes
+			// or accept unavailable native state as a revoked lease.
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(100 * time.Millisecond):
+				continue
+			}
+		}
 		if err != nil {
 			return err
 		}
@@ -343,51 +365,17 @@ func namespaceControl(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "lab canary must remain active", 409)
 			return
 		}
-		// Validate input and exact old generation before any stop/mutation.
-		if _, e := namespaceStore.Preview(q.Revision, q.Active); e != nil {
-			http.Error(w, e.Error(), 409)
-			return
-		}
-		data, e := os.ReadFile("/data/singbox.json")
-		if e != nil || engineguard.Validate(data, engineguard.Config{Selected: s.Known, Active: s.Active}) != nil {
-			http.Error(w, "current config-policy mismatch", 409)
-			return
-		}
 	}
-	if err = stopLocked(); err == nil {
-		ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
-		err = revokeNativeLease(ctx)
-		cancel()
+	ctx, cancel := context.WithTimeout(r.Context(), 40*time.Second)
+	defer cancel()
+	var committed namespace.Snapshot
+	if q.Resume {
+		committed, err = policyActivation.Recover(ctx)
+	} else {
+		committed, err = policyActivation.Apply(ctx, q.Revision, q.Active)
 	}
 	if err != nil {
-		http.Error(w, "namespace stop/native barrier failed", 409)
-		return
-	}
-	if !q.Resume {
-		s, err = namespaceStore.Prepare(q.Revision, q.Active)
-		if err != nil {
-			http.Error(w, err.Error(), 409)
-			return
-		}
-	}
-	p := s.Pending
-	if p == nil {
-		http.Error(w, "missing pending namespace", 409)
-		return
-	}
-	if err = rewritePolicy(p.Known, p.Active); err == nil {
-		err = installPolicy(p.Known, p.Active)
-	}
-	if err == nil {
-		err = startLocked()
-	}
-	if err != nil {
-		http.Error(w, fmt.Sprintf("namespace pending; activation denied: %v", err), 409)
-		return
-	}
-	committed, e := namespaceStore.Snapshot()
-	if e != nil || committed.Pending != nil || !reflect.DeepEqual(committed.Active, p.Active) {
-		http.Error(w, "namespace commit unavailable", 503)
+		http.Error(w, fmt.Sprintf("namespace activation denied: %v", err), 409)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

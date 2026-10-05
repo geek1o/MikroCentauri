@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"mikrocentauri.local/core/internal/engineguard"
@@ -10,19 +11,25 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 // Quarantine precedes engine execution. A native watchdog delay can lose a
 // packet, but cannot expose an unadmitted engine to cached forwarded aliases.
 func quarantine() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return quarantineContext(ctx)
+}
+func quarantineContext(ctx context.Context) error {
 	iface := os.Getenv("MC_INTERFACE")
 	if iface == "" {
 		iface = "mc-probe"
 	}
-	if e := ip("route", "replace", "blackhole", "default", "table", "100"); e != nil {
+	if e := exec.CommandContext(ctx, "/sbin/ip", "route", "replace", "blackhole", "default", "table", "100").Run(); e != nil {
 		return errors.New("cannot install ingress quarantine")
 	}
-	rules, e := exec.Command("/sbin/ip", "rule", "show").Output()
+	rules, e := exec.CommandContext(ctx, "/sbin/ip", "rule", "show").Output()
 	if e != nil {
 		return errors.New("cannot inspect ingress policy")
 	}
@@ -41,7 +48,7 @@ func quarantine() error {
 		return errors.New("duplicate ingress policy")
 	}
 	if count == 0 {
-		if e := ip("rule", "add", "priority", "10000", "iif", iface, "lookup", "100"); e != nil {
+		if e := exec.CommandContext(ctx, "/sbin/ip", "rule", "add", "priority", "10000", "iif", iface, "lookup", "100").Run(); e != nil {
 			return errors.New("cannot enforce ingress quarantine")
 		}
 	}

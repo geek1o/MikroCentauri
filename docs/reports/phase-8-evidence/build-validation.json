@@ -1,0 +1,18 @@
+{
+  "phase8-gateway.tar": {
+    "bytes": 111912960,
+    "sha256": "2740690f0e655e21f4ec93e6be15b399006cf90eb11f4b14984b16553dc3f100"
+  },
+  "phase8-rebuilt.tar": {
+    "bytes": 111912960,
+    "sha256": "2740690f0e655e21f4ec93e6be15b399006cf90eb11f4b14984b16553dc3f100"
+  },
+  "mc-gateway": {
+    "bytes": 7897248,
+    "sha256": "7cf56ec75354bd5a6b1b1fe90a7ec3295892c9b0f3a2a80712c69397a15092e4"
+  },
+  "phase8-gateway-arm64": {
+    "bytes": 7340192,
+    "sha256": "e0a7ca3e859e14d34c1dcb4b4c8ad22bc4964ea0cf5861ee72cf763fcc6f93b5"
+  }
+}

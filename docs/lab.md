@@ -393,3 +393,60 @@ never delete issued binding history to obtain a fresh test.
 After evidence collection, disable the observer, run mc-lab-down, stop the container
 and shut down the VMs/switches. See [Phase7](reports/phase-7-namespace-lifecycle.md)
 and [ADR-0015](adr/0015-append-only-namespace-policy.md).
+
+
+## Engineering milestone 8: activation and startup recovery
+
+The product roadmap still has nine phases (0–8); these engineering report numbers
+are a separate sequence. See [the roadmap](product/progress.md).
+
+Build the opt-in namespace gateway with the same pinned lab dependencies:
+
+```sh
+python3 scripts/build-gateway-lab.py --dynamic-dns --native-lease --namespace-policy --out .cache/dataplane/phase8-gateway.tar
+```
+
+The gateway now calls activation Recover on every namespace-mode start, including
+`/control/start`. It gracefully stops the previous child, holds DNS, confirms the
+native lease is absent, stages the generation, proves its bindings/mappings,
+commits pending intent and then releases TUN/DNS. A failed attempt stays held;
+after fixing its cause, restart the process or call `/control/start` again.
+The matching manual `resume` operation remains compatible for pending revisions.
+The production CLI still only generates/plans offline, and lab HTTP controls
+remain unauthenticated.
+
+`tests/e2e/chr_activation.py` requires the preserved five-name fixture described
+in the Phase7 report, named `mc-gateway-phase7` with its existing private root.
+It does not erase reservations or caches. The crash-only native run additionally
+opts into `MC_ACTIVATION_FAULTS=1`. This is not enabled by the image builder.
+Single-use `/data/activation-fault` values `after-verify` and `before-release`
+are consumed and directory-synced before exit86. There is no HTTP arm endpoint.
+Test provisioning uses the explicit disposable localhost admin/blank-password
+fixture to write that marker and read the private journal; the runtime continues
+to use its restricted public mc-lab account. Never use those test credentials on
+an installed product.
+
+The native runner needs a temporary fixed-path administrative script
+`mc-lab-activation-snapshot` (policy read,write,test):
+
+```routeros
+:local s [/file/get "pcie2/mc-gateway-phase5/data/namespace/namespace.json" contents]
+/tool/fetch url="http://10.0.2.2:19082/snapshot" http-method=post http-header-field="Content-Type: application/json" http-data=$s output=none
+```
+
+The runner listens for this snapshot on localhost19082 only while running. It
+records partial results on failure, preserves cached aliases across both crash
+boundaries, refuses damaged native proof and exercises a blocked native REST link.
+Restore any injected mapping/filter in cleanup, remove the snapshot script and
+disable `MC_ACTIVATION_FAULTS` after testing. The historical Phase7 manual-recovery
+proof remains tied to its implementation commit; its current runner now expects
+automatic repaired-pending recovery.
+
+```sh
+python3 tests/e2e/chr_activation.py
+python3 scripts/summarize-lab-pcap.py .cache/dataplane/phase8-lan.pcap .cache/dataplane/phase8-wan.pcap --out .cache/dataplane/phase8-capture-summary.json
+python3 scripts/verify-activation-capture.py --results .cache/dataplane/activation-results.json --capture-summary .cache/dataplane/phase8-capture-summary.json --out .cache/dataplane/phase8-udp-witnesses.json
+```
+
+These are step-driven new-connection tests, not atomic DNS transport switching,
+power-loss, existing-conntrack, hardware throughput or production auth acceptance.

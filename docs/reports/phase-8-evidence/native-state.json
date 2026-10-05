@@ -1,0 +1,92 @@
+{
+  "resource": {
+    "architecture-name": "x86_64",
+    "board-name": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+    "build-time": "2026-09-29 14:21:27",
+    "cpu": "QEMU",
+    "cpu-count": "2",
+    "cpu-frequency": "999",
+    "cpu-load": "23",
+    "free-hdd-space": "31346688",
+    "free-memory": "183853056",
+    "minimum-version": "7.1",
+    "platform": "MikroTik",
+    "total-hdd-space": "93564928",
+    "total-memory": "536870912",
+    "uptime": "23m44s",
+    "version": "7.24.5 (stable)",
+    "write-sect-since-reboot": "2088",
+    "write-sect-total": "2088"
+  },
+  "policy": {
+    "revision": 21,
+    "known": [
+      "selected.test",
+      "second.test",
+      "third.test",
+      "fourth.test",
+      "fifth.test"
+    ],
+    "active": [
+      "selected.test",
+      "second.test",
+      "third.test",
+      "fourth.test",
+      "fifth.test"
+    ]
+  },
+  "generation": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 2,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        },
+        {
+          "domain": "fourth.test",
+          "alias": "198.18.0.5"
+        },
+        {
+          "domain": "fifth.test",
+          "alias": "198.18.0.6"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "readiness_probe_error": "",
+    "setup_error": ""
+  },
+  "health": {
+    "ready": true,
+    "local_ready": true,
+    "consecutive_failures": 0,
+    "consecutive_successes": 3,
+    "samples": 113
+  },
+  "container": [
+    {
+      ".id": "*F",
+      "name": "mc-gateway-phase7",
+      "root-dir": "/pcie2/mc-gateway-phase5",
+      "env": "MC_NATIVE_LEASE=1,MC_NAMESPACE_POLICY=1,MC_ACTIVATION_FAULTS=1",
+      "entrypoint": "/bin/mc-gateway",
+      "cmd": "",
+      "privileged": "false",
+      "user": "0:0",
+      "stopped": null,
+      "start-on-boot": "false"
+    }
+  ]
+}

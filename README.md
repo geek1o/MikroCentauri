@@ -32,9 +32,13 @@ stable: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/versio
   and monitor-expiry/invalid-token rejection on CHR.
 - Durable append-only Known/Active namespace revisions, retired real DNS and cached
   DIRECT, addition/reactivation and explicit pending recovery on CHR.
-- Reusable serialized activation/recovery core with durable revision fault tests;
-  runtime adapter and native recovery integration remain open.
+- Integrated serialized activation/recovery with automatic pending/committed
+  startup proof, both crash windows and native REST outage acceptance on CHR.
 - Phase-0 research, license inventory, UX specification, sixteen ADRs and a draft `/app` manifest.
+
+The [product roadmap](docs/product/progress.md) has nine phases (0–8).
+Historical engineering report numbers differ from the product phases; current
+work completes controller/core requirements in product phases 2–3.
 
 ## Try the local prototype
 
@@ -56,7 +60,7 @@ Full-gateway and Socksify have bounded CHR experiments, not production modes.
 
 The transparent CHR path and dynamic publication for a bounded IPv4 namespace
 are proved for lab cases. Complete FakeIP lifecycle, IPv6, version/device coverage
-and production controller activation remain open. See [current step report](docs/reports/phase-8-activation-core.md),
+and production controller activation remain open. See [current engineering report](docs/reports/phase-8-activation-recovery.md),
 [Phase-7 namespace lifecycle](docs/reports/phase-7-namespace-lifecycle.md),
 [Phase-6 boot and binding](docs/reports/phase-6-boot-and-policy.md),
 [Phase-5 admission](docs/reports/phase-5-generation-admission.md),

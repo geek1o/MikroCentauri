@@ -26,3 +26,7 @@ lab gateway or CLI, so native behavior is unchanged. Next: implement a runtime
 adapter that separates engine admission from DNS release, then replay pending
 recovery and the post-Commit crash boundary on CHR. Production controller,
 authenticated management, supervisor/LKG and device coverage remain open.
+
+The runtime integration and native acceptance followed in the
+[completed engineering milestone report](phase-8-activation-recovery.md).
+This document preserves the scope of the first core-only step.

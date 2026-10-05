@@ -1,0 +1,1056 @@
+{
+  "scope": "WAN packet witnesses for accepted UDP workloads; no stream reconstruction, transaction or loss bounds",
+  "wan_sha256": "a5bfc641435e857cb82c56587884d780e87df4c5aeb88637481f96d54028db97",
+  "workloads": [
+    {
+      "stage": "retired_matrix.selected.test",
+      "marker": "phase8-17-selected.test-1",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200930.274581,
+        "revision": 17,
+        "domain": "selected.test",
+        "sequence": 1,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 57862,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "retired_matrix.second.test",
+      "marker": "phase8-17-second.test-2",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200930.328567,
+        "revision": 17,
+        "domain": "second.test",
+        "sequence": 2,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 45290,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "retired_matrix.third.test",
+      "marker": "phase8-17-third.test-3",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200930.386344,
+        "revision": 17,
+        "domain": "third.test",
+        "sequence": 3,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 57870,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "retired_matrix.fourth.test",
+      "marker": "phase8-17-fourth.test-4",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200930.447607,
+        "revision": 17,
+        "domain": "fourth.test",
+        "sequence": 4,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 57876,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "retired_matrix.fifth.test",
+      "marker": "phase8-17-fifth.test-5",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200930.516375,
+        "revision": 17,
+        "domain": "fifth.test",
+        "sequence": 5,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 57892,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "after_verify_cached_direct.selected.test",
+      "marker": "phase8-18-selected.test-6",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200947.237041,
+        "revision": 18,
+        "domain": "selected.test",
+        "sequence": 6,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 50109,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "after_verify_cached_direct.second.test",
+      "marker": "phase8-18-second.test-7",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200947.2728,
+        "revision": 18,
+        "domain": "second.test",
+        "sequence": 7,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58809,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "after_verify_cached_direct.third.test",
+      "marker": "phase8-18-third.test-8",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200947.306957,
+        "revision": 18,
+        "domain": "third.test",
+        "sequence": 8,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 49977,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "after_verify_cached_direct.fourth.test",
+      "marker": "phase8-18-fourth.test-9",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200947.34046,
+        "revision": 18,
+        "domain": "fourth.test",
+        "sequence": 9,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 44798,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "after_verify_cached_direct.fifth.test",
+      "marker": "phase8-18-fifth.test-10",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200947.374249,
+        "revision": 18,
+        "domain": "fifth.test",
+        "sequence": 10,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 49475,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "after_verify_recovered_matrix.selected.test",
+      "marker": "phase8-18-selected.test-11",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200960.308333,
+        "revision": 18,
+        "domain": "selected.test",
+        "sequence": 11,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58366,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "after_verify_recovered_matrix.second.test",
+      "marker": "phase8-18-second.test-12",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200960.368667,
+        "revision": 18,
+        "domain": "second.test",
+        "sequence": 12,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58372,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "after_verify_recovered_matrix.third.test",
+      "marker": "phase8-18-third.test-13",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200960.428823,
+        "revision": 18,
+        "domain": "third.test",
+        "sequence": 13,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58378,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "after_verify_recovered_matrix.fourth.test",
+      "marker": "phase8-18-fourth.test-14",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200960.490127,
+        "revision": 18,
+        "domain": "fourth.test",
+        "sequence": 14,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58384,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "after_verify_recovered_matrix.fifth.test",
+      "marker": "phase8-18-fifth.test-15",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200960.563776,
+        "revision": 18,
+        "domain": "fifth.test",
+        "sequence": 15,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58402,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "before_release_cached_direct.selected.test",
+      "marker": "phase8-19-selected.test-16",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200965.895354,
+        "revision": 19,
+        "domain": "selected.test",
+        "sequence": 16,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 50385,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_cached_direct.second.test",
+      "marker": "phase8-19-second.test-17",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200965.954956,
+        "revision": 19,
+        "domain": "second.test",
+        "sequence": 17,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 57086,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_cached_direct.third.test",
+      "marker": "phase8-19-third.test-18",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200965.990985,
+        "revision": 19,
+        "domain": "third.test",
+        "sequence": 18,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 44489,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_cached_direct.fourth.test",
+      "marker": "phase8-19-fourth.test-19",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200966.027956,
+        "revision": 19,
+        "domain": "fourth.test",
+        "sequence": 19,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 35338,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_cached_direct.fifth.test",
+      "marker": "phase8-19-fifth.test-20",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200966.063755,
+        "revision": 19,
+        "domain": "fifth.test",
+        "sequence": 20,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 47782,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_recovered_matrix.selected.test",
+      "marker": "phase8-19-selected.test-21",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200977.875509,
+        "revision": 19,
+        "domain": "selected.test",
+        "sequence": 21,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58650,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "before_release_recovered_matrix.second.test",
+      "marker": "phase8-19-second.test-22",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200977.950742,
+        "revision": 19,
+        "domain": "second.test",
+        "sequence": 22,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 54707,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "before_release_recovered_matrix.third.test",
+      "marker": "phase8-19-third.test-23",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200978.029029,
+        "revision": 19,
+        "domain": "third.test",
+        "sequence": 23,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58658,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "before_release_recovered_matrix.fourth.test",
+      "marker": "phase8-19-fourth.test-24",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200978.105434,
+        "revision": 19,
+        "domain": "fourth.test",
+        "sequence": 24,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58664,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "before_release_recovered_matrix.fifth.test",
+      "marker": "phase8-19-fifth.test-25",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200978.178135,
+        "revision": 19,
+        "domain": "fifth.test",
+        "sequence": 25,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 58670,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "backend_restored_direct.selected.test",
+      "marker": "phase8-20-selected.test-26",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200994.077399,
+        "revision": 20,
+        "domain": "selected.test",
+        "sequence": 26,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 34282,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_restored_direct.second.test",
+      "marker": "phase8-20-second.test-27",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200994.121484,
+        "revision": 20,
+        "domain": "second.test",
+        "sequence": 27,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 41190,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_restored_direct.third.test",
+      "marker": "phase8-20-third.test-28",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200994.158275,
+        "revision": 20,
+        "domain": "third.test",
+        "sequence": 28,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 45257,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_restored_direct.fourth.test",
+      "marker": "phase8-20-fourth.test-29",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200994.194735,
+        "revision": 20,
+        "domain": "fourth.test",
+        "sequence": 29,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 45670,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_restored_direct.fifth.test",
+      "marker": "phase8-20-fifth.test-30",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791200994.22955,
+        "revision": 20,
+        "domain": "fifth.test",
+        "sequence": 30,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 54937,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_recovered_matrix.selected.test",
+      "marker": "phase8-20-selected.test-31",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201005.522797,
+        "revision": 20,
+        "domain": "selected.test",
+        "sequence": 31,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59042,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "backend_recovered_matrix.second.test",
+      "marker": "phase8-20-second.test-32",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201005.59627,
+        "revision": 20,
+        "domain": "second.test",
+        "sequence": 32,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 56239,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_recovered_matrix.third.test",
+      "marker": "phase8-20-third.test-33",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201005.650335,
+        "revision": 20,
+        "domain": "third.test",
+        "sequence": 33,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 33773,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "backend_recovered_matrix.fourth.test",
+      "marker": "phase8-20-fourth.test-34",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201005.712962,
+        "revision": 20,
+        "domain": "fourth.test",
+        "sequence": 34,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59052,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "backend_recovered_matrix.fifth.test",
+      "marker": "phase8-20-fifth.test-35",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201005.783339,
+        "revision": 20,
+        "domain": "fifth.test",
+        "sequence": 35,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59058,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "final_matrix.selected.test",
+      "marker": "phase8-21-selected.test-36",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201018.574658,
+        "revision": 21,
+        "domain": "selected.test",
+        "sequence": 36,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59286,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "final_matrix.second.test",
+      "marker": "phase8-21-second.test-37",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201018.64871,
+        "revision": 21,
+        "domain": "second.test",
+        "sequence": 37,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59292,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "final_matrix.third.test",
+      "marker": "phase8-21-third.test-38",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201018.725968,
+        "revision": 21,
+        "domain": "third.test",
+        "sequence": 38,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59298,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "final_matrix.fourth.test",
+      "marker": "phase8-21-fourth.test-39",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201018.808879,
+        "revision": 21,
+        "domain": "fourth.test",
+        "sequence": 39,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59304,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "final_matrix.fifth.test",
+      "marker": "phase8-21-fifth.test-40",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201018.875147,
+        "revision": 21,
+        "domain": "fifth.test",
+        "sequence": 40,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59310,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "control_outage.cached_direct.selected.test",
+      "marker": "phase8-21-selected.test-41",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201031.221797,
+        "revision": 21,
+        "domain": "selected.test",
+        "sequence": 41,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 60554,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "control_outage.cached_direct.second.test",
+      "marker": "phase8-21-second.test-42",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201031.266034,
+        "revision": 21,
+        "domain": "second.test",
+        "sequence": 42,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 47111,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "control_outage.cached_direct.third.test",
+      "marker": "phase8-21-third.test-43",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201031.304352,
+        "revision": 21,
+        "domain": "third.test",
+        "sequence": 43,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 53184,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "control_outage.cached_direct.fourth.test",
+      "marker": "phase8-21-fourth.test-44",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201031.338877,
+        "revision": 21,
+        "domain": "fourth.test",
+        "sequence": 44,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 51313,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "control_outage.cached_direct.fifth.test",
+      "marker": "phase8-21-fifth.test-45",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201031.37461,
+        "revision": 21,
+        "domain": "fifth.test",
+        "sequence": 45,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 49059,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "control_outage.recovered_matrix.selected.test",
+      "marker": "phase8-21-selected.test-46",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201042.708647,
+        "revision": 21,
+        "domain": "selected.test",
+        "sequence": 46,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59798,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "control_outage.recovered_matrix.second.test",
+      "marker": "phase8-21-second.test-47",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201042.808382,
+        "revision": 21,
+        "domain": "second.test",
+        "sequence": 47,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59804,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "control_outage.recovered_matrix.third.test",
+      "marker": "phase8-21-third.test-48",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201042.88263,
+        "revision": 21,
+        "domain": "third.test",
+        "sequence": 48,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59810,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "control_outage.recovered_matrix.fourth.test",
+      "marker": "phase8-21-fourth.test-49",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201042.955261,
+        "revision": 21,
+        "domain": "fourth.test",
+        "sequence": 49,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59816,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "control_outage.recovered_matrix.fifth.test",
+      "marker": "phase8-21-fifth.test-50",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "matching_forward_packets": 1,
+      "first_packet": {
+        "time_utc_epoch": 1791201043.040897,
+        "revision": 21,
+        "domain": "fifth.test",
+        "sequence": 50,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 59832,
+        "destination_port": 8443
+      }
+    }
+  ]
+}

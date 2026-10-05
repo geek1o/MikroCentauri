@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"mikrocentauri.local/core/internal/fakeip"
 	"mikrocentauri.local/core/internal/generation"
@@ -37,28 +38,42 @@ var admission *generation.Admission
 var selectedNames []string
 var _, fakeRange, _ = net.ParseCIDR("198.18.0.0/15")
 
-func ip(args ...string) error { return exec.Command("/sbin/ip", args...).Run() }
 func start() error {
 	lifecycleMu.Lock()
 	defer lifecycleMu.Unlock()
-	if namespaceStore != nil {
-		s, e := namespaceStore.Snapshot()
-		if e != nil {
-			return e
-		}
-		if s.Pending != nil {
-			dnsSwitch.Hold()
-			admission.Revoke()
-			if e := quarantine(); e != nil {
-				return e
-			}
-			return fmt.Errorf("pending namespace requires explicit resume")
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), 40*time.Second)
+	defer cancel()
+	if policyActivation != nil {
+		_, err := policyActivation.Recover(ctx)
+		return err
 	}
-	return startLocked()
+	return startLocked(ctx)
 }
 
-func startLocked() error {
+func startLocked(ctx context.Context) error {
+	// Preserve the legacy non-namespace start contract: rejecting an already
+	// running engine must not stop that healthy generation during cleanup.
+	mu.Lock()
+	alreadyRunning := child != nil
+	mu.Unlock()
+	if alreadyRunning {
+		return fmt.Errorf("already running")
+	}
+	err := startEngineLocked(ctx)
+	if err == nil {
+		err = releaseLocked(ctx)
+	}
+	if err != nil {
+		cleanup, cancel := context.WithTimeout(context.WithoutCancel(ctx), 8*time.Second)
+		defer cancel()
+		return errors.Join(err, stopLockedContext(cleanup))
+	}
+	return nil
+}
+
+// Caller holds lifecycleMu. The verified engine stays quarantined until the
+// activation controller commits the durable namespace and calls Release.
+func startEngineLocked(ctx context.Context) error {
 	mu.Lock()
 	defer mu.Unlock()
 	if child != nil {
@@ -69,7 +84,7 @@ func startLocked() error {
 		dnsSwitch.Hold()
 	}
 	monitor.SetLocalReady(false)
-	if e := quarantine(); e != nil {
+	if e := quarantineContext(ctx); e != nil {
 		return e
 	}
 	if admission != nil {
@@ -79,7 +94,7 @@ func startLocked() error {
 			return e
 		}
 	}
-	if e := exec.Command("/bin/sing-box", "check", "-c", "/data/singbox.json").Run(); e != nil {
+	if e := exec.CommandContext(ctx, "/bin/sing-box", "check", "-c", "/data/singbox.json").Run(); e != nil {
 		return fmt.Errorf("config rejected")
 	}
 	cmd := exec.Command("/bin/sing-box", "run", "-c", "/data/singbox.json")
@@ -112,31 +127,34 @@ func startLocked() error {
 		}
 		mu.Unlock()
 	}()
-	iface := os.Getenv("MC_INTERFACE")
-	if iface == "" {
-		iface = "mc-probe"
-	}
 	fail := func(e error) error {
 		ready = false
 		if admission != nil && admission.Snapshot().Admitted {
 			admission.Revoke()
 		}
-		_ = quarantine()
-		_ = cmd.Process.Kill()
+		quarantineErr := quarantine()
+		// The caller performs SIGTERM + wait after mu is released. A forced
+		// kill here would prevent the stock allocator persisting its cursor.
 		lastError = "generation admission denied"
-		return e
+		return errors.Join(e, quarantineErr)
 	}
 	for n := 0; n < 100; n++ {
 		if netif, e := net.InterfaceByName("mc-tun"); e == nil && netif.Flags&net.FlagUp != 0 {
 			break
 		}
-		time.Sleep(50 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			return fail(ctx.Err())
+		case <-done:
+			return fail(fmt.Errorf("engine exited before admission"))
+		case <-time.After(50 * time.Millisecond):
+		}
 	}
 	if e := os.WriteFile("/proc/sys/net/ipv4/ip_forward", []byte("1\n"), 0600); e != nil {
 		return fail(e)
 	}
 	if admission != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 		defer cancel()
 		var e error
 		for n := 0; n < 5; n++ {
@@ -147,34 +165,50 @@ func startLocked() error {
 			if ctx.Err() != nil {
 				break
 			}
-			time.Sleep(250 * time.Millisecond)
-		}
-		if e != nil {
-			return fail(e)
-		}
-	}
-	if namespaceStore != nil {
-		snapshot, e := namespaceStore.Snapshot()
-		if e != nil {
-			return fail(e)
-		}
-		if snapshot.Pending != nil {
-			if _, e = namespaceStore.Commit(snapshot.Pending.Revision); e != nil {
-				return fail(e)
+			select {
+			case <-ctx.Done():
+				return fail(ctx.Err())
+			case <-done:
+				return fail(fmt.Errorf("engine exited during admission"))
+			case <-time.After(250 * time.Millisecond):
 			}
 		}
+		if e != nil {
+			return fail(e)
+		}
 	}
+	return ctx.Err()
+}
+
+func releaseLocked(ctx context.Context) error {
+	mu.Lock()
+	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if child == nil || (admission != nil && !admission.Snapshot().Admitted) {
+		return fmt.Errorf("no verified engine to release")
+	}
+	select {
+	case <-childDone:
+		return fmt.Errorf("verified engine exited before release")
+	default:
+	}
+
 	// Only forwarded ingress enters TUN; locally originated VLESS/DNS sockets stay in main.
-	if e := ip("route", "replace", "default", "dev", "mc-tun", "table", "100"); e != nil {
-		return fail(fmt.Errorf("TUN ingress route: %w", e))
+	if e := exec.CommandContext(ctx, "/sbin/ip", "route", "replace", "default", "dev", "mc-tun", "table", "100").Run(); e != nil {
+		return fmt.Errorf("TUN ingress route: %w", e)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	if admission != nil {
 		if e := dnsSwitch.Release(); e != nil {
-			return fail(e)
+			return e
 		}
 	}
 	ready = true
-	return nil
+	return ctx.Err()
 }
 
 // Probe the DNS dataplane, not merely the management HTTP listener.

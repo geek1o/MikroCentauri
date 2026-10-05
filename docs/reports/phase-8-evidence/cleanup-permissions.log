@@ -1,0 +1,7 @@
+/user/group/set [find where name="mc-lab-rest"] policy=read,write,
+test,api,rest-api,!ftp,!reboot
+[admin@CHR] > /user/group/print detail where name="mc-lab-rest"
+0  name="mc-lab-rest"
+   policy=read,write,test,api,rest-api,!local,!telnet,!ssh,!ftp,!reboot,
+      !policy,!winbox,!password,!web,!sniff,!sensitive,!romon skin=default
+[admin@CHR] > 

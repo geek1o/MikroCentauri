@@ -48,3 +48,7 @@ production authentication, writer isolation, coordinated rollback/automatic
 recovery and hardware/device coverage remain open. Existing conntrack sessions
 are outside the fresh-flow policy proof. See the
 [Phase7 report](../reports/phase-7-namespace-lifecycle.md).
+
+Startup recovery update: [ADR0016](0016-policy-activation-recovery.md) now
+replays pending intent automatically in the opt-in lab gateway. The Phase7
+manual-resume acceptance above remains historical; append-only invariants remain.

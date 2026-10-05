@@ -1,0 +1,4 @@
+{
+  "scope": "Five immutable IPv4 aliases; new HTTP/HTTP3/UDP connections; injected process death, not power loss",
+  "error": "Native transition timeout"
+}

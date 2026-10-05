@@ -1,0 +1,212 @@
+[
+  {
+    ".id": "*9E4",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=13 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:12",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*9F7",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=13 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:13",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*9F8",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation fault boundary=after-verify exit=86",
+    "time": "2026-10-05 11:43:13",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*9FE",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=13 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:20",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*A11",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=13 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:21",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*A12",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=13 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:21",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*A13",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation released revision=13 native-up=observer-gated",
+    "time": "2026-10-05 11:43:21",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*AD9",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:30",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*AEC",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:31",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*AED",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:31",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*AEF",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation fault boundary=before-release exit=86",
+    "time": "2026-10-05 11:43:31",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*AF4",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:37",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*B07",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:38",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*B08",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=14 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:38",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*B09",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation released revision=14 native-up=observer-gated",
+    "time": "2026-10-05 11:43:38",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*BED",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=15 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:48",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C2F",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=15 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:43:57",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C6A",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: gateway setup: verify: ensure mapping: unsafe rule in lab mapping chain: disabled",
+    "time": "2026-10-05 11:43:59",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C6E",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=15 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:03",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C81",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=15 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:04",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C82",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=15 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:04",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*C83",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation released revision=15 native-up=observer-gated",
+    "time": "2026-10-05 11:44:04",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*D55",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:14",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*D68",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:15",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*D69",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:44:15",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*D6A",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation released revision=16 native-up=observer-gated",
+    "time": "2026-10-05 11:44:15",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*135B",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation stage revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:45:58",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*136E",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation verified revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:45:58",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*136F",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation committed revision=16 dns=held ingress=quarantined",
+    "time": "2026-10-05 11:45:58",
+    "topics": "container,info,debug"
+  },
+  {
+    ".id": "*1370",
+    "extra-info": "",
+    "message": "mc-gateway-phase7: activation released revision=16 native-up=observer-gated",
+    "time": "2026-10-05 11:45:58",
+    "topics": "container,info,debug"
+  }
+]

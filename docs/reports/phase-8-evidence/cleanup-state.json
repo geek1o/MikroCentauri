@@ -1,0 +1,182 @@
+{
+  "native": {
+    "selectors": [
+      {
+        ".id": "*80000002",
+        "active": "true",
+        "comment": "mikrocentauri:lab:route:fakeip",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "198.18.0.0/15",
+        "dynamic": "false",
+        "gateway": "172.30.0.2",
+        "immediate-gw": "172.30.0.2%mc-bridge",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        ".id": "*3",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:lab:nat:dns-tcp",
+        "disabled": "false",
+        "dst-address": "192.168.88.1",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "tcp",
+        "src-address-list": "mc-lab-up-lease",
+        "to-addresses": "172.30.0.2",
+        "to-ports": "5353"
+      },
+      {
+        ".id": "*4",
+        "action": "dst-nat",
+        "bytes": "204",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:lab:nat:dns-udp",
+        "disabled": "false",
+        "dst-address": "192.168.88.1",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "3",
+        "protocol": "udp",
+        "src-address-list": "mc-lab-up-lease",
+        "to-addresses": "172.30.0.2",
+        "to-ports": "5353"
+      },
+      {
+        ".id": "*7",
+        "action": "jump",
+        "bytes": "56787",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:lab:nat:dynamic-jump",
+        "disabled": "false",
+        "dst-address": "198.18.0.0/15",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "jump-target": "mc-dynamic-backup",
+        "packets": "120",
+        "src-address": "192.168.88.0/24",
+        "src-address-list": "!mc-lab-up-lease"
+      }
+    ],
+    "maps": [
+      {
+        ".id": "*1A",
+        "action": "dst-nat",
+        "bytes": "11373",
+        "chain": "mc-dynamic-backup",
+        "comment": "mikrocentauri:dynlab:nat:map-c6120002",
+        "disabled": "false",
+        "dst-address": "198.18.0.2",
+        "dynamic": "false",
+        "invalid": "false",
+        "packets": "24",
+        "src-address": "192.168.88.0/24",
+        "to-addresses": "10.77.0.20"
+      },
+      {
+        ".id": "*1B",
+        "action": "dst-nat",
+        "bytes": "11357",
+        "chain": "mc-dynamic-backup",
+        "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+        "disabled": "false",
+        "dst-address": "198.18.0.3",
+        "dynamic": "false",
+        "invalid": "false",
+        "packets": "24",
+        "src-address": "192.168.88.0/24",
+        "to-addresses": "10.77.0.20"
+      },
+      {
+        ".id": "*1C",
+        "action": "dst-nat",
+        "bytes": "11349",
+        "chain": "mc-dynamic-backup",
+        "comment": "mikrocentauri:dynlab:nat:map-c6120004",
+        "disabled": "false",
+        "dst-address": "198.18.0.4",
+        "dynamic": "false",
+        "invalid": "false",
+        "packets": "24",
+        "src-address": "192.168.88.0/24",
+        "to-addresses": "10.77.0.20"
+      },
+      {
+        ".id": "*1D",
+        "action": "dst-nat",
+        "bytes": "11357",
+        "chain": "mc-dynamic-backup",
+        "comment": "mikrocentauri:dynlab:nat:map-c6120005",
+        "disabled": "false",
+        "dst-address": "198.18.0.5",
+        "dynamic": "false",
+        "invalid": "false",
+        "packets": "24",
+        "src-address": "192.168.88.0/24",
+        "to-addresses": "10.77.0.20"
+      },
+      {
+        ".id": "*1E",
+        "action": "dst-nat",
+        "bytes": "11351",
+        "chain": "mc-dynamic-backup",
+        "comment": "mikrocentauri:dynlab:nat:map-c6120006",
+        "disabled": "false",
+        "dst-address": "198.18.0.6",
+        "dynamic": "false",
+        "invalid": "false",
+        "packets": "24",
+        "src-address": "192.168.88.0/24",
+        "to-addresses": "10.77.0.20"
+      }
+    ],
+    "observer": [
+      {
+        ".id": "*1",
+        "comment": "mikrocentauri:lab:netwatch:readiness",
+        "disabled": "true",
+        "down-script": "/system/script/run mc-lab-down",
+        "host": "172.30.0.2",
+        "http-codes": "200",
+        "ignore-initial-down": "false",
+        "ignore-initial-up": "false",
+        "interval": "2s",
+        "port": "9099",
+        "start-delay": "1s",
+        "startup-delay": "10s",
+        "status": "unknown",
+        "test-script": "/system/script/run mc-lab-lease-refresh",
+        "thr-http-time": "1s",
+        "timeout": "1s",
+        "type": "http-get",
+        "up-script": "/system/script/run mc-lab-up"
+      }
+    ],
+    "lease": []
+  },
+  "containers": [
+    {
+      ".id": "*F",
+      "name": "mc-gateway-phase7",
+      "stopped": "true",
+      "env": "MC_NATIVE_LEASE=1,MC_NAMESPACE_POLICY=1",
+      "entrypoint": "/bin/mc-gateway",
+      "privileged": "false",
+      "start-on-boot": "false"
+    }
+  ],
+  "debug_scripts": [],
+  "fault_filters": []
+}

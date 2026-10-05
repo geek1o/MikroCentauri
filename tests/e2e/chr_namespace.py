@@ -107,13 +107,16 @@ if __name__=='__main__':
   rest('PATCH','ip/firewall/nat/'+fault['.id'],{'disabled':'false'});fault=None
   rest('POST','container/stop',{'numbers':c['.id']});time.sleep(2)
   rest('POST','container/start',{'numbers':c['.id']});time.sleep(4)
-  out['pending_after_restart']=policy();assert out['pending_after_restart']==pending
-  d=gateway(path='/diagnostics/generation');out['pending_generation']=d
-  assert not d['engine_running'] and not d['admission']['admitted'] and 'blackhole' in d['ingress_route']
-  out['pending_cached_direct']=cached_matrix(allbind,[])
-  out['resumed_policy']=apply({'revision':base+4,'resume':True});out['resumed_up']=settled_up()
-  assert aliases()==allbind and 'third.test' not in out['resumed_policy']['active']
-  out['resumed_cached']=cached_matrix(allbind,out['resumed_policy']['active'])
+  # Since engineering milestone8, a repaired pending revision is proved and
+  # committed automatically on startup. Phase7's historical manual-resume
+  # acceptance remains recorded against its implementation commit.
+  out['automatic_recovery_up']=settled_up()
+  out['automatically_recovered_policy']=policy()
+  recovered=out['automatically_recovered_policy']
+  assert recovered['revision']==base+4 and 'pending' not in recovered
+  assert recovered['known']==pending['pending']['known'] and recovered['active']==pending['pending']['active']
+  assert aliases()==allbind and 'third.test' not in recovered['active']
+  out['automatically_recovered_cached']=cached_matrix(allbind,recovered['active'])
   out['final_policy']=apply({'revision':base+4,'active':expanded['known']});out['final_up']=settled_up()
   assert aliases()==allbind and out['final_policy']['revision']==base+5
   out['final_cached']=cached_matrix(allbind,out['final_policy']['active'])
