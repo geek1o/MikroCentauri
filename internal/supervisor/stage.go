@@ -31,6 +31,7 @@ func (s *Supervisor) Stage(ctx context.Context, data []byte) error {
 		return s.fail("pending revision differs")
 	}
 	path, err := s.revision(revision, data)
+	defer s.prune()
 	if err != nil || s.validate(ctx, path) != nil {
 		return s.fail("candidate core validation failed")
 	}

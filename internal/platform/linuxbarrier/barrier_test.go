@@ -107,6 +107,36 @@ func TestBarrierOrdersQuarantineVerificationAndRelease(t *testing.T) {
 		t.Fatal("verification reused")
 	}
 }
+
+func TestIndependentCanaryAllowsEmptyActiveButRequiresEgressProof(t *testing.T) {
+	b, _, _, _ := barrierFixture(t)
+	o := b.options
+	o.IndependentCanary = true
+	if _, err := New(o); err == nil {
+		t.Fatal("independent domain canary accepted")
+	}
+	o.Canary.URL = "http://10.77.0.10:8080/canary"
+	independent, err := New(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := &fakeProbe{err: errors.New("unexpected direct egress")}
+	independent.probe = p
+	ctx := context.Background()
+	if err = independent.Quarantine(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if independent.Verify(ctx, coreconfig.Model{}) == nil || independent.Release(ctx) == nil {
+		t.Fatal("wrong egress admitted")
+	}
+	p.err = nil
+	if err = independent.Verify(ctx, coreconfig.Model{}); err != nil {
+		t.Fatal(err)
+	}
+	if err = independent.Release(ctx); err != nil {
+		t.Fatal(err)
+	}
+}
 func TestBarrierRefusesForeignPolicyBeforeMutation(t *testing.T) {
 	for _, kind := range []string{"priority", "earlier", "table", "duplicate"} {
 		t.Run(kind, func(t *testing.T) {

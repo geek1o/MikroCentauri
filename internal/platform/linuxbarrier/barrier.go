@@ -39,8 +39,12 @@ type Options struct {
 	TUNPrefix           netip.Prefix
 	Native              Native
 	Canary              health.HTTPProbeConfig
-	Runner              Runner
-	ReadForwarding      func() ([]byte, error)
+	// IndependentCanary permits a dedicated literal-IP echo target whose route
+	// is independent of the user's Active domain set. Actual egress must still
+	// match Canary.ExpectedPeerIP; removing its proxy rule fails the probe.
+	IndependentCanary bool
+	Runner            Runner
+	ReadForwarding    func() ([]byte, error)
 }
 type Barrier struct {
 	mu         sync.Mutex
@@ -64,6 +68,12 @@ func New(o Options) (*Barrier, error) {
 	u, err := url.Parse(o.Canary.URL)
 	if err != nil {
 		return nil, errors.New("invalid canary")
+	}
+	if o.IndependentCanary {
+		address, err := netip.ParseAddr(u.Hostname())
+		if err != nil || !address.Is4() || address.IsUnspecified() || address.IsMulticast() {
+			return nil, errors.New("independent canary requires literal IPv4 target")
+		}
 	}
 	probe, err := health.NewHTTPProbe(o.Canary)
 	if err != nil {
@@ -216,7 +226,7 @@ func (b *Barrier) Verify(ctx context.Context, m coreconfig.Model) error {
 			selected = true
 		}
 	}
-	if !selected {
+	if !selected && !b.options.IndependentCanary {
 		return errors.New("canary is outside selected namespace")
 	}
 	if err := b.closed(ctx); err != nil {

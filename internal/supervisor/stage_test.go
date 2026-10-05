@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync/atomic"
@@ -11,6 +12,26 @@ import (
 	"testing"
 	"time"
 )
+
+func TestRejectedStagesDoNotAccumulateRevisions(t *testing.T) {
+	s, err := New(options(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close(context.Background())
+	for i := 0; i < 12; i++ {
+		if err = s.Stage(context.Background(), []byte(fmt.Sprintf(`{"invalid":%d}`, i))); err == nil {
+			t.Fatal("bad binary schema accepted")
+		}
+	}
+	paths, err := filepath.Glob(filepath.Join(s.dir, "*.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(paths) != 0 {
+		t.Fatal("rejected stages accumulated revisions", paths)
+	}
+}
 
 func TestStagedCommitAndRecovery(t *testing.T) {
 	o := options(t)
