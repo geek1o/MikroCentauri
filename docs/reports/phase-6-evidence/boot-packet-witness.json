@@ -1,0 +1,15 @@
+{
+  "first_outage_sequence": 31,
+  "first_forward_marker": {
+    "time_utc_epoch": 1791194792.329945,
+    "sequence": 92,
+    "protocol": "udp",
+    "source": "10.77.0.1",
+    "destination": "10.77.0.20",
+    "source_port": 46324,
+    "destination_port": 9000
+  },
+  "forward_markers_after_outage": 50,
+  "all_observed_forward_markers_after_outage": "native DIRECT UDP to10.77.0.20:9000",
+  "scope": "Markers matched to workload sequence; not all frames, loss count, or pre-management proof"
+}

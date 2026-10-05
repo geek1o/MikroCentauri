@@ -1,0 +1,5516 @@
+{
+  "scope": "Fresh flows to one saved alias and new domain queries; first observed success after each stream outage, not a loss/timing bound",
+  "before_resource": {
+    "architecture-name": "x86_64",
+    "board-name": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+    "build-time": "2026-09-29 14:21:27",
+    "cpu": "QEMU",
+    "cpu-count": "2",
+    "cpu-frequency": "999",
+    "cpu-load": "13",
+    "free-hdd-space": "31358976",
+    "free-memory": "215818240",
+    "minimum-version": "7.1",
+    "platform": "MikroTik",
+    "total-hdd-space": "93564928",
+    "total-memory": "536870912",
+    "uptime": "2m5s",
+    "version": "7.24.5 (stable)",
+    "write-sect-since-reboot": "1120",
+    "write-sect-total": "1120"
+  },
+  "before_up": {
+    "observed_ms_from_poll": 1046,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*2",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:05:22",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "before_lease": [
+    {
+      ".id": "*2",
+      "address": "192.168.88.0/24",
+      "comment": "mikrocentauri:lab:lease:up",
+      "creation-time": "2026-10-05 10:05:22",
+      "disabled": "false",
+      "dynamic": "true",
+      "list": "mc-lab-up-lease",
+      "timeout": "4s"
+    }
+  ],
+  "scheduler_disabled": "true",
+  "trigger_ms": 3151,
+  "after_resource": {
+    "architecture-name": "x86_64",
+    "board-name": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+    "build-time": "2026-09-29 14:21:27",
+    "cpu": "QEMU",
+    "cpu-count": "2",
+    "cpu-frequency": "1000",
+    "cpu-load": "20",
+    "free-hdd-space": "31363072",
+    "free-memory": "308346880",
+    "minimum-version": "7.1",
+    "platform": "MikroTik",
+    "total-hdd-space": "93564928",
+    "total-memory": "536870912",
+    "uptime": "12s",
+    "version": "7.24.5 (stable)",
+    "write-sect-since-reboot": "848",
+    "write-sect-total": "848"
+  },
+  "first_management_ms": 23818,
+  "after_lease": [],
+  "samples": {
+    "http": [
+      {
+        "sequence": 1,
+        "start_ms": 1146,
+        "end_ms": 1146,
+        "result": {
+          "error": "<urlopen error [Errno 54] Connection reset by peer>"
+        }
+      },
+      {
+        "sequence": 2,
+        "start_ms": 1198,
+        "end_ms": 1230,
+        "result": {
+          "request_id": 12,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-2",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-2\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 29
+        }
+      },
+      {
+        "sequence": 3,
+        "start_ms": 1281,
+        "end_ms": 1308,
+        "result": {
+          "request_id": 15,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-3",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-3\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 4,
+        "start_ms": 1359,
+        "end_ms": 1390,
+        "result": {
+          "request_id": 17,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-4",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-4\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 27
+        }
+      },
+      {
+        "sequence": 5,
+        "start_ms": 1445,
+        "end_ms": 1467,
+        "result": {
+          "request_id": 20,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-5",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-5\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 19
+        }
+      },
+      {
+        "sequence": 6,
+        "start_ms": 1519,
+        "end_ms": 1539,
+        "result": {
+          "request_id": 23,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-6",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-6\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 17
+        }
+      },
+      {
+        "sequence": 7,
+        "start_ms": 1593,
+        "end_ms": 1610,
+        "result": {
+          "request_id": 26,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-7",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-7\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 14
+        }
+      },
+      {
+        "sequence": 8,
+        "start_ms": 1661,
+        "end_ms": 1689,
+        "result": {
+          "request_id": 28,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-8",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-8\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 24
+        }
+      },
+      {
+        "sequence": 9,
+        "start_ms": 1742,
+        "end_ms": 1769,
+        "result": {
+          "request_id": 31,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-9",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-9\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 21
+        }
+      },
+      {
+        "sequence": 10,
+        "start_ms": 1822,
+        "end_ms": 1855,
+        "result": {
+          "request_id": 34,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-10",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-10\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 30
+        }
+      },
+      {
+        "sequence": 11,
+        "start_ms": 1910,
+        "end_ms": 1935,
+        "result": {
+          "request_id": 36,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-11",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-11\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 22
+        }
+      },
+      {
+        "sequence": 12,
+        "start_ms": 1989,
+        "end_ms": 2006,
+        "result": {
+          "request_id": 39,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-12",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-12\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 13
+        }
+      },
+      {
+        "sequence": 13,
+        "start_ms": 2059,
+        "end_ms": 2097,
+        "result": {
+          "request_id": 42,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-13",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-13\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 35
+        }
+      },
+      {
+        "sequence": 14,
+        "start_ms": 2152,
+        "end_ms": 2182,
+        "result": {
+          "request_id": 46,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-14",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-14\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 26
+        }
+      },
+      {
+        "sequence": 15,
+        "start_ms": 2235,
+        "end_ms": 2255,
+        "result": {
+          "request_id": 48,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-15",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-15\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 16,
+        "start_ms": 2308,
+        "end_ms": 2332,
+        "result": {
+          "request_id": 51,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-16",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-16\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 20
+        }
+      },
+      {
+        "sequence": 17,
+        "start_ms": 2383,
+        "end_ms": 2404,
+        "result": {
+          "request_id": 54,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-17",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-17\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 17
+        }
+      },
+      {
+        "sequence": 18,
+        "start_ms": 2459,
+        "end_ms": 2476,
+        "result": {
+          "request_id": 56,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-18",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-18\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 15
+        }
+      },
+      {
+        "sequence": 19,
+        "start_ms": 2531,
+        "end_ms": 2556,
+        "result": {
+          "request_id": 59,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-19",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-19\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 21
+        }
+      },
+      {
+        "sequence": 20,
+        "start_ms": 2609,
+        "end_ms": 2647,
+        "result": {
+          "request_id": 61,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-20",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-20\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 33
+        }
+      },
+      {
+        "sequence": 21,
+        "start_ms": 2700,
+        "end_ms": 2723,
+        "result": {
+          "request_id": 64,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-21",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-21\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 20
+        }
+      },
+      {
+        "sequence": 22,
+        "start_ms": 2773,
+        "end_ms": 2793,
+        "result": {
+          "request_id": 67,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-22",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-22\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 23,
+        "start_ms": 2848,
+        "end_ms": 2868,
+        "result": {
+          "request_id": 69,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-23",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-23\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 24,
+        "start_ms": 2920,
+        "end_ms": 2937,
+        "result": {
+          "request_id": 72,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-24",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-24\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 14
+        }
+      },
+      {
+        "sequence": 25,
+        "start_ms": 2990,
+        "end_ms": 3016,
+        "result": {
+          "request_id": 75,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-25",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-25\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 26,
+        "start_ms": 3067,
+        "end_ms": 3092,
+        "result": {
+          "request_id": 77,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-26",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-26\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 21
+        }
+      },
+      {
+        "sequence": 27,
+        "start_ms": 3147,
+        "end_ms": 3179,
+        "result": {
+          "request_id": 80,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-27",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-27\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 28
+        }
+      },
+      {
+        "sequence": 28,
+        "start_ms": 3230,
+        "end_ms": 3262,
+        "result": {
+          "request_id": 84,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-28",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-28\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 28
+        }
+      },
+      {
+        "sequence": 29,
+        "start_ms": 3317,
+        "end_ms": 3621,
+        "result": {
+          "request_id": 87,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-29\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 30,
+        "start_ms": 3672,
+        "end_ms": 3976,
+        "result": {
+          "request_id": 94,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-30\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 31,
+        "start_ms": 4030,
+        "end_ms": 4335,
+        "result": {
+          "request_id": 102,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-31\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 32,
+        "start_ms": 4388,
+        "end_ms": 4692,
+        "result": {
+          "request_id": 109,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-32\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 33,
+        "start_ms": 4747,
+        "end_ms": 5052,
+        "result": {
+          "request_id": 112,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-33\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 34,
+        "start_ms": 5102,
+        "end_ms": 5410,
+        "result": {
+          "request_id": 114,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-34\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 35,
+        "start_ms": 5465,
+        "end_ms": 5770,
+        "result": {
+          "request_id": 118,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-35\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 36,
+        "start_ms": 5821,
+        "end_ms": 6126,
+        "result": {
+          "request_id": 121,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-36\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 37,
+        "start_ms": 6179,
+        "end_ms": 6482,
+        "result": {
+          "request_id": 124,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-37\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 38,
+        "start_ms": 6536,
+        "end_ms": 6839,
+        "result": {
+          "request_id": 127,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-38\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 39,
+        "start_ms": 6894,
+        "end_ms": 7197,
+        "result": {
+          "request_id": 130,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-39\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 40,
+        "start_ms": 7247,
+        "end_ms": 7550,
+        "result": {
+          "request_id": 133,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-40\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 41,
+        "start_ms": 7604,
+        "end_ms": 7906,
+        "result": {
+          "request_id": 136,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-41\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 42,
+        "start_ms": 7957,
+        "end_ms": 8261,
+        "result": {
+          "request_id": 138,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-42\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 43,
+        "start_ms": 8314,
+        "end_ms": 8619,
+        "result": {
+          "request_id": 141,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-43\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 44,
+        "start_ms": 8672,
+        "end_ms": 8975,
+        "result": {
+          "request_id": 144,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-44\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 45,
+        "start_ms": 9030,
+        "end_ms": 9335,
+        "result": {
+          "request_id": 147,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-45\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 46,
+        "start_ms": 9390,
+        "end_ms": 9693,
+        "result": {
+          "request_id": 150,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-46\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 47,
+        "start_ms": 9748,
+        "end_ms": 10052,
+        "result": {
+          "request_id": 153,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-47\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 48,
+        "start_ms": 10107,
+        "end_ms": 10411,
+        "result": {
+          "request_id": 156,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-48\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 49,
+        "start_ms": 10466,
+        "end_ms": 10769,
+        "result": {
+          "request_id": 159,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-49\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 50,
+        "start_ms": 10822,
+        "end_ms": 11126,
+        "result": {
+          "request_id": 162,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-50\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 51,
+        "start_ms": 11181,
+        "end_ms": 11485,
+        "result": {
+          "request_id": 165,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-51\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 52,
+        "start_ms": 11536,
+        "end_ms": 11839,
+        "result": {
+          "request_id": 168,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-52\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 53,
+        "start_ms": 11891,
+        "end_ms": 12195,
+        "result": {
+          "request_id": 171,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-53\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 54,
+        "start_ms": 12250,
+        "end_ms": 12554,
+        "result": {
+          "request_id": 174,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-54\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 55,
+        "start_ms": 12609,
+        "end_ms": 12913,
+        "result": {
+          "request_id": 177,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-55\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 56,
+        "start_ms": 12964,
+        "end_ms": 13268,
+        "result": {
+          "request_id": 180,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-56\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 57,
+        "start_ms": 13323,
+        "end_ms": 13627,
+        "result": {
+          "request_id": 183,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-57\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 58,
+        "start_ms": 13679,
+        "end_ms": 13982,
+        "result": {
+          "request_id": 186,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-58\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 59,
+        "start_ms": 14035,
+        "end_ms": 14339,
+        "result": {
+          "request_id": 189,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-59\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 60,
+        "start_ms": 14390,
+        "end_ms": 14694,
+        "result": {
+          "request_id": 192,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-60\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 61,
+        "start_ms": 14746,
+        "end_ms": 15049,
+        "result": {
+          "request_id": 195,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-61\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 62,
+        "start_ms": 15104,
+        "end_ms": 15408,
+        "result": {
+          "request_id": 198,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-62\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 63,
+        "start_ms": 15460,
+        "end_ms": 15764,
+        "result": {
+          "request_id": 201,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-63\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 64,
+        "start_ms": 15815,
+        "end_ms": 16119,
+        "result": {
+          "request_id": 204,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-64\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 65,
+        "start_ms": 16172,
+        "end_ms": 16475,
+        "result": {
+          "request_id": 207,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-65\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 66,
+        "start_ms": 16526,
+        "end_ms": 16829,
+        "result": {
+          "request_id": 210,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-66\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 67,
+        "start_ms": 16880,
+        "end_ms": 17184,
+        "result": {
+          "request_id": 213,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-67\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 68,
+        "start_ms": 17235,
+        "end_ms": 17539,
+        "result": {
+          "request_id": 216,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-68\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 69,
+        "start_ms": 17590,
+        "end_ms": 17894,
+        "result": {
+          "request_id": 219,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-69\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 70,
+        "start_ms": 17949,
+        "end_ms": 18253,
+        "result": {
+          "request_id": 222,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-70\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 71,
+        "start_ms": 18306,
+        "end_ms": 18610,
+        "result": {
+          "request_id": 225,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-71\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 72,
+        "start_ms": 18663,
+        "end_ms": 18965,
+        "result": {
+          "request_id": 228,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-72\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 73,
+        "start_ms": 19016,
+        "end_ms": 19319,
+        "result": {
+          "request_id": 231,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-73\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 74,
+        "start_ms": 19375,
+        "end_ms": 19678,
+        "result": {
+          "request_id": 234,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-74\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 75,
+        "start_ms": 19732,
+        "end_ms": 20035,
+        "result": {
+          "request_id": 237,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-75\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 76,
+        "start_ms": 20085,
+        "end_ms": 20389,
+        "result": {
+          "request_id": 240,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-76\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 77,
+        "start_ms": 20444,
+        "end_ms": 20748,
+        "result": {
+          "request_id": 243,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-77\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 78,
+        "start_ms": 20799,
+        "end_ms": 21104,
+        "result": {
+          "request_id": 246,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-78\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 79,
+        "start_ms": 21156,
+        "end_ms": 21464,
+        "result": {
+          "request_id": 249,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-79\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 80,
+        "start_ms": 21514,
+        "end_ms": 21821,
+        "result": {
+          "request_id": 252,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-80\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 81,
+        "start_ms": 21872,
+        "end_ms": 22175,
+        "result": {
+          "request_id": 255,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-81\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 82,
+        "start_ms": 22226,
+        "end_ms": 22533,
+        "result": {
+          "request_id": 258,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-82\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 83,
+        "start_ms": 22588,
+        "end_ms": 22892,
+        "result": {
+          "request_id": 261,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-83\": context deadline exceeded",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 84,
+        "start_ms": 22944,
+        "end_ms": 23251,
+        "result": {
+          "request_id": 264,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-84\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 85,
+        "start_ms": 23302,
+        "end_ms": 23608,
+        "result": {
+          "request_id": 267,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-85\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 86,
+        "start_ms": 23660,
+        "end_ms": 23965,
+        "result": {
+          "request_id": 270,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-86\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 87,
+        "start_ms": 24016,
+        "end_ms": 24323,
+        "result": {
+          "request_id": 273,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-87\": context deadline exceeded",
+          "elapsed_ms": 302
+        }
+      },
+      {
+        "sequence": 88,
+        "start_ms": 24377,
+        "end_ms": 24683,
+        "result": {
+          "request_id": 276,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "Get \"http://second.test:8080/phase6-boot-88\": context deadline exceeded",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 89,
+        "start_ms": 24733,
+        "end_ms": 24788,
+        "result": {
+          "request_id": 279,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-89",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-89\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 40
+        }
+      },
+      {
+        "sequence": 90,
+        "start_ms": 24843,
+        "end_ms": 24864,
+        "result": {
+          "request_id": 282,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-90",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-90\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 91,
+        "start_ms": 24919,
+        "end_ms": 24927,
+        "result": {
+          "request_id": 285,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-91",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-91\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 92,
+        "start_ms": 24982,
+        "end_ms": 24991,
+        "result": {
+          "request_id": 288,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-92",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-92\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 93,
+        "start_ms": 25045,
+        "end_ms": 25052,
+        "result": {
+          "request_id": 291,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-93",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-93\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 94,
+        "start_ms": 25107,
+        "end_ms": 25113,
+        "result": {
+          "request_id": 294,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-94",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-94\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 95,
+        "start_ms": 25168,
+        "end_ms": 25175,
+        "result": {
+          "request_id": 297,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-95",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-95\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 96,
+        "start_ms": 25230,
+        "end_ms": 25244,
+        "result": {
+          "request_id": 300,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-96",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-96\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 97,
+        "start_ms": 25299,
+        "end_ms": 25306,
+        "result": {
+          "request_id": 304,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-97",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-97\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 98,
+        "start_ms": 25357,
+        "end_ms": 25366,
+        "result": {
+          "request_id": 307,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-98",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-98\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 99,
+        "start_ms": 25420,
+        "end_ms": 25432,
+        "result": {
+          "request_id": 310,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-99",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-99\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 100,
+        "start_ms": 25482,
+        "end_ms": 25494,
+        "result": {
+          "request_id": 312,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-100",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-100\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 101,
+        "start_ms": 25544,
+        "end_ms": 25552,
+        "result": {
+          "request_id": 315,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-101",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-101\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 102,
+        "start_ms": 25602,
+        "end_ms": 25603,
+        "result": {
+          "error": "[Errno 54] Connection reset by peer"
+        }
+      },
+      {
+        "sequence": 103,
+        "start_ms": 25653,
+        "end_ms": 25663,
+        "result": {
+          "request_id": 320,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-103",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-103\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 104,
+        "start_ms": 25718,
+        "end_ms": 25726,
+        "result": {
+          "request_id": 324,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-104",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-104\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 105,
+        "start_ms": 25776,
+        "end_ms": 25791,
+        "result": {
+          "request_id": 326,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-105",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-105\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 106,
+        "start_ms": 25841,
+        "end_ms": 25852,
+        "result": {
+          "request_id": 329,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-106",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-106\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 107,
+        "start_ms": 25902,
+        "end_ms": 25910,
+        "result": {
+          "request_id": 333,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-107",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-107\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 108,
+        "start_ms": 25964,
+        "end_ms": 25971,
+        "result": {
+          "request_id": 336,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-108",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-108\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 109,
+        "start_ms": 26025,
+        "end_ms": 26033,
+        "result": {
+          "request_id": 339,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-109",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-109\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 110,
+        "start_ms": 26084,
+        "end_ms": 26094,
+        "result": {
+          "request_id": 341,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-110",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-110\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 111,
+        "start_ms": 26147,
+        "end_ms": 26156,
+        "result": {
+          "request_id": 343,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-111",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-111\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 112,
+        "start_ms": 26208,
+        "end_ms": 26217,
+        "result": {
+          "request_id": 346,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-112",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-112\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 113,
+        "start_ms": 26269,
+        "end_ms": 26278,
+        "result": {
+          "request_id": 349,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-113",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-113\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 114,
+        "start_ms": 26333,
+        "end_ms": 26346,
+        "result": {
+          "request_id": 352,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-114",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-114\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 115,
+        "start_ms": 26397,
+        "end_ms": 26407,
+        "result": {
+          "request_id": 355,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-115",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-115\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 116,
+        "start_ms": 26459,
+        "end_ms": 26471,
+        "result": {
+          "request_id": 358,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-116",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-116\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 117,
+        "start_ms": 26523,
+        "end_ms": 26534,
+        "result": {
+          "request_id": 361,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-117",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-117\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 118,
+        "start_ms": 26584,
+        "end_ms": 26597,
+        "result": {
+          "request_id": 363,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-118",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-118\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 119,
+        "start_ms": 26647,
+        "end_ms": 26659,
+        "result": {
+          "request_id": 366,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-119",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-119\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 120,
+        "start_ms": 26714,
+        "end_ms": 26727,
+        "result": {
+          "request_id": 369,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-120",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-120\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 121,
+        "start_ms": 26782,
+        "end_ms": 26795,
+        "result": {
+          "request_id": 372,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-121",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-121\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 122,
+        "start_ms": 26845,
+        "end_ms": 26859,
+        "result": {
+          "request_id": 375,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-122",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-122\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 123,
+        "start_ms": 26912,
+        "end_ms": 26925,
+        "result": {
+          "request_id": 379,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-123",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-123\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 124,
+        "start_ms": 26976,
+        "end_ms": 26987,
+        "result": {
+          "request_id": 382,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-124",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-124\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 125,
+        "start_ms": 27038,
+        "end_ms": 27048,
+        "result": {
+          "request_id": 385,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-125",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-125\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 126,
+        "start_ms": 27099,
+        "end_ms": 27108,
+        "result": {
+          "request_id": 388,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-126",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-126\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 127,
+        "start_ms": 27162,
+        "end_ms": 27171,
+        "result": {
+          "request_id": 391,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-127",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-127\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 128,
+        "start_ms": 27223,
+        "end_ms": 27232,
+        "result": {
+          "request_id": 394,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-128",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-128\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 129,
+        "start_ms": 27284,
+        "end_ms": 27294,
+        "result": {
+          "request_id": 397,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-129",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-129\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 130,
+        "start_ms": 27347,
+        "end_ms": 27358,
+        "result": {
+          "request_id": 400,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-130",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-130\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 131,
+        "start_ms": 27413,
+        "end_ms": 27423,
+        "result": {
+          "request_id": 403,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-131",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-131\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 132,
+        "start_ms": 27478,
+        "end_ms": 27488,
+        "result": {
+          "request_id": 406,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-132",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-132\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 133,
+        "start_ms": 27540,
+        "end_ms": 27548,
+        "result": {
+          "request_id": 409,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-133",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-133\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 134,
+        "start_ms": 27603,
+        "end_ms": 27612,
+        "result": {
+          "request_id": 412,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-134",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-134\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 135,
+        "start_ms": 27666,
+        "end_ms": 27677,
+        "result": {
+          "request_id": 415,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-135",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-135\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 136,
+        "start_ms": 27732,
+        "end_ms": 27732,
+        "result": {
+          "error": "[Errno 54] Connection reset by peer"
+        }
+      },
+      {
+        "sequence": 137,
+        "start_ms": 27787,
+        "end_ms": 27799,
+        "result": {
+          "request_id": 420,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-137",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-137\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      }
+    ],
+    "udp": [
+      {
+        "sequence": 1,
+        "start_ms": 1146,
+        "end_ms": 1165,
+        "result": {
+          "request_id": 10,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-1",
+          "elapsed_ms": 14
+        }
+      },
+      {
+        "sequence": 2,
+        "start_ms": 1218,
+        "end_ms": 1239,
+        "result": {
+          "request_id": 13,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-2",
+          "elapsed_ms": 17
+        }
+      },
+      {
+        "sequence": 3,
+        "start_ms": 1295,
+        "end_ms": 1317,
+        "result": {
+          "request_id": 16,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-3",
+          "elapsed_ms": 18
+        }
+      },
+      {
+        "sequence": 4,
+        "start_ms": 1367,
+        "end_ms": 1391,
+        "result": {
+          "request_id": 18,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-4",
+          "elapsed_ms": 21
+        }
+      },
+      {
+        "sequence": 5,
+        "start_ms": 1446,
+        "end_ms": 1462,
+        "result": {
+          "request_id": 21,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-5",
+          "elapsed_ms": 12
+        }
+      },
+      {
+        "sequence": 6,
+        "start_ms": 1515,
+        "end_ms": 1531,
+        "result": {
+          "request_id": 22,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-6",
+          "elapsed_ms": 12
+        }
+      },
+      {
+        "sequence": 7,
+        "start_ms": 1582,
+        "end_ms": 1597,
+        "result": {
+          "request_id": 25,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-7",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 8,
+        "start_ms": 1649,
+        "end_ms": 1666,
+        "result": {
+          "request_id": 27,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-8",
+          "elapsed_ms": 13
+        }
+      },
+      {
+        "sequence": 9,
+        "start_ms": 1721,
+        "end_ms": 1741,
+        "result": {
+          "request_id": 30,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-9",
+          "elapsed_ms": 17
+        }
+      },
+      {
+        "sequence": 10,
+        "start_ms": 1796,
+        "end_ms": 1812,
+        "result": {
+          "request_id": 33,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-10",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 11,
+        "start_ms": 1864,
+        "end_ms": 1879,
+        "result": {
+          "request_id": 35,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-11",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 12,
+        "start_ms": 1932,
+        "end_ms": 1952,
+        "result": {
+          "request_id": 38,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-12",
+          "elapsed_ms": 14
+        }
+      },
+      {
+        "sequence": 13,
+        "start_ms": 2007,
+        "end_ms": 2019,
+        "result": {
+          "request_id": 40,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-13",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 14,
+        "start_ms": 2072,
+        "end_ms": 2099,
+        "result": {
+          "request_id": 43,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-14",
+          "elapsed_ms": 24
+        }
+      },
+      {
+        "sequence": 15,
+        "start_ms": 2152,
+        "end_ms": 2180,
+        "result": {
+          "request_id": 45,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-15",
+          "elapsed_ms": 25
+        }
+      },
+      {
+        "sequence": 16,
+        "start_ms": 2230,
+        "end_ms": 2247,
+        "result": {
+          "request_id": 47,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-16",
+          "elapsed_ms": 13
+        }
+      },
+      {
+        "sequence": 17,
+        "start_ms": 2299,
+        "end_ms": 2323,
+        "result": {
+          "request_id": 50,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-17",
+          "elapsed_ms": 18
+        }
+      },
+      {
+        "sequence": 18,
+        "start_ms": 2374,
+        "end_ms": 2391,
+        "result": {
+          "request_id": 53,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-18",
+          "elapsed_ms": 14
+        }
+      },
+      {
+        "sequence": 19,
+        "start_ms": 2446,
+        "end_ms": 2459,
+        "result": {
+          "request_id": 55,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-19",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 20,
+        "start_ms": 2514,
+        "end_ms": 2536,
+        "result": {
+          "request_id": 58,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-20",
+          "elapsed_ms": 18
+        }
+      },
+      {
+        "sequence": 21,
+        "start_ms": 2586,
+        "end_ms": 2606,
+        "result": {
+          "request_id": 60,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-21",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 22,
+        "start_ms": 2656,
+        "end_ms": 2676,
+        "result": {
+          "request_id": 63,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-22",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 23,
+        "start_ms": 2727,
+        "end_ms": 2746,
+        "result": {
+          "request_id": 65,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-23",
+          "elapsed_ms": 15
+        }
+      },
+      {
+        "sequence": 24,
+        "start_ms": 2799,
+        "end_ms": 2818,
+        "result": {
+          "request_id": 68,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-24",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 25,
+        "start_ms": 2873,
+        "end_ms": 2886,
+        "result": {
+          "request_id": 70,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-25",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 26,
+        "start_ms": 2936,
+        "end_ms": 2948,
+        "result": {
+          "request_id": 73,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-26",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 27,
+        "start_ms": 2999,
+        "end_ms": 3017,
+        "result": {
+          "request_id": 76,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-27",
+          "elapsed_ms": 15
+        }
+      },
+      {
+        "sequence": 28,
+        "start_ms": 3070,
+        "end_ms": 3093,
+        "result": {
+          "request_id": 78,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-28",
+          "elapsed_ms": 20
+        }
+      },
+      {
+        "sequence": 29,
+        "start_ms": 3148,
+        "end_ms": 3175,
+        "result": {
+          "request_id": 81,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-29",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 30,
+        "start_ms": 3229,
+        "end_ms": 3256,
+        "result": {
+          "request_id": 83,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-30",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 31,
+        "start_ms": 3311,
+        "end_ms": 3616,
+        "result": {
+          "request_id": 86,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:55724->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 302
+        }
+      },
+      {
+        "sequence": 32,
+        "start_ms": 3667,
+        "end_ms": 3972,
+        "result": {
+          "request_id": 93,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:38016->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 33,
+        "start_ms": 4027,
+        "end_ms": 4334,
+        "result": {
+          "request_id": 101,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:32865->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 34,
+        "start_ms": 4385,
+        "end_ms": 4690,
+        "result": {
+          "request_id": 108,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:52143->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 35,
+        "start_ms": 4741,
+        "end_ms": 5049,
+        "result": {
+          "request_id": 111,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:43055->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 302
+        }
+      },
+      {
+        "sequence": 36,
+        "start_ms": 5102,
+        "end_ms": 5413,
+        "result": {
+          "request_id": 115,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:48103->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 37,
+        "start_ms": 5464,
+        "end_ms": 5769,
+        "result": {
+          "request_id": 117,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:41719->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 38,
+        "start_ms": 5820,
+        "end_ms": 6124,
+        "result": {
+          "request_id": 120,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:52675->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 39,
+        "start_ms": 6175,
+        "end_ms": 6479,
+        "result": {
+          "request_id": 123,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:57658->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 40,
+        "start_ms": 6529,
+        "end_ms": 6834,
+        "result": {
+          "request_id": 126,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:37788->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 41,
+        "start_ms": 6885,
+        "end_ms": 7189,
+        "result": {
+          "request_id": 129,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:48238->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 42,
+        "start_ms": 7244,
+        "end_ms": 7547,
+        "result": {
+          "request_id": 132,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:32832->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 43,
+        "start_ms": 7602,
+        "end_ms": 7905,
+        "result": {
+          "request_id": 135,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:59833->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 44,
+        "start_ms": 7957,
+        "end_ms": 7957,
+        "result": {
+          "error": "[Errno 54] Connection reset by peer"
+        }
+      },
+      {
+        "sequence": 45,
+        "start_ms": 8009,
+        "end_ms": 8313,
+        "result": {
+          "request_id": 139,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:59847->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 46,
+        "start_ms": 8363,
+        "end_ms": 8667,
+        "result": {
+          "request_id": 142,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:54037->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 47,
+        "start_ms": 8718,
+        "end_ms": 9020,
+        "result": {
+          "request_id": 145,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:47489->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 48,
+        "start_ms": 9072,
+        "end_ms": 9375,
+        "result": {
+          "request_id": 148,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:50710->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 49,
+        "start_ms": 9430,
+        "end_ms": 9734,
+        "result": {
+          "request_id": 151,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:57464->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 50,
+        "start_ms": 9789,
+        "end_ms": 10092,
+        "result": {
+          "request_id": 154,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:51200->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 51,
+        "start_ms": 10142,
+        "end_ms": 10447,
+        "result": {
+          "request_id": 157,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:48139->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 52,
+        "start_ms": 10498,
+        "end_ms": 10801,
+        "result": {
+          "request_id": 160,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:52682->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 53,
+        "start_ms": 10856,
+        "end_ms": 11160,
+        "result": {
+          "request_id": 163,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:55143->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 54,
+        "start_ms": 11211,
+        "end_ms": 11514,
+        "result": {
+          "request_id": 166,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:39525->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 55,
+        "start_ms": 11569,
+        "end_ms": 11873,
+        "result": {
+          "request_id": 169,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:41788->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 56,
+        "start_ms": 11925,
+        "end_ms": 12229,
+        "result": {
+          "request_id": 172,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:53264->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 57,
+        "start_ms": 12280,
+        "end_ms": 12584,
+        "result": {
+          "request_id": 175,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:43485->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 58,
+        "start_ms": 12635,
+        "end_ms": 12938,
+        "result": {
+          "request_id": 178,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:57706->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 59,
+        "start_ms": 12988,
+        "end_ms": 13291,
+        "result": {
+          "request_id": 181,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:58077->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 60,
+        "start_ms": 13342,
+        "end_ms": 13645,
+        "result": {
+          "request_id": 184,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:36377->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 61,
+        "start_ms": 13695,
+        "end_ms": 13999,
+        "result": {
+          "request_id": 187,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:35247->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 62,
+        "start_ms": 14050,
+        "end_ms": 14354,
+        "result": {
+          "request_id": 190,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:46711->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 63,
+        "start_ms": 14404,
+        "end_ms": 14709,
+        "result": {
+          "request_id": 193,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:46942->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 64,
+        "start_ms": 14760,
+        "end_ms": 15064,
+        "result": {
+          "request_id": 196,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:37748->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 65,
+        "start_ms": 15119,
+        "end_ms": 15423,
+        "result": {
+          "request_id": 199,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:41414->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 66,
+        "start_ms": 15477,
+        "end_ms": 15780,
+        "result": {
+          "request_id": 202,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:55403->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 67,
+        "start_ms": 15835,
+        "end_ms": 16138,
+        "result": {
+          "request_id": 205,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:44904->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 68,
+        "start_ms": 16193,
+        "end_ms": 16497,
+        "result": {
+          "request_id": 208,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:59694->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 69,
+        "start_ms": 16553,
+        "end_ms": 16856,
+        "result": {
+          "request_id": 211,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:38875->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 70,
+        "start_ms": 16907,
+        "end_ms": 17211,
+        "result": {
+          "request_id": 214,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:51960->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 71,
+        "start_ms": 17262,
+        "end_ms": 17566,
+        "result": {
+          "request_id": 217,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:38629->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 72,
+        "start_ms": 17616,
+        "end_ms": 17920,
+        "result": {
+          "request_id": 220,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:55888->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 73,
+        "start_ms": 17974,
+        "end_ms": 18277,
+        "result": {
+          "request_id": 223,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:37302->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 74,
+        "start_ms": 18329,
+        "end_ms": 18633,
+        "result": {
+          "request_id": 226,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:39149->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 75,
+        "start_ms": 18685,
+        "end_ms": 18989,
+        "result": {
+          "request_id": 229,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:42439->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 76,
+        "start_ms": 19044,
+        "end_ms": 19348,
+        "result": {
+          "request_id": 232,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:50998->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 77,
+        "start_ms": 19403,
+        "end_ms": 19707,
+        "result": {
+          "request_id": 235,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:42848->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 78,
+        "start_ms": 19761,
+        "end_ms": 20066,
+        "result": {
+          "request_id": 238,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:36614->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 79,
+        "start_ms": 20120,
+        "end_ms": 20424,
+        "result": {
+          "request_id": 241,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:43425->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 80,
+        "start_ms": 20479,
+        "end_ms": 20783,
+        "result": {
+          "request_id": 244,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:58343->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 81,
+        "start_ms": 20838,
+        "end_ms": 21143,
+        "result": {
+          "request_id": 247,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:37257->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 82,
+        "start_ms": 21198,
+        "end_ms": 21505,
+        "result": {
+          "request_id": 250,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:43602->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 83,
+        "start_ms": 21559,
+        "end_ms": 21864,
+        "result": {
+          "request_id": 253,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:34740->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 84,
+        "start_ms": 21918,
+        "end_ms": 22223,
+        "result": {
+          "request_id": 256,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:52544->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 85,
+        "start_ms": 22278,
+        "end_ms": 22583,
+        "result": {
+          "request_id": 259,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:54277->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 86,
+        "start_ms": 22635,
+        "end_ms": 22939,
+        "result": {
+          "request_id": 262,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:48873->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 87,
+        "start_ms": 22994,
+        "end_ms": 23300,
+        "result": {
+          "request_id": 265,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:55567->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 88,
+        "start_ms": 23351,
+        "end_ms": 23657,
+        "result": {
+          "request_id": 268,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:59393->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 89,
+        "start_ms": 23708,
+        "end_ms": 24013,
+        "result": {
+          "request_id": 271,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:49923->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 90,
+        "start_ms": 24067,
+        "end_ms": 24374,
+        "result": {
+          "request_id": 274,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:53717->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 91,
+        "start_ms": 24427,
+        "end_ms": 24735,
+        "result": {
+          "request_id": 277,
+          "resolved_ipv4": "198.18.0.3",
+          "error": "read udp4 192.168.88.10:41991->198.18.0.3:9000: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 92,
+        "start_ms": 24792,
+        "end_ms": 24839,
+        "result": {
+          "request_id": 281,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-92",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 93,
+        "start_ms": 24890,
+        "end_ms": 24896,
+        "result": {
+          "request_id": 283,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-93",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 94,
+        "start_ms": 24947,
+        "end_ms": 24952,
+        "result": {
+          "request_id": 286,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-94",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 95,
+        "start_ms": 25004,
+        "end_ms": 25009,
+        "result": {
+          "request_id": 289,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-95",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 96,
+        "start_ms": 25061,
+        "end_ms": 25065,
+        "result": {
+          "request_id": 292,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-96",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 97,
+        "start_ms": 25117,
+        "end_ms": 25121,
+        "result": {
+          "request_id": 295,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-97",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 98,
+        "start_ms": 25175,
+        "end_ms": 25179,
+        "result": {
+          "request_id": 298,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-98",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 99,
+        "start_ms": 25233,
+        "end_ms": 25242,
+        "result": {
+          "request_id": 301,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-99",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 100,
+        "start_ms": 25297,
+        "end_ms": 25303,
+        "result": {
+          "request_id": 303,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-100",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 101,
+        "start_ms": 25355,
+        "end_ms": 25362,
+        "result": {
+          "request_id": 306,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-101",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 102,
+        "start_ms": 25414,
+        "end_ms": 25426,
+        "result": {
+          "request_id": 309,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-102",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 103,
+        "start_ms": 25481,
+        "end_ms": 25488,
+        "result": {
+          "request_id": 311,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-103",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 104,
+        "start_ms": 25541,
+        "end_ms": 25548,
+        "result": {
+          "request_id": 314,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-104",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 105,
+        "start_ms": 25602,
+        "end_ms": 25609,
+        "result": {
+          "request_id": 318,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-105",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 106,
+        "start_ms": 25660,
+        "end_ms": 25664,
+        "result": {
+          "request_id": 321,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-106",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 107,
+        "start_ms": 25719,
+        "end_ms": 25723,
+        "result": {
+          "request_id": 323,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-107",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 108,
+        "start_ms": 25778,
+        "end_ms": 25789,
+        "result": {
+          "request_id": 327,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-108",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 109,
+        "start_ms": 25844,
+        "end_ms": 25849,
+        "result": {
+          "request_id": 330,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-109",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 110,
+        "start_ms": 25899,
+        "end_ms": 25907,
+        "result": {
+          "request_id": 332,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-110",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 111,
+        "start_ms": 25961,
+        "end_ms": 25967,
+        "result": {
+          "request_id": 335,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-111",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 112,
+        "start_ms": 26020,
+        "end_ms": 26027,
+        "result": {
+          "request_id": 338,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-112",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 113,
+        "start_ms": 26078,
+        "end_ms": 26079,
+        "result": {
+          "error": "[Errno 54] Connection reset by peer"
+        }
+      },
+      {
+        "sequence": 114,
+        "start_ms": 26134,
+        "end_ms": 26140,
+        "result": {
+          "request_id": 342,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-114",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 115,
+        "start_ms": 26191,
+        "end_ms": 26196,
+        "result": {
+          "request_id": 344,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-115",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 116,
+        "start_ms": 26250,
+        "end_ms": 26256,
+        "result": {
+          "request_id": 347,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-116",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 117,
+        "start_ms": 26308,
+        "end_ms": 26315,
+        "result": {
+          "request_id": 350,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-117",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 118,
+        "start_ms": 26369,
+        "end_ms": 26376,
+        "result": {
+          "request_id": 353,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-118",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 119,
+        "start_ms": 26427,
+        "end_ms": 26433,
+        "result": {
+          "request_id": 356,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-119",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 120,
+        "start_ms": 26486,
+        "end_ms": 26492,
+        "result": {
+          "request_id": 359,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-120",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 121,
+        "start_ms": 26547,
+        "end_ms": 26553,
+        "result": {
+          "request_id": 362,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-121",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 122,
+        "start_ms": 26606,
+        "end_ms": 26611,
+        "result": {
+          "request_id": 365,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-122",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 123,
+        "start_ms": 26666,
+        "end_ms": 26670,
+        "result": {
+          "request_id": 368,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-123",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 124,
+        "start_ms": 26722,
+        "end_ms": 26729,
+        "result": {
+          "request_id": 371,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-124",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 125,
+        "start_ms": 26783,
+        "end_ms": 26793,
+        "result": {
+          "request_id": 374,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-125",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 126,
+        "start_ms": 26848,
+        "end_ms": 26854,
+        "result": {
+          "request_id": 376,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-126",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 127,
+        "start_ms": 26909,
+        "end_ms": 26917,
+        "result": {
+          "request_id": 378,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-127",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 128,
+        "start_ms": 26968,
+        "end_ms": 26974,
+        "result": {
+          "request_id": 381,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-128",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 129,
+        "start_ms": 27024,
+        "end_ms": 27030,
+        "result": {
+          "request_id": 384,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-129",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 130,
+        "start_ms": 27085,
+        "end_ms": 27090,
+        "result": {
+          "request_id": 387,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-130",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 131,
+        "start_ms": 27141,
+        "end_ms": 27146,
+        "result": {
+          "request_id": 390,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-131",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 132,
+        "start_ms": 27197,
+        "end_ms": 27202,
+        "result": {
+          "request_id": 393,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-132",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 133,
+        "start_ms": 27254,
+        "end_ms": 27260,
+        "result": {
+          "request_id": 396,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-133",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 134,
+        "start_ms": 27315,
+        "end_ms": 27321,
+        "result": {
+          "request_id": 399,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-134",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 135,
+        "start_ms": 27376,
+        "end_ms": 27386,
+        "result": {
+          "request_id": 402,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-135",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 136,
+        "start_ms": 27436,
+        "end_ms": 27443,
+        "result": {
+          "request_id": 405,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-136",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 137,
+        "start_ms": 27494,
+        "end_ms": 27499,
+        "result": {
+          "request_id": 407,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-137",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 138,
+        "start_ms": 27554,
+        "end_ms": 27559,
+        "result": {
+          "request_id": 410,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-138",
+          "elapsed_ms": 2
+        }
+      },
+      {
+        "sequence": 139,
+        "start_ms": 27610,
+        "end_ms": 27615,
+        "result": {
+          "request_id": 413,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-139",
+          "elapsed_ms": 1
+        }
+      },
+      {
+        "sequence": 140,
+        "start_ms": 27670,
+        "end_ms": 27677,
+        "result": {
+          "request_id": 416,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-140",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 141,
+        "start_ms": 27732,
+        "end_ms": 27739,
+        "result": {
+          "request_id": 418,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-141",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 142,
+        "start_ms": 27790,
+        "end_ms": 27796,
+        "result": {
+          "request_id": 421,
+          "resolved_ipv4": "198.18.0.3",
+          "payload": "phase6-boot-udp-142",
+          "elapsed_ms": 2
+        }
+      }
+    ],
+    "dns": [
+      {
+        "sequence": 1,
+        "start_ms": 1146,
+        "end_ms": 1214,
+        "result": {
+          "request_id": 11,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-1",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-1\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 60
+        }
+      },
+      {
+        "sequence": 2,
+        "start_ms": 1264,
+        "end_ms": 1330,
+        "result": {
+          "request_id": 14,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-2",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-2\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 62
+        }
+      },
+      {
+        "sequence": 3,
+        "start_ms": 1385,
+        "end_ms": 1509,
+        "result": {
+          "request_id": 19,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-3",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-3\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 120
+        }
+      },
+      {
+        "sequence": 4,
+        "start_ms": 1560,
+        "end_ms": 1639,
+        "result": {
+          "request_id": 24,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-4",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-4\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 75
+        }
+      },
+      {
+        "sequence": 5,
+        "start_ms": 1692,
+        "end_ms": 1744,
+        "result": {
+          "request_id": 29,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-5",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-5\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 48
+        }
+      },
+      {
+        "sequence": 6,
+        "start_ms": 1795,
+        "end_ms": 1863,
+        "result": {
+          "request_id": 32,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-6",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-6\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 64
+        }
+      },
+      {
+        "sequence": 7,
+        "start_ms": 1914,
+        "end_ms": 1970,
+        "result": {
+          "request_id": 37,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-7",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-7\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 52
+        }
+      },
+      {
+        "sequence": 8,
+        "start_ms": 2020,
+        "end_ms": 2084,
+        "result": {
+          "request_id": 41,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-8",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-8\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 59
+        }
+      },
+      {
+        "sequence": 9,
+        "start_ms": 2139,
+        "end_ms": 2193,
+        "result": {
+          "request_id": 44,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-9",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-9\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 52
+        }
+      },
+      {
+        "sequence": 10,
+        "start_ms": 2246,
+        "end_ms": 2305,
+        "result": {
+          "request_id": 49,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-10",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-10\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 56
+        }
+      },
+      {
+        "sequence": 11,
+        "start_ms": 2360,
+        "end_ms": 2423,
+        "result": {
+          "request_id": 52,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-11",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-11\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 59
+        }
+      },
+      {
+        "sequence": 12,
+        "start_ms": 2478,
+        "end_ms": 2561,
+        "result": {
+          "request_id": 57,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-12",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-12\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 80
+        }
+      },
+      {
+        "sequence": 13,
+        "start_ms": 2614,
+        "end_ms": 2714,
+        "result": {
+          "request_id": 62,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-13",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-13\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 95
+        }
+      },
+      {
+        "sequence": 14,
+        "start_ms": 2767,
+        "end_ms": 2825,
+        "result": {
+          "request_id": 66,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-14",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-14\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 54
+        }
+      },
+      {
+        "sequence": 15,
+        "start_ms": 2877,
+        "end_ms": 2933,
+        "result": {
+          "request_id": 71,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-15",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-15\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 52
+        }
+      },
+      {
+        "sequence": 16,
+        "start_ms": 2988,
+        "end_ms": 3057,
+        "result": {
+          "request_id": 74,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-16",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-16\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 66
+        }
+      },
+      {
+        "sequence": 17,
+        "start_ms": 3112,
+        "end_ms": 3155,
+        "result": {
+          "request_id": 79,
+          "resolved_ipv4": "198.18.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-17",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-17\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 40
+        }
+      },
+      {
+        "sequence": 18,
+        "start_ms": 3208,
+        "end_ms": 3249,
+        "result": {
+          "request_id": 82,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 37
+        }
+      },
+      {
+        "sequence": 19,
+        "start_ms": 3302,
+        "end_ms": 3309,
+        "result": {
+          "request_id": 85,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 20,
+        "start_ms": 3360,
+        "end_ms": 3366,
+        "result": {
+          "request_id": 88,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 21,
+        "start_ms": 3421,
+        "end_ms": 3428,
+        "result": {
+          "request_id": 89,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 3
+        }
+      },
+      {
+        "sequence": 22,
+        "start_ms": 3483,
+        "end_ms": 3491,
+        "result": {
+          "request_id": 90,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 23,
+        "start_ms": 3545,
+        "end_ms": 3555,
+        "result": {
+          "request_id": 91,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 24,
+        "start_ms": 3607,
+        "end_ms": 3623,
+        "result": {
+          "request_id": 92,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 25,
+        "start_ms": 3675,
+        "end_ms": 3681,
+        "result": {
+          "request_id": 95,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 4
+        }
+      },
+      {
+        "sequence": 26,
+        "start_ms": 3736,
+        "end_ms": 3745,
+        "result": {
+          "request_id": 96,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 27,
+        "start_ms": 3798,
+        "end_ms": 3808,
+        "result": {
+          "request_id": 97,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 28,
+        "start_ms": 3859,
+        "end_ms": 3868,
+        "result": {
+          "request_id": 98,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 29,
+        "start_ms": 3921,
+        "end_ms": 3930,
+        "result": {
+          "request_id": 99,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 30,
+        "start_ms": 3983,
+        "end_ms": 3992,
+        "result": {
+          "request_id": 100,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 31,
+        "start_ms": 4047,
+        "end_ms": 4056,
+        "result": {
+          "request_id": 103,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 32,
+        "start_ms": 4107,
+        "end_ms": 4115,
+        "result": {
+          "request_id": 104,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 33,
+        "start_ms": 4167,
+        "end_ms": 4177,
+        "result": {
+          "request_id": 105,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 5
+        }
+      },
+      {
+        "sequence": 34,
+        "start_ms": 4228,
+        "end_ms": 4238,
+        "result": {
+          "request_id": 106,
+          "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 35,
+        "start_ms": 4290,
+        "end_ms": 4596,
+        "result": {
+          "request_id": 107,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 36,
+        "start_ms": 4651,
+        "end_ms": 4958,
+        "result": {
+          "request_id": 110,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 37,
+        "start_ms": 5011,
+        "end_ms": 5320,
+        "result": {
+          "request_id": 113,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 302
+        }
+      },
+      {
+        "sequence": 38,
+        "start_ms": 5370,
+        "end_ms": 5675,
+        "result": {
+          "request_id": 116,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 39,
+        "start_ms": 5729,
+        "end_ms": 6034,
+        "result": {
+          "request_id": 119,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 40,
+        "start_ms": 6086,
+        "end_ms": 6389,
+        "result": {
+          "request_id": 122,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 41,
+        "start_ms": 6444,
+        "end_ms": 6748,
+        "result": {
+          "request_id": 125,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 42,
+        "start_ms": 6798,
+        "end_ms": 7102,
+        "result": {
+          "request_id": 128,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 43,
+        "start_ms": 7153,
+        "end_ms": 7456,
+        "result": {
+          "request_id": 131,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 44,
+        "start_ms": 7507,
+        "end_ms": 7811,
+        "result": {
+          "request_id": 134,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 45,
+        "start_ms": 7866,
+        "end_ms": 8170,
+        "result": {
+          "request_id": 137,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 46,
+        "start_ms": 8220,
+        "end_ms": 8524,
+        "result": {
+          "request_id": 140,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 47,
+        "start_ms": 8579,
+        "end_ms": 8883,
+        "result": {
+          "request_id": 143,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 48,
+        "start_ms": 8938,
+        "end_ms": 9242,
+        "result": {
+          "request_id": 146,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 49,
+        "start_ms": 9297,
+        "end_ms": 9600,
+        "result": {
+          "request_id": 149,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 50,
+        "start_ms": 9651,
+        "end_ms": 9955,
+        "result": {
+          "request_id": 152,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 51,
+        "start_ms": 10009,
+        "end_ms": 10314,
+        "result": {
+          "request_id": 155,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 52,
+        "start_ms": 10368,
+        "end_ms": 10672,
+        "result": {
+          "request_id": 158,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 53,
+        "start_ms": 10727,
+        "end_ms": 11031,
+        "result": {
+          "request_id": 161,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 54,
+        "start_ms": 11082,
+        "end_ms": 11385,
+        "result": {
+          "request_id": 164,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 55,
+        "start_ms": 11436,
+        "end_ms": 11740,
+        "result": {
+          "request_id": 167,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 56,
+        "start_ms": 11790,
+        "end_ms": 12095,
+        "result": {
+          "request_id": 170,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 57,
+        "start_ms": 12147,
+        "end_ms": 12451,
+        "result": {
+          "request_id": 173,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 58,
+        "start_ms": 12503,
+        "end_ms": 12807,
+        "result": {
+          "request_id": 176,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 59,
+        "start_ms": 12857,
+        "end_ms": 13161,
+        "result": {
+          "request_id": 179,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 60,
+        "start_ms": 13216,
+        "end_ms": 13520,
+        "result": {
+          "request_id": 182,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 61,
+        "start_ms": 13575,
+        "end_ms": 13879,
+        "result": {
+          "request_id": 185,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 62,
+        "start_ms": 13930,
+        "end_ms": 14234,
+        "result": {
+          "request_id": 188,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 63,
+        "start_ms": 14285,
+        "end_ms": 14589,
+        "result": {
+          "request_id": 191,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 64,
+        "start_ms": 14644,
+        "end_ms": 14946,
+        "result": {
+          "request_id": 194,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 65,
+        "start_ms": 14996,
+        "end_ms": 15300,
+        "result": {
+          "request_id": 197,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 66,
+        "start_ms": 15351,
+        "end_ms": 15655,
+        "result": {
+          "request_id": 200,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 67,
+        "start_ms": 15705,
+        "end_ms": 16008,
+        "result": {
+          "request_id": 203,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 68,
+        "start_ms": 16064,
+        "end_ms": 16366,
+        "result": {
+          "request_id": 206,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 69,
+        "start_ms": 16418,
+        "end_ms": 16722,
+        "result": {
+          "request_id": 209,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 70,
+        "start_ms": 16773,
+        "end_ms": 17077,
+        "result": {
+          "request_id": 212,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 71,
+        "start_ms": 17128,
+        "end_ms": 17432,
+        "result": {
+          "request_id": 215,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 72,
+        "start_ms": 17483,
+        "end_ms": 17787,
+        "result": {
+          "request_id": 218,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 73,
+        "start_ms": 17842,
+        "end_ms": 18145,
+        "result": {
+          "request_id": 221,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 74,
+        "start_ms": 18196,
+        "end_ms": 18500,
+        "result": {
+          "request_id": 224,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 75,
+        "start_ms": 18555,
+        "end_ms": 18859,
+        "result": {
+          "request_id": 227,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 76,
+        "start_ms": 18913,
+        "end_ms": 19217,
+        "result": {
+          "request_id": 230,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 77,
+        "start_ms": 19269,
+        "end_ms": 19573,
+        "result": {
+          "request_id": 233,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 78,
+        "start_ms": 19628,
+        "end_ms": 19932,
+        "result": {
+          "request_id": 236,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 79,
+        "start_ms": 19987,
+        "end_ms": 20291,
+        "result": {
+          "request_id": 239,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 80,
+        "start_ms": 20346,
+        "end_ms": 20650,
+        "result": {
+          "request_id": 242,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 81,
+        "start_ms": 20705,
+        "end_ms": 21009,
+        "result": {
+          "request_id": 245,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 82,
+        "start_ms": 21064,
+        "end_ms": 21372,
+        "result": {
+          "request_id": 248,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 83,
+        "start_ms": 21422,
+        "end_ms": 21728,
+        "result": {
+          "request_id": 251,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 84,
+        "start_ms": 21781,
+        "end_ms": 22086,
+        "result": {
+          "request_id": 254,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 85,
+        "start_ms": 22140,
+        "end_ms": 22446,
+        "result": {
+          "request_id": 257,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 300
+        }
+      },
+      {
+        "sequence": 86,
+        "start_ms": 22501,
+        "end_ms": 22809,
+        "result": {
+          "request_id": 260,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 87,
+        "start_ms": 22859,
+        "end_ms": 23164,
+        "result": {
+          "request_id": 263,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 88,
+        "start_ms": 23219,
+        "end_ms": 23526,
+        "result": {
+          "request_id": 266,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 89,
+        "start_ms": 23579,
+        "end_ms": 23885,
+        "result": {
+          "request_id": 269,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 90,
+        "start_ms": 23935,
+        "end_ms": 24241,
+        "result": {
+          "request_id": 272,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 301
+        }
+      },
+      {
+        "sequence": 91,
+        "start_ms": 24296,
+        "end_ms": 24606,
+        "result": {
+          "request_id": 275,
+          "error": "resolve: lookup second.test: i/o timeout",
+          "elapsed_ms": 302
+        }
+      },
+      {
+        "sequence": 92,
+        "start_ms": 24658,
+        "end_ms": 24685,
+        "result": {
+          "request_id": 278,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-92",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-92\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 23
+        }
+      },
+      {
+        "sequence": 93,
+        "start_ms": 24742,
+        "end_ms": 24845,
+        "result": {
+          "request_id": 280,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-93",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-93\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 84
+        }
+      },
+      {
+        "sequence": 94,
+        "start_ms": 24900,
+        "end_ms": 24909,
+        "result": {
+          "request_id": 284,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-94",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-94\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 95,
+        "start_ms": 24964,
+        "end_ms": 24974,
+        "result": {
+          "request_id": 287,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-95",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-95\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 96,
+        "start_ms": 25024,
+        "end_ms": 25033,
+        "result": {
+          "request_id": 290,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-96",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-96\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 97,
+        "start_ms": 25088,
+        "end_ms": 25098,
+        "result": {
+          "request_id": 293,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-97",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-97\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 98,
+        "start_ms": 25153,
+        "end_ms": 25163,
+        "result": {
+          "request_id": 296,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-98",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-98\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 99,
+        "start_ms": 25214,
+        "end_ms": 25224,
+        "result": {
+          "request_id": 299,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-99",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-99\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 100,
+        "start_ms": 25279,
+        "end_ms": 25293,
+        "result": {
+          "request_id": 302,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-100",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-100\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 101,
+        "start_ms": 25343,
+        "end_ms": 25360,
+        "result": {
+          "request_id": 305,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-101",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-101\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 12
+        }
+      },
+      {
+        "sequence": 102,
+        "start_ms": 25414,
+        "end_ms": 25433,
+        "result": {
+          "request_id": 308,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-102",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-102\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 16
+        }
+      },
+      {
+        "sequence": 103,
+        "start_ms": 25485,
+        "end_ms": 25499,
+        "result": {
+          "request_id": 313,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-103",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-103\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 104,
+        "start_ms": 25554,
+        "end_ms": 25565,
+        "result": {
+          "request_id": 316,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-104",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-104\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 105,
+        "start_ms": 25620,
+        "end_ms": 25629,
+        "result": {
+          "request_id": 319,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-105",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-105\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 106,
+        "start_ms": 25679,
+        "end_ms": 25690,
+        "result": {
+          "request_id": 322,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-106",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-106\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 107,
+        "start_ms": 25744,
+        "end_ms": 25757,
+        "result": {
+          "request_id": 325,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-107",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-107\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 108,
+        "start_ms": 25809,
+        "end_ms": 25822,
+        "result": {
+          "request_id": 328,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-108",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-108\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 109,
+        "start_ms": 25875,
+        "end_ms": 25888,
+        "result": {
+          "request_id": 331,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-109",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-109\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 110,
+        "start_ms": 25941,
+        "end_ms": 25954,
+        "result": {
+          "request_id": 334,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-110",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-110\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 111,
+        "start_ms": 26008,
+        "end_ms": 26023,
+        "result": {
+          "request_id": 337,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-111",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-111\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 112,
+        "start_ms": 26078,
+        "end_ms": 26092,
+        "result": {
+          "request_id": 340,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-112",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-112\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 113,
+        "start_ms": 26147,
+        "end_ms": 26147,
+        "result": {
+          "error": "<urlopen error [Errno 32] Broken pipe>"
+        }
+      },
+      {
+        "sequence": 114,
+        "start_ms": 26200,
+        "end_ms": 26213,
+        "result": {
+          "request_id": 345,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-114",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-114\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 115,
+        "start_ms": 26265,
+        "end_ms": 26279,
+        "result": {
+          "request_id": 348,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-115",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-115\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 116,
+        "start_ms": 26333,
+        "end_ms": 26333,
+        "result": {
+          "error": "[Errno 54] Connection reset by peer"
+        }
+      },
+      {
+        "sequence": 117,
+        "start_ms": 26388,
+        "end_ms": 26403,
+        "result": {
+          "request_id": 354,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-117",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-117\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 118,
+        "start_ms": 26458,
+        "end_ms": 26470,
+        "result": {
+          "request_id": 357,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-118",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-118\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 119,
+        "start_ms": 26521,
+        "end_ms": 26535,
+        "result": {
+          "request_id": 360,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-119",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-119\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 120,
+        "start_ms": 26588,
+        "end_ms": 26600,
+        "result": {
+          "request_id": 364,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-120",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-120\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 121,
+        "start_ms": 26655,
+        "end_ms": 26664,
+        "result": {
+          "request_id": 367,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-121",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-121\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 122,
+        "start_ms": 26715,
+        "end_ms": 26730,
+        "result": {
+          "request_id": 370,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-122",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-122\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 123,
+        "start_ms": 26784,
+        "end_ms": 26799,
+        "result": {
+          "request_id": 373,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-123",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-123\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 10
+        }
+      },
+      {
+        "sequence": 124,
+        "start_ms": 26854,
+        "end_ms": 26866,
+        "result": {
+          "request_id": 377,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-124",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-124\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 125,
+        "start_ms": 26917,
+        "end_ms": 26928,
+        "result": {
+          "request_id": 380,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-125",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-125\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 126,
+        "start_ms": 26982,
+        "end_ms": 26993,
+        "result": {
+          "request_id": 383,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-126",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-126\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 127,
+        "start_ms": 27045,
+        "end_ms": 27059,
+        "result": {
+          "request_id": 386,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-127",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-127\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 11
+        }
+      },
+      {
+        "sequence": 128,
+        "start_ms": 27110,
+        "end_ms": 27120,
+        "result": {
+          "request_id": 389,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-128",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-128\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 129,
+        "start_ms": 27172,
+        "end_ms": 27185,
+        "result": {
+          "request_id": 392,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-129",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-129\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 130,
+        "start_ms": 27237,
+        "end_ms": 27249,
+        "result": {
+          "request_id": 395,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-130",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-130\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 131,
+        "start_ms": 27304,
+        "end_ms": 27317,
+        "result": {
+          "request_id": 398,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-131",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-131\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 132,
+        "start_ms": 27372,
+        "end_ms": 27385,
+        "result": {
+          "request_id": 401,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-132",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-132\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 133,
+        "start_ms": 27436,
+        "end_ms": 27447,
+        "result": {
+          "request_id": 404,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-133",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-133\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 134,
+        "start_ms": 27502,
+        "end_ms": 27512,
+        "result": {
+          "request_id": 408,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-134",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-134\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        }
+      },
+      {
+        "sequence": 135,
+        "start_ms": 27567,
+        "end_ms": 27577,
+        "result": {
+          "request_id": 411,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-135",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-135\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 7
+        }
+      },
+      {
+        "sequence": 136,
+        "start_ms": 27628,
+        "end_ms": 27641,
+        "result": {
+          "request_id": 414,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-136",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-136\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 137,
+        "start_ms": 27691,
+        "end_ms": 27703,
+        "result": {
+          "request_id": 417,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-137",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-137\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      },
+      {
+        "sequence": 138,
+        "start_ms": 27754,
+        "end_ms": 27768,
+        "result": {
+          "request_id": 419,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-138",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-138\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 9
+        }
+      },
+      {
+        "sequence": 139,
+        "start_ms": 27819,
+        "end_ms": 27832,
+        "result": {
+          "request_id": 422,
+          "resolved_ipv4": "10.77.0.20",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-boot-139",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-139\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 8
+        }
+      }
+    ]
+  },
+  "first_after_outage": {
+    "http": {
+      "sequence": 89,
+      "start_ms": 24733,
+      "end_ms": 24788,
+      "result": {
+        "request_id": 279,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-boot-89",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-89\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 40
+      }
+    },
+    "udp": {
+      "sequence": 92,
+      "start_ms": 24792,
+      "end_ms": 24839,
+      "result": {
+        "request_id": 281,
+        "resolved_ipv4": "198.18.0.3",
+        "payload": "phase6-boot-udp-92",
+        "elapsed_ms": 23
+      }
+    },
+    "dns": {
+      "sequence": 92,
+      "start_ms": 24658,
+      "end_ms": 24685,
+      "result": {
+        "request_id": 278,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-boot-92",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-92\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 23
+      }
+    }
+  },
+  "admitted_up": {
+    "observed_ms_from_poll": 5719,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*1",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:06:39",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "restored_generation": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 2,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "setup_error": ""
+  },
+  "restored_proxy": {
+    "request_id": 423,
+    "resolved_ipv4": "198.18.0.3",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/phase6-boot-999999",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-boot-999999\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 49
+  },
+  "completed": true
+}

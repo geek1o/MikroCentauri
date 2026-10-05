@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-04 UTC / 2026-10-05 Moscow",
+  "date": "2026-10-05",
   "routeros": "7.24.5",
   "status": "PARTIAL: CHR transparent cases tested; production acceptance open",
   "scenarios": [
@@ -112,7 +112,7 @@
       "evidence": "Captured successful outgoing VLESS/DNS stay main; exhaustive loop/failover test absent"
     }
   ],
-  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5 block; host smoke does not run CHR scenarios.",
+  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5 and phase6 blocks; host smoke does not run CHR scenarios.",
   "phase5": {
     "date": "2026-10-05",
     "status": "TESTED bounded three-domain admission; production lifecycle OPEN",
@@ -135,6 +135,21 @@
       "Unobserved online cache reset",
       "Earliest boot ordering",
       "Production route ownership and activation"
+    ]
+  },
+  "phase6": {
+    "status": "TESTED: bounded CHR binding policy and volatile boot lease; production acceptance open",
+    "report": "docs/reports/phase-6-boot-and-policy.md",
+    "cases": [
+      "Foreign HTTP Host and certificate-verified HTTP3 SNI preserve bound alias PROXY; source overrides retained",
+      "Continuous new cached HTTP/UDP and new DNS requests across actual CHR reboot with startup scheduler disabled",
+      "Monitor stop: lease disappearance, cached HTTP/HTTP3 and fresh DNS DIRECT, then PROXY recovery",
+      "Static/duplicate tokens and unrelated HTTP200 probe target rejected"
+    ],
+    "limits": [
+      "One boot alias; first successful samples occur after management recovery",
+      "Configured6s timeout is not exact failover latency; native row removal observed after7576ms",
+      "No hardware power-loss, existing-connection, namespace-retirement or production activation acceptance"
     ]
   }
 }

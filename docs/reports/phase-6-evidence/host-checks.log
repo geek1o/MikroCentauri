@@ -1,0 +1,39 @@
+SING_BOX_BINARY="/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box" .cache/go/bin/go test -race ./...
+?   	mikrocentauri.local/core/cmd/mikrocentauri	[no test files]
+ok  	mikrocentauri.local/core/internal/config	(cached)
+ok  	mikrocentauri.local/core/internal/dnsgate	(cached)
+ok  	mikrocentauri.local/core/internal/engineguard	(cached)
+ok  	mikrocentauri.local/core/internal/fakeip	(cached)
+ok  	mikrocentauri.local/core/internal/generation	(cached)
+ok  	mikrocentauri.local/core/internal/health	(cached)
+?   	mikrocentauri.local/core/internal/platform	[no test files]
+ok  	mikrocentauri.local/core/internal/platform/routeros	(cached)
+ok  	mikrocentauri.local/core/internal/proxy	(cached)
+ok  	mikrocentauri.local/core/internal/realdns	(cached)
+ok  	mikrocentauri.local/core/internal/singbox	(cached)
+?   	mikrocentauri.local/core/lab/controller	[no test files]
+?   	mikrocentauri.local/core/lab/generationtool	[no test files]
+ok  	mikrocentauri.local/core/lab/workload	(cached)
+.cache/go/bin/go vet ./...
+python3 tests/integration/binding_policy.py --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS FakeIP HTTP Host=selected.test PROXY
+PASS FakeIP HTTP Host=Selected.Test PROXY
+PASS FakeIP HTTP Host=selected.test. PROXY
+PASS FakeIP HTTP Host=198.18.0.2 PROXY
+PASS FakeIP HTTP Host=unselected.test PROXY
+PASS FakeIP TLS SNI=selected.test PROXY
+PASS FakeIP TLS SNI=SeLeCtEd.TeSt PROXY
+PASS FakeIP TLS SNI=unselected.test PROXY
+PASS DIRECT source precedes selected binding DIRECT
+PASS PROXY source precedes unselected destination PROXY
+PASS Real-IP selected cohost remains selected after sniff PROXY
+PASS Real-IP unselected cohost remains DIRECT DIRECT
+PASS Old ordering reproduces Host policy escape DIRECT
+PASS Old ordering reproduces TLS SNI policy escape DIRECT
+NOT RUN: native TUN, RouterOS egress, QUIC, reboot
+python3 tests/integration/smoke.py --go ".cache/go/bin/go" --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS real VLESS TCP request and nonselected DIRECT rule (process logs; not CHR egress proof)
+PASS typed FakeIP DNS on UDP/TCP, managed AAAA suppression and unselected real DNS
+PASS rejected candidate preserves previously validated output and redacts secrets
+NOT RUN: RouterOS packet path, distinct egress, TUN/UDP/QUIC, restart fail-open, reboot, FastTrack
+git diff --check

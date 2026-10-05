@@ -311,3 +311,39 @@ alongside passing results; summarize public fixture captures, retain raw PCAP an
 databases only in ignored local storage, then shut down the lab. See
 [Phase5 evidence](reports/phase-5-generation-admission.md) and
 [ADR-0013](adr/0013-engine-generation-admission.md) for proof boundaries.
+
+## Phase 6: immutable routing authority and RAM boot lease
+
+Use the isolated Phase5 topology, admitted three-name cache and persistent maps.
+Build with `scripts/build-gateway-lab.py --dynamic-dns --native-lease`; this option
+requires dynamic DNS. Enable `MC_NATIVE_LEASE=1` in the native gateway environment.
+Do not run legacy tests that toggle selector flags against this migrated fixture.
+Import `lab/chr/lease-fallback.rsc` once through the admin console. It validates and
+migrates the existing observer, preserving enabled selectors and replacing its
+UP/DOWN callbacks. A failed partial import requires explicit repair; importing a
+second time is rejected. Keep the old cache/root/host archive intact.
+
+Run `python3 tests/e2e/chr_binding_policy.py` for saved-alias Host and HTTP3 SNI
+variants and source overrides. For the reboot proof, use container name
+`mc-gateway-phase6`, `start-on-boot=no`, and disable only the owned scheduler
+`mc-lab-boot-direct`. Temporarily grant `reboot` to the disposable `mc-lab-rest`
+group through the admin console. Run `python3 tests/e2e/chr_boot_lease.py` while
+both workload VMs and capture switches stay running. It starts three continuous
+fresh-flow streams before the actual reboot, verifies management outage and
+uptime reset, checks lease absence, and records the first success after each
+stream's observed outage. Then it restarts the container and verifies PROXY.
+
+Run `python3 tests/e2e/chr_lease_lifecycle.py` to stop the observer, observe token
+expiry, test DIRECT and recovery, and reject static/duplicate tokens and a
+changed HTTP200 probe target. Results and raw captures remain in ignored `.cache`;
+retain failed attempts together with passing results. Native timeout-row cleanup
+can exceed6s, so the test records disappearance and route rather than asserting
+an exact6s availability guarantee.
+
+After collection, disable the observer, run `mc-lab-down`, stop the container,
+restore the scheduler and remove the temporary group permission explicitly with
+`policy=!reboot,read,write,test,api,rest-api`. Omitting `reboot` from RouterOS `set`
+does not necessarily revoke it. Confirm the readback, then shut down CHR and the
+workload VMs and stop captures. No global conntrack flush. See
+[Phase6 evidence](reports/phase-6-boot-and-policy.md) and
+[ADR-0014](adr/0014-bound-domain-and-volatile-readiness.md).

@@ -1,0 +1,8 @@
+Admin console readback after explicit permission revocation:
+name="mc-lab-rest"
+policy=read,write,test,api,rest-api,!local,!telnet,!ssh,!ftp,!reboot,
+       !policy,!winbox,!password,!web,!sniff,!sensitive,!romon
+
+The initial set with reboot omitted left it enabled. The fixture was restarted
+only to revoke it explicitly with !reboot and verify this readback; no acceptance
+probe or packet capture was run during that cleanup-only restart.

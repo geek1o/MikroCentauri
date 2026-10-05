@@ -1,0 +1,13 @@
+{
+  "image_sha256": "6bf8dd35da983db9ce1449faf2cda85e1199d18ee10a15c270a8d907199b8eb7",
+  "independent_rebuild_sha256": "6bf8dd35da983db9ce1449faf2cda85e1199d18ee10a15c270a8d907199b8eb7",
+  "native_gateway_sha256": "a542a43ae056be26d6c37a28137614d7b8fb6baeb5df31f4ff8a01759d978bcc",
+  "native_config_sha256": "1a1ad9f1268128b9d46d7b2073e99fade83d195ebe463b349be3c384001c0fa9",
+  "native_install": "Exact executable/config copied into isolated preserved Phase5 root; final full image independently rebuilt, not reimported because of fixture disk space",
+  "uptime_reset_validation": {
+    "before": "2m5s",
+    "after": "12s",
+    "before_seconds": 125,
+    "after_seconds": 12
+  }
+}

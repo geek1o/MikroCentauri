@@ -1,0 +1,228 @@
+{
+  "up": {
+    "observed_ms_from_poll": 5981,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*2",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:05:22",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "generation": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 4,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "setup_error": ""
+  },
+  "host": {
+    "second.test": {
+      "request_id": 1,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 70
+    },
+    "SECOND.TEST": {
+      "request_id": 2,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 21
+    },
+    "SeCoNd.TeSt.": {
+      "request_id": 3,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 22
+    },
+    "unselected.test": {
+      "request_id": 4,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 16
+    },
+    "198.18.0.3": {
+      "request_id": 5,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 19
+    }
+  },
+  "sni": {
+    "second.test": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.10"
+      },
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 207
+    },
+    "SECOND.TEST": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.10"
+      },
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 38
+    },
+    "SeCoNd.TeSt.": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.10"
+      },
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 35
+    },
+    "unselected.test": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.10"
+      },
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 37
+    }
+  },
+  "devices": {
+    "192.168.88.30": {
+      "http": {
+        "request_id": 6,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-bound-domain",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 20
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 32
+      }
+    },
+    "192.168.88.20": {
+      "http": {
+        "request_id": 7,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-bound-domain",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 13
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 35
+      }
+    }
+  },
+  "real_ip": {
+    "selected.test": {
+      "request_id": 8,
+      "resolved_ipv4": "10.77.0.20",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 4
+    },
+    "unselected.test": {
+      "request_id": 9,
+      "resolved_ipv4": "10.77.0.20",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 4
+    }
+  },
+  "completed": true
+}

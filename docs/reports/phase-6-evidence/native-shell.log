@@ -1,0 +1,14 @@
+sha256sum /bin/mc-gateway /data/singbox.json
+a542a43ae056be26d6c37a28137614d7b8fb6baeb5df31f4ff8a01759d978bcc  /bin/mc-gateway
+1a1ad9f1268128b9d46d7b2073e99fade83d195ebe463b349be3c384001c0fa9  /data/singbox.json
+/ # cat /data/publication/mappings.json
+{"version":2,"prefix":"198.18.0.0/15","capacity":32,"records":[{"mapping":{"domain":"selected.test","fake":"198.18.0.2","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T10:18:51.673343Z"},{"mapping":{"domain":"second.test","fake":"198.18.0.3","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T10:18:53.710677Z"},{"mapping":{"domain":"third.test","fake":"198.18.0.4","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T10:18:53.7514Z"}]}/ # netstat -lntup
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 127.0.0.1:2080          0.0.0.0:*               LISTEN      15/sing-box
+tcp        0      0 127.0.0.1:5354          0.0.0.0:*               LISTEN      15/sing-box
+tcp        0      0 :::5353                 :::*                    LISTEN      1/mc-gateway
+tcp        0      0 :::9099                 :::*                    LISTEN      1/mc-gateway
+udp        0      0 127.0.0.1:5354          0.0.0.0:*                           15/sing-box
+udp        0      0 :::5353                 :::*                                1/mc-gateway
+/ #

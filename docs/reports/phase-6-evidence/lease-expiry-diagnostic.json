@@ -1,0 +1,198 @@
+[
+  {
+    "second": 0,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ],
+    "uptime": "3m3s",
+    "disabled": "true"
+  },
+  {
+    "second": 1,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "4s"
+      }
+    ],
+    "uptime": "3m4s",
+    "disabled": "true"
+  },
+  {
+    "second": 2,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "3s"
+      }
+    ],
+    "uptime": "3m5s",
+    "disabled": "true"
+  },
+  {
+    "second": 3,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "2s"
+      }
+    ],
+    "uptime": "3m6s",
+    "disabled": "true"
+  },
+  {
+    "second": 4,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "1s"
+      }
+    ],
+    "uptime": "3m7s",
+    "disabled": "true"
+  },
+  {
+    "second": 5,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "0s"
+      }
+    ],
+    "uptime": "3m8s",
+    "disabled": "true"
+  },
+  {
+    "second": 6,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "0s"
+      }
+    ],
+    "uptime": "3m9s",
+    "disabled": "true"
+  },
+  {
+    "second": 7,
+    "lease": [
+      {
+        ".id": "*5",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:08:09",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "0s"
+      }
+    ],
+    "uptime": "3m10s",
+    "disabled": "true"
+  },
+  {
+    "second": 8,
+    "lease": [],
+    "uptime": "3m11s",
+    "disabled": "true"
+  },
+  {
+    "second": 9,
+    "lease": [],
+    "uptime": "3m12s",
+    "disabled": "true"
+  },
+  {
+    "second": 10,
+    "lease": [],
+    "uptime": "3m13s",
+    "disabled": "true"
+  },
+  {
+    "second": 11,
+    "lease": [],
+    "uptime": "3m14s",
+    "disabled": "true"
+  },
+  {
+    "second": 12,
+    "lease": [],
+    "uptime": "3m15s",
+    "disabled": "true"
+  },
+  {
+    "second": 13,
+    "lease": [],
+    "uptime": "3m16s",
+    "disabled": "true"
+  },
+  {
+    "second": 14,
+    "lease": [],
+    "uptime": "3m18s",
+    "disabled": "true"
+  },
+  {
+    "second": 15,
+    "lease": [],
+    "uptime": "3m19s",
+    "disabled": "true"
+  },
+  {
+    "second": 16,
+    "lease": [],
+    "uptime": "3m20s",
+    "disabled": "true"
+  },
+  {
+    "second": 17,
+    "lease": [],
+    "uptime": "3m21s",
+    "disabled": "true"
+  }
+]

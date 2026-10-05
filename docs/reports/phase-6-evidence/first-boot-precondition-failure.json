@@ -1,0 +1,28 @@
+{
+  "scope": "Fresh flows to one saved alias and new domain queries; first observed success after each stream outage, not a loss/timing bound",
+  "before_resource": {
+    "architecture-name": "x86_64",
+    "board-name": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+    "build-time": "2026-09-29 14:21:27",
+    "cpu": "QEMU",
+    "cpu-count": "2",
+    "cpu-frequency": "1000",
+    "cpu-load": "14",
+    "free-hdd-space": "31354880",
+    "free-memory": "102264832",
+    "minimum-version": "7.1",
+    "platform": "MikroTik",
+    "total-hdd-space": "93564928",
+    "total-memory": "536870912",
+    "uptime": "16m28s",
+    "version": "7.24.5 (stable)",
+    "write-sect-since-reboot": "1704",
+    "write-sect-total": "1704"
+  },
+  "error": "Native transition timeout",
+  "samples": {
+    "http": [],
+    "udp": [],
+    "dns": []
+  }
+}

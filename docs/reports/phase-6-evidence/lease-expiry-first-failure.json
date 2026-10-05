@@ -1,0 +1,48 @@
+{
+  "before": {
+    "observed_ms_from_poll": 1037,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*3",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:06:59",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "4s"
+      }
+    ]
+  },
+  "lease_before": [
+    {
+      ".id": "*3",
+      "address": "192.168.88.0/24",
+      "comment": "mikrocentauri:lab:lease:up",
+      "creation-time": "2026-10-05 10:06:59",
+      "disabled": "false",
+      "dynamic": "true",
+      "list": "mc-lab-up-lease",
+      "timeout": "5s"
+    }
+  ],
+  "lease_immediately_after_monitor_stop": [
+    {
+      ".id": "*3",
+      "address": "192.168.88.0/24",
+      "comment": "mikrocentauri:lab:lease:up",
+      "creation-time": "2026-10-05 10:06:59",
+      "disabled": "false",
+      "dynamic": "true",
+      "list": "mc-lab-up-lease",
+      "timeout": "5s"
+    }
+  ],
+  "error": "Lease did not expire/revoke"
+}

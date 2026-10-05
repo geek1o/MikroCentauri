@@ -1,0 +1,148 @@
+{
+  "before": {
+    "observed_ms_from_poll": 1060,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*E",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:10:46",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "lease_before": [
+    {
+      ".id": "*E",
+      "address": "192.168.88.0/24",
+      "comment": "mikrocentauri:lab:lease:up",
+      "creation-time": "2026-10-05 10:10:46",
+      "disabled": "false",
+      "dynamic": "true",
+      "list": "mc-lab-up-lease",
+      "timeout": "4s"
+    }
+  ],
+  "lease_immediately_after_monitor_stop": [
+    {
+      ".id": "*E",
+      "address": "192.168.88.0/24",
+      "comment": "mikrocentauri:lab:lease:up",
+      "creation-time": "2026-10-05 10:10:46",
+      "disabled": "false",
+      "dynamic": "true",
+      "list": "mc-lab-up-lease",
+      "timeout": "4s"
+    }
+  ],
+  "expiry_observed_ms": 7576,
+  "cached_direct": {
+    "request_id": 426,
+    "resolved_ipv4": "198.18.0.3",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/phase6-bound-domain",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 10
+  },
+  "cached_http3_direct": {
+    "protocol": "HTTP/3.0",
+    "target": {
+      "path": "/quic",
+      "protocol": "HTTP/3.0",
+      "remote_ip": "10.77.0.1"
+    },
+    "remote_ip": "10.77.0.1",
+    "elapsed_ms": 35
+  },
+  "new_dns_direct": {
+    "request_id": 427,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/test",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/test\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 8
+  },
+  "restored": {
+    "observed_ms_from_poll": 4392,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*F",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:12:35",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "invalid": {
+    "static": {
+      "before": [
+        {
+          ".id": "*10",
+          "address": "192.168.88.0/24",
+          "comment": "mikrocentauri:lab:lease:up",
+          "creation-time": "2026-10-05 10:12:37",
+          "disabled": "false",
+          "dynamic": "false",
+          "list": "mc-lab-up-lease"
+        }
+      ],
+      "denied": "{\"detail\":\"MC_LAB_LEASE: UP validation or renewal failed; lease revoked\",\"error\":400,\"message\":\"Bad Request\"}",
+      "after": []
+    },
+    "duplicate": {
+      "before": [
+        {
+          ".id": "*11",
+          "address": "192.168.88.0/24",
+          "comment": "mikrocentauri:lab:lease:up",
+          "creation-time": "2026-10-05 10:12:38",
+          "disabled": "false",
+          "dynamic": "true",
+          "list": "mc-lab-up-lease",
+          "timeout": "5s"
+        },
+        {
+          ".id": "*12",
+          "address": "192.168.88.10",
+          "comment": "mikrocentauri:lab:lease:conflict",
+          "creation-time": "2026-10-05 10:12:38",
+          "disabled": "false",
+          "dynamic": "true",
+          "list": "mc-lab-up-lease",
+          "timeout": "5s"
+        }
+      ],
+      "denied": "{\"detail\":\"MC_LAB_LEASE: UP validation or renewal failed; lease revoked\",\"error\":400,\"message\":\"Bad Request\"}",
+      "after": []
+    }
+  },
+  "wrong_watch_denied": "{\"detail\":\"MC_LAB_LEASE: UP validation or renewal failed; lease revoked\",\"error\":400,\"message\":\"Bad Request\"}",
+  "completed": true
+}
