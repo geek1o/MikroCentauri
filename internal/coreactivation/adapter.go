@@ -42,6 +42,7 @@ type Barrier interface {
 }
 type Options struct {
 	Directory      string
+	CachePath      string
 	Namespace      Namespace
 	Ledger         generation.Ledger
 	Engine         generation.Engine
@@ -115,7 +116,16 @@ func New(o Options) (*Adapter, error) {
 		f.Close()
 		return nil, errors.New("activation registry already owned or unsafe")
 	}
-	a := &Adapter{opts: o, base: s, dir: dir, cache: filepath.Join(dir, "engine-cache.db"), lock: f, dns: dnsgate.NewSwitcher(nil)}
+	cache := filepath.Join(dir, "engine-cache.db")
+	if o.CachePath != "" {
+		cache = o.CachePath
+		parent, err := os.Lstat(filepath.Dir(cache))
+		if !filepath.IsAbs(cache) || filepath.Clean(cache) != cache || checkPath(cache) != nil || err != nil || !parent.IsDir() || parent.Mode().Perm() != 0700 {
+			f.Close()
+			return nil, errors.New("shared cache parent must be private")
+		}
+	}
+	a := &Adapter{opts: o, base: s, dir: dir, cache: cache, lock: f, dns: dnsgate.NewSwitcher(nil)}
 	a.base.Known = append([]string{}, s.Known...)
 	a.base.Active = append([]string{}, s.Active...)
 	a.opts.Ports.CachePath = a.cache
