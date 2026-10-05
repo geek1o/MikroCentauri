@@ -150,3 +150,34 @@ func TestNATMismatchDiagnosticDoesNotEchoDiscoveredData(t *testing.T) {
 		t.Fatal(got)
 	}
 }
+
+func TestLeaseMappingBackendRequiresPermanentScopedJump(t *testing.T) {
+	mapping := fakeip.Mapping{Domain: "selected.test", Fake: netip.MustParseAddr("198.18.0.2"), Real: netip.MustParseAddr("10.77.0.20")}
+	fields, _ := mappingFields(mapping)
+	for _, tc := range []struct {
+		name, list, disabled string
+		want                 bool
+	}{
+		{"lease", "!mc-lab-up-lease", "false", true},
+		{"legacy", "", "false", false},
+		{"positive", "mc-lab-up-lease", "false", false},
+		{"disabled", "!mc-lab-up-lease", "true", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			jump := map[string]string{".id": "*J", "comment": LabMappingJump, "chain": "dstnat", "action": "jump", "jump-target": LabMappingChain, "in-interface": "bridge-lan", "src-address": "192.168.88.0/24", "dst-address": "198.18.0.0/15", "disabled": tc.disabled, "src-address-list": tc.list}
+			row := map[string]string{".id": "*M"}
+			for k, v := range fields {
+				row[k] = v
+			}
+			s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				json.NewEncoder(w).Encode([]map[string]string{jump, row})
+			}))
+			defer s.Close()
+			client, _ := NewLabClient(s.URL+"/rest", "u", "p", nil)
+			b, _ := NewLabLeaseMappingBackend(client)
+			if err := b.Verify(context.Background(), mapping); (err == nil) != tc.want {
+				t.Fatalf("verify %v", err)
+			}
+		})
+	}
+}

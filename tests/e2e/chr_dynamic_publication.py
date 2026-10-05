@@ -18,9 +18,18 @@ def wait(up, timeout=45):
         expected = {c: (up if c.endswith('dynamic-jump') else not up) for c in COMMENTS}
         watch = next(r for r in rest('GET', 'tool/netwatch')
                      if r.get('comment') == 'mikrocentauri:lab:netwatch:readiness')
-        if flags == expected and watch['status'] == ('up' if up else 'down'):
+        lease_mode = any(r.get('comment') == 'mikrocentauri:lab:nat:dynamic-jump' and r.get('src-address-list') == '!mc-lab-up-lease' for r in rows)
+        lease = []
+        if lease_mode:
+            lease = [r for r in rest('GET','ip/firewall/address-list') if r.get('list') == 'mc-lab-up-lease']
+            valid = len(lease)==1 and lease[0].get('dynamic')=='true' and lease[0].get('address')=='192.168.88.0/24' and lease[0].get('timeout') not in (None,'0s','0ms')
+            expected = {c:False for c in COMMENTS}
+            token_ok = valid if up else not lease
+        else:
+            token_ok = True
+        if flags == expected and token_ok and watch['status'] == ('up' if up else 'down'):
             time.sleep(1)
-            return {'observed_ms_from_poll': round((time.monotonic()-started)*1000), 'flags': flags}
+            return {'observed_ms_from_poll': round((time.monotonic()-started)*1000), 'flags': flags, 'lease': lease}
         time.sleep(.2)
     raise AssertionError('Native transition timeout')
 

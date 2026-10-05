@@ -9,6 +9,7 @@ test:
 	SING_BOX_BINARY="$(SING_BOX)" $(GO) test -race ./...
 	$(GO) vet ./...
 smoke:
+	python3 tests/integration/binding_policy.py --sing-box "$(SING_BOX)"
 	python3 tests/integration/smoke.py --go "$(GO)" --sing-box "$(SING_BOX)"
 check: test smoke
 	git diff --check

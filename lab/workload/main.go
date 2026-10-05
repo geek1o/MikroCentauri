@@ -31,14 +31,16 @@ type dnsOverride struct {
 var dnsFixture atomic.Pointer[dnsOverride]
 
 type workloadRequest struct {
-	Domain  string `json:"domain"`
-	Address string `json:"address"`
-	SkipDNS bool   `json:"skip_dns"`
-	DNSTCP  bool   `json:"dns_tcp"`
-	Port    int    `json:"port"`
-	Source  string `json:"source"`
-	Path    string `json:"path"`
-	Payload string `json:"payload"`
+	Domain    string `json:"domain"`
+	Host      string `json:"host"`
+	TimeoutMS int    `json:"timeout_ms"`
+	Address   string `json:"address"`
+	SkipDNS   bool   `json:"skip_dns"`
+	DNSTCP    bool   `json:"dns_tcp"`
+	Port      int    `json:"port"`
+	Source    string `json:"source"`
+	Path      string `json:"path"`
+	Payload   string `json:"payload"`
 }
 type workloadResult struct {
 	RequestID    uint64 `json:"request_id"`
@@ -183,7 +185,15 @@ func controlHandler(dns string, udp bool) http.HandlerFunc {
 		id := requestSequence.Add(1)
 		start := time.Now()
 		log.Printf("control request_id=%d domain=%q source=%q udp=%t path=%q", id, req.Domain, req.Source, udp, req.Path)
-		ctx, cancel := context.WithTimeout(r.Context(), 12*time.Second)
+		timeout := 12 * time.Second
+		if req.TimeoutMS != 0 {
+			if req.TimeoutMS < 100 || req.TimeoutMS > 12000 {
+				http.Error(w, "timeout outside lab bounds", 400)
+				return
+			}
+			timeout = time.Duration(req.TimeoutMS) * time.Millisecond
+		}
+		ctx, cancel := context.WithTimeout(r.Context(), timeout)
 		defer cancel()
 		result := runWorkload(ctx, dns, req, udp)
 		result.RequestID = id
@@ -271,6 +281,9 @@ func runWorkload(ctx context.Context, dns string, req workloadRequest, udp bool)
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+net.JoinHostPort(req.Domain, strconv.Itoa(req.Port))+req.Path, nil)
 	if err != nil {
 		return fail(err)
+	}
+	if req.Host != "" {
+		request.Host = req.Host
 	}
 	client := &http.Client{Transport: transport, CheckRedirect: func(r *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }}
 	response, err := client.Do(request)

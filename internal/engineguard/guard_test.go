@@ -66,6 +66,25 @@ func TestAllocationEscapesRejected(t *testing.T) {
 			delete(r, "inbound")
 			r["protocol"] = "dns"
 		}},
+		{"sniffBeforeBinding", func(m map[string]any) {
+			r := m["route"].(map[string]any)["rules"].([]any)
+			r[3], r[4] = r[4], r[3]
+		}},
+		{"bindingBeforeSourceOverride", func(m map[string]any) {
+			r := m["route"].(map[string]any)["rules"].([]any)
+			r[1], r[3] = r[3], r[1]
+		}},
+		{"bindingChangedToCIDR", func(m map[string]any) {
+			r := m["route"].(map[string]any)["rules"].([]any)[3].(map[string]any)
+			delete(r, "domain")
+			r["ip_cidr"] = []any{"198.18.0.0/15"}
+		}},
+		{"bindingNamespaceEscape", func(m map[string]any) {
+			m["route"].(map[string]any)["rules"].([]any)[3].(map[string]any)["domain"] = []any{"fourth.test"}
+		}},
+		{"sniffDestinationOverride", func(m map[string]any) {
+			m["route"].(map[string]any)["rules"].([]any)[4].(map[string]any)["override_destination"] = true
+		}},
 		{"resolveAction", func(m map[string]any) {
 			r := m["route"].(map[string]any)
 			r["rules"] = append(r["rules"].([]any), map[string]any{"action": "resolve", "server": "fakeip"})

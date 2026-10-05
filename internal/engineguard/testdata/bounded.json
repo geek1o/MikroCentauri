@@ -103,9 +103,6 @@
         ]
       },
       {
-        "action": "sniff"
-      },
-      {
         "action": "route",
         "outbound": "direct",
         "source_ip_cidr": [
@@ -118,6 +115,18 @@
         "source_ip_cidr": [
           "192.168.88.20/32"
         ]
+      },
+      {
+        "action": "route",
+        "domain": [
+          "selected.test",
+          "second.test",
+          "third.test"
+        ],
+        "outbound": "proxy"
+      },
+      {
+        "action": "sniff"
       },
       {
         "action": "route",

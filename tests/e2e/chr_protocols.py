@@ -5,9 +5,9 @@ import urllib.request
 from chr_dataplane import ROOT, request, assert_success
 
 
-def quic(domain, address):
+def quic(domain, address, source=""):
     req=urllib.request.Request('http://127.0.0.1:19110/request',
-        data=json.dumps({'domain':domain,'address':address}).encode(),headers={'Content-Type':'application/json'})
+        data=json.dumps({'domain':domain,'address':address,'source':source}).encode(),headers={'Content-Type':'application/json'})
     with urllib.request.urlopen(req,timeout=16) as response:result=json.load(response)
     assert not result.get('error'),result
     assert result['protocol']=='HTTP/3.0',result

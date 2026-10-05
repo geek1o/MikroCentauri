@@ -10,8 +10,31 @@ predefined addresses, rule sets, resolver overrides, and reset APIs are rejected
 Other accepted settings deliberately match the restricted lab configuration,
 not the complete sing-box option schema. Configuration validation is a startup
 precondition and must run before launching the engine.
-The explicit SOCKS canary must listen only on127.0.0.1:2080; an external listener
+The explicit SOCKS canary must listen only on 127.0.0.1:2080; an external listener
 would bypass forwarding quarantine during admission.
+
+The six traffic rules must retain this order: internal DNS hijack, device
+192.168.88.30 DIRECT, device 192.168.88.20 PROXY, selected-domain PROXY, sniff,
+and selected-domain PROXY again. The first domain rule binds the stored FakeIP
+name before HTTP Host or TLS/QUIC SNI can change domain matching. A terminal
+route stops rule evaluation, so selected aliases never reach sniff. Source
+choices take priority over that binding. The final domain rule retains sniffed
+selection for traffic addressed to a real IP. This fixture has no reverse DNS
+mapping option; adding one requires a policy review.
+
+Pinned [router metadata preparation and terminal routing](https://github.com/SagerNet/sing-box/blob/v1.14.2/route/route.go)
+restore an alias to its stored destination domain before matching rules.
+[Domain matching](https://github.com/SagerNet/sing-box/blob/v1.14.2/route/rule/rule_item_domain.go)
+prefers the sniffed domain whenever present; this caused the previous Host/SNI
+policy escape. [Destination CIDR matching](https://github.com/SagerNet/sing-box/blob/v1.14.2/route/rule/rule_item_cidr.go)
+checks the rewritten destination or resolved addresses, not the saved original
+alias. A pool CIDR rule therefore cannot establish this binding after the
+engine has restored its domain.
+
+`tests/integration/binding_policy.py` exercises real stock engine processes,
+compares VLESS server connection logs, and reproduces the old Host/SNI escape.
+It adapts listeners, source fixtures, target ports and cache paths to loopback;
+it does not establish RouterOS, native TUN, QUIC or reboot behavior.
 
 `CheckCache(path, required)` examines filesystem metadata without opening or
 modifying the database. Set `required` whenever the publisher journal contains

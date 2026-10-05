@@ -6,6 +6,7 @@ import hashlib
 import ipaddress
 import json
 import pathlib
+import re
 import struct
 
 
@@ -13,7 +14,7 @@ def summarize(path):
     data=pathlib.Path(path).read_bytes()
     if data[:4]!=b'\xd4\xc3\xb2\xa1' or len(data)<24 or struct.unpack_from('<I',data,20)[0]!=1:
         raise ValueError('Expected little-endian classic Ethernet PCAP')
-    offset=24;counts=collections.Counter();markers=[];proxy_markers=[];cached_markers=[];packets=0;ipv6=0
+    offset=24;counts=collections.Counter();markers=[];proxy_markers=[];cached_markers=[];boot_markers=[];packets=0;ipv6=0
     while offset+16<=len(data):
         sec,usec,size,original=struct.unpack_from('<IIII',data,offset);offset+=16
         frame=data[offset:offset+size];offset+=size
@@ -36,11 +37,14 @@ def summarize(path):
             proxy_markers.append({'protocol':name,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
         if b'phase4-churn-udp' in frame[start+8:]:
             cached_markers.append({'protocol':name,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
+        boot = re.search(rb'phase6-boot-udp-([0-9]+)', frame[start+8:])
+        if boot:
+            boot_markers.append({'time_utc_epoch':sec+usec/1000000,'sequence':int(boot[1]),'protocol':name,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
         if proto==17 and b'D-ambiguous-UDP-20261005' in frame[start+8:]:
             markers.append({'time_utc_epoch':sec+usec/1000000,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
     return {'file':pathlib.Path(path).name,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'ethernet_packets':packets,'ipv6_frames':ipv6,
             'flows':[{'protocol':k[0],'source':k[1],'destination':k[2],'destination_port':k[3],'packets':v} for k,v in sorted(counts.items())],
-            'realip_udp_marker':markers,'proxy_udp_marker':proxy_markers,'cached_udp_marker':cached_markers,'scope':'Endpoint counts, not TCP reconstruction or a packet-loss/loop proof'}
+            'realip_udp_marker':markers,'proxy_udp_marker':proxy_markers,'cached_udp_marker':cached_markers,'boot_udp_marker':boot_markers,'scope':'Endpoint counts, not TCP reconstruction or a packet-loss/loop proof'}
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('pcaps',nargs='+');p.add_argument('--out');a=p.parse_args()

@@ -13,6 +13,8 @@ import (
 )
 
 const LabMappingChain = "mc-dynamic-backup"
+const LabReadinessList = "mc-lab-up-lease"
+
 const LabMappingJump = "mikrocentauri:lab:nat:dynamic-jump"
 
 // LabMappingBackend creates maps with immutable aliases in a dedicated chain. The native
@@ -20,6 +22,7 @@ const LabMappingJump = "mikrocentauri:lab:nat:dynamic-jump"
 // its iteration of a growing map set. Production schemas/placement remain gates.
 type LabMappingBackend struct {
 	client *Client
+	lease  bool
 	mu     sync.Mutex
 }
 
@@ -28,6 +31,16 @@ func NewLabMappingBackend(c *Client) (*LabMappingBackend, error) {
 		return nil, errors.New("mapping client required")
 	}
 	return &LabMappingBackend{client: c}, nil
+}
+
+// NewLabLeaseMappingBackend requires the permanent RAM-lease-scoped jump.
+// Historical flag-switch fixtures remain available through the original constructor.
+func NewLabLeaseMappingBackend(c *Client) (*LabMappingBackend, error) {
+	b, err := NewLabMappingBackend(c)
+	if err == nil {
+		b.lease = true
+	}
+	return b, err
 }
 func mappingFields(m fakeip.Mapping) (map[string]string, error) {
 	if !m.Fake.Is4() || !netip.MustParsePrefix("198.18.0.0/15").Contains(m.Fake) || !m.Real.Is4() || m.Real.IsUnspecified() || m.Real.IsMulticast() || netip.MustParsePrefix("198.18.0.0/15").Contains(m.Real) {
@@ -116,6 +129,10 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 	jumpCount := 0
 	var found *Object
 	jump := map[string]string{"comment": LabMappingJump, "chain": "dstnat", "action": "jump", "jump-target": LabMappingChain, "in-interface": "bridge-lan", "src-address": "192.168.88.0/24", "dst-address": "198.18.0.0/15"}
+	if b.lease {
+		jump["src-address-list"] = "!" + LabReadinessList
+		jump["disabled"] = "false"
+	}
 	for _, o := range rows {
 		if o.Path != "ip/firewall/nat" {
 			continue
@@ -139,7 +156,7 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 			jp := o
 			jp.Fields = map[string]string{}
 			for k, v := range o.Fields {
-				if k != "disabled" {
+				if k != "disabled" || b.lease {
 					jp.Fields[k] = v
 				}
 			}

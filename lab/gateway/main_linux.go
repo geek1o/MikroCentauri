@@ -339,6 +339,9 @@ func dynamicDNS() error {
 		return err
 	}
 	b, err := routeros.NewLabMappingBackend(c)
+	if os.Getenv("MC_NATIVE_LEASE") == "1" {
+		b, err = routeros.NewLabLeaseMappingBackend(c)
+	}
 	if err != nil {
 		return err
 	}

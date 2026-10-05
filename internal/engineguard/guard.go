@@ -207,40 +207,27 @@ func Validate(data []byte, cfg Config) error {
 		return errors.New("unsupported traffic route policy")
 	}
 	rr, ok := route["rules"].([]any)
-	if !ok {
-		return errors.New("invalid traffic rules")
+	if !ok || len(rr) != 6 {
+		return errors.New("exactly six ordered traffic rules required")
 	}
-	hijacks := 0
-	for _, v := range rr {
-		r, ok := v.(map[string]any)
-		if !ok {
-			return errors.New("invalid traffic rule")
-		}
-		switch r["action"] {
-		case "hijack-dns":
-			hijacks++
-			if !reflect.DeepEqual(r, map[string]any{"action": "hijack-dns", "inbound": []any{"dns-in"}}) {
-				return errors.New("DNS hijack must be restricted to dns-in")
-			}
-		case "sniff":
-			if !reflect.DeepEqual(r, map[string]any{"action": "sniff"}) {
-				return errors.New("unsupported sniff rule")
-			}
-		case "route":
-			if !keys(r, "action", "outbound", "source_ip_cidr", "domain") || (r["outbound"] != "direct" && r["outbound"] != "proxy") {
-				return errors.New("unsupported traffic routing rule")
-			}
-			_, s := r["source_ip_cidr"]
-			_, d := r["domain"]
-			if s == d {
-				return errors.New("traffic rule must have one known selector")
-			}
-		default:
-			return errors.New("unsupported traffic routing action")
-		}
+	selectedValues := make([]any, len(cfg.Selected))
+	for i, name := range cfg.Selected {
+		selectedValues[i] = name
 	}
-	if hijacks != 1 {
-		return errors.New("exactly one internal DNS hijack required")
+	// prepareMatchMetadata restores FakeIP domains before rule matching. An
+	// early terminal route therefore binds policy before sniffed Host/SNI.
+	// Source overrides retain precedence; a second domain rule after sniff
+	// preserves the existing real-IP/cohost policy.
+	expectedRules := []any{
+		map[string]any{"action": "hijack-dns", "inbound": []any{"dns-in"}},
+		map[string]any{"action": "route", "source_ip_cidr": []any{"192.168.88.30/32"}, "outbound": "direct"},
+		map[string]any{"action": "route", "source_ip_cidr": []any{"192.168.88.20/32"}, "outbound": "proxy"},
+		map[string]any{"action": "route", "domain": selectedValues, "outbound": "proxy"},
+		map[string]any{"action": "sniff"},
+		map[string]any{"action": "route", "domain": selectedValues, "outbound": "proxy"},
+	}
+	if !reflect.DeepEqual(rr, expectedRules) {
+		return errors.New("traffic rules must preserve source and binding priority before sniff")
 	}
 	return nil
 }

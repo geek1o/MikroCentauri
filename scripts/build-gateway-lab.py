@@ -15,7 +15,10 @@ p.add_argument('--go', default=str(ROOT / '.cache/go/bin/go'))
 p.add_argument('--config', default=str(ROOT / '.cache/dataplane/gateway.json'))
 p.add_argument('--out', default=str(ROOT / '.cache/dataplane/gateway-image.tar'))
 p.add_argument('--dynamic-dns', action='store_true', help='Explicit isolated dynamic-publication fixture')
+p.add_argument('--native-lease', action='store_true', help='Disposable dynamic-map native timeout lease fixture')
 a = p.parse_args()
+if a.native_lease and not a.dynamic_dns:
+    p.error('--native-lease requires --dynamic-dns')
 out = pathlib.Path(a.out).resolve()
 out.parent.mkdir(parents=True, exist_ok=True)
 config_path = pathlib.Path(a.config)
@@ -36,6 +39,16 @@ if a.dynamic_dns:
         for rule in rules:
             if 'selected.test' in rule.get('domain', []):
                 rule['domain'] = ['selected.test', 'second.test', 'third.test']
+    # Route trusted FakeIP bindings before HTTP Host/TLS SNI can replace the
+    # match domain. Keep sniffed real-IP/cohost selection as a later fallback.
+    candidate['route']['rules'] = [
+        {'action': 'hijack-dns', 'inbound': ['dns-in']},
+        {'action': 'route', 'source_ip_cidr': ['192.168.88.30/32'], 'outbound': 'direct'},
+        {'action': 'route', 'source_ip_cidr': ['192.168.88.20/32'], 'outbound': 'proxy'},
+        {'action': 'route', 'domain': ['selected.test', 'second.test', 'third.test'], 'outbound': 'proxy'},
+        {'action': 'sniff'},
+        {'action': 'route', 'domain': ['selected.test', 'second.test', 'third.test'], 'outbound': 'proxy'},
+    ]
     config_path = out.parent / 'gateway-dynamic.json'
     config_path.write_text(json.dumps(candidate, indent=2)+'\n')
     os.chmod(config_path, 0o600)
@@ -69,6 +82,8 @@ blob = layer.getvalue()
 env = ['MC_INTERFACE=mc-probe']
 if a.dynamic_dns:
     env += ['MC_DYNAMIC_DNS=1', 'MC_SELECTED_DOMAINS=selected.test,second.test,third.test']
+if a.native_lease:
+    env += ['MC_NATIVE_LEASE=1']
 config = json.dumps({'architecture': 'amd64', 'os': 'linux', 'config': {'Entrypoint': ['/bin/mc-gateway'], 'Env': env, 'WorkingDir': '/'}, 'rootfs': {'type': 'layers', 'diff_ids': ['sha256:' + hashlib.sha256(blob).hexdigest()]}}).encode()
 name = hashlib.sha256(config).hexdigest() + '.json'
 manifest = json.dumps([{'Config': name, 'RepoTags': ['mikrocentauri-gateway:lab'], 'Layers': ['layer/layer.tar']}]).encode()
