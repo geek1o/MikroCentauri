@@ -1,0 +1,40 @@
+sha256sum /bin/mc-gateway /data/singbox.json
+d983652de251c1c98cf318166f3fa43e068669dc70ade31a05306a13b5494033  /bin/mc-gateway
+87f83e20522ddfa9adfba9f2405d3b94f0569837f6fcbcaf2bec9cb145946866  /data/singbox.json
+/ # stat -c '%a %n' /data/namespace /data/namespace/namespace.json /data/publica
+tion /data/publication/mappings.json /data/singbox-cache.db
+700 /data/namespace
+600 /data/namespace/namespace.json
+700 /data/publication
+600 /data/publication/mappings.json
+600 /data/singbox-cache.db
+/ # cat /data/namespace/namespace.json
+{
+  "version": 1,
+  "capacity": 32,
+  "revision": 9,
+  "known": [
+    "selected.test",
+    "second.test",
+    "third.test",
+    "fourth.test",
+    "fifth.test"
+  ],
+  "active": [
+    "selected.test",
+    "second.test",
+    "third.test",
+    "fourth.test",
+    "fifth.test"
+  ]
+}
+/ # cat /data/publication/mappings.json
+{"version":2,"prefix":"198.18.0.0/15","capacity":32,"records":[{"mapping":{"domain":"selected.test","fake":"198.18.0.2","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T11:02:38.689722Z"},{"mapping":{"domain":"second.test","fake":"198.18.0.3","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T11:02:39.65147Z"},{"mapping":{"domain":"third.test","fake":"198.18.0.4","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T11:02:39.686658Z"},{"mapping":{"domain":"fourth.test","fake":"198.18.0.5","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T11:02:39.718577Z"},{"mapping":{"domain":"fifth.test","fake":"198.18.0.6","real":"10.77.0.20"},"ttl_seconds":5,"ready":true,"expires_at":"2026-10-05T11:02:39.77613Z"}]}/ #
+
+Listener readback from the same final engine before shutdown:
+tcp  127.0.0.1:2080  LISTEN  61/sing-box
+tcp  127.0.0.1:5354  LISTEN  61/sing-box
+udp  127.0.0.1:5354          61/sing-box
+tcp  :::5353        LISTEN  1/mc-gateway
+tcp  :::9099        LISTEN  1/mc-gateway
+udp  :::5353                1/mc-gateway

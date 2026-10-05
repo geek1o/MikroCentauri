@@ -112,7 +112,7 @@
       "evidence": "Captured successful outgoing VLESS/DNS stay main; exhaustive loop/failover test absent"
     }
   ],
-  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5 and phase6 blocks; host smoke does not run CHR scenarios.",
+  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5, phase6 and phase7 blocks; host smoke does not run CHR scenarios.",
   "phase5": {
     "date": "2026-10-05",
     "status": "TESTED bounded three-domain admission; production lifecycle OPEN",
@@ -150,6 +150,23 @@
       "One boot alias; first successful samples occur after management recovery",
       "Configured6s timeout is not exact failover latency; native row removal observed after7576ms",
       "No hardware power-loss, existing-connection, namespace-retirement or production activation acceptance"
+    ]
+  },
+  "phase7": {
+    "status": "TESTED: finite retained namespace lifecycle; production acceptance open",
+    "report": "docs/reports/phase-7-namespace-lifecycle.md",
+    "final_revision": 9,
+    "retained_domains": 5,
+    "cases": [
+      "Retired real DNS and saved-alias DIRECT despite active Host/SNI, source overrides",
+      "New distinct alias, full-container restart, original-alias reactivation",
+      "Stale/duplicate/capacity candidates rejected without healthy stop",
+      "Backend rejection retains pending state; restart quarantined; explicit resume after repair"
+    ],
+    "limits": [
+      "Step-driven fresh flows with settled health",
+      "No alias deletion/reuse, atomic transport boundary, existing-conntrack or power-loss acceptance",
+      "Fixed lab canary, unauthenticated opt-in controls, production controller still open"
     ]
   }
 }

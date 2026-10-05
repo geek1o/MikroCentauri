@@ -1,0 +1,190 @@
+[
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 16
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 18
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 19
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 21
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 22
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 1,
+      "samples": 24,
+      "error": "proxy canary failed"
+    },
+    "probe_error": "mapping reconciliation unavailable: DNS lease expired during backend verification"
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 1,
+      "samples": 24,
+      "error": "proxy canary failed"
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 26
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 1,
+      "consecutive_successes": 0,
+      "samples": 28,
+      "error": "proxy canary failed"
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 1,
+      "samples": 29,
+      "error": "proxy canary failed"
+    },
+    "probe_error": "mapping reconciliation unavailable: DNS lease expired during backend verification"
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 31
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 32
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 1,
+      "samples": 34,
+      "error": "proxy canary failed"
+    },
+    "probe_error": "mapping reconciliation unavailable: DNS lease expired during backend verification"
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 36
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 1,
+      "consecutive_successes": 0,
+      "samples": 38,
+      "error": "proxy canary failed"
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 1,
+      "consecutive_successes": 0,
+      "samples": 38,
+      "error": "proxy canary failed"
+    },
+    "probe_error": "mapping reconciliation unavailable: DNS lease expired during backend verification"
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 0,
+      "consecutive_successes": 3,
+      "samples": 41
+    },
+    "probe_error": ""
+  },
+  {
+    "health": {
+      "ready": true,
+      "local_ready": true,
+      "consecutive_failures": 1,
+      "consecutive_successes": 0,
+      "samples": 43,
+      "error": "proxy canary failed"
+    },
+    "probe_error": ""
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "image_sha256": "bd5f1ea4ce3a9d983fdde6b1ce668b5643f6b2706645ba41ef891eebb245db5e",
+  "independent_rebuild_sha256": "bd5f1ea4ce3a9d983fdde6b1ce668b5643f6b2706645ba41ef891eebb245db5e",
+  "native_gateway_sha256": "d983652de251c1c98cf318166f3fa43e068669dc70ade31a05306a13b5494033",
+  "final_native_config_sha256": "87f83e20522ddfa9adfba9f2405d3b94f0569837f6fcbcaf2bec9cb145946866",
+  "native_install": "Final executable copied into preserved lab root, chmod755 verified; runtime policy rewrites config. No new full-root import because of fixture disk space."
+}

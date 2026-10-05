@@ -1,0 +1,87 @@
+{
+  "initial_up": {
+    "observed_ms_from_poll": 1045,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*1",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:36:25",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "initial_policy": {
+    "revision": 1,
+    "known": [
+      "selected.test",
+      "second.test",
+      "third.test"
+    ],
+    "active": [
+      "selected.test",
+      "second.test",
+      "third.test"
+    ]
+  },
+  "original_bindings": {
+    "selected.test": "198.18.0.2",
+    "second.test": "198.18.0.3",
+    "third.test": "198.18.0.4"
+  },
+  "retired_policy": {
+    "revision": 2,
+    "known": [
+      "selected.test",
+      "second.test",
+      "third.test"
+    ],
+    "active": [
+      "selected.test",
+      "third.test"
+    ]
+  },
+  "retired_up": {
+    "observed_ms_from_poll": 6063,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": [
+      {
+        ".id": "*2",
+        "address": "192.168.88.0/24",
+        "comment": "mikrocentauri:lab:lease:up",
+        "creation-time": "2026-10-05 10:38:32",
+        "disabled": "false",
+        "dynamic": "true",
+        "list": "mc-lab-up-lease",
+        "timeout": "5s"
+      }
+    ]
+  },
+  "retired_new_dns": {
+    "request_id": 1,
+    "resolved_ipv4": "10.77.0.20",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/phase7-new-dns",
+      "remote_ip": "10.77.0.1"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase7-new-dns\",\"remote_ip\":\"10.77.0.1\"}\n",
+    "proxy_seen_ip": "10.77.0.1",
+    "elapsed_ms": 61
+  },
+  "error": "{'request_id': 2, 'resolved_ipv4': '198.18.0.2', 'target': {'local_ip': '10.77.0.20', 'path': '/phase6-bound-domain', 'remote_ip': '10.77.0.1'}, 'body': '{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\\n', 'proxy_seen_ip': '10.77.0.1', 'elapsed_ms': 8}"
+}

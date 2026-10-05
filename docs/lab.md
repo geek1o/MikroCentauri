@@ -347,3 +347,49 @@ does not necessarily revoke it. Confirm the readback, then shut down CHR and the
 workload VMs and stop captures. No global conntrack flush. See
 [Phase6 evidence](reports/phase-6-boot-and-policy.md) and
 [ADR-0014](adr/0014-bound-domain-and-volatile-readiness.md).
+
+## Phase 7: retained namespaces and active revisions
+
+Build with `--dynamic-dns --native-lease --namespace-policy` and explicitly enable
+`MC_NAMESPACE_POLICY=1` alongside the native lease option. Keep the entire stock
+engine cache, publication ledger and all persisted mappings intact. The initial
+known order is inherited from the admitted generation; it is never compacted.
+Namespace state is private `/data/namespace/namespace.json`. A pending revision
+is exposed in diagnostics, but cannot automatically start an engine after restart.
+
+`GET /diagnostics/namespace` returns committed Known/Active and an optional pending
+candidate. `POST /control/namespace` accepts `{revision, active}` for a change or
+`{revision, resume:true}` for a matching pending revision. These are disposable
+lab controls reachable only within this topology, not production management API.
+The pinned canary selected.test must stay active. Invalid candidate/stale revision
+is rejected before stopping a healthy engine. A transition waits for native DOWN;
+a backend/config/admission failure retains pending intent and DIRECT. Repair the
+exact fault before explicit resume. The test never removes issued aliases.
+
+`python3 tests/e2e/chr_namespace.py` tests retirement, real DNS, saved HTTP/UDP/
+verified HTTP3, source priority, addition, full-container restart and reactivation.
+It can extend the initial three-name fixture with fourth.test, or a four-name
+fixture with fifth.test. Its revision expectations derive from the actual baseline.
+The upstream workload and public lab certificate support both additions. During
+its backend fault, one exact owned map is temporarily disabled; it is restored
+before testing cached DIRECT. No fallback is claimed while that object is damaged.
+An unresolved pending intent must remain unadmitted after container restart.
+
+The native test requires a running container named mc-gateway-phase7 and enabled
+lease observer. It records settled health before traffic; this is not a cold-start
+availability guarantee. Do not query the container's diagnostic API while it is
+stopped: down-path tests use the already recorded revision and explicit aliases.
+Keep every failed attempt and raw capture locally. UDP requests carry phase7
+revision/domain/sequence markers for packet summaries.
+
+RouterOS tool/fetch replacement can remove executable mode or fail with Text file
+busy before stop completes. Wait for stopped=true. For a lab binary replacement,
+use a temporary /bin/sleep entrypoint, restore executable/file modes in its shell,
+then restore explicit /bin/mc-gateway entrypoint and empty cmd. Confirm final
+native hashes and environment; do not mistake the sleep container for an admitted
+gateway. Preserve any preliminary policy/config before fixture-only reinitialization;
+never delete issued binding history to obtain a fresh test.
+
+After evidence collection, disable the observer, run mc-lab-down, stop the container
+and shut down the VMs/switches. See [Phase7](reports/phase-7-namespace-lifecycle.md)
+and [ADR-0015](adr/0015-append-only-namespace-policy.md).

@@ -1,0 +1,12 @@
+{
+  "file": "phase7-lan.pcap",
+  "response_counts": {
+    "second.test:rcode=0": 5
+  },
+  "positive_a_counts": {
+    "second.test:10.77.0.20:ttl=5": 4,
+    "second.test:198.18.0.3:ttl=4": 1
+  },
+  "servfail_without_alias": [],
+  "scope": "Public fixture UDP DNS response witnesses; not loss or timing bounds"
+}
