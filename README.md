@@ -68,5 +68,5 @@ Production packaging is a placeholder, not an installation-ready App.
 replaces its temporary name. Source is independently written under MIT; sing-box
 binary distribution has separate GPL/source obligations in [notices](THIRD_PARTY_NOTICES.md).
 Development is recorded in local Git and published to the private
-[MicroCentuari repository](https://github.com/geek1o/MicroCentuari).
+[MicroCentauri repository](https://github.com/geek1o/MicroCentauri).
 The product name remains MikroCentauri.

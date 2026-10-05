@@ -3,7 +3,7 @@
 **Status: bounded CHR policy and boot-lease cases verified; production acceptance
 OPEN.** RouterOS7.24.5, stock sing-box1.14.2, Alpine3.24.2, Linux/amd64 gateway,
 QEMU TCG. Implementation commit: `36869e4`. The private GitHub repository
-[geek1o/MicroCentuari](https://github.com/geek1o/MicroCentuari) is now the project
+[geek1o/MicroCentauri](https://github.com/geek1o/MicroCentauri) is now the project
 remote; this stage publishes the existing local history as well as Phase6.
 No production router, external server or subscription was needed.
 
