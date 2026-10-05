@@ -26,6 +26,7 @@ type dnsOverride struct {
 	Target string `json:"target"`
 	TTL    uint32 `json:"ttl"`
 	Fail   bool   `json:"fail"`
+	AllTTL uint32 `json:"all_ttl,omitempty"`
 }
 
 var dnsFixture atomic.Pointer[dnsOverride]
@@ -103,7 +104,7 @@ func main() {
 			var next dnsOverride
 			dec := json.NewDecoder(io.LimitReader(r.Body, 1024))
 			dec.DisallowUnknownFields()
-			if dec.Decode(&next) != nil || (next.Target != "10.77.0.20" && next.Target != "10.77.0.21") || next.TTL < 1 || next.TTL > 30 {
+			if dec.Decode(&next) != nil || (next.Target != "10.77.0.20" && next.Target != "10.77.0.21") || next.TTL < 1 || next.TTL > 30 || next.AllTTL > 30 {
 				http.Error(w, "invalid disposable DNS fixture", 400)
 				return
 			}
@@ -383,8 +384,11 @@ func dnsReply(query []byte, target string) ([]byte, error) {
 	// Copy the question only; never copy client-supplied answer or EDNS sections.
 	reply := append([]byte(nil), query[:end+4]...)
 	flags := uint16(0x8400) | (binary.BigEndian.Uint16(query[2:4]) & 0x0100)
-	known := name == "selected.test" || name == "unselected.test" || name == "second.test" || name == "third.test" || name == "fourth.test" || name == "fifth.test"
+	known := name == "selected.test" || name == "unselected.test" || name == "second.test" || name == "third.test" || name == "fourth.test" || name == "fifth.test" || name == "sixth.test"
 	ttl := uint32(5)
+	if override := dnsFixture.Load(); override != nil && override.AllTTL > 0 {
+		ttl = override.AllTTL
+	}
 	if override := dnsFixture.Load(); name == "second.test" && override != nil {
 		target, ttl = override.Target, override.TTL
 		if override.Fail {

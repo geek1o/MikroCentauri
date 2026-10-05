@@ -16,8 +16,10 @@ Latency measures the canary round trip, excluding process startup. Process
 existence or an open local listener is never a healthy result. A successful TCP
 canary does not establish UDP payload forwarding or transparent RouterOS routing.
 
-`New` creates a fallback controller with mandatory `Probe`, `ApplyModel` and
-`Quarantine` callbacks. `Tick` probes group members and uses
+`New` creates a fallback controller with mandatory `ApplyModel` and
+`Quarantine` callbacks. Proxy members require `Probe`; WireGuard members require
+`ProbeWireGuard`. Missing callbacks are rejected at construction and model update.
+`Tick` probes group members and uses
 `coreconfig.FallbackSelection` to choose the first freshly healthy endpoint in
 group order. It does not rank latency. `ApplyModel` must generate and apply the
 replacement through the supervisor and the application's traffic activation
@@ -43,6 +45,27 @@ Run the genuine local Shadowsocks health, failure-switch and recovery proof with
 The fixtures also prove wrong credentials cannot pass via a direct bypass,
 HTTPS trust is checked, unhealthy responses/redirects/oversized bodies fail and
 all failed endpoints quarantine the current selection.
+
+`Prober.ProbeWireGuard(ctx, active, dedicatedPeer, canary)` requires a separately
+provisioned server peer with a different private/public identity and local IP.
+The dedicated peer must target the same remote peers, ports, routes and preshared
+keys. Reusing the active identity would make the server roam to the disposable
+probe socket and disrupt active traffic. The prober rejects key aliases that
+derive the same X25519 public identity, even when their private bytes differ.
+It never provisions remote peers automatically. The controller callback receives
+the active endpoint; the application supplies its dedicated peer to the prober.
+
+Dedicated-peer health establishes provider reachability, not authorization of
+the active key. `coreactivation.Managed` therefore requires `ProbeCurrent` for
+a fallback group containing WireGuard. It checks a canary through the actual
+active process after every successful health tick. Failure invalidates selection,
+closes the traffic gates and stops the child. This callback has a bounded context;
+it must verify the intended response and, where needed, egress identity.
+The quarantined activation barrier is not reused as a healthy-period probe.
+
+The real two-peer WireGuard fixture checks active TCP and UDP before and after
+successful and failed isolated probes:
+`SING_BOX_BINARY=/absolute/path/to/sing-box go test -race ./tests/integration/protocols -run TestPinnedWireGuardIsolatedHealth`.
 
 `Close` cancels and supersedes ticks, serializes against apply and quarantines.
 Further ticks, model updates and periodic runs are refused after close.

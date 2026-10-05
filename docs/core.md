@@ -19,6 +19,11 @@ mikrocentauri subscription-status -id provider -state /absolute/private/subscrip
 mikrocentauri subscription-run -config /absolute/private/subscription.json -state /absolute/private/subscriptions -interval 1h
 mikrocentauri core-check -config /absolute/private/core.json -sing-box /absolute/path/sing-box
 mikrocentauri core-generate -config /absolute/private/core.json -out /absolute/private/candidate.json -sing-box /absolute/path/sing-box
+mikrocentauri core-preview -config /absolute/private/core.json
+mikrocentauri ruleset-import -id selected-list -format source -file /absolute/private/list.json -state /absolute/private/rulesets -sing-box /absolute/path/sing-box
+mikrocentauri ruleset-refresh -config /absolute/private/ruleset-spec.json -state /absolute/private/rulesets -sing-box /absolute/path/sing-box
+mikrocentauri ruleset-load -id selected-list -state /absolute/private/rulesets
+mikrocentauri core-check -config /absolute/private/core.json -ruleset-state /absolute/private/rulesets -sing-box /absolute/path/sing-box
 ```
 
 Subscription specification:
@@ -43,6 +48,42 @@ plugin, obfuscation and insecure TLS options fail rather than disappearing.
 URI-list and base64 subscriptions share this parser. Parser adapters are
 pluggable; Clash/Mihomo formats are not implemented yet.
 
+The core model also accepts validated modern WireGuard endpoints in `wireguard`.
+Their stable IDs can be selected directly or referenced from groups. Generation
+uses sing-box's top-level `endpoints` array; it never revives the removed legacy
+WireGuard outbound. `core-preview` omits WireGuard private, public and preshared
+keys and proxy credentials. `Model.Clone` revalidates an independent deep copy.
+Installing native RouterOS WireGuard interfaces remains a separate future adapter.
+
+Rules carry `id`, `name`, an optional `enabled` flag, `priority`, source CIDRs and
+destination predicates. Omitted `enabled` preserves the existing v2 enabled
+behavior; explicit false removes the rule from generation. Lower priority values
+run first and equal priorities retain the model's declared order. Global source
+DIRECT policies precede global source PROXY policies. Exact known FakeIP domain
+routes then apply per-rule source, port, network and named-service qualifiers
+before sniff. This supports device/service policies without allowing HTTP Host
+or TLS SNI to reinterpret an alias's destination. Retired names retain terminal
+DIRECT routes; ordinary real-DNS classification follows sniff. Named services
+preserve their port/network tuples rather than broadening them into a Cartesian
+product. IP and external rule-set predicates do not expand the FakeIP allocator.
+
+Rule-set remote specification:
+
+```json
+{"id":"selected-list","url":"https://rules.example/selected.json","format":"source"}
+```
+
+Local imports support modern source JSON and SRS binary. The manager accepts a
+bounded headless subset, validates with the real pinned compiler, and produces
+immutable SHA-256 named binary files with private manifests. Remote refresh uses
+verified HTTPS, checks every resolved destination, pins the dial address and
+rejects private/special addresses by default. Environment proxies are disabled;
+redirects repeat validation. Malformed or unsupported updates preserve the prior
+LKG manifest. Regex, legacy GeoSite/GeoIP and unknown predicates are rejected.
+Generated configs reference verified local files; the engine never fetches a
+remote rule-set itself. A model with `rule_sets` requires `-ruleset-state` during
+generation/check; resolved file paths cannot be injected through the model JSON.
+
 ## Configuration and activation boundary
 
 See [the core schema contract](../internal/coreconfig/README.md) for model fields,
@@ -58,8 +99,13 @@ Fallback compiles to a selector. The application chooses the first freshly
 healthy member through `FallbackSelection`, then creates a validated replacement
 with `Model.Select`. [Endpoint health](../internal/grouphealth/README.md) now probes
 each enabled endpoint through an isolated checked engine and genuine HTTP(S)
-canary. `coreactivation.Managed` applies those decisions through the supervisor,
-admission and DNS gate. URLTest uses the upstream outbound implementation.
+canary. WireGuard probes require a separately provisioned remote peer with a
+different key identity and local IP; reusing the active key would redirect the
+remote peer to the probe socket. The dedicated peer proves provider reachability.
+For WireGuard fallback, `coreactivation.Managed` also requires a bounded
+`ProbeCurrent` canary through the actual active process on every successful tick;
+failure closes gates and stops the child. It applies selection through the
+supervisor, admission and DNS gate. URLTest uses the upstream outbound implementation.
 
 The supervisor API requires semantic validation and quarantine, prepare,
 readiness-probe and release hooks. The new [finite core adapter](../internal/coreactivation/README.md)
@@ -86,12 +132,11 @@ state to that integration.
 
 ## Remaining Phase 3 work
 
-Accept the new bridge on native CHR, implement its platform Barrier/private
-startup and coordinate namespace changes across the durable stores. Extend
-ordered rules with names, enable/priority state, service lists and modern
-remote rule sets. Complete protocol runtime coverage beyond the current local
-VLESS and Shadowsocks TCP evidence. Add WireGuard through the modern endpoint
-abstraction: upstream documents [WireGuard endpoints](https://sing-box.sagernet.org/configuration/endpoint/wireguard/)
-since1.11; the old outbound must not be revived. Native RouterOS WireGuard
-remains a future adapter. Backend/API and its authenticated health endpoints
-belong to Phase4.
+Accept the generalized bridge and platform Barrier on native CHR, including
+coordinated namespace retirement/addition, process replacement and crash recovery.
+Complete acceptance of private startup and retained immutable rule-set recovery.
+Host process/schema checks do not substitute for this RouterOS forwarding proof.
+Modern [WireGuard endpoints](https://sing-box.sagernet.org/configuration/endpoint/wireguard/),
+ordered rule metadata, service lists and verified remote rule-set imports are now
+implemented. Native RouterOS WireGuard remains a future adapter. Backend/API and
+its authenticated health endpoints belong to Phase4.

@@ -177,3 +177,18 @@ func TestControlValidation(t *testing.T) {
 		}
 	}
 }
+
+func TestCoreFixtureBoundedNamesAndExplicitTTL(t *testing.T) {
+	defer dnsFixture.Store(nil)
+	dnsFixture.Store(&dnsOverride{Target: "10.77.0.20", TTL: 30, AllTTL: 30})
+	for _, name := range []string{"selected.test", "sixth.test"} {
+		b, err := dnsReply(query(name, 1), "10.77.0.20")
+		if err != nil || binary.BigEndian.Uint16(b[6:8]) != 1 || binary.BigEndian.Uint32(b[len(b)-10:]) != 30 {
+			t.Fatalf("core DNS fixture: %s %x %v", name, b, err)
+		}
+	}
+	b, err := dnsReply(query("outside.test", 1), "10.77.0.20")
+	if err != nil || binary.BigEndian.Uint16(b[2:4])&15 != 3 || binary.BigEndian.Uint16(b[6:8]) != 0 {
+		t.Fatalf("unbounded fixture: %x %v", b, err)
+	}
+}

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/wireguard"
 	"sync"
 	"time"
 )
@@ -13,6 +14,7 @@ import (
 // Callbacks must honor context deadlines. ApplyModel must commit through the
 // supervisor lifecycle; it must never flip the active process's selector API.
 type Options struct {
+	ProbeWireGuard      func(context.Context, wireguard.Endpoint) (Observation, error)
 	Model               coreconfig.Model
 	GroupID             string
 	Probe               func(context.Context, endpoints.Endpoint) (Observation, error)
@@ -41,7 +43,7 @@ type Controller struct {
 }
 
 func New(o Options) (*Controller, error) {
-	if o.Probe == nil || o.ApplyModel == nil || o.Quarantine == nil {
+	if o.ApplyModel == nil || o.Quarantine == nil {
 		return nil, errors.New("fallback lifecycle callbacks required")
 	}
 	if o.MaxAge == 0 {
@@ -57,6 +59,9 @@ func New(o Options) (*Controller, error) {
 	if e != nil {
 		return nil, e
 	}
+	if err := validateProbeCallbacks(o, m, g); err != nil {
+		return nil, err
+	}
 	return &Controller{opts: o, model: m, group: g, status: ControllerStatus{GroupID: g.ID, Selected: selection(g), State: "unobserved", Quarantined: true}, observations: map[string]Observation{}, closeDone: make(chan struct{})}, nil
 }
 func validated(m coreconfig.Model, id string) (coreconfig.Model, coreconfig.Group, error) {
@@ -70,6 +75,9 @@ func validated(m coreconfig.Model, id string) (coreconfig.Model, coreconfig.Grou
 	}
 	enabled := map[string]bool{}
 	for _, ep := range copy.Endpoints {
+		enabled[ep.ID] = ep.Enabled
+	}
+	for _, ep := range copy.WireGuard {
 		enabled[ep.ID] = ep.Enabled
 	}
 	for _, g := range copy.Groups {
@@ -157,13 +165,24 @@ func (c *Controller) Tick(ctx context.Context) error {
 	for _, ep := range m.Endpoints {
 		byID[ep.ID] = ep
 	}
+	wgByID := map[string]wireguard.Endpoint{}
+	for _, ep := range m.WireGuard {
+		wgByID[ep.ID] = ep
+	}
 	observed := map[string]Observation{}
 	for _, id := range g.Members {
 		if bounded.Err() != nil {
 			break
 		}
-		ep := byID[id]
-		o, e := c.opts.Probe(bounded, ep)
+		var o Observation
+		var e error
+		if ep, ok := byID[id]; ok {
+			o, e = c.opts.Probe(bounded, ep)
+		} else if wg, ok := wgByID[id]; ok {
+			o, e = c.opts.ProbeWireGuard(bounded, wg)
+		} else {
+			e = errors.New("unknown fallback member")
+		}
 		now := time.Now().UTC()
 		if e != nil || o.EndpointID != id || o.CheckedAt.IsZero() || o.CheckedAt.After(now) || now.Sub(o.CheckedAt) > c.opts.MaxAge || !o.Available || o.LastSuccess.IsZero() || o.LastSuccess.After(now) || now.Sub(o.LastSuccess) > c.opts.MaxAge || o.LastFailure.After(o.LastSuccess) || o.Latency < 0 {
 			o = Observation{EndpointID: id, CheckedAt: now, Health: coreconfig.Health{Available: false, LastFailure: now}, Failure: "endpoint probe failed"}
@@ -275,6 +294,9 @@ func (c *Controller) UpdateModel(ctx context.Context, m coreconfig.Model) error 
 	if e != nil {
 		return e
 	}
+	if e = validateProbeCallbacks(c.opts, next, g); e != nil {
+		return e
+	}
 	c.mu.Lock()
 	if c.closed {
 		c.mu.Unlock()
@@ -384,6 +406,26 @@ func (c *Controller) Close(ctx context.Context) error {
 	c.mu.Unlock()
 	if err != nil {
 		return errors.New("fallback quarantine failed")
+	}
+	return nil
+}
+
+func validateProbeCallbacks(o Options, m coreconfig.Model, g coreconfig.Group) error {
+	nodes := map[string]bool{}
+	for _, ep := range m.Endpoints {
+		nodes[ep.ID] = true
+	}
+	wg := map[string]bool{}
+	for _, ep := range m.WireGuard {
+		wg[ep.ID] = true
+	}
+	for _, id := range g.Members {
+		if nodes[id] && o.Probe == nil {
+			return errors.New("fallback proxy probe callback required")
+		}
+		if wg[id] && o.ProbeWireGuard == nil {
+			return errors.New("fallback WireGuard probe callback required")
+		}
 	}
 	return nil
 }

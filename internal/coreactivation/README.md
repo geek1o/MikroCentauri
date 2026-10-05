@@ -62,3 +62,74 @@ stale aliases, cache loss and failure boundaries; they do **not** prove native
 RouterOS/TUN behavior. A concrete platform `Barrier`, startup wrapper with
 private umask, coordinated namespace transitions and CHR acceptance remain
 required before transparent activation is exposed through a CLI/API.
+
+## Coordinated model and namespace transitions
+
+`NewTransition(TransitionOptions{Directory, Store, Activation, Process, Model,
+ResolveRuleSets})` owns namespace activation, the supervisor and an external DNS
+switcher. Its registry, namespace store and supervisor have separate private
+locks; callers must not independently mutate the store or reuse these runtime
+resources through another controller. Construction stays quarantined. Call
+`Recover(ctx)` explicitly and wait for its fresh engine, alias, backend and
+platform proofs before announcing readiness.
+
+The public lifecycle is:
+
+- `Apply(ctx, revision, active, model)` rejects stale namespace revisions and
+  checks the actual pinned sing-box candidate before interrupting a healthy
+  child. `model.DNS.SelectedDomains` must equal the canonical proposed Active
+  list. A model-only change still receives a new namespace revision.
+- `Recover(ctx)` resumes durable pending intent, or revalidates the committed
+  generation after death between namespace commit and traffic release.
+- `Hold(ctx)` holds/cancels external DNS and stops the child without discarding
+  intent. `Check(ctx)` revalidates namespace, engine bindings and publication
+  receipts; failure holds traffic. A platform health loop separately supplies
+  actual outbound-canary observations and calls `Hold` when they fail.
+- `Handler()` is the external DNS entry point. `Status().Ready` requires both
+  publication and the supervised admitted generation. `Close(ctx)` closes the
+  publication gate before closing the process and registry.
+
+`Validate`, `Quarantine`, `Stage`, `Verify` and `Release` implement
+`activation.Runtime`. They are callbacks of the owner's serialized controller,
+not independent public lifecycle entry points. Stage temporarily presents the
+exact matching pending namespace to its adapter. External DNS stays held while
+`Supervisor.Stage` starts and probes that candidate. The namespace commits
+before `CommitStaged` can persist the core revision and release forwarding.
+Release reads the **actual** namespace store and rejects an unresolved Pending
+or a snapshot different from the staged one. No process or disk flag alone
+stands in for those proofs.
+
+Every snapshot has an immutable 0600 source envelope keyed by the snapshot's
+SHA-256, plus its own adapter registry. Initial constructor defaults never
+replace an existing committed source. Failed pending namespace transitions use
+forward recovery of that exact reserved candidate; they do not roll the
+namespace back or discard newly reserved aliases. Generic `Supervisor.Apply`
+retains its last-known-good rollback within an unchanged namespace. Its generic
+rollback contract must not be used to release an older namespace after new
+reservations or a namespace commit.
+
+`Activation.CachePath` is a trusted override for a shared allocator cache beneath
+a private 0700 parent. Transition defaults it to `Directory/engine-cache.db`;
+per-snapshot registries all point to that same cache. The controller never
+repairs or replaces engine cache content, and never recycles Known aliases.
+Source registry and supervisor retention never prune the cache, namespace journal
+or alias ledger.
+
+`ResolveRuleSets(ctx, model)` runs only for a new source candidate. Its trusted
+resolved SRS files are copied to the owner's private `artifacts/<sha256>.srs`
+registry, hash-validated and recorded in the immutable source envelope. Recovery
+uses those pinned copies, not the latest manager ID or refreshed URL. A changed,
+missing or unsafe pinned file denies recovery. Application model JSON cannot
+supply the trusted artifact paths. Source retention protects committed and
+pending snapshots, the current adapter, the newest snapshot representative of
+every retained supervisor config hash, and at most five recent speculative
+sources. Old adapter registries and unreferenced copied artifacts are removed;
+equal generated configs across many revisions cannot grow retention forever.
+
+Composition tests spawn deterministic real child processes with injected engine,
+ledger and barrier dependencies. They cover retired/reactivated aliases, both
+namespace commit windows, schema rejection preserving the live PID, private
+source denial, shared cache preservation, SRS refresh during pending recovery
+and bounded retention. They do not substitute for CHR acceptance or stock-engine
+protocol tests. Concrete native coverage is recorded separately in project
+reports; this module alone does not complete product phase 3.

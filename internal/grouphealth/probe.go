@@ -4,9 +4,11 @@ package grouphealth
 
 import (
 	"context"
+	"crypto/ecdh"
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -14,6 +16,7 @@ import (
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
 	"mikrocentauri.local/core/internal/singbox"
+	"mikrocentauri.local/core/internal/wireguard"
 	"net"
 	"net/http"
 	"net/netip"
@@ -21,6 +24,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -106,12 +111,75 @@ func NewProber(o ProbeOptions) (*Prober, error) {
 	return &Prober{o, make(chan struct{}, o.Concurrency), sync.Mutex{}, map[string]Observation{}}, nil
 }
 func (p *Prober) Probe(ctx context.Context, ep endpoints.Endpoint, canary Canary) (Observation, error) {
+	if ep.Validate() != nil || ep.ID == "" || !ep.Enabled {
+		return p.record(ep.ID, 0, false, "endpoint disabled or invalid"), errors.New("endpoint disabled or invalid")
+	}
+	m := coreconfig.Model{SchemaVersion: 2, Instance: "health-probe", Mode: "socksify", Endpoints: []endpoints.Endpoint{ep}, DefaultOutbound: ep.ID, DNS: coreconfig.DNS{Bootstrap: p.opts.Bootstrap, FakeIPRange: "198.18.0.0/15", CachePath: "/data/health-probe/cache.db"}}
+	return p.probeModel(ctx, ep.ID, m, canary)
+}
+
+// ProbeWireGuard requires a separately provisioned peer identity. Reusing an
+// active key would make the remote WireGuard endpoint roam to the probe socket.
+// The observation measures that dedicated peer's path to the same remote server;
+// actual active-path authorization/readiness needs a separate current-path probe.
+func (p *Prober) ProbeWireGuard(ctx context.Context, active, dedicated wireguard.Endpoint, canary Canary) (Observation, error) {
+	identifier := active.ID
+	if !dedicatedWGPeer(active, dedicated) {
+		return p.record(identifier, 0, false, "dedicated WireGuard probe peer required"), errors.New("dedicated WireGuard probe peer required")
+	}
+	dedicated.ListenPort = 0
+	dedicated.ID = ""
+	ep, err := dedicated.Normalize()
+	if err != nil {
+		return p.record(identifier, 0, false, "WireGuard probe model invalid"), errors.New("WireGuard probe model invalid")
+	}
+	m := coreconfig.Model{SchemaVersion: 2, Instance: "health-probe", Mode: "socksify", WireGuard: []wireguard.Endpoint{ep}, DefaultOutbound: ep.ID, DNS: coreconfig.DNS{Bootstrap: p.opts.Bootstrap, FakeIPRange: "198.18.0.0/15", CachePath: "/data/health-probe/cache.db"}}
+	return p.probeModel(ctx, identifier, m, canary)
+}
+func dedicatedWGPeer(active, probe wireguard.Endpoint) bool {
+	if active.Validate() != nil || probe.Validate() != nil || active.ID == "" || probe.ID == "" || !active.Enabled || !probe.Enabled || active.PrivateKey == probe.PrivateKey || len(active.Peers) != len(probe.Peers) {
+		return false
+	}
+	a, _ := base64.StdEncoding.DecodeString(active.PrivateKey)
+	b, _ := base64.StdEncoding.DecodeString(probe.PrivateKey)
+	ak, ae := ecdh.X25519().NewPrivateKey(a)
+	bk, be := ecdh.X25519().NewPrivateKey(b)
+	if ae != nil || be != nil || reflect.DeepEqual(ak.PublicKey().Bytes(), bk.PublicKey().Bytes()) {
+		return false
+	}
+	addresses := map[netip.Addr]bool{}
+	for _, raw := range active.Address {
+		prefix, _ := netip.ParsePrefix(raw)
+		addresses[prefix.Addr()] = true
+	}
+	for _, raw := range probe.Address {
+		prefix, _ := netip.ParsePrefix(raw)
+		if addresses[prefix.Addr()] {
+			return false
+		}
+	}
+	peers := map[string]wireguard.Peer{}
+	for _, peer := range active.Peers {
+		peer.AllowedIPs = append([]string(nil), peer.AllowedIPs...)
+		sort.Strings(peer.AllowedIPs)
+		peer.Address = strings.ToLower(peer.Address)
+		peers[peer.PublicKey] = peer
+	}
+	for _, peer := range probe.Peers {
+		peer.AllowedIPs = append([]string(nil), peer.AllowedIPs...)
+		sort.Strings(peer.AllowedIPs)
+		peer.Address = strings.ToLower(peer.Address)
+		other, ok := peers[peer.PublicKey]
+		if !ok || !reflect.DeepEqual(peer, other) {
+			return false
+		}
+	}
+	return true
+}
+func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig.Model, canary Canary) (Observation, error) {
 	ctx, cancel := context.WithTimeout(ctx, p.opts.Timeout)
 	defer cancel()
-	fail := func(code string) (Observation, error) { return p.record(ep.ID, 0, false, code), errors.New(code) }
-	if ep.Validate() != nil || ep.ID == "" || !ep.Enabled {
-		return fail("endpoint disabled or invalid")
-	}
+	fail := func(code string) (Observation, error) { return p.record(identifier, 0, false, code), errors.New(code) }
 	u, err := url.Parse(canary.URL)
 	if err != nil || len(canary.URL) > 8192 || u.Hostname() == "" || u.User != nil || u.Fragment != "" || (u.Scheme != "http" && u.Scheme != "https") {
 		return fail("invalid canary URL")
@@ -153,7 +221,6 @@ func (p *Prober) Probe(ctx context.Context, ep endpoints.Endpoint, canary Canary
 		return fail("probe randomness unavailable")
 	}
 	password := hex.EncodeToString(secret)
-	m := coreconfig.Model{SchemaVersion: 2, Instance: "health-probe", Mode: "socksify", Endpoints: []endpoints.Endpoint{ep}, DefaultOutbound: ep.ID, DNS: coreconfig.DNS{Bootstrap: p.opts.Bootstrap, FakeIPRange: "198.18.0.0/15", CachePath: "/data/health-probe/cache.db"}}
 	dnsPort := port + 1
 	if dnsPort == 0 {
 		dnsPort = 1
@@ -247,7 +314,7 @@ func (p *Prober) Probe(ctx context.Context, ep endpoints.Endpoint, canary Canary
 		return fail("probe canceled")
 	default:
 	}
-	return p.record(ep.ID, latency, true, ""), nil
+	return p.record(identifier, latency, true, ""), nil
 }
 func (p *Prober) record(id string, latency time.Duration, available bool, code string) Observation {
 	p.mu.Lock()

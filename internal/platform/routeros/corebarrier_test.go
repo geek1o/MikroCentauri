@@ -5,11 +5,41 @@ package routeros
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 )
+
+type nativeWarmupTransport struct {
+	base     http.RoundTripper
+	failures int
+}
+
+func (t *nativeWarmupTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	if t.failures > 0 {
+		t.failures--
+		return nil, errors.New("link warming up")
+	}
+	return t.base.RoundTrip(r)
+}
+
+func TestCoreNativeQuarantineWaitsForTransportWithoutAcceptingMissingProof(t *testing.T) {
+	b, writes := nativeBarrierFixture(t, "clear")
+	b.client.http.Transport = &nativeWarmupTransport{base: b.client.http.Transport, failures: 2}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if err := b.Quarantine(ctx); err != nil || *writes != 0 {
+		t.Fatal("startup warmup denied", err)
+	}
+	b.client.http.Transport = &nativeWarmupTransport{base: b.client.http.Transport, failures: 100}
+	ctx, cancel = context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	if b.Quarantine(ctx) == nil || *writes != 0 {
+		t.Fatal("missing native proof accepted")
+	}
+}
 
 func nativeBarrierFixture(t *testing.T, kind string) (*CoreNativeBarrier, *int) {
 	t.Helper()

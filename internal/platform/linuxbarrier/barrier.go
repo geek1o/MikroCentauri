@@ -36,9 +36,12 @@ func (execRunner) Run(ctx context.Context, args ...string) ([]byte, error) {
 type Options struct {
 	Interface, TUN      string
 	Table, RulePriority int
-	TUNPrefix           netip.Prefix
-	Native              Native
-	Canary              health.HTTPProbeConfig
+	// RouterOS container kernels place the standard local-table rule at 200;
+	// ordinary Linux uses 0. This is an explicitly pinned platform input.
+	LocalRulePriority int
+	TUNPrefix         netip.Prefix
+	Native            Native
+	Canary            health.HTTPProbeConfig
 	// IndependentCanary permits a dedicated literal-IP echo target whose route
 	// is independent of the user's Active domain set. Actual egress must still
 	// match Canary.ExpectedPeerIP; removing its proxy rule fails the probe.
@@ -57,7 +60,7 @@ type Barrier struct {
 var ifacePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,14}$`)
 
 func New(o Options) (*Barrier, error) {
-	if !ifacePattern.MatchString(o.Interface) || !ifacePattern.MatchString(o.TUN) || o.Interface == o.TUN || o.Table < 1 || o.Table >= 253 || o.RulePriority < 1 || o.RulePriority >= 32766 || !o.TUNPrefix.IsValid() || !o.TUNPrefix.Addr().Is4() || o.Native == nil {
+	if !ifacePattern.MatchString(o.Interface) || !ifacePattern.MatchString(o.TUN) || o.Interface == o.TUN || o.Table < 1 || o.Table >= 253 || o.RulePriority < 1 || o.RulePriority >= 32766 || o.LocalRulePriority < 0 || o.LocalRulePriority >= o.RulePriority || !o.TUNPrefix.IsValid() || !o.TUNPrefix.Addr().Is4() || o.Native == nil {
 		return nil, errors.New("invalid scoped ingress barrier")
 	}
 	host, _, err := net.SplitHostPort(o.Canary.SOCKSAddress)
@@ -103,6 +106,7 @@ func (b *Barrier) rule(ctx context.Context) (bool, error) {
 		return false, err
 	}
 	found := false
+	localFound := false
 	priority := strconv.Itoa(b.options.RulePriority) + ":"
 	for _, line := range strings.Split(out, "\n") {
 		fields := strings.Fields(line)
@@ -118,9 +122,15 @@ func (b *Barrier) rule(ctx context.Context) (bool, error) {
 				return false, errors.New("foreign ingress priority")
 			}
 			found = true
-		} else if number < b.options.RulePriority && strings.Join(fields, " ") != "0: from all lookup local" {
-			return false, errors.New("earlier policy can bypass ingress quarantine")
+		} else if number < b.options.RulePriority {
+			if localFound || number != b.options.LocalRulePriority || strings.Join(fields[1:], " ") != "from all lookup local" {
+				return false, errors.New("earlier policy can bypass ingress quarantine")
+			}
+			localFound = true
 		}
+	}
+	if !localFound {
+		return false, errors.New("pinned local policy rule absent")
 	}
 	return found, nil
 }

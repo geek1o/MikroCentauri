@@ -32,6 +32,8 @@ type CoreNativeBarrier struct {
 	threshold int
 }
 
+var errCoreNativeTransport = errors.New("native read unavailable")
+
 func NewCoreNativeBarrier(c *Client, o CoreNativeBarrierOptions) (*CoreNativeBarrier, error) {
 	if c == nil || c.base.Scheme != "https" {
 		return nil, errors.New("native barrier requires HTTPS")
@@ -92,7 +94,7 @@ func (b *CoreNativeBarrier) rows(ctx context.Context, path string) ([]map[string
 	req.SetBasicAuth(b.client.user, b.client.password)
 	resp, err := b.client.http.Do(req)
 	if err != nil {
-		return nil, errors.New("native read unavailable")
+		return nil, errCoreNativeTransport
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -201,10 +203,10 @@ func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
 func (b *CoreNativeBarrier) Quarantine(ctx context.Context) error {
 	for {
 		revoked, err := b.revoked(ctx)
-		if err != nil {
+		if err != nil && !errors.Is(err, errCoreNativeTransport) {
 			return err
 		}
-		if revoked {
+		if err == nil && revoked {
 			return nil
 		}
 		select {

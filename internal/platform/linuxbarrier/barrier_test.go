@@ -137,6 +137,28 @@ func TestIndependentCanaryAllowsEmptyActiveButRequiresEgressProof(t *testing.T) 
 		t.Fatal(err)
 	}
 }
+
+func TestRouterOSLocalRulePriorityIsExplicitlyPinned(t *testing.T) {
+	b, r, _, _ := barrierFixture(t)
+	r.rules = "200: from all lookup local\n2147483646: from all lookup main\n2147483647: from all lookup default"
+	ctx := context.Background()
+	if b.Quarantine(ctx) == nil {
+		t.Fatal("unexpected local priority accepted")
+	}
+	o := b.options
+	o.LocalRulePriority = 200
+	pinned, err := New(o)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = pinned.Quarantine(ctx); err != nil {
+		t.Fatal(err)
+	}
+	r.rules += "\n201: from all lookup main"
+	if pinned.Quarantine(ctx) == nil {
+		t.Fatal("early foreign forwarding policy accepted")
+	}
+}
 func TestBarrierRefusesForeignPolicyBeforeMutation(t *testing.T) {
 	for _, kind := range []string{"priority", "earlier", "table", "duplicate"} {
 		t.Run(kind, func(t *testing.T) {
