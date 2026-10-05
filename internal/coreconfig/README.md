@@ -52,3 +52,30 @@ and the default selector sends a request through it. Private random listener
 ports and a temporary cache path keep the test isolated. This is explicit mixed
 proxy TCP evidence, not RouterOS TUN, UDP, QUIC, TLS credentials, or external
 FakeIP publication evidence.
+
+`GenerateForNamespace` is the closed v2 allocator policy. It requires a committed
+finite snapshot and exact agreement between the model's selected domains and
+the snapshot's active list. Internal DNS allocates all historically known names,
+including retired names needed to re-admit cached aliases. Active terminal domain
+routes keep their chosen outbound; retired terminal domain routes use DIRECT;
+both precede sniff. `ValidateForNamespace` strictly compares bounded candidate
+JSON against regeneration and rejects any configuration deviation.
+`ValidateNamespaceTransition` rejects removal/reordering of previously known
+names, uncommitted snapshots, and inconsistent revisions. Callers must obtain
+snapshots from the durable locked store; these APIs do not authenticate an
+arbitrary caller-created snapshot or validate the engine cache database.
+
+`Options.CachePath` optionally maps persistence into a trusted runtime directory.
+Its caller must check private directory/file metadata; the application model
+still accepts only a `/data/` cache path. Exact preflight includes this mapping.
+
+`TestPinnedNamespaceCachedAliasBinding` runs the namespace generation with real
+pinned processes and controlled bootstrap DNS. Host-only adaptation removes TUN
+and assigns the test resolver's random UDP port after the original config passes
+preflight. Cached synthetic destinations retain their identity across process
+restart and retirement; misleading HTTP Host and TLS SNI cannot promote retired
+aliases to proxy or demote active aliases to DIRECT. The TLS test trusts only
+its disposable local fixture by explicitly disabling certificate verification
+inside the test client. This proves engine binding on private mixed sockets;
+external DNS retirement responses, native RouterOS forwarding, and publication
+admission remain the responsibility of the runtime bridge and existing gates.

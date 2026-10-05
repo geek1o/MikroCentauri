@@ -175,6 +175,25 @@ func New(opts Options) (*Supervisor, error) {
 	return s, nil
 }
 func (s *Supervisor) Status() Status { s.mu.Lock(); defer s.mu.Unlock(); return s.status }
+
+// RetainedRevisions includes every durable LKG and pending recovery revision.
+// Call outside lifecycle hooks: it serializes with apply/stop journal mutations.
+func (s *Supervisor) RetainedRevisions() []string {
+	s.op.Lock()
+	defer s.op.Unlock()
+	out := append([]string{}, s.j.KnownGood...)
+	seen := map[string]bool{}
+	for _, hash := range out {
+		seen[hash] = true
+	}
+	for _, hash := range []string{s.j.Active, s.j.Pending} {
+		if hash != "" && !seen[hash] {
+			out = append(out, hash)
+			seen[hash] = true
+		}
+	}
+	return out
+}
 func (s *Supervisor) Events() []Event {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -3,6 +3,7 @@ package coreconfig
 import (
 	"encoding/json"
 	"errors"
+	"path/filepath"
 	"strings"
 )
 
@@ -13,9 +14,14 @@ type object = map[string]any
 type Options struct {
 	DNSPort   uint16
 	MixedPort uint16
+	// CachePath is a trusted runtime mapping; callers must enforce private
+	// directory and file ownership. Application models cannot provide it.
+	CachePath string
 }
 
-func Generate(m Model) ([]byte, error)       { return GenerateWithOptions(m, Options{5353, 2080}) }
+func Generate(m Model) ([]byte, error) {
+	return GenerateWithOptions(m, Options{DNSPort: 5353, MixedPort: 2080})
+}
 func GeneratePinned(m Model) ([]byte, error) { return Generate(m) }
 func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	if e := m.Validate(); e != nil {
@@ -23,6 +29,13 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	}
 	if o.DNSPort == 0 || o.MixedPort == 0 || o.DNSPort == o.MixedPort {
 		return nil, errors.New("invalid private listener ports")
+	}
+	cachePath := m.DNS.CachePath
+	if o.CachePath != "" {
+		if len(o.CachePath) > 4096 || strings.ContainsAny(o.CachePath, "\x00\r\n") || !filepath.IsAbs(o.CachePath) || filepath.Clean(o.CachePath) != o.CachePath || filepath.Dir(o.CachePath) == o.CachePath {
+			return nil, errors.New("invalid trusted cache mapping")
+		}
+		cachePath = o.CachePath
 	}
 	out := []object{{"type": "direct", "tag": "direct", "domain_resolver": "bootstrap"}}
 	for _, ep := range m.Endpoints {
@@ -102,7 +115,7 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	if m.Mode != "socksify" {
 		in = append(in, object{"type": "tun", "tag": "gateway-in", "interface_name": "mc-tun", "address": []string{"172.31.255.1/30"}, "mtu": 1500, "auto_route": false, "stack": "gvisor"})
 	}
-	result := object{"log": object{"level": "warn"}, "dns": object{"servers": servers, "rules": dnsRules, "final": "bootstrap"}, "inbounds": in, "outbounds": out, "route": object{"rules": route, "final": m.DefaultOutbound, "default_domain_resolver": "bootstrap"}, "experimental": object{"cache_file": object{"enabled": true, "path": m.DNS.CachePath, "store_fakeip": m.Mode != "socksify"}}}
+	result := object{"log": object{"level": "warn"}, "dns": object{"servers": servers, "rules": dnsRules, "final": "bootstrap"}, "inbounds": in, "outbounds": out, "route": object{"rules": route, "final": m.DefaultOutbound, "default_domain_resolver": "bootstrap"}, "experimental": object{"cache_file": object{"enabled": true, "path": cachePath, "store_fakeip": m.Mode != "socksify"}}}
 	return json.MarshalIndent(result, "", "  ")
 }
 

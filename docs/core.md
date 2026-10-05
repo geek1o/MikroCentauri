@@ -56,13 +56,17 @@ that an existing cached FakeIP namespace can accept a changed policy.
 
 Fallback compiles to a selector. The application chooses the first freshly
 healthy member through `FallbackSelection`, then creates a validated replacement
-with `Model.Select`. It still needs a real health observation adapter and a
-supervised apply loop. URLTest uses the upstream outbound implementation.
+with `Model.Select`. [Endpoint health](../internal/grouphealth/README.md) now probes
+each enabled endpoint through an isolated checked engine and genuine HTTP(S)
+canary. `coreactivation.Managed` applies those decisions through the supervisor,
+admission and DNS gate. URLTest uses the upstream outbound implementation.
 
 The supervisor API requires semantic validation and quarantine, prepare,
-readiness-probe and release hooks. These hooks are the integration boundary
-for the existing DNS gate, finite namespace admission and RouterOS activation
-controller. Supplying empty hooks would not establish transparent readiness.
+readiness-probe and release hooks. The new [finite core adapter](../internal/coreactivation/README.md)
+connects these hooks to the existing DNS gate and finite namespace admission for
+one fixed committed snapshot. Its mandatory platform Barrier still requires
+native forwarding/lease acceptance. Supplying empty hooks would not establish
+transparent readiness.
 There is deliberately no transparent `core-run` command before this adapter
 is accepted. PID existence alone cannot establish readiness.
 
@@ -82,9 +86,9 @@ state to that integration.
 
 ## Remaining Phase 3 work
 
-Connect the generalized model and supervisor to the existing transparent
-activation runtime; implement real health observations and fallback switching;
-extend ordered rules with names, enable/priority state, service lists and modern
+Accept the new bridge on native CHR, implement its platform Barrier/private
+startup and coordinate namespace changes across the durable stores. Extend
+ordered rules with names, enable/priority state, service lists and modern
 remote rule sets. Complete protocol runtime coverage beyond the current local
 VLESS and Shadowsocks TCP evidence. Add WireGuard through the modern endpoint
 abstraction: upstream documents [WireGuard endpoints](https://sing-box.sagernet.org/configuration/endpoint/wireguard/)

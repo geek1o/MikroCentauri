@@ -10,7 +10,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 0 | Research | Research recorded for the pinned lab architecture; refresh before a release |
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
 | 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
-| 3 | sing-box Core | In progress: four-protocol parser, subscription LKG, v2 groups/rules/DNS generator, pinned validation and reusable supervisor; generalized transparent activation, real group health/fallback, complete rule model and WireGuard remain open |
+| 3 | sing-box Core | In progress: four-protocol parser, subscription LKG, v2 namespace-aware generator, supervisor, real endpoint health/fallback and finite admission composition; native bridge acceptance/coordinated namespace transitions, complete rule model, WireGuard and broader protocol runtime coverage remain open |
 | 4 | Backend/API | Production API, OpenAPI, authentication and backup remain open |
 | 5 | Web UI | Not started |
 | 6 | RouterOS App | Lab image builders and manifest draft exist; installable application remains open |
@@ -43,3 +43,5 @@ earlier intermediate block; its open items are superseded by this completion rep
 
 The first generalized core block is recorded in
 [product Phase3 core foundation](../reports/product-phase-3-core-foundation.md).
+The next block connects supervised admission and real endpoint observations:
+[Phase3 supervised admission](../reports/product-phase-3-supervised-admission.md).

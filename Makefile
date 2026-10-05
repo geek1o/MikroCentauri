@@ -20,7 +20,9 @@ prototype:
 cross-build:
 	mkdir -p .cache/bin
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-amd64 ./cmd/mikrocentauri
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build ./internal/...
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-arm64 ./cmd/mikrocentauri
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build ./internal/...
 probe:
 	python3 scripts/build-probe.py --go "$(GO)"
 

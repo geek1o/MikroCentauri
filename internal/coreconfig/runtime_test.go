@@ -165,7 +165,18 @@ func runPinned(t *testing.T, binary, path string, port uint16) func() {
 	exited := make(chan error, 1)
 	go func() { exited <- cmd.Wait() }()
 	var once sync.Once
-	stop := func() { once.Do(func() { cancel(); <-exited }) }
+	stop := func() {
+		once.Do(func() {
+			_ = cmd.Process.Signal(os.Interrupt)
+			select {
+			case <-exited:
+				cancel()
+			case <-time.After(3 * time.Second):
+				cancel()
+				<-exited
+			}
+		})
+	}
 	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
 		c, e := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), 100*time.Millisecond)

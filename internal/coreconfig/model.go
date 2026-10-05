@@ -151,7 +151,7 @@ func (m Model) Validate() error {
 	if e != nil || !a.Is4() || a.IsUnspecified() || a.IsMulticast() || p.Contains(a) {
 		return errors.New("invalid bootstrap DNS")
 	}
-	if !filepath.IsAbs(m.DNS.CachePath) || filepath.Clean(m.DNS.CachePath) != m.DNS.CachePath || !strings.HasPrefix(m.DNS.CachePath, "/data/") {
+	if len(m.DNS.CachePath) > 4096 || strings.ContainsAny(m.DNS.CachePath, "\x00\r\n") || !filepath.IsAbs(m.DNS.CachePath) || filepath.Clean(m.DNS.CachePath) != m.DNS.CachePath || !strings.HasPrefix(m.DNS.CachePath, "/data/") {
 		return errors.New("cache path must be a clean private /data path")
 	}
 	if len(m.DNS.SelectedSuffixes) > 0 {

@@ -13,6 +13,8 @@ baseline: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/vers
 - Strict VLESS/TCP URI and milestone configuration parsing, rejecting unsupported options.
 - Generalized core v2: four-protocol URI import, private subscription LKG,
   selector/URLTest/fallback policy, ordered rules and DNS generation; see [core guide](docs/core.md).
+- Namespace-aware v2 preflight and isolated endpoint health/fallback, composed
+  with supervisor/admission/DNS gates; [native bridge acceptance remains pending](docs/reports/product-phase-3-supervised-admission.md).
 - Version-pinned sing-box generator, three golden fixtures, real `sing-box check`.
 - Real local VLESS TCP and DIRECT routing smoke, typed FakeIP DNS over UDP/TCP,
   selected AAAA suppression, invalid-candidate preservation.
@@ -40,7 +42,7 @@ baseline: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/vers
   reconcile/verify/cleanup and placement-preserving rollback on native CHR.
 - Generated Netwatch/startup guard with RAM debounce, fail-open, generation/counter
   refusal and reboot recovery; staged/lost-reply acceptance retained.
-- Phase-0 research, license inventory, UX specification, eighteen ADRs and a draft `/app` manifest.
+- Phase-0 research, license inventory, UX specification, nineteen ADRs and a draft `/app` manifest.
 
 The [product roadmap](docs/product/progress.md) has nine phases (0–8).
 Historical engineering report numbers differ from the product phases; current
