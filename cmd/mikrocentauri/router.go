@@ -168,6 +168,9 @@ func routerCommand(action string, args []string) error {
 	input := fs.String("config", "", "local application config")
 	out := fs.String("out", "", "private plan artifact path")
 	planPath := fs.String("plan", "", "reviewed private plan artifact")
+	desiredPath := fs.String("desired", "", "private complete managed desired-state JSON")
+	watchdogPath := fs.String("watchdog-config", "", "private generated watchdog specification")
+	instance := fs.String("instance", "", "exact managed ownership instance")
 	journal := fs.String("journal", "", "exclusive private transaction directory")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -176,7 +179,7 @@ func routerCommand(action string, args []string) error {
 		return errors.New("router-config required; positional arguments unsupported")
 	}
 	switch action {
-	case "router-inspect", "router-plan", "router-stage", "router-reconcile", "router-recover":
+	case "router-inspect", "router-plan", "router-stage", "router-reconcile", "router-recover", "router-managed-plan", "router-watchdog-plan", "router-apply", "router-managed-reconcile", "router-managed-recover", "router-rollback", "router-verify", "router-cleanup":
 	default:
 		return errors.New("unsupported router command")
 	}
@@ -196,10 +199,65 @@ func routerCommand(action string, args []string) error {
 	if !caps.VersionSupported {
 		return errors.New("router version/platform has no accepted staging baseline")
 	}
-	for _, path := range []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch"} {
+	for _, path := range []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch", "system/scheduler"} {
 		if !caps.Resources[path] {
 			return errors.New("required managed resource unavailable")
 		}
+	}
+	if action == "router-managed-plan" || action == "router-watchdog-plan" {
+		if *out == "" {
+			return errors.New("out required")
+		}
+		var desired struct {
+			Instance string            `json:"instance"`
+			Objects  []routeros.Object `json:"objects"`
+		}
+		if action == "router-watchdog-plan" {
+			if *watchdogPath == "" {
+				return errors.New("watchdog-config required")
+			}
+			var spec routeros.WatchdogSpec
+			if err = privateJSON(*watchdogPath, &spec, 1<<20); err != nil {
+				return err
+			}
+			bundle, buildErr := routeros.WatchdogBundle(spec)
+			if buildErr != nil {
+				return buildErr
+			}
+			desired.Instance = spec.Instance
+			desired.Objects = append(spec.Targets, bundle...)
+		} else {
+			if *desiredPath == "" {
+				return errors.New("desired required")
+			}
+			if err = privateJSON(*desiredPath, &desired, 4<<20); err != nil {
+				return err
+			}
+			if desired.Objects == nil {
+				return errors.New("complete desired objects required")
+			}
+		}
+		if err = routeros.ValidateManagedDesired(desired.Instance, desired.Objects); err != nil {
+			return err
+		}
+		current, discoverErr := client.Discover(ctx)
+		if discoverErr != nil {
+			return discoverErr
+		}
+		plan, planErr := routeros.Plan(desired.Instance, current, desired.Objects)
+		if planErr != nil {
+			return planErr
+		}
+		plan.Gate = "MANAGED: review active state, exact ownership, generated hooks and placement before apply"
+		data, marshalErr := json.MarshalIndent(routerArtifact{SchemaVersion: 1, Target: url, Plan: plan, Desired: desired.Objects}, "", "  ")
+		if marshalErr != nil {
+			return marshalErr
+		}
+		if err = config.WriteAtomic(*out, append(data, '\n')); err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "private managed plan saved; review before router-apply")
+		return nil
 	}
 	if action == "router-plan" {
 		if *input == "" || *out == "" {
@@ -248,15 +306,30 @@ func routerCommand(action string, args []string) error {
 	if *journal == "" {
 		return errors.New("journal directory required")
 	}
-	controller, err := routeros.NewController(client, *journal)
+	managed := action != "router-stage" && action != "router-reconcile" && action != "router-recover"
+	var controller *routeros.Controller
+	if managed {
+		controller, err = routeros.NewManagedController(client, *journal)
+	} else {
+		controller, err = routeros.NewController(client, *journal)
+	}
 	if err != nil {
 		return err
 	}
-	if action == "router-recover" {
+	if action == "router-rollback" {
+		return controller.Rollback(ctx)
+	}
+	if action == "router-cleanup" {
+		if *instance == "" {
+			return errors.New("instance required")
+		}
+		return controller.CleanupManaged(ctx, *instance)
+	}
+	if action == "router-recover" || action == "router-managed-recover" {
 		if err = controller.Recover(ctx); err != nil {
 			return err
 		}
-		fmt.Fprintln(os.Stderr, "staged transaction recovered")
+		fmt.Fprintln(os.Stderr, "transaction recovered")
 		return nil
 	}
 	if *planPath == "" {
@@ -269,17 +342,31 @@ func routerCommand(action string, args []string) error {
 	if artifact.SchemaVersion != 1 || artifact.Target != url {
 		return errors.New("plan target/schema mismatch")
 	}
-	if action == "router-reconcile" {
+	if action == "router-verify" {
+		if artifact.Desired == nil {
+			return errors.New("complete desired objects required")
+		}
+		return controller.Verify(ctx, artifact.Plan.Instance, artifact.Desired)
+	}
+	if action == "router-reconcile" || action == "router-managed-reconcile" {
 		if artifact.Desired == nil {
 			return errors.New("reconcile artifact requires complete desired objects")
 		}
 		err = controller.Reconcile(ctx, artifact.Plan.Instance, artifact.Desired)
 	} else {
-		err = controller.Apply(ctx, artifact.Plan)
+		if managed {
+			err = controller.ApplyTransactional(ctx, artifact.Plan)
+		} else {
+			err = controller.Apply(ctx, artifact.Plan)
+		}
 	}
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(os.Stderr, "staged disabled owned objects verified; traffic activation remains gated")
+	if managed {
+		fmt.Fprintln(os.Stderr, "managed owned transaction verified")
+	} else {
+		fmt.Fprintln(os.Stderr, "staged disabled owned objects verified; traffic activation remains gated")
+	}
 	return nil
 }

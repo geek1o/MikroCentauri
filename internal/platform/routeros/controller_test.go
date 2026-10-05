@@ -217,7 +217,7 @@ func TestDurableControllerNeverAcceptsUnrealizedSuccess(t *testing.T) {
 	}
 }
 
-func TestDurableControllerRestoresAbsentFieldAndRejectsOrderedDeletion(t *testing.T) {
+func TestDurableControllerRestoresAbsentFieldAndCommitsOrderedDeletion(t *testing.T) {
 	original := Object{Path: "ip/route", ID: "*A", Fields: map[string]string{"comment": "mikrocentauri:lab:route:one", "dst-address": "198.18.0.0/15", "gateway": "172.30.0.2"}}
 	m := &mockRouter{objects: []Object{original}}
 	ctrl, c, _ := newControllerFixture(t, m, nil)
@@ -238,11 +238,11 @@ func TestDurableControllerRestoresAbsentFieldAndRejectsOrderedDeletion(t *testin
 	}
 	m2 := &mockRouter{objects: []Object{{Path: "ip/firewall/nat", ID: "*N", Fields: map[string]string{"comment": "mikrocentauri:lab:nat:one", "chain": "dstnat", "action": "accept"}}}}
 	ctrl2, c2, _ := newControllerFixture(t, m2, nil)
-	if ctrl2.Apply(context.Background(), controllerPlan(t, c2, nil)) == nil {
-		t.Fatal("accepted ordered deletion")
+	if e := ctrl2.Apply(context.Background(), controllerPlan(t, c2, nil)); e != nil {
+		t.Fatal(e)
 	}
-	if m2.mutations != 0 {
-		t.Fatal("mutated firewall before placement gate")
+	if len(m2.objects) != 0 {
+		t.Fatal("owned firewall deletion not committed")
 	}
 }
 

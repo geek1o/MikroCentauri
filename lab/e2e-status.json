@@ -189,20 +189,25 @@
     ]
   },
   "product_phase2_controller": {
-    "status": "TESTED: native HTTPS disabled-object staging; product Phase 2 remains open",
-    "report": "docs/reports/product-phase-2-staged-controller.md",
+    "status": "COMPLETE: nine product controller deliverables accepted on native CHR 7.24.5 x86_64",
+    "report": "docs/reports/product-phase-2-controller-completion.md",
     "passed": [
-      "Native www-ssl discovery and trusted-CA validation",
-      "Disabled create and idempotent reconcile",
-      "Stale exact plan refusal and fresh desired-state reconcile",
-      "Active candidate refusal and unrelated configured-state preservation",
-      "Lost successful PUT reply with fresh-process durable rollback",
-      "Native TLS settings restored and canaries removed"
+      "Certificate-verified HTTPS discovery and strict native state parsing",
+      "Active and disabled desired-state apply, repeated exact apply, verify and reconcile",
+      "Explicit committed rollback, automatic compensation and ownership-scoped cleanup",
+      "Native static-anchor insertion and exact rollback order after two firewall deletions",
+      "External anchor edit refused and repaired recovery",
+      "Generated Netwatch and startup scheduler installed through restricted REST account",
+      "RAM debounce, immediate DOWN and positive-probe recovery",
+      "Wrong target generation, duplicate ownership, static counter and unrelated healthy endpoint refused",
+      "Actual CHR reboot, disabled state and healthy recovery",
+      "Unrelated configured-state hash preserved and final owned scope removed"
     ],
     "limits": [
-      "Pinned CHR 7.24.5 x86_64 only",
-      "No enabled traffic activation or placement-aware firewall rollback",
-      "No general native watchdog installation or new dataplane acceptance"
+      "Pinned CHR 7.24.5 x86_64 profile only",
+      "Dedicated controlled readiness fixture; general core readiness integration belongs to Phase3",
+      "No earliest-LAN-packet guarantee from scheduler; FakeIP requires independently proved volatile lease/fallback",
+      "No whole-app LKG, distributed lock, existing-conntrack migration or general hardware release acceptance"
     ]
   }
 }

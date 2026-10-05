@@ -12,19 +12,22 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"sync/atomic"
 	"syscall"
 	"time"
 )
 
 // LabController persists intent before writing. NewLabController permits lab
-// activation; NewController restricts writes to staged disabled objects. A journal
+// activation; NewController stages disabled objects; NewManagedController admits
+// active managed objects with generated native hooks. A journal
 // belongs to one router/instance. Recover compensates interrupted transactions.
 type LabController struct {
-	client     *Client
-	dir        string
-	stagedOnly bool
-	poisoned   atomic.Bool
+	client      *Client
+	dir         string
+	stagedOnly  bool
+	managedOnly bool
+	poisoned    atomic.Bool
 	// fault is a test-only crash boundary; production callers cannot set it.
 	fault func(string) error
 }
@@ -37,20 +40,22 @@ type controllerJournal struct {
 	Changes  []controllerStep `json:"changes"`
 }
 type controllerStep struct {
-	Change    Change  `json:"change"`
-	Attempted bool    `json:"attempted"`
-	Realized  *Object `json:"realized,omitempty"`
-	Reverted  bool    `json:"reverted,omitempty"`
+	Change    Change               `json:"change"`
+	Attempted bool                 `json:"attempted"`
+	Realized  *Object              `json:"realized,omitempty"`
+	Reverted  bool                 `json:"reverted,omitempty"`
+	Placement *controllerPlacement `json:"placement,omitempty"`
 }
 
 // Fields not listed here are never persisted or written. In particular runtime
-// flags and Netwatch executable scripts cannot enter a rollback payload.
+// flags cannot enter rollback payloads; executable hooks require exact generation.
 var controllerWritable = map[string]map[string]bool{
 	"ip/route":           fieldSet("comment disabled dst-address gateway routing-table distance scope target-scope check-gateway pref-src suppress-hw-offload"),
 	"ip/firewall/nat":    fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port to-addresses to-ports connection-mark connection-state ipsec-policy log log-prefix"),
 	"ip/firewall/mangle": fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port connection-mark connection-state new-connection-mark new-routing-mark passthrough log log-prefix"),
 	"ip/firewall/filter": fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port connection-mark connection-state connection-nat-state ipsec-policy log log-prefix hw-offload"),
-	"tool/netwatch":      fieldSet("comment disabled host type port interval timeout start-delay startup-delay http-codes thr-http-time ignore-initial-up ignore-initial-down"),
+	"tool/netwatch":      fieldSet("comment disabled host type port interval timeout start-delay startup-delay http-codes thr-http-time ignore-initial-up ignore-initial-down up-script down-script test-script"),
+	"system/scheduler":   fieldSet("comment name disabled start-time start-date interval policy on-event"),
 }
 
 func fieldSet(s string) map[string]bool {
@@ -65,7 +70,7 @@ func fieldSet(s string) map[string]bool {
 	return m
 }
 func controllerProjection(o Object) Object {
-	p := Object{Path: o.Path, ID: o.ID, Fields: map[string]string{"disabled": "false"}}
+	p := Object{Path: o.Path, ID: o.ID, PlaceBefore: o.PlaceBefore, Fields: map[string]string{"disabled": "false"}}
 	for k, v := range o.Fields {
 		if controllerWritable[o.Path][k] && v != "" {
 			p.Fields[k] = v
@@ -78,6 +83,8 @@ func controllerSame(a, b Object) bool {
 	b = controllerProjection(b)
 	a.ID = ""
 	b.ID = ""
+	a.PlaceBefore = ""
+	b.PlaceBefore = ""
 	return reflect.DeepEqual(a, b)
 }
 
@@ -230,6 +237,9 @@ func (c *LabController) read() (*controllerJournal, error) {
 		return nil, errors.New("invalid controller journal identity or state")
 	}
 	for _, s := range j.Changes {
+		if e = controllerValidatePlacement(s); e != nil {
+			return nil, e
+		}
 		if e = c.validateChange(j.Instance, s.Change); e != nil {
 			return nil, errors.New("invalid journal change")
 		}
@@ -237,6 +247,11 @@ func (c *LabController) read() (*controllerJournal, error) {
 			return nil, errors.New("invalid realized ownership")
 		}
 		if s.Realized != nil {
+			if c.managedOnly {
+				if e := managedValidateObject(j.Instance, *s.Realized); e != nil {
+					return nil, e
+				}
+			}
 			if s.Realized.ID == "" || (c.stagedOnly && s.Realized.Fields["disabled"] != "true") {
 				return nil, errors.New("invalid realized staged state")
 			}
@@ -308,6 +323,26 @@ func controllerDecode(b []byte, out any) error {
 }
 
 func (c *LabController) validateChange(instance string, ch Change) error {
+	if c.managedOnly {
+		if e := managedValidateChange(instance, ch); e != nil {
+			return e
+		}
+	}
+	for _, object := range []*Object{ch.Before, ch.After} {
+		if object == nil {
+			continue
+		}
+		if object.Path == "system/scheduler" {
+			if err := ValidateGeneratedBootGuard(instance, *object); err != nil {
+				return err
+			}
+		}
+		if object.Path == "tool/netwatch" && (object.Fields["up-script"] != "" || object.Fields["down-script"] != "" || object.Fields["test-script"] != "") {
+			if err := ValidateGeneratedWatchdog(instance, *object); err != nil {
+				return err
+			}
+		}
+	}
 	if err := controllerValidateChange(instance, ch); err != nil {
 		return err
 	}
@@ -351,6 +386,11 @@ func controllerValidateChange(instance string, ch Change) error {
 			}
 		}
 	}
+	if ch.After != nil && ch.After.PlaceBefore != "" {
+		if !controllerOrdered(ch.After.Path) || !strings.HasPrefix(ch.After.PlaceBefore, "*") || strings.ContainsAny(ch.After.PlaceBefore, "/?#\\") {
+			return errors.New("invalid placement anchor")
+		}
+	}
 	if ch.After != nil && ch.After.ID != "" {
 		return errors.New("desired object contains ID")
 	}
@@ -380,6 +420,9 @@ func controllerFind(rows []Object, k string) (*Object, error) {
 // even when an HTTP response is lost, and verifies the final writable state.
 // Failure keeps a pending journal for explicit Recover; it never hides ambiguity.
 func (c *LabController) Apply(ctx context.Context, p ChangePlan) error {
+	if c.managedOnly {
+		return c.ApplyTransactional(ctx, p)
+	}
 	unlock, e := c.lock()
 	if e != nil {
 		return e
@@ -402,6 +445,9 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 	if e != nil {
 		return e
 	}
+	if repeat, err := c.repeated(rows, old, p); repeat {
+		return err
+	}
 	j := controllerJournal{Version: 1, Target: c.client.base.String(), Instance: p.Instance, State: "pending"}
 	seen := map[string]bool{}
 	if !instancePattern.MatchString(p.Instance) {
@@ -415,6 +461,11 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		}
 		if e = c.validateChange(p.Instance, ch); e != nil {
 			return e
+		}
+		if ch.After != nil && ch.After.PlaceBefore != "" {
+			if e = validateDesiredPlacement(rows, *ch.After); e != nil {
+				return e
+			}
 		}
 		k := changeKey(ch)
 		if seen[k] {
@@ -435,9 +486,6 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		// Scripted Netwatch and unsupported configurable fields cannot be restored
 		// completely. Refuse their deletion rather than silently losing user state.
 		if ch.Action == "delete" {
-			if ch.Before.Path != "ip/route" && ch.Before.Path != "tool/netwatch" {
-				return errors.New("ordered firewall deletion requires placement-aware recovery")
-			}
 			for _, o := range rows {
 				if key(o) == k {
 					for f, v := range o.Fields {
@@ -466,6 +514,12 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		if s.Change.Before == nil && fresh != nil || s.Change.Before != nil && (fresh == nil || fresh.ID != s.Change.Before.ID || !controllerSame(*fresh, *s.Change.Before)) {
 			return errors.New("concurrent edit before mutation; recovery required")
 		}
+		if s.Change.Action == "delete" && controllerOrdered(s.Change.Before.Path) {
+			s.Placement, e = controllerSnapshotPlacement(freshRows, *s.Change.Before)
+			if e != nil {
+				return e
+			}
+		}
 		s.Attempted = true
 		if e = c.persist(j); e != nil {
 			return e
@@ -479,7 +533,7 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		var mutationErr error
 		switch ch.Action {
 		case "create":
-			_, mutationErr = c.client.request(ctx, "PUT", ch.After.Path, "", ch.After.Fields)
+			_, mutationErr = c.client.request(ctx, "PUT", ch.After.Path, "", controllerCreateFields(*ch.After))
 		case "update":
 			_, mutationErr = c.client.request(ctx, "PATCH", ch.Before.Path, ch.Before.ID, ch.After.Fields)
 		case "delete":
@@ -497,6 +551,11 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		actual, e := controllerFind(rows, changeKey(ch))
 		if e != nil {
 			return e
+		}
+		if ch.After != nil && ch.After.PlaceBefore != "" {
+			if e = verifyObjectPlacement(rows, *ch.After, actual); e != nil {
+				return e
+			}
 		}
 		if !controllerExpected(ch, actual) {
 			if mutationErr != nil {
@@ -518,6 +577,11 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 		if e != nil {
 			return e
 		}
+		if s.Change.After != nil && s.Change.After.PlaceBefore != "" {
+			if e = verifyObjectPlacement(rows, *s.Change.After, a); e != nil {
+				return e
+			}
+		}
 		if s.Change.Action == "delete" {
 			if a != nil {
 				return errors.New("final deletion verification failed")
@@ -530,7 +594,7 @@ func (c *LabController) applyLocked(ctx context.Context, p ChangePlan) error {
 	return c.persist(j)
 }
 func controllerReadOnly(f string) bool {
-	return fieldSet("dynamic static active invalid inactive immediate-gw belongs-to gateway-status debug fib hw-offloaded last-up last-down status since done-tests failed-tests rtt-avg rtt-min rtt-max rtt-jitter packet-loss-percent sent received")[f]
+	return fieldSet("dynamic static active invalid inactive immediate-gw belongs-to gateway-status debug fib hw-offloaded owner run-count next-run bytes packets http-resp-time http-status-code tcp-connect-time dns-resp-time last-up last-down status since done-tests failed-tests rtt-avg rtt-min rtt-max rtt-jitter packet-loss-percent sent received")[f]
 }
 func controllerExpected(ch Change, actual *Object) bool {
 	if ch.Action == "delete" {
@@ -585,6 +649,11 @@ func (c *LabController) recoverLocked(ctx context.Context) error {
 		ch := s.Change
 		beforeMatches := ch.Before == nil && a == nil || ch.Before != nil && a != nil && controllerSame(*a, *ch.Before)
 		if beforeMatches {
+			if s.Placement != nil {
+				if _, e = controllerCheckPlacement(rows, *j, *s, true); e != nil {
+					return e
+				}
+			}
 			s.Reverted = true
 			if e = c.persist(*j); e != nil {
 				return e
@@ -602,7 +671,21 @@ func (c *LabController) recoverLocked(ctx context.Context) error {
 		case "create":
 			_, e = c.client.request(rctx, "DELETE", a.Path, a.ID, nil)
 		case "delete":
-			_, e = c.client.request(rctx, "PUT", ch.Before.Path, "", ch.Before.Fields)
+			fields := ch.Before.Fields
+			if s.Placement != nil {
+				anchor, err := controllerCheckPlacement(rows, *j, *s, false)
+				if err != nil {
+					return err
+				}
+				fields = map[string]string{}
+				for k, v := range ch.Before.Fields {
+					fields[k] = v
+				}
+				if anchor != "" {
+					fields["place-before"] = anchor
+				}
+			}
+			_, e = c.client.request(rctx, "PUT", ch.Before.Path, "", fields)
 		case "update":
 			undo := map[string]string{}
 			for k := range ch.After.Fields {
@@ -625,6 +708,11 @@ func (c *LabController) recoverLocked(ctx context.Context) error {
 				return errors.New("rollback failed; journal retained")
 			}
 			return errors.New("rollback writable verification failed")
+		}
+		if s.Placement != nil {
+			if _, e = controllerCheckPlacement(rows, *j, *s, true); e != nil {
+				return e
+			}
 		}
 		s.Reverted = true
 		if e = c.persist(*j); e != nil {
@@ -674,5 +762,13 @@ func (c *LabController) Reconcile(ctx context.Context, instance string, desired 
 	if err != nil {
 		return err
 	}
-	return c.applyLocked(ctx, plan)
+	err = c.applyLocked(ctx, plan)
+	if err != nil && c.managedOnly {
+		recovery, cancel := context.WithTimeout(context.WithoutCancel(ctx), 30*time.Second)
+		defer cancel()
+		if recoveryErr := c.recoverLocked(recovery); recoveryErr != nil {
+			return errors.Join(err, recoveryErr)
+		}
+	}
+	return err
 }

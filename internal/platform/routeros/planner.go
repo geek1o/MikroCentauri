@@ -11,9 +11,10 @@ import (
 )
 
 type Object struct {
-	Path   string            `json:"path"`
-	ID     string            `json:"id,omitempty"`
-	Fields map[string]string `json:"fields"`
+	Path        string            `json:"path"`
+	ID          string            `json:"id,omitempty"`
+	PlaceBefore string            `json:"place_before,omitempty"`
+	Fields      map[string]string `json:"fields"`
 }
 type Change struct {
 	Action string  `json:"action"`
@@ -27,8 +28,8 @@ type ChangePlan struct {
 }
 
 var instancePattern = regexp.MustCompile(`^[a-z][a-z0-9-]{0,23}$`)
-var suffixPattern = regexp.MustCompile(`^(route|nat|mangle|filter|netwatch):[a-z][a-z0-9-]{0,31}$`)
-var paths = map[string]bool{"ip/route": true, "ip/firewall/nat": true, "ip/firewall/mangle": true, "ip/firewall/filter": true, "tool/netwatch": true}
+var suffixPattern = regexp.MustCompile(`^(route|nat|mangle|filter|netwatch|scheduler):[a-z][a-z0-9-]{0,31}$`)
+var paths = map[string]bool{"ip/route": true, "ip/firewall/nat": true, "ip/firewall/mangle": true, "ip/firewall/filter": true, "tool/netwatch": true, "system/scheduler": true}
 
 func Owned(instance string, o Object) bool {
 	p := "mikrocentauri:" + instance + ":"
@@ -41,13 +42,15 @@ func kind(path string) string {
 		return "route"
 	case "tool/netwatch":
 		return "netwatch"
+	case "system/scheduler":
+		return "scheduler"
 	default:
 		return strings.TrimPrefix(path, "ip/firewall/")
 	}
 }
 func key(o Object) string { return o.Path + "|" + o.Fields["comment"] }
 func Plan(instance string, current, desired []Object) (ChangePlan, error) {
-	p := ChangePlan{Instance: instance, Gate: "NOT RUN: production activation requires dynamic FakeIP fail-open, capability/placement and controller/watchdog integration", Changes: []Change{}}
+	p := ChangePlan{Instance: instance, Gate: "REVIEW: exact owned changes; readiness and dataplane requirements apply separately", Changes: []Change{}}
 	if !instancePattern.MatchString(instance) {
 		return p, errors.New("invalid ownership instance")
 	}
@@ -73,6 +76,16 @@ func Plan(instance string, current, desired []Object) (ChangePlan, error) {
 		}
 		if _, ok := want[key(o)]; ok {
 			return p, errors.New("duplicate desired object")
+		}
+		if o.PlaceBefore != "" {
+			if !controllerOrdered(o.Path) || !strings.HasPrefix(o.PlaceBefore, "*") || strings.ContainsAny(o.PlaceBefore, "/?#\\") {
+				return p, errors.New("invalid placement anchor")
+			}
+			if current != nil {
+				if err := validateDesiredPlacement(current, o); err != nil {
+					return p, err
+				}
+			}
 		}
 		want[key(o)] = o
 	}
@@ -100,7 +113,13 @@ func Plan(instance string, current, desired []Object) (ChangePlan, error) {
 			p.Changes = append(p.Changes, Change{Action: "delete", Before: &old})
 		}
 	}
-	sort.Slice(p.Changes, func(i, j int) bool { a, b := p.Changes[i], p.Changes[j]; return changeKey(a) < changeKey(b) })
+	sort.Slice(p.Changes, func(i, j int) bool {
+		a, b := p.Changes[i], p.Changes[j]
+		if changePriority(a) != changePriority(b) {
+			return changePriority(a) < changePriority(b)
+		}
+		return changeKey(a) < changeKey(b)
+	})
 	return p, nil
 }
 func changeKey(c Change) string {
@@ -139,4 +158,36 @@ func EqualManaged(a, b Object) bool {
 		}
 	}
 	return a.Path == b.Path
+}
+
+func changePriority(ch Change) int {
+	o := ch.After
+	if o == nil {
+		o = ch.Before
+	}
+	if o.Path == "tool/netwatch" {
+		if ch.Action == "delete" || o.Fields["disabled"] == "true" {
+			return 0
+		}
+		return 100
+	}
+	if o.Path == "system/scheduler" {
+		if ch.Action == "delete" {
+			return 90
+		}
+		return 10
+	}
+	if o.Path == "ip/route" {
+		if o.Fields["disabled"] == "false" {
+			return 40
+		}
+		return 70
+	}
+	if o.Path == "ip/firewall/nat" {
+		if o.Fields["disabled"] == "true" {
+			return 20
+		}
+		return 60
+	}
+	return 50
 }

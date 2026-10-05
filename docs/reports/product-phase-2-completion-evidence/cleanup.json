@@ -1,0 +1,20 @@
+{
+  "www_ssl": {
+    ".id": "*6",
+    "available-from": "",
+    "certificate": "none",
+    "disabled": "true",
+    "dynamic": "false",
+    "invalid": "true",
+    "max-sessions": "20",
+    "name": "www-ssl",
+    "port": "443",
+    "proto": "tcp",
+    "tls-version": "any",
+    "vrf": "main"
+  },
+  "certificates": [],
+  "owned_objects": [],
+  "debounce_counters": [],
+  "baseline_restored": true
+}

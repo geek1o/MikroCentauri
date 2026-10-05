@@ -1,0 +1,478 @@
+{
+  "unrelated_before": "79cf5c09b7603aa4ede9befb3d9450d353f5b9808419db18b49a0e79fff0b580",
+  "active_apply": {
+    "returncode": 0,
+    "stderr": "managed owned transaction verified\n"
+  },
+  "repeat_exact_apply": {
+    "returncode": 0,
+    "stderr": "managed owned transaction verified\n"
+  },
+  "verify": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "ordered_before": [
+    "special dummy rule to show fasttrack counters",
+    "mikrocentauri:lab:filter:no-fasttrack",
+    "disposable-user-fasttrack",
+    "disposable-user-established",
+    "phase2-fixture:left",
+    "mikrocentauri:phase2full:filter:one",
+    "phase2-fixture:middle",
+    "mikrocentauri:phase2full:filter:two",
+    "phase2-fixture:right"
+  ],
+  "rollback": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "ordered_after": [
+    "special dummy rule to show fasttrack counters",
+    "mikrocentauri:lab:filter:no-fasttrack",
+    "disposable-user-fasttrack",
+    "disposable-user-established",
+    "phase2-fixture:left",
+    "mikrocentauri:phase2full:filter:one",
+    "phase2-fixture:middle",
+    "mikrocentauri:phase2full:filter:two",
+    "phase2-fixture:right"
+  ],
+  "anchor_edit_refused": {
+    "returncode": 1,
+    "stderr": "firewall anchor changed; recovery refused\n"
+  },
+  "cleanup_filters": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "install_watchdog": {
+    "returncode": 0,
+    "stderr": "managed owned transaction verified\n"
+  },
+  "activate_observer": {
+    "returncode": 0,
+    "stderr": "managed owned transaction verified\n"
+  },
+  "initial_down": {
+    "elapsed_seconds": 0.895,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "healthy_up": {
+    "elapsed_seconds": 6.29,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "active": "true",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "dynamic": "false",
+        "gateway": "10.0.2.2",
+        "immediate-gw": "10.0.2.2%ether1",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "false",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "failure_down": {
+    "elapsed_seconds": 2.318,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "recovery_up": {
+    "elapsed_seconds": 6.373,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "active": "true",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "dynamic": "false",
+        "gateway": "10.0.2.2",
+        "immediate-gw": "10.0.2.2%ether1",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "false",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "wrong_generation_down": {
+    "elapsed_seconds": 2.247,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "2",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "repaired_up": {
+    "elapsed_seconds": 6.313,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "active": "true",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "dynamic": "false",
+        "gateway": "10.0.2.2",
+        "immediate-gw": "10.0.2.2%ether1",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "false",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "duplicate_refused": true,
+  "static_counter_down": {
+    "elapsed_seconds": 2.252,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "static_counter_recovery": {
+    "elapsed_seconds": 4.938,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "active": "true",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "dynamic": "false",
+        "gateway": "10.0.2.2",
+        "immediate-gw": "10.0.2.2%ether1",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "false",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "observer_tuple_down": {
+    "elapsed_seconds": 0.954,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "reboot_down": {
+    "elapsed_seconds": 0.956,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "true",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "gateway": "10.0.2.2",
+        "inactive": "false",
+        "routing-table": "main",
+        "static": "true"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "true",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "reboot_recovery": {
+    "elapsed_seconds": 6.24,
+    "objects": [
+      {
+        "path": "ip/route",
+        ".id": "*8000000D",
+        "active": "true",
+        "comment": "mikrocentauri:phase2full:route:canary",
+        "disabled": "false",
+        "distance": "1",
+        "dst-address": "203.0.113.125/32",
+        "dynamic": "false",
+        "gateway": "10.0.2.2",
+        "immediate-gw": "10.0.2.2%ether1",
+        "inactive": "false",
+        "routing-table": "main",
+        "scope": "30",
+        "static": "true",
+        "target-scope": "10"
+      },
+      {
+        "path": "ip/firewall/nat",
+        ".id": "*23",
+        "action": "dst-nat",
+        "bytes": "0",
+        "chain": "dstnat",
+        "comment": "mikrocentauri:phase2full:nat:dns",
+        "disabled": "false",
+        "dst-address": "192.0.2.53",
+        "dst-port": "53",
+        "dynamic": "false",
+        "in-interface": "bridge-lan",
+        "invalid": "false",
+        "packets": "0",
+        "protocol": "udp",
+        "to-addresses": "10.0.2.2",
+        "to-ports": "19083"
+      }
+    ]
+  },
+  "idempotent": {
+    "returncode": 0,
+    "stderr": "managed owned transaction verified\n"
+  },
+  "cleanup_watchdog": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "unrelated_after": "79cf5c09b7603aa4ede9befb3d9450d353f5b9808419db18b49a0e79fff0b580",
+  "completed": true
+}

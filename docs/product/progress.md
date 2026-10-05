@@ -9,7 +9,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | --- | --- | --- |
 | 0 | Research | Research recorded for the pinned lab architecture; refresh before a release |
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
-| 2 | RouterOS Controller | In progress: HTTPS discovery, private staged CLI, ownership planner and durable reconcile/recovery verified on native CHR; bounded lab activation/watchdog exist; enabled-rule integration, placement-aware rollback and generic watchdog installation remain open |
+| 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
 | 3 | sing-box Core | In progress: parser, generator, validation, DNS/FakeIP and admission; subscriptions, groups, general rules, supervisor and LKG remain open |
 | 4 | Backend/API | Production API, OpenAPI, authentication and backup remain open |
 | 5 | Web UI | Not started |
@@ -31,10 +31,12 @@ Engineering milestones already recorded:
 | 7 | Append-only namespace and active/retired policies |
 | 8 | Integrated policy activation and startup recovery |
 
-Do not use the largest report number as a completion percentage. Product phases
-2–3 are still being completed. Their remaining requirements must be tracked and
-proved before declaring either product phase complete.
+Do not use the largest report number as a completion percentage. Product Phase 2
+is accepted on the pinned CHR profile; Phase 3 remains in progress.
+A completed controller does not imply an installable application or accepted
+release/device matrix.
 
-The next controller block is documented in
-[HTTPS staging acceptance](../reports/product-phase-2-staged-controller.md). It
-adds secure management-plane proof without declaring the whole phase complete.
+The completed controller checklist and phase boundaries are documented in
+[product Phase 2 acceptance](../reports/product-phase-2-controller-completion.md).
+[HTTPS staging acceptance](../reports/product-phase-2-staged-controller.md) is the
+earlier intermediate block; its open items are superseded by this completion report.

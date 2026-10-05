@@ -485,3 +485,38 @@ canary scopes, restore the original `www-ssl` settings, remove the temporary
 certificate/archive and shut down CHR normally. This setup and the accepted
 results are recorded in the
 [product Phase 2 report](reports/product-phase-2-staged-controller.md).
+
+## Product Phase 2 completion acceptance
+
+`tests/e2e/chr_managed_controller.py` extends the same native www-ssl/CA setup with
+active documentation-address fixtures, static user-rule anchors, ordered rollback,
+generated observer/startup guard and controlled readiness listeners on localhost
+19083/19084. It requires a clean `phase2full` scope. The binary and private
+connection file remain under `.cache/router-stage`; results/journals go into
+ignored `.cache/router-managed`.
+
+```sh
+go build -buildvcs=false -trimpath -o .cache/router-stage/mikrocentauri ./cmd/mikrocentauri
+python3 tests/e2e/chr_managed_controller.py
+```
+
+When the runner prints `READY_FOR_NATIVE_REBOOT`, reboot the disposable CHR from
+its admin console, confirm the prompt, then create
+`.cache/router-managed/reboot-issued`. The controlled readiness listener remains
+unhealthy through reboot; the runner verifies disabled target state after native
+management returns, then restores readiness and checks recovery. The runner
+removes stale reboot markers when starting.
+
+The static counter fixture uses 127.0.0.2 so it differs from the healthy dynamic
+threshold row 127.0.0.3; RouterOS refuses duplicate address entries. The alternate
+listener deliberately returns the same HTTP status while the observer's port is
+changed; the generated script must deny readiness because its tuple differs.
+Temporary native fields/anchors/counters belong only to this disposable fixture.
+A failed run records partial results and can leave owned objects for diagnosis;
+quiesce the observer and recover/cleanup before rerunning. Never erase a pending
+journal to resolve ambiguity on a real installation.
+
+The runner's final unrelated-state hashes include the six managed tables while
+excluding runtime counters. Restore native TLS service/certificate settings after
+the run and shut down CHR normally. See
+[controller completion](reports/product-phase-2-controller-completion.md).

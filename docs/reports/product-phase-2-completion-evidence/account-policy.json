@@ -1,0 +1,6 @@
+[
+  {
+    "name": "mc-lab-rest",
+    "policy": "read,write,test,api,rest-api,!local,!telnet,!ssh,!ftp,!reboot,!policy,!winbox,!password,!web,!sniff,!sensitive,!romon"
+  }
+]

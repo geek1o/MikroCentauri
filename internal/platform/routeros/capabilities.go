@@ -38,7 +38,7 @@ type Interface struct {
 }
 
 var capabilityPaths = map[string]bool{"system/resource": true, "system/package": true, "interface": true}
-var managedCapabilityPaths = []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch"}
+var managedCapabilityPaths = []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch", "system/scheduler"}
 var routerVersion = regexp.MustCompile(`^[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:beta[0-9]+|rc[0-9]+)?(?: \((?:stable|testing|development|long-term)\))?$`)
 
 // capabilityGET has a separate GET-only allowlist; it never widens mutation paths.
@@ -106,7 +106,11 @@ func scalarRows(body []byte, singleton bool) ([]map[string]string, error) {
 				return nil, e
 			}
 			value, ok := v.(string)
-			if !ok || len(value) > 4096 {
+			limit := 4096
+			if key == "test-script" || key == "down-script" || key == "up-script" || key == "on-event" {
+				limit = 32 << 10
+			}
+			if !ok || len(value) > limit {
 				return nil, errors.New("invalid scalar")
 			}
 			result[key] = value

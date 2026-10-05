@@ -35,3 +35,11 @@ LKG router revision and coordination with native watchdog mutations. The journal
 is scoped to one controller destination/instance, not a distributed lock for other
 writers. Exact comments do not secure ownership against an administrator. Lab
 proof is not full production transactional-controller acceptance.
+
+## Product Phase 2 update
+
+The historical staging/lab restrictions above describe their original milestone.
+[ADR 0018](0018-managed-controller-placement-watchdog.md) and the
+[completion report](../reports/product-phase-2-controller-completion.md) supersede
+the open controller capability, placement and generated-watchdog items for the
+pinned CHR profile. Broader runtime/release acceptance remains separate.

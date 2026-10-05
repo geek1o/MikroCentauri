@@ -82,28 +82,31 @@ func (c *Client) request(ctx context.Context, method, path, id string, fields ma
 	return b, nil
 }
 func (c *Client) Discover(ctx context.Context) ([]Object, error) {
-	return c.discover(ctx, []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch"})
+	return c.discover(ctx, []string{"ip/route", "ip/firewall/nat", "ip/firewall/mangle", "ip/firewall/filter", "tool/netwatch", "system/scheduler"})
 }
 
 func (c *Client) discover(ctx context.Context, ordered []string) ([]Object, error) {
-	var result []Object
+	result := []Object{}
 	for _, path := range ordered {
 		b, e := c.request(ctx, "GET", path, "", nil)
 		if e != nil {
 			return nil, e
 		}
-		var rows []map[string]any
-		if e = json.Unmarshal(b, &rows); e != nil {
-			return nil, errors.New("invalid RouterOS response")
+		rows, e := scalarRows(b, false)
+		if e != nil {
+			return nil, errors.New("invalid RouterOS managed response")
 		}
+		seen := map[string]bool{}
 		for _, row := range rows {
+			id := row[".id"]
+			if id == "" || seen[id] || !strings.HasPrefix(id, "*") || strings.ContainsAny(id, "/?#\\") {
+				return nil, errors.New("invalid or duplicate RouterOS row ID")
+			}
+			seen[id] = true
 			f := map[string]string{}
-			id := ""
 			for k, v := range row {
-				if k == ".id" {
-					id = fmt.Sprint(v)
-				} else {
-					f[k] = fmt.Sprint(v)
+				if k != ".id" {
+					f[k] = v
 				}
 			}
 			result = append(result, Object{Path: path, ID: id, Fields: f})

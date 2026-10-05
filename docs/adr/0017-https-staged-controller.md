@@ -23,3 +23,11 @@ Production enabled-rule placement, rollback and watchdog provisioning require
 separate implementation and proof. Ordered firewall deletion remains gated until
 placement is represented in recovery state. See the
 [acceptance report](../reports/product-phase-2-staged-controller.md).
+
+## Product Phase 2 update
+
+The historical staging/lab restrictions above describe their original milestone.
+[ADR 0018](0018-managed-controller-placement-watchdog.md) and the
+[completion report](../reports/product-phase-2-controller-completion.md) supersede
+the open controller capability, placement and generated-watchdog items for the
+pinned CHR profile. Broader runtime/release acceptance remains separate.

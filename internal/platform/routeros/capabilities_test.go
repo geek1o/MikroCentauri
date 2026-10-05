@@ -15,7 +15,7 @@ func capabilityFixture() map[string]string {
 		"system/resource": `[{"version":"7.24.5 (stable)","architecture-name":"x86_64","board-name":"CHR","platform":"MikroTik"}]`,
 		"system/package":  `[{"name":"routeros","version":"7.24.5","disabled":"false"},{"name":"container","version":"7.24.5","disabled":"true"}]`,
 		"interface":       `[{"name":"ether1","type":"ether","disabled":"false","running":"true"}]`,
-		"ip/route":        `[]`, "ip/firewall/nat": `[]`, "ip/firewall/mangle": `[]`, "ip/firewall/filter": `[]`, "tool/netwatch": `[]`,
+		"ip/route":        `[]`, "ip/firewall/nat": `[]`, "ip/firewall/mangle": `[]`, "ip/firewall/filter": `[]`, "tool/netwatch": `[]`, "system/scheduler": `[]`,
 	}
 }
 func capabilityClient(t *testing.T, handler http.HandlerFunc) *Client {
@@ -52,13 +52,13 @@ func TestCapabilitiesReadOnlyTLS(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	if !result.VersionSupported || result.Board != "CHR" || len(result.Resources) != 5 || len(result.Packages) != 2 || !result.Packages[1].Disabled || !result.Interfaces[0].Running || calls.Load() != 8 {
+	if !result.VersionSupported || result.Board != "CHR" || len(result.Resources) != 6 || len(result.Packages) != 2 || !result.Packages[1].Disabled || !result.Interfaces[0].Running || calls.Load() != 9 {
 		t.Fatalf("unexpected capability result: %#v, calls %d", result, calls.Load())
 	}
 	if _, e = c.request(context.Background(), "PATCH", "system/resource", "", nil); e == nil {
 		t.Fatal("capability discovery widened mutation allowlist")
 	}
-	if calls.Load() != 8 {
+	if calls.Load() != 9 {
 		t.Fatal("forbidden mutation sent request")
 	}
 }

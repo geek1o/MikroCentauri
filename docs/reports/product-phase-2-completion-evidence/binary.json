@@ -1,0 +1,8 @@
+{
+  "sha256": "dbba6d6df5020664afbef11976cfc45a34421f6e2977649aea29f71f3248e3f7",
+  "build": "go build -buildvcs=false -trimpath -o .cache/router-stage/mikrocentauri ./cmd/mikrocentauri",
+  "host_executed": "darwin/arm64",
+  "native_server": "CHR 7.24.5 native www-ssl",
+  "proof": "full CLI acceptance and actual CHR reboot",
+  "note": "Executed pre-commit CLI build; final managed Apply API delegates to the same transactional path exercised by this CLI proof."
+}
