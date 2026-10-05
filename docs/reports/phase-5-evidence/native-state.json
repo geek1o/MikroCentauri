@@ -1,0 +1,71 @@
+{
+  "generation": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 22,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "setup_error": ""
+  },
+  "maps": [
+    {
+      ".id": "*1A",
+      "action": "dst-nat",
+      "bytes": "8472",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120002",
+      "disabled": "false",
+      "dst-address": "198.18.0.2",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "18",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    },
+    {
+      ".id": "*1B",
+      "action": "dst-nat",
+      "bytes": "8472",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+      "disabled": "false",
+      "dst-address": "198.18.0.3",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "18",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    },
+    {
+      ".id": "*1C",
+      "action": "dst-nat",
+      "bytes": "8472",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120004",
+      "disabled": "false",
+      "dst-address": "198.18.0.4",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "18",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    }
+  ],
+  "external_canary_denied": "{\"detail\":\"failure: Connection refused\",\"error\":400,\"message\":\"Bad Request\"}"
+}

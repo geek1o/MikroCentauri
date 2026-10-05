@@ -112,5 +112,29 @@
       "evidence": "Captured successful outgoing VLESS/DNS stay main; exhaustive loop/failover test absent"
     }
   ],
-  "note": "Actual CHR evidence: docs/reports/phase-1-dataplane.md and dataplane-evidence/. Host-only smoke does not independently run these scenarios."
+  "note": "The scenarios array preserves Phase1 observations. Later bounded proof is recorded in the phase reports and phase5 block; host smoke does not run CHR scenarios.",
+  "phase5": {
+    "date": "2026-10-05",
+    "status": "TESTED bounded three-domain admission; production lifecycle OPEN",
+    "report": "docs/reports/phase-5-generation-admission.md",
+    "passed": [
+      "Complete namespace before ingress",
+      "Canonical DNS casing",
+      "Full container restart retains aliases",
+      "Missing engine cache denies startup",
+      "Foreign-order engine cache rejects ledger mismatch",
+      "Cached TCP/UDP/HTTP3 native DIRECT during rejection",
+      "Forced native UP blocked by Linux blackhole",
+      "Original cache restoration",
+      "External canary listener refused",
+      "TTL target refresh and REST-outage restart followed by explicit admission"
+    ],
+    "open": [
+      "HTTP Host/SNI normalization",
+      "Namespace expansion and retirement",
+      "Unobserved online cache reset",
+      "Earliest boot ordering",
+      "Production route ownership and activation"
+    ]
+  }
 }

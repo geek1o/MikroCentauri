@@ -1,0 +1,18 @@
+{
+  "code_commit": "bf1e745",
+  "checks": {
+    "make check": "PASS race, vet, real sing-box process smoke",
+    "make quic-test": "PASS",
+    "CLI Linux amd64 and arm64": "PASS",
+    "integrated gateway Linux arm64": "PASS",
+    "native generation scenarios": "PASS healthy, missing, mismatch, recovered",
+    "native target refresh": "PASS with explicit fresh admission after blocked startup",
+    "external SOCKS canary": "PASS connection refused"
+  },
+  "archive_sha256": "0285908384084cc59ed1283423e5e363578229f08f6b21b481dcbf6b4733410a",
+  "independent_rebuild_sha256": "0285908384084cc59ed1283423e5e363578229f08f6b21b481dcbf6b4733410a",
+  "native_binary_sha256": "feba40e264bb43d7c0a401fb3c26ed291dc2242de0019084d7b89707768e024e",
+  "native_config_sha256": "f76579dec74f3ca6d2e796e85b5726ccc769a1bf21c60db97a571ddfb5f03840",
+  "raw_capture_policy": "Ignored locally; curated endpoint and public marker summaries only",
+  "lab_shutdown": "Container/watchdog disabled, client/server/CHR gracefully powered off, current capture hubs and artifact server stopped"
+}

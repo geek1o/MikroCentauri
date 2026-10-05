@@ -1,0 +1,17 @@
+{
+  "method": "stock sing-box DNS allocation under table100 blackhole, followed by SIGTERM close",
+  "bindings": [
+    {
+      "domain": "third.test",
+      "alias": "198.18.0.2"
+    },
+    {
+      "domain": "selected.test",
+      "alias": "198.18.0.3"
+    },
+    {
+      "domain": "second.test",
+      "alias": "198.18.0.4"
+    }
+  ]
+}

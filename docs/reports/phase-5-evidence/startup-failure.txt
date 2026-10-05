@@ -1,0 +1,8 @@
+Native REST log observations before application execution:
+2026-10-05 06:44:27 mc-gateway-phase5: container run: child 2: error creating hosts file
+2026-10-05 06:49:51 mc-gateway-phase4: container run: child 2: error creating hosts file
+Disk pcie2 free=85114880 bytes, free-inodes=124747, size=2147483648 bytes.
+Removed only pcie2/phase4-gateway.tar (111790080 bytes), matching the preserved host Phase5 archive.
+The same extracted Phase5 root then started successfully. No new extraction or executable change preceded that success.
+Subsequent admission initially failed with: ensure mapping: unsafe rule in lab mapping chain.
+A full container restart passed; the exact transient mismatch was not captured.

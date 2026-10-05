@@ -24,6 +24,8 @@ stable: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/versio
   verification; three-domain TCP/UDP/HTTP3 cached-address recovery on CHR.
 - Real DNS TTL/CNAME/A-RRset processing and journaled real-target refresh while
   retaining immutable FakeIP bindings; categorized publication diagnostics.
+- Finite three-domain engine admission before forwarding, private allocator,
+  canonical DNS queries and startup quarantine against missing/foreign caches.
 - Proxy canary health with hysteresis, cached-IP failover for one static mapping,
   and durable lab controller recovery after a lost REST reply on actual CHR.
 - Phase-0 research, license inventory, UX specification, eight ADRs and a draft `/app` manifest.
@@ -48,11 +50,12 @@ Full-gateway and Socksify have bounded CHR experiments, not production modes.
 
 The transparent CHR path and dynamic publication for three pinned IPv4 domains
 are proved for lab cases. Complete FakeIP lifecycle, IPv6, version/device coverage
-and production controller activation remain open. See [current phase report](docs/reports/phase-4-target-refresh.md),
+and production controller activation remain open. See [current phase report](docs/reports/phase-5-generation-admission.md),
+[Phase-4 target refresh](docs/reports/phase-4-target-refresh.md),
 [Phase-3 publication](docs/reports/phase-3-publication.md),
 [Phase-2 comparison](docs/reports/phase-2-resilience.md),
 [publication ADR](docs/adr/0011-dynamic-dns-publication.md) and [lab guide](docs/lab.md).
-Next gates are alias generation/retirement, early boot and production integration;
+Next gates are namespace change/retirement, routing-policy normalization, early boot and production integration;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
 No full subscription/group/rule manager, supervisor/LKG lifecycle, auth API, UI or

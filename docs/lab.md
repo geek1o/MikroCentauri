@@ -269,3 +269,45 @@ it is unauthenticated and exists only inside this lab.
 Artifacts land in ignored `.cache/dataplane`; curated public fixture evidence
 is stored in `docs/reports/phase-4-evidence`. Shut down containers/VMs and disable
 the lab watchdog after collecting evidence. No global conntrack flush is used.
+
+## Phase 5: engine admission before ingress
+
+Use the same isolated topology and a private root named `mc-gateway-phase5`.
+`scripts/build-gateway-lab.py --dynamic-dns` now creates the finite namespace and
+loopback-only engine DNS/SOCKS listeners. Ensure the container disk has space for
+both import and runtime files; the accumulated 2GiB fixture roots left too little
+space in the first run. The host archive copy is preserved outside Git.
+
+Run `python3 tests/e2e/chr_generation.py healthy` with the existing native readiness
+watchdog enabled. It verifies preseeded aliases, canonical DNS, saved-alias
+TCP/UDP/HTTP3, full-container restart and native fallback, then stops the child.
+Confirm `/diagnostics/generation` reports no child and table100 blackhole before
+mutating any disposable cache fixture. These endpoints remain unauthenticated
+lab controls; they are not production API endpoints.
+
+For the missing-cache scenario, move `/data/singbox-cache.db` to
+`/data/singbox-cache.saved` inside that stopped-child lab container, then run
+`python3 tests/e2e/chr_generation.py missing`. Keep the saved original intact.
+
+For the foreign-generation scenario, while still quarantined and with no engine
+cache at the normal path, set umask0077 and manually run stock sing-box with the
+same config. Invoke `/bin/mc-generation-tool third.test selected.test second.test`
+inside the container. Stop that manual engine with SIGTERM and wait for its close
+before running `python3 tests/e2e/chr_generation.py mismatch`. The helper allocates
+through private DNS; it neither edits nor imports database content. The wrapper
+must reject this foreign set before exposing its TUN.
+
+Move the foreign database to a separate diagnostic filename, restore the saved
+original, then run `python3 tests/e2e/chr_generation.py recovered`. Both rejection
+scenarios deliberately force the owned native UP script once to prove the Linux
+blackhole still protects a cached packet; their cleanup restores native DOWN.
+Never use these destructive cache fixtures against a production installation.
+
+The existing target-refresh replay accepts `--container mc-gateway-phase5 --admission`
+for regression checking against this generation. The admission option waits for
+blocked startup to finish, verifies quarantine, and explicitly retries admission
+after restoring management. Collect all failed attempts
+alongside passing results; summarize public fixture captures, retain raw PCAP and
+databases only in ignored local storage, then shut down the lab. See
+[Phase5 evidence](reports/phase-5-generation-admission.md) and
+[ADR-0013](adr/0013-engine-generation-admission.md) for proof boundaries.

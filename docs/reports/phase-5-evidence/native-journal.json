@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "prefix": "198.18.0.0/15",
+  "capacity": 32,
+  "records": [
+    {
+      "mapping": {
+        "domain": "selected.test",
+        "fake": "198.18.0.2",
+        "real": "10.77.0.20"
+      },
+      "ttl_seconds": 5,
+      "ready": true,
+      "expires_at": "2026-10-05T07:02:57.779309Z"
+    },
+    {
+      "mapping": {
+        "domain": "second.test",
+        "fake": "198.18.0.3",
+        "real": "10.77.0.20"
+      },
+      "ttl_seconds": 5,
+      "ready": true,
+      "expires_at": "2026-10-05T07:02:57.921695Z"
+    },
+    {
+      "mapping": {
+        "domain": "third.test",
+        "fake": "198.18.0.4",
+        "real": "10.77.0.20"
+      },
+      "ttl_seconds": 5,
+      "ready": true,
+      "expires_at": "2026-10-05T07:02:57.962874Z"
+    }
+  ]
+}

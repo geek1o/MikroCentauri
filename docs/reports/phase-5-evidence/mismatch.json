@@ -1,0 +1,173 @@
+{
+  "scenario": "mismatch",
+  "start_denied": "{\"detail\":\"failure: Status 409, Conflict\",\"error\":400,\"message\":\"Bad Request\"}",
+  "down": {
+    "observed_ms_from_poll": 1062,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    }
+  },
+  "denied": {
+    "admission": {
+      "admitted": false,
+      "reason": "ledger_mismatch",
+      "epoch": 17,
+      "bindings": null
+    },
+    "engine_running": false,
+    "ingress_route": "blackhole default \n",
+    "setup_error": "signal: killed"
+  },
+  "direct": {
+    "selected.test": {
+      "tcp": {
+        "request_id": 76,
+        "resolved_ipv4": "198.18.0.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-selected.test",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-selected.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 8
+      },
+      "udp": {
+        "request_id": 77,
+        "resolved_ipv4": "198.18.0.2",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 3
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 32
+      }
+    },
+    "second.test": {
+      "tcp": {
+        "request_id": 78,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-second.test",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 12
+      },
+      "udp": {
+        "request_id": 79,
+        "resolved_ipv4": "198.18.0.3",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 2
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 28
+      }
+    },
+    "third.test": {
+      "tcp": {
+        "request_id": 80,
+        "resolved_ipv4": "198.18.0.4",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-third.test",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-third.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 6
+      },
+      "udp": {
+        "request_id": 81,
+        "resolved_ipv4": "198.18.0.4",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 2
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 29
+      }
+    }
+  },
+  "forced_up_cached_blocked": {
+    "request_id": 82,
+    "resolved_ipv4": "198.18.0.3",
+    "error": "Get \"http://second.test:8080/phase4-cached-second.test\": dial tcp4 198.18.0.3:8080: i/o timeout",
+    "elapsed_ms": 5002
+  },
+  "unadmitted_dns_denied": {
+    "request_id": 83,
+    "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+    "elapsed_ms": 8
+  },
+  "dns_diagnostics": {
+    "counts": {
+      "publication/canceled": 1,
+      "publication/selected_published": 28,
+      "request/not_admitted": 5
+    },
+    "last_failures": [
+      {
+        "stage": "publication",
+        "reason": "canceled",
+        "domain": "selected.test",
+        "elapsed_ms": 108
+      },
+      {
+        "stage": "request",
+        "reason": "not_admitted",
+        "domain": "selected.test",
+        "elapsed_ms": 0
+      },
+      {
+        "stage": "request",
+        "reason": "not_admitted",
+        "domain": "second.test",
+        "elapsed_ms": 0
+      },
+      {
+        "stage": "request",
+        "reason": "not_admitted",
+        "domain": "second.test",
+        "elapsed_ms": 0
+      },
+      {
+        "stage": "request",
+        "reason": "not_admitted",
+        "domain": "second.test",
+        "elapsed_ms": 0
+      },
+      {
+        "stage": "request",
+        "reason": "not_admitted",
+        "domain": "second.test",
+        "elapsed_ms": 0
+      }
+    ]
+  },
+  "completed": true
+}

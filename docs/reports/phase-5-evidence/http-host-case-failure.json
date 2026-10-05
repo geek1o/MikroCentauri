@@ -1,0 +1,63 @@
+{
+  "scenario": "healthy",
+  "up": {
+    "observed_ms_from_poll": 6078,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": true
+    }
+  },
+  "admitted": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 4,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "setup_error": ""
+  },
+  "canonical_queries": {
+    "second.test": {
+      "request_id": 1,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/generation-canonical",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/generation-canonical\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 137
+    },
+    "SECOND.TEST": {
+      "request_id": 2,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/generation-canonical",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/generation-canonical\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 68
+    }
+  },
+  "error": "{'request_id': 3, 'resolved_ipv4': '198.18.0.3', 'target': {'local_ip': '10.77.0.20', 'path': '/generation-canonical', 'remote_ip': '10.77.0.1'}, 'body': '{\"local_ip\":\"10.77.0.20\",\"path\":\"/generation-canonical\",\"remote_ip\":\"10.77.0.1\"}\\n', 'proxy_seen_ip': '10.77.0.1', 'elapsed_ms': 69}"
+}

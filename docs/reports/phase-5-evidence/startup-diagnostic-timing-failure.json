@@ -1,0 +1,406 @@
+{
+  "initial": {
+    "observed_ms_from_poll": 4940,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": true
+    }
+  },
+  "scope": "Two real targets, one immutable alias; new TCP/UDP/HTTP3 connections only",
+  "initial_publication": {
+    "attempts": [
+      {
+        "request_id": 104,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/dynamic-publication-second.test",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/dynamic-publication-second.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 119
+      }
+    ],
+    "alias": "198.18.0.3",
+    "map": {
+      ".id": "*1B",
+      "action": "dst-nat",
+      "bytes": "14120",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+      "disabled": "false",
+      "dst-address": "198.18.0.3",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "30",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.20"
+    }
+  },
+  "churn_fixture": {
+    "target": "10.77.0.21",
+    "ttl": 5,
+    "fail": false
+  },
+  "changed_map": {
+    ".id": "*1B",
+    "action": "dst-nat",
+    "bytes": "14120",
+    "chain": "mc-dynamic-backup",
+    "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+    "disabled": "false",
+    "dst-address": "198.18.0.3",
+    "dynamic": "false",
+    "invalid": "false",
+    "packets": "30",
+    "src-address": "192.168.88.0/24",
+    "to-addresses": "10.77.0.21"
+  },
+  "proxy_after_churn": {
+    "tcp": {
+      "request_id": 105,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.21",
+        "path": "/phase4-cached-second.test",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 24
+    },
+    "udp": {
+      "request_id": 106,
+      "resolved_ipv4": "198.18.0.3",
+      "payload": "phase4-churn-udp",
+      "elapsed_ms": 16
+    },
+    "http3": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.10"
+      },
+      "remote_ip": "10.77.0.10",
+      "elapsed_ms": 47
+    }
+  },
+  "container_down": {
+    "observed_ms_from_poll": 1810,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    }
+  },
+  "cached_direct_after_churn": {
+    "tcp": {
+      "request_id": 107,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.21",
+        "path": "/phase4-cached-second.test",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 11
+    },
+    "udp": {
+      "request_id": 108,
+      "resolved_ipv4": "198.18.0.3",
+      "payload": "phase4-churn-udp",
+      "elapsed_ms": 3
+    },
+    "http3": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.1"
+      },
+      "remote_ip": "10.77.0.1",
+      "elapsed_ms": 43
+    }
+  },
+  "container_up": {
+    "observed_ms_from_poll": 8482,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": true
+    }
+  },
+  "restart_publication": {
+    "attempts": [
+      {
+        "request_id": 109,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.21",
+          "path": "/dynamic-publication-second.test",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/dynamic-publication-second.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 185
+      }
+    ],
+    "map": {
+      ".id": "*1B",
+      "action": "dst-nat",
+      "bytes": "15532",
+      "chain": "mc-dynamic-backup",
+      "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+      "disabled": "false",
+      "dst-address": "198.18.0.3",
+      "dynamic": "false",
+      "invalid": "false",
+      "packets": "33",
+      "src-address": "192.168.88.0/24",
+      "to-addresses": "10.77.0.21"
+    }
+  },
+  "dns_failure_fixture": {
+    "target": "10.77.0.21",
+    "ttl": 5,
+    "fail": true
+  },
+  "expired_resolution_down": {
+    "observed_ms_from_poll": 5185,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    }
+  },
+  "retained_map": {
+    ".id": "*1B",
+    "action": "dst-nat",
+    "bytes": "15532",
+    "chain": "mc-dynamic-backup",
+    "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+    "disabled": "false",
+    "dst-address": "198.18.0.3",
+    "dynamic": "false",
+    "invalid": "false",
+    "packets": "33",
+    "src-address": "192.168.88.0/24",
+    "to-addresses": "10.77.0.21"
+  },
+  "cached_direct_with_dns_failure": {
+    "tcp": {
+      "request_id": 110,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.21",
+        "path": "/phase4-cached-second.test",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 9
+    },
+    "udp": {
+      "request_id": 111,
+      "resolved_ipv4": "198.18.0.3",
+      "payload": "phase4-churn-udp",
+      "elapsed_ms": 3
+    },
+    "http3": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.1"
+      },
+      "remote_ip": "10.77.0.1",
+      "elapsed_ms": 46
+    }
+  },
+  "expired_publication_denied": {
+    "request_id": 112,
+    "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+    "elapsed_ms": 29
+  },
+  "dns_diagnostics": {
+    "counts": {
+      "publication/publisher_error": 1,
+      "publication/resolve_error": 3,
+      "publication/selected_published": 38
+    },
+    "last_failures": [
+      {
+        "stage": "publication",
+        "reason": "publisher_error",
+        "domain": "second.test",
+        "elapsed_ms": 62
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 13
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 12
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 10
+      }
+    ]
+  },
+  "target_update_denied": {
+    "request_id": 113,
+    "error": "resolve: lookup second.test on 192.168.88.1:53: server misbehaving",
+    "elapsed_ms": 34
+  },
+  "target_update_diagnostics": {
+    "counts": {
+      "publication/publisher_error": 1,
+      "publication/resolve_error": 3,
+      "publication/selected_published": 38,
+      "publication/update_error": 2
+    },
+    "last_failures": [
+      {
+        "stage": "publication",
+        "reason": "publisher_error",
+        "domain": "second.test",
+        "elapsed_ms": 62
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 13
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 12
+      },
+      {
+        "stage": "publication",
+        "reason": "resolve_error",
+        "domain": "second.test",
+        "elapsed_ms": 10
+      },
+      {
+        "stage": "publication",
+        "reason": "update_error",
+        "domain": "second.test",
+        "elapsed_ms": 19
+      },
+      {
+        "stage": "publication",
+        "reason": "update_error",
+        "domain": "second.test",
+        "elapsed_ms": 6
+      }
+    ]
+  },
+  "control_outage_map": {
+    ".id": "*1B",
+    "action": "dst-nat",
+    "bytes": "16944",
+    "chain": "mc-dynamic-backup",
+    "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+    "disabled": "false",
+    "dst-address": "198.18.0.3",
+    "dynamic": "false",
+    "invalid": "false",
+    "packets": "36",
+    "src-address": "192.168.88.0/24",
+    "to-addresses": "10.77.0.21"
+  },
+  "control_outage_cached_direct": {
+    "tcp": {
+      "request_id": 114,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.21",
+        "path": "/phase4-cached-second.test",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 20
+    },
+    "udp": {
+      "request_id": 115,
+      "resolved_ipv4": "198.18.0.3",
+      "payload": "phase4-churn-udp",
+      "elapsed_ms": 6
+    },
+    "http3": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.1"
+      },
+      "remote_ip": "10.77.0.1",
+      "elapsed_ms": 108
+    }
+  },
+  "restart_during_control_outage_map": {
+    ".id": "*1B",
+    "action": "dst-nat",
+    "bytes": "18356",
+    "chain": "mc-dynamic-backup",
+    "comment": "mikrocentauri:dynlab:nat:map-c6120003",
+    "disabled": "false",
+    "dst-address": "198.18.0.3",
+    "dynamic": "false",
+    "invalid": "false",
+    "packets": "39",
+    "src-address": "192.168.88.0/24",
+    "to-addresses": "10.77.0.21"
+  },
+  "restart_during_control_outage_direct": {
+    "tcp": {
+      "request_id": 116,
+      "resolved_ipv4": "198.18.0.3",
+      "target": {
+        "local_ip": "10.77.0.21",
+        "path": "/phase4-cached-second.test",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.21\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 16
+    },
+    "udp": {
+      "request_id": 117,
+      "resolved_ipv4": "198.18.0.3",
+      "payload": "phase4-churn-udp",
+      "elapsed_ms": 4
+    },
+    "http3": {
+      "protocol": "HTTP/3.0",
+      "target": {
+        "path": "/quic",
+        "protocol": "HTTP/3.0",
+        "remote_ip": "10.77.0.1"
+      },
+      "remote_ip": "10.77.0.1",
+      "elapsed_ms": 52
+    }
+  },
+  "error": "{\"detail\":\"failure: Connection refused\",\"error\":400,\"message\":\"Bad Request\"}"
+}

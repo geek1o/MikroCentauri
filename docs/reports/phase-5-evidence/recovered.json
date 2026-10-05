@@ -1,0 +1,138 @@
+{
+  "scenario": "recovered",
+  "up": {
+    "observed_ms_from_poll": 2825,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": true
+    }
+  },
+  "admitted": {
+    "admission": {
+      "admitted": true,
+      "reason": "admitted",
+      "epoch": 19,
+      "bindings": [
+        {
+          "domain": "selected.test",
+          "alias": "198.18.0.2"
+        },
+        {
+          "domain": "second.test",
+          "alias": "198.18.0.3"
+        },
+        {
+          "domain": "third.test",
+          "alias": "198.18.0.4"
+        }
+      ]
+    },
+    "engine_running": true,
+    "ingress_route": "default dev mc-tun scope link \n",
+    "setup_error": ""
+  },
+  "proxy": {
+    "selected.test": {
+      "tcp": {
+        "request_id": 84,
+        "resolved_ipv4": "198.18.0.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-selected.test",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-selected.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 31
+      },
+      "udp": {
+        "request_id": 85,
+        "resolved_ipv4": "198.18.0.2",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 19
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 76
+      }
+    },
+    "second.test": {
+      "tcp": {
+        "request_id": 86,
+        "resolved_ipv4": "198.18.0.3",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-second.test",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-second.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 32
+      },
+      "udp": {
+        "request_id": 87,
+        "resolved_ipv4": "198.18.0.3",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 18
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 61
+      }
+    },
+    "third.test": {
+      "tcp": {
+        "request_id": 88,
+        "resolved_ipv4": "198.18.0.4",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase4-cached-third.test",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase4-cached-third.test\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 26
+      },
+      "udp": {
+        "request_id": 89,
+        "resolved_ipv4": "198.18.0.4",
+        "payload": "phase4-churn-udp",
+        "elapsed_ms": 15
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 62
+      }
+    }
+  },
+  "stopped": {
+    "observed_ms_from_poll": 1542,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": true,
+      "mikrocentauri:lab:nat:dns-tcp": true,
+      "mikrocentauri:lab:nat:dns-udp": true,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    }
+  },
+  "completed": true
+}
