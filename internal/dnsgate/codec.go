@@ -159,6 +159,18 @@ func response(req []byte, q question, address []byte, ttl uint32) []byte {
 	return b
 }
 
+// Rebuild selected queries using the canonical question spelling. Passing case
+// variants or client sections to the allocator would widen its cache namespace.
+func canonicalQuery(req []byte, q question) []byte {
+	b := make([]byte, 12)
+	copy(b, req[:2])
+	binary.BigEndian.PutUint16(b[2:], binary.BigEndian.Uint16(req[2:])&0x0100)
+	binary.BigEndian.PutUint16(b[4:], 1)
+	b = appendName(b, q.name)
+	b = binary.BigEndian.AppendUint16(b, q.kind)
+	return binary.BigEndian.AppendUint16(b, q.class)
+}
+
 func failure(req []byte, q *question) []byte {
 	var b []byte
 	if q != nil {

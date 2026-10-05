@@ -19,6 +19,12 @@ type Publisher interface {
 	PublishAlias(context.Context, string, netip.Addr) (fakeip.Mapping, time.Duration, error)
 }
 
+// GenerationGuard denies allocation before admission and cancels exchanges from
+// a revoked generation. Unguarded publishers retain the historical fixture API.
+type GenerationGuard interface {
+	Begin(context.Context, string) (context.Context, context.CancelFunc, error)
+}
+
 // Event describes a terminal request outcome without packets or error strings.
 // Domain is populated only after a valid query matches the configured selected
 // names. Duration measures the complete Handle call before observer delivery.
@@ -129,8 +135,23 @@ func (g *Gate) Handle(ctx context.Context, request []byte) []byte {
 	}
 	ctx, cancel := context.WithTimeout(ctx, g.config.Timeout)
 	defer cancel()
+	if selected {
+		if guard, ok := g.publisher.(GenerationGuard); ok {
+			guarded, stop, err := guard.Begin(ctx, question.name)
+			if err != nil {
+				event.Reason = "not_admitted"
+				return failure(request, &question)
+			}
+			defer stop()
+			ctx = guarded
+		}
+	}
 	event.Stage = "internal_exchange"
-	raw, err := g.exchange(ctx, request)
+	query := request
+	if selected {
+		query = canonicalQuery(request, question)
+	}
+	raw, err := g.exchange(ctx, query)
 	if err != nil {
 		event.Reason = failureReason(ctx, err, "transport_error")
 		if errors.Is(err, errInvalidFrame) {

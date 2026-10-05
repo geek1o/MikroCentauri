@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Endpoint churn and retained cached aliases in the isolated localhost CHR lab."""
+import argparse
 import json
 import time
 import urllib.request
@@ -49,7 +50,12 @@ def protocols(alias, target, peer):
 
 if __name__ == '__main__':
     assert rest('GET', 'system/resource')['board-name'].startswith('CHR ')
-    c = next(c for c in rest('GET','container') if c['name']=='mc-gateway-phase4')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--container', default='mc-gateway-phase4')
+    parser.add_argument('--admission', action='store_true', help='Require a fresh admitted generation after blocked startup')
+    args = parser.parse_args()
+    container_name = args.container
+    c = next(c for c in rest('GET','container') if c['name']==container_name)
     result = {'initial': wait(True), 'scope': 'Two real targets, one immutable alias; new TCP/UDP/HTTP3 connections only'}
     blocked = None
     try:
@@ -114,8 +120,24 @@ if __name__ == '__main__':
         time.sleep(5)
         result['restart_during_control_outage_map'] = mapping(alias, '10.77.0.21')
         result['restart_during_control_outage_direct'] = protocols(alias, '10.77.0.21', '10.77.0.1')
+        if args.admission:
+            # The lab HTTP server starts after the bounded startup attempt.
+            # While admission is pending it may still refuse connections.
+            deadline = time.monotonic()+30
+            while True:
+                try:
+                    result['restart_admission_denied'] = gateway(path='/diagnostics/generation')
+                    break
+                except RuntimeError:
+                    if time.monotonic() >= deadline: raise
+                    time.sleep(.2)
+            assert not result['restart_admission_denied']['admission']['admitted']
+            assert not result['restart_admission_denied']['engine_running']
+            assert 'blackhole default' in result['restart_admission_denied']['ingress_route']
         rest('DELETE','ip/firewall/filter/'+blocked['.id'])
         blocked = None
+        if args.admission:
+            result['fresh_admission'] = gateway('post','/control/start')
         result['returned_map'] = mapping(alias, '10.77.0.20')
         result['recovered_up'] = wait(True)
         rest('POST','ip/dns/cache/flush',{})

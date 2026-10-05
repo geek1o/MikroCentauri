@@ -140,3 +140,13 @@ func TestLabMappingWriteFailureAndBroadChainRule(t *testing.T) {
 		t.Fatal("wrote into conflicted chain")
 	}
 }
+
+func TestNATMismatchDiagnosticDoesNotEchoDiscoveredData(t *testing.T) {
+	want := map[string]string{"action": "dst-nat", "disabled": "false"}
+	if got := natMismatchField(Object{Fields: map[string]string{"action": "secret-value"}}, want); got != "action" {
+		t.Fatal(got)
+	}
+	if got := natMismatchField(Object{Fields: map[string]string{"action": "dst-nat", "credential-like-key": "secret-value"}}, want); got != "unexpected_field" {
+		t.Fatal(got)
+	}
+}

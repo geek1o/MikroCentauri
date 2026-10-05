@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
+	"sort"
 	"sync"
 
 	"mikrocentauri.local/core/internal/fakeip"
@@ -55,6 +56,41 @@ func exactNAT(o Object, want map[string]string) bool {
 	}
 	return o.Fields["dynamic"] != "true" && o.Fields["invalid"] != "true"
 }
+
+// Report only schema keys, never discovered values.
+func natMismatchField(o Object, want map[string]string) string {
+	keys := make([]string, 0, len(want)+len(o.Fields))
+	for k := range want {
+		keys = append(keys, k)
+	}
+	for k := range o.Fields {
+		if _, ok := want[k]; !ok {
+			keys = append(keys, k)
+		}
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		v, expected := o.Fields[k], want[k]
+		if k == "disabled" && v == "" {
+			v = "false"
+		}
+		if _, ok := want[k]; ok {
+			if v != expected {
+				return k
+			}
+		} else if k != "bytes" && k != "packets" && k != "dynamic" && k != "invalid" && v != "" {
+			return "unexpected_field"
+		}
+	}
+	if o.Fields["dynamic"] == "true" {
+		return "dynamic"
+	}
+	if o.Fields["invalid"] == "true" {
+		return "invalid"
+	}
+	return "address_shape"
+}
+
 func (b *LabMappingBackend) inspect(ctx context.Context, m fakeip.Mapping) (*Object, error) {
 	return b.inspectTransition(ctx, m, nil)
 }
@@ -96,7 +132,7 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 			}
 			shape, shapeErr := mappingFields(other)
 			if shapeErr != nil || !exactNAT(o, shape) {
-				return nil, errors.New("unsafe rule in lab mapping chain")
+				return nil, fmt.Errorf("unsafe rule in lab mapping chain: %s", natMismatchField(o, shape))
 			}
 		}
 		if o.Fields["comment"] == LabMappingJump {

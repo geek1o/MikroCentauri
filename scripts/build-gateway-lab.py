@@ -27,6 +27,11 @@ if a.dynamic_dns:
         raise SystemExit('Dynamic lab requires one dns-in listener')
     dns_in[0]['listen'] = '127.0.0.1'
     dns_in[0]['listen_port'] = 5354
+    explicit = [i for i in candidate['inbounds'] if i.get('tag') == 'explicit-in']
+    if len(explicit) != 1:
+        raise SystemExit('Dynamic lab requires one loopback canary listener')
+    explicit[0]['listen'] = '127.0.0.1'
+    explicit[0]['listen_port'] = 2080
     for rules in [candidate['dns']['rules'], candidate['route']['rules']]:
         for rule in rules:
             if 'selected.test' in rule.get('domain', []):
@@ -36,6 +41,9 @@ if a.dynamic_dns:
     os.chmod(config_path, 0o600)
 binary = out.parent / 'mc-gateway'
 subprocess.run([a.go, 'build', '-buildvcs=false', '-trimpath', '-ldflags=-s -w', '-o', str(binary), './lab/gateway'], cwd=ROOT, env=dict(os.environ, GOOS='linux', GOARCH='amd64', CGO_ENABLED='0'), check=True)
+tool = out.parent / 'mc-generation-tool'
+if a.dynamic_dns:
+    subprocess.run([a.go, 'build', '-buildvcs=false', '-trimpath', '-ldflags=-s -w', '-o', str(tool), './lab/generationtool'], cwd=ROOT, env=dict(os.environ, GOOS='linux', GOARCH='amd64', CGO_ENABLED='0'), check=True)
 rootfs = ROOT / '.cache/linux-lab/rootfs.tar.gz'
 assert hashlib.sha256(rootfs.read_bytes()).hexdigest() == 'c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677'
 layer = io.BytesIO()
@@ -48,7 +56,10 @@ with tarfile.open(fileobj=layer, mode='w') as archive:
         member.type = tarfile.DIRTYPE
         member.mode = 0o755
         archive.addfile(member)
-    for name, path, mode in [('bin/mc-gateway', binary, 0o755), ('bin/sing-box', ROOT / '.cache/sing-box-1.14.2-linux-amd64-musl/sing-box', 0o755), ('data/singbox.json', config_path, 0o600)]:
+    files = [('bin/mc-gateway', binary, 0o755), ('bin/sing-box', ROOT / '.cache/sing-box-1.14.2-linux-amd64-musl/sing-box', 0o755), ('data/singbox.json', config_path, 0o600)]
+    if a.dynamic_dns:
+        files.append(('bin/mc-generation-tool', tool, 0o755))
+    for name, path, mode in files:
         data = path.read_bytes()
         member = tarfile.TarInfo(name)
         member.mode = mode
