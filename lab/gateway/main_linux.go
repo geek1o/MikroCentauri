@@ -11,6 +11,7 @@ import (
 	"mikrocentauri.local/core/internal/fakeip"
 	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/platform/routeros"
+	"mikrocentauri.local/core/internal/realdns"
 	"net"
 	"net/http"
 	"net/netip"
@@ -193,6 +194,7 @@ func main() {
 		fmt.Println("gateway setup:", e)
 	}
 	http.HandleFunc("/", state)
+	http.HandleFunc("/diagnostics/dns", dnsDiagnostics)
 	http.HandleFunc("/control/stop", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			w.WriteHeader(405)
@@ -238,26 +240,6 @@ func main() {
 	}
 }
 
-type labResolver struct{}
-
-func (labResolver) ResolveA(ctx context.Context, domain string) ([]netip.Addr, time.Duration, error) {
-	r := &net.Resolver{PreferGo: true, Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-		return (&net.Dialer{}).DialContext(ctx, network, "10.77.0.20:53")
-	}}
-	ips, err := r.LookupIP(ctx, "ip4", domain)
-	if err != nil {
-		return nil, 0, err
-	}
-	var out []netip.Addr
-	for _, ip := range ips {
-		a, ok := netip.AddrFromSlice(ip)
-		if ok {
-			out = append(out, a.Unmap())
-		}
-	}
-	// Lab upstream TTL is5s. Production resolver needs authoritative TTL/CNAME policy.
-	return out, 5 * time.Second, nil
-}
 func dynamicDNS() error {
 	// Public disposable credentials, only in this explicitly enabled isolated mode.
 	c, err := routeros.NewLabClient("http://172.30.0.1/rest", "mc-lab", "DisposableLabOnly-2026", nil)
@@ -268,11 +250,15 @@ func dynamicDNS() error {
 	if err != nil {
 		return err
 	}
-	publisher, err = fakeip.New(fakeip.Config{Directory: "/data/publication", Prefix: netip.MustParsePrefix("198.18.0.0/15"), Capacity: 32}, labResolver{}, b)
+	r, err := realdns.New(realdns.Config{Address: "10.77.0.20:53"})
 	if err != nil {
 		return err
 	}
-	gate, err := dnsgate.New(dnsgate.Config{InternalAddress: "127.0.0.1:5354", Selected: strings.Split(os.Getenv("MC_SELECTED_DOMAINS"), ",")}, publisher)
+	publisher, err = fakeip.New(fakeip.Config{Directory: "/data/publication", Prefix: netip.MustParsePrefix("198.18.0.0/15"), Capacity: 32}, r, b)
+	if err != nil {
+		return err
+	}
+	gate, err := dnsgate.New(dnsgate.Config{InternalAddress: "127.0.0.1:5354", Selected: strings.Split(os.Getenv("MC_SELECTED_DOMAINS"), ","), Observe: observeDNS}, publisher)
 	if err != nil {
 		return err
 	}

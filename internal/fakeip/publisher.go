@@ -1,7 +1,7 @@
 //go:build linux || darwin
 
 // Package fakeip implements the laboratory publication barrier for pinned IPv4
-// mappings. It does not expire mappings, recycle aliases, or follow DNS churn.
+// mappings. Alias bindings never expire or recycle; real targets follow DNS TTLs.
 package fakeip
 
 import (
@@ -28,6 +28,21 @@ const MaxTTL = 30 * time.Second
 var ErrCapacity = errors.New("fakeip alias capacity exhausted")
 var ErrClosed = errors.New("fakeip publisher closed")
 
+// OperationError identifies the failed publication boundary without exposing
+// resolver or backend error text to diagnostic consumers. Err retains the
+// original contextual message and cause for ordinary Go error inspection.
+type OperationError struct {
+	Operation string
+	Err       error
+}
+
+func (e *OperationError) Error() string { return e.Err.Error() }
+func (e *OperationError) Unwrap() error { return e.Err }
+
+func opError(operation, description string, err error) error {
+	return &OperationError{Operation: operation, Err: fmt.Errorf("%s: %w", description, err)}
+}
+
 type Mapping struct {
 	Domain string     `json:"domain"`
 	Fake   netip.Addr `json:"fake"`
@@ -41,15 +56,26 @@ type Backend interface {
 	Ensure(context.Context, Mapping) error
 	Verify(context.Context, Mapping) error
 }
+
+// TargetUpdater changes only a real target. It must accept the exact before or
+// after rule, reconcile lost replies, and reject any unrelated backend state.
+type TargetUpdater interface {
+	Update(context.Context, Mapping, Mapping) error
+}
 type Config struct {
 	Directory string
 	Prefix    netip.Prefix
 	Capacity  uint32
+	// Now is an optional clock for deterministic tests. Production uses time.Now.
+	Now func() time.Time
 }
 type record struct {
-	Mapping    Mapping `json:"mapping"`
-	TTLSeconds uint32  `json:"ttl_seconds"`
-	Ready      bool    `json:"ready"`
+	Mapping         Mapping   `json:"mapping"`
+	TTLSeconds      uint32    `json:"ttl_seconds"`
+	Ready           bool      `json:"ready"`
+	PreviousMapping *Mapping  `json:"previous_mapping,omitempty"`
+	ExpiresAt       time.Time `json:"expires_at,omitempty"`
+	deadline        time.Time
 }
 type journal struct {
 	Version  int          `json:"version"`
@@ -153,7 +179,10 @@ func New(config Config, resolver Resolver, backend Backend) (*Publisher, error) 
 	if err := syscall.Flock(fd, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 		return fail(fmt.Errorf("publisher already locked: %w", err))
 	}
-	p := &Publisher{config: config, resolver: resolver, backend: backend, lock: lock, state: journal{Version: 1, Prefix: config.Prefix, Capacity: config.Capacity, Records: []record{}}}
+	if config.Now == nil {
+		config.Now = time.Now
+	}
+	p := &Publisher{config: config, resolver: resolver, backend: backend, lock: lock, state: journal{Version: 2, Prefix: config.Prefix, Capacity: config.Capacity, Records: []record{}}}
 	if err := p.load(); err != nil {
 		return fail(err)
 	}
@@ -197,7 +226,7 @@ func (p *Publisher) load() error {
 	if err := decoder.Decode(&extra); err != io.EOF {
 		return errors.New("journal contains trailing data")
 	}
-	if state.Version != 1 || state.Prefix != p.config.Prefix || state.Capacity != p.config.Capacity || len(state.Records) > int(state.Capacity) || state.Records == nil {
+	if (state.Version != 1 && state.Version != 2) || state.Prefix != p.config.Prefix || state.Capacity != p.config.Capacity || len(state.Records) > int(state.Capacity) || state.Records == nil {
 		return errors.New("journal configuration mismatch")
 	}
 	domains := map[string]bool{}
@@ -207,9 +236,19 @@ func (p *Publisher) load() error {
 		if err != nil || domain != r.Mapping.Domain || domains[domain] || !r.Mapping.Fake.Is4() || !state.Prefix.Contains(r.Mapping.Fake) || aliases[r.Mapping.Fake] || !validReal(r.Mapping.Real) || r.TTLSeconds == 0 || r.TTLSeconds > 30 {
 			return errors.New("journal contains invalid or duplicate mappings")
 		}
+		if r.PreviousMapping != nil {
+			before := *r.PreviousMapping
+			if state.Version != 2 || r.Ready || before.Domain != r.Mapping.Domain || before.Fake != r.Mapping.Fake || !validReal(before.Real) || before.Real == r.Mapping.Real {
+				return errors.New("journal contains invalid target transition")
+			}
+		}
+		if state.Version == 1 && !r.ExpiresAt.IsZero() {
+			return errors.New("version 1 journal contains expiry")
+		}
 		domains[domain] = true
 		aliases[r.Mapping.Fake] = true
 	}
+	state.Version = 2
 	p.state = state
 	return nil
 }
@@ -294,8 +333,8 @@ func (p *Publisher) save() (err error) {
 	return directory.Sync()
 }
 
-// Publish serializes resolution and publication. A mapping is pinned for the
-// lifetime of the journal, including pending reservations after backend errors.
+// Publish serializes resolution and publication. Domain/alias bindings are
+// immutable; expired real targets are refreshed through a durable transition.
 // Backend state is freshly verified on EVERY call, even for a ready record.
 func (p *Publisher) Publish(ctx context.Context, domain string) (Mapping, time.Duration, error) {
 	return p.publish(ctx, domain, netip.Addr{})
@@ -348,29 +387,9 @@ func (p *Publisher) publish(ctx context.Context, domain string, alias netip.Addr
 		if len(p.state.Records) >= int(p.config.Capacity) {
 			return empty, 0, ErrCapacity
 		}
-		addresses, ttl, err := p.resolver.ResolveA(ctx, domain)
+		target, seconds, deadline, err := p.resolve(ctx, domain, netip.Addr{})
 		if err != nil {
-			return empty, 0, fmt.Errorf("resolve A: %w", err)
-		}
-		if err := ctx.Err(); err != nil {
 			return empty, 0, err
-		}
-		var candidates []netip.Addr
-		for _, addr := range addresses {
-			if validReal(addr) {
-				candidates = append(candidates, addr)
-			}
-		}
-		if len(candidates) == 0 {
-			return empty, 0, errors.New("resolver returned no usable IPv4 A address")
-		}
-		sort.Slice(candidates, func(i, j int) bool { return candidates[i].Less(candidates[j]) })
-		if ttl <= 0 || ttl > MaxTTL {
-			ttl = MaxTTL
-		}
-		seconds := uint32(ttl / time.Second)
-		if seconds == 0 {
-			seconds = 1
 		}
 		fake := alias
 		if !fake.IsValid() {
@@ -382,18 +401,109 @@ func (p *Publisher) publish(ctx context.Context, domain string, alias netip.Addr
 				return empty, 0, ErrCapacity
 			}
 		}
-		p.state.Records = append(p.state.Records, record{Mapping: Mapping{domain, fake, candidates[0]}, TTLSeconds: seconds})
+		p.state.Records = append(p.state.Records, record{Mapping: Mapping{domain, fake, target}, TTLSeconds: seconds, ExpiresAt: deadline, deadline: deadline})
 		index = len(p.state.Records) - 1
 		if err := p.save(); err != nil {
 			p.poisoned = true
-			return empty, 0, fmt.Errorf("persist reservation: %w", err)
+			return empty, 0, opError("persist", "persist reservation", err)
 		}
 	}
-	if err := p.ensureReady(ctx, index); err != nil {
+	if err := p.refreshReady(ctx, index); err != nil {
 		return empty, 0, err
 	}
 	r := p.state.Records[index]
-	return r.Mapping, time.Duration(r.TTLSeconds) * time.Second, nil
+	lease := p.remaining(r)
+	if lease < time.Second {
+		return empty, 0, errors.New("DNS lease expired before publication")
+	}
+	return r.Mapping, lease, nil
+}
+
+// resolve uses the start of resolution as the lease origin, so resolver and
+// backend latency can never lengthen the authoritative DNS lifetime.
+func (p *Publisher) resolve(ctx context.Context, domain string, current netip.Addr) (netip.Addr, uint32, time.Time, error) {
+	started := p.config.Now()
+	addresses, ttl, err := p.resolver.ResolveA(ctx, domain)
+	if err != nil {
+		return netip.Addr{}, 0, time.Time{}, opError("resolve", "resolve A", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return netip.Addr{}, 0, time.Time{}, err
+	}
+	if ttl < time.Second {
+		return netip.Addr{}, 0, time.Time{}, errors.New("resolver TTL must be at least one second")
+	}
+	if ttl > MaxTTL {
+		ttl = MaxTTL
+	}
+	seconds := uint32(ttl / time.Second)
+	var candidates []netip.Addr
+	for _, addr := range addresses {
+		if validReal(addr) {
+			candidates = append(candidates, addr)
+		}
+	}
+	if len(candidates) == 0 {
+		return netip.Addr{}, 0, time.Time{}, errors.New("resolver returned no usable IPv4 A address")
+	}
+	sort.Slice(candidates, func(i, j int) bool { return candidates[i].Less(candidates[j]) })
+	target := candidates[0]
+	for _, candidate := range candidates {
+		if candidate == current {
+			target = current
+			break
+		}
+	}
+	deadline := started.Add(time.Duration(seconds) * time.Second)
+	if deadline.Sub(p.config.Now()) < time.Second {
+		return netip.Addr{}, 0, time.Time{}, errors.New("DNS lease expired during resolution")
+	}
+	return target, seconds, deadline, nil
+}
+
+func (p *Publisher) remaining(r record) time.Duration {
+	return (r.deadline.Sub(p.config.Now()) / time.Second) * time.Second
+}
+
+// Recover an unfinished intent before allowing a new DNS resolution to choose
+// another target. Reloaded journals intentionally have no runtime lease.
+func (p *Publisher) refreshReady(ctx context.Context, index int) error {
+	r := &p.state.Records[index]
+	if !r.Ready || r.PreviousMapping != nil {
+		if err := p.ensureReady(ctx, index); err != nil {
+			return err
+		}
+		if p.remaining(*r) >= time.Second {
+			return nil
+		}
+	}
+	if p.remaining(*r) < time.Second {
+		target, seconds, deadline, err := p.resolve(ctx, r.Mapping.Domain, r.Mapping.Real)
+		if err != nil {
+			return err
+		}
+		if target != r.Mapping.Real {
+			if _, ok := p.backend.(TargetUpdater); !ok {
+				return errors.New("backend does not support target updates")
+			}
+			before := r.Mapping
+			r.PreviousMapping = &before
+			r.Mapping.Real = target
+			r.Ready = false
+		}
+		r.TTLSeconds, r.ExpiresAt, r.deadline = seconds, deadline, deadline
+		if err := p.save(); err != nil {
+			p.poisoned = true
+			return opError("persist", "persist refresh intent", err)
+		}
+	}
+	if err := p.ensureReady(ctx, index); err != nil {
+		return err
+	}
+	if p.remaining(*r) < time.Second {
+		return errors.New("DNS lease expired during backend verification")
+	}
+	return nil
 }
 
 func (p *Publisher) ensureReady(ctx context.Context, index int) error {
@@ -401,23 +511,32 @@ func (p *Publisher) ensureReady(ctx context.Context, index int) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if err := p.backend.Ensure(ctx, r.Mapping); err != nil {
-		return fmt.Errorf("ensure mapping: %w", err)
+	if r.PreviousMapping != nil {
+		updater, ok := p.backend.(TargetUpdater)
+		if !ok {
+			return errors.New("backend does not support target updates")
+		}
+		if err := updater.Update(ctx, *r.PreviousMapping, r.Mapping); err != nil {
+			return opError("update", "update mapping", err)
+		}
+	} else if err := p.backend.Ensure(ctx, r.Mapping); err != nil {
+		return opError("ensure", "ensure mapping", err)
 	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if err := p.backend.Verify(ctx, r.Mapping); err != nil {
-		return fmt.Errorf("verify mapping: %w", err)
+		return opError("verify", "verify mapping", err)
 	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 	if !r.Ready {
 		r.Ready = true
+		r.PreviousMapping = nil
 		if err := p.save(); err != nil {
 			p.poisoned = true
-			return fmt.Errorf("persist ready mapping: %w", err)
+			return opError("persist", "persist ready mapping", err)
 		}
 	}
 	return ctx.Err()
@@ -439,14 +558,14 @@ func (p *Publisher) Reconcile(ctx context.Context) error {
 		return err
 	}
 	for i := range p.state.Records {
-		if err := p.ensureReady(ctx, i); err != nil {
+		if err := p.refreshReady(ctx, i); err != nil {
 			return err
 		}
 	}
 	return ctx.Err()
 }
 
-// Mappings returns an independent snapshot of all immutable reservations,
+// Mappings returns an independent snapshot of all alias reservations and current targets,
 // including pending ones; its presence is not evidence of backend readiness.
 func (p *Publisher) Mappings() []Mapping {
 	p.mu.Lock()

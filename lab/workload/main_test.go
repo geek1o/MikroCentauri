@@ -53,6 +53,41 @@ func TestDNSMalformed(t *testing.T) {
 		}
 	}
 }
+
+func TestChurnFixtureDoesNotChangeCanary(t *testing.T) {
+	defer dnsFixture.Store(nil)
+	dnsFixture.Store(&dnsOverride{Target: "10.77.0.21", TTL: 9})
+	for _, name := range []string{"second.test", "selected.test"} {
+		q := query(name, 1)
+		b, err := dnsReply(q, "10.77.0.20")
+		if err != nil {
+			t.Fatal(err)
+		}
+		wantIP, wantTTL := "10.77.0.20", uint32(5)
+		if name == "second.test" {
+			wantIP, wantTTL = "10.77.0.21", 9
+		}
+		if !net.IP(b[len(b)-4:]).Equal(net.ParseIP(wantIP)) || binary.BigEndian.Uint32(b[len(b)-10:]) != wantTTL {
+			t.Fatalf("incorrect fixture: %x", b)
+		}
+	}
+	dnsFixture.Store(&dnsOverride{Target: "10.77.0.21", TTL: 9, Fail: true})
+	b, _ := dnsReply(query("second.test", 1), "10.77.0.20")
+	if binary.BigEndian.Uint16(b[6:8]) != 0 || binary.BigEndian.Uint16(b[2:4])&15 != 2 {
+		t.Fatalf("expected no-answer SERVFAIL: %x", b)
+	}
+}
+
+func TestCachedAddressWorkloadSkipsUnavailableDNS(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(targetHTTP))
+	defer server.Close()
+	_, portString, _ := net.SplitHostPort(strings.TrimPrefix(server.URL, "http://"))
+	port, _ := net.LookupPort("tcp", portString)
+	out := runWorkload(context.Background(), "127.0.0.1:1", workloadRequest{Domain: "second.test", Address: "127.0.0.1", SkipDNS: true, Port: port, Path: "/cached"}, false)
+	if out.Error != "" || out.ResolvedIPv4 != "127.0.0.1" {
+		t.Fatalf("cached request consulted DNS: %+v", out)
+	}
+}
 func TestDNSTCPFraming(t *testing.T) {
 	server, client := net.Pipe()
 	go handleDNSTCP(server, "10.77.0.20")

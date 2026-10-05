@@ -86,6 +86,7 @@ def summarize(path):
     failures = [r for r in rows if r['rcode']==2]
     assert all(r['answer_count']==0 and not r['a'] for r in failures)
     return {'file':pathlib.Path(path).name,'response_counts':dict(collections.Counter(f"{r['domain']}:rcode={r['rcode']}" for r in rows)),
+            'positive_a_counts':dict(collections.Counter(f"{r['domain']}:{a['address']}:ttl={a['ttl']}" for r in rows if r['rcode']==0 for a in r['a'])),
             'servfail_without_alias':failures,'scope':'Public fixture UDP DNS response witnesses; not loss or timing bounds'}
 
 

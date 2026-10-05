@@ -35,6 +35,7 @@ if [ "$role" = client ]; then
     ip address add 192.168.88.30/24 dev eth0
 else
     ip address add 203.0.113.20/24 dev eth0
+    ip address add 10.77.0.21/24 dev eth0
 fi
 echo "MC_LAB_READY role=$role address=$address gateway=$gateway"
 if [ -x /usr/bin/mc-lab ]; then
@@ -48,7 +49,7 @@ if [ "$role" = server ] && [ -x /lab/sing-box ] && [ -f /lab/server.json ]; then
     /lab/sing-box run -c /lab/server.json > /tmp/sing-box.log 2>&1 &
 fi
 if [ -x /lab/mc-quic ]; then
-    if [ "$role" = server ]; then /lab/mc-quic serve > /tmp/quic.log 2>&1 &
+    if [ "$role" = server ]; then /lab/mc-quic serve -listen 0.0.0.0:9443 > /tmp/quic.log 2>&1 &
     else /lab/mc-quic control > /tmp/quic.log 2>&1 &
     fi
 fi

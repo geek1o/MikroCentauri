@@ -14,7 +14,7 @@ import (
 const LabMappingChain = "mc-dynamic-backup"
 const LabMappingJump = "mikrocentauri:lab:nat:dynamic-jump"
 
-// LabMappingBackend only appends immutable maps in a dedicated chain. The native
+// LabMappingBackend creates maps with immutable aliases in a dedicated chain. The native
 // watchdog changes one jump, never individual map flags; publication cannot race
 // its iteration of a growing map set. Production schemas/placement remain gates.
 type LabMappingBackend struct {
@@ -56,9 +56,22 @@ func exactNAT(o Object, want map[string]string) bool {
 	return o.Fields["dynamic"] != "true" && o.Fields["invalid"] != "true"
 }
 func (b *LabMappingBackend) inspect(ctx context.Context, m fakeip.Mapping) (*Object, error) {
+	return b.inspectTransition(ctx, m, nil)
+}
+
+// Only the two journaled endpoints are allowed during recovery. REST provides
+// no atomic compare-and-swap: the isolated lab requires one map writer.
+func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapping, before *fakeip.Mapping) (*Object, error) {
 	want, err := mappingFields(m)
 	if err != nil {
 		return nil, err
+	}
+	var previous map[string]string
+	if before != nil {
+		previous, err = mappingFields(*before)
+		if err != nil {
+			return nil, err
+		}
 	}
 	rows, err := b.client.discover(ctx, []string{"ip/firewall/nat"})
 	if err != nil {
@@ -100,7 +113,7 @@ func (b *LabMappingBackend) inspect(ctx context.Context, m fakeip.Mapping) (*Obj
 			jumpCount++
 		}
 		if o.Fields["comment"] == want["comment"] || (o.Fields["chain"] == LabMappingChain && o.Fields["dst-address"] == m.Fake.String()) {
-			if found != nil || !exactNAT(o, want) {
+			if found != nil || (!exactNAT(o, want) && (previous == nil || !exactNAT(o, previous))) {
 				return nil, errors.New("conflicting lab alias mapping")
 			}
 			copy := o
@@ -111,6 +124,44 @@ func (b *LabMappingBackend) inspect(ctx context.Context, m fakeip.Mapping) (*Obj
 		return nil, errors.New("unique lab mapping jump required")
 	}
 	return found, nil
+}
+
+// Update requires a durably journaled before/after pair from the publisher.
+// It changes only the real target; it never removes a rule, moves placement,
+// transfers an alias, or flushes connection tracking. Recovery accepts an
+// already-realized after image, including after a lost PATCH response.
+func (b *LabMappingBackend) Update(ctx context.Context, before, after fakeip.Mapping) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	domain, err := fakeip.CanonicalDomain(before.Domain)
+	if err != nil || domain != before.Domain || before.Domain != after.Domain || before.Fake != after.Fake {
+		return errors.New("target update cannot transfer a domain or alias")
+	}
+	found, err := b.inspectTransition(ctx, after, &before)
+	if err != nil {
+		return err
+	}
+	if found == nil {
+		return errors.New("target update requires existing map")
+	}
+	if found.Fields["to-addresses"] == after.Real.String() {
+		return nil
+	}
+	if found.ID == "" {
+		return errors.New("target update requires a router object ID")
+	}
+	_, writeErr := b.client.request(ctx, "PATCH", "ip/firewall/nat", found.ID, map[string]string{"to-addresses": after.Real.String()})
+	found, err = b.inspect(ctx, after)
+	if err != nil {
+		return err
+	}
+	if found == nil {
+		if writeErr != nil {
+			return writeErr
+		}
+		return errors.New("target update not realized")
+	}
+	return nil
 }
 func (b *LabMappingBackend) Ensure(ctx context.Context, m fakeip.Mapping) error {
 	b.mu.Lock()

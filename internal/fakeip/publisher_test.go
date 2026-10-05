@@ -49,7 +49,7 @@ func fixtureConfig(t *testing.T, capacity uint32) Config {
 	if err := os.Chmod(directory, 0700); err != nil {
 		t.Fatal(err)
 	}
-	return Config{Directory: directory, Capacity: capacity}
+	return Config{Directory: directory, Capacity: capacity, Now: func() time.Time { return time.Unix(1000, 0) }}
 }
 func publisher(t *testing.T, c Config, r Resolver, b Backend) *Publisher {
 	t.Helper()
@@ -146,7 +146,7 @@ func TestFailureThenRestartResumesReservationWithoutReuse(t *testing.T) {
 		t.Fatalf("failed reservation reused: %+v %v", second, err)
 	}
 	resumed, _, err := p.Publish(context.Background(), "first.test")
-	if err != nil || resumed != written || calls != 1 {
+	if err != nil || resumed != written || calls != 2 {
 		t.Fatalf("pending reservation did not resume: %+v %v resolves=%d", resumed, err, calls)
 	}
 }
@@ -307,7 +307,7 @@ func TestStrictJournalAndSingleWriter(t *testing.T) {
 	}
 	p.Close()
 	original, _ := os.ReadFile(filepath.Join(c.Directory, "mappings.json"))
-	cases := map[string][]byte{"unknown": []byte(strings.Replace(string(original), `"version":1`, `"version":1,"password":"secret"`, 1)), "duplicate JSON key": []byte(strings.Replace(string(original), `"version":1`, `"version":9,"version":1`, 1)), "trailing": append(append([]byte{}, original...), []byte(` {}`)...), "invalid alias": []byte(strings.Replace(string(original), "198.18.0.1", "203.0.113.1", 1))}
+	cases := map[string][]byte{"unknown": []byte(strings.Replace(string(original), `"version":2`, `"version":2,"password":"secret"`, 1)), "duplicate JSON key": []byte(strings.Replace(string(original), `"version":2`, `"version":9,"version":2`, 1)), "trailing": append(append([]byte{}, original...), []byte(` {}`)...), "invalid alias": []byte(strings.Replace(string(original), "198.18.0.1", "203.0.113.1", 1))}
 	var j journal
 	json.Unmarshal(original, &j)
 	j.Records = append(j.Records, j.Records[0])

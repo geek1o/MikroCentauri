@@ -20,9 +20,20 @@ import (
 
 var requestSequence atomic.Uint64
 
+// A disposable server-only fixture for endpoint churn. It cannot change the
+// upstream listener or the canary domain; only second.test has an override.
+type dnsOverride struct {
+	Target string `json:"target"`
+	TTL    uint32 `json:"ttl"`
+	Fail   bool   `json:"fail"`
+}
+
+var dnsFixture atomic.Pointer[dnsOverride]
+
 type workloadRequest struct {
 	Domain  string `json:"domain"`
 	Address string `json:"address"`
+	SkipDNS bool   `json:"skip_dns"`
 	DNSTCP  bool   `json:"dns_tcp"`
 	Port    int    `json:"port"`
 	Source  string `json:"source"`
@@ -66,12 +77,38 @@ func main() {
 	failures := make(chan error, 4)
 	if mode == "serve" {
 		go func() { failures <- serveDNS(net.JoinHostPort(target, "53"), target) }()
+		// Bind each target explicitly: a wildcard UDP WriteTo may choose the
+		// primary interface address, which would not match a native DNAT reply.
 		go func() { failures <- serveUDPEcho(net.JoinHostPort(target, "9000")) }()
+		if target != "10.77.0.21" {
+			go func() { failures <- serveUDPEcho("10.77.0.21:9000") }()
+		}
 		go func() { failures <- http.ListenAndServe("0.0.0.0:8080", http.HandlerFunc(targetHTTP)) }()
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/request", controlHandler(dns, false))
 	mux.HandleFunc("/udp", controlHandler(dns, true))
+	if mode == "serve" {
+		mux.HandleFunc("/dns-fixture", func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodGet {
+				writeJSON(w, dnsFixture.Load())
+				return
+			}
+			if r.Method != http.MethodPost {
+				w.WriteHeader(405)
+				return
+			}
+			var next dnsOverride
+			dec := json.NewDecoder(io.LimitReader(r.Body, 1024))
+			dec.DisallowUnknownFields()
+			if dec.Decode(&next) != nil || (next.Target != "10.77.0.20" && next.Target != "10.77.0.21") || next.TTL < 1 || next.TTL > 30 {
+				http.Error(w, "invalid disposable DNS fixture", 400)
+				return
+			}
+			dnsFixture.Store(&next)
+			writeJSON(w, next)
+		})
+	}
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, map[string]string{"status": "ok", "mode": mode, "dns_server": dns})
 	})
@@ -177,14 +214,18 @@ func runWorkload(ctx context.Context, dns string, req workloadRequest, udp bool)
 		dial := resolver.Dial
 		resolver.Dial = func(ctx context.Context, network, address string) (net.Conn, error) { return dial(ctx, "tcp", address) }
 	}
-	ips, err := resolver.LookupIP(ctx, "ip4", req.Domain)
-	if err != nil {
-		return fail(fmt.Errorf("resolve: %w", err))
+	if !req.SkipDNS {
+		ips, err := resolver.LookupIP(ctx, "ip4", req.Domain)
+		if err != nil {
+			return fail(fmt.Errorf("resolve: %w", err))
+		}
+		if len(ips) == 0 {
+			return fail(errors.New("resolve: no IPv4 address"))
+		}
+		out.ResolvedIPv4 = ips[0].String()
+	} else if net.ParseIP(req.Address).To4() == nil {
+		return fail(errors.New("skip_dns requires an explicit IPv4 address"))
 	}
-	if len(ips) == 0 {
-		return fail(errors.New("resolve: no IPv4 address"))
-	}
-	out.ResolvedIPv4 = ips[0].String()
 	if req.Address != "" {
 		if net.ParseIP(req.Address).To4() == nil {
 			return fail(errors.New("address must be IPv4"))
@@ -330,8 +371,18 @@ func dnsReply(query []byte, target string) ([]byte, error) {
 	reply := append([]byte(nil), query[:end+4]...)
 	flags := uint16(0x8400) | (binary.BigEndian.Uint16(query[2:4]) & 0x0100)
 	known := name == "selected.test" || name == "unselected.test" || name == "second.test" || name == "third.test"
+	ttl := uint32(5)
+	if override := dnsFixture.Load(); name == "second.test" && override != nil {
+		target, ttl = override.Target, override.TTL
+		if override.Fail {
+			flags |= 2
+			known = false
+		}
+	}
 	if !known {
-		flags |= 3
+		if flags&15 == 0 {
+			flags |= 3
+		}
 	}
 	binary.BigEndian.PutUint16(reply[2:4], flags)
 	for i := 6; i < 12; i++ {
@@ -344,6 +395,7 @@ func dnsReply(query []byte, target string) ([]byte, error) {
 		}
 		binary.BigEndian.PutUint16(reply[6:8], 1)
 		reply = append(reply, 0xc0, 0x0c, 0, 1, 0, 1, 0, 0, 0, 5, 0, 4)
+		binary.BigEndian.PutUint32(reply[len(reply)-6:len(reply)-2], ttl)
 		reply = append(reply, ip...)
 	}
 	return reply, nil
