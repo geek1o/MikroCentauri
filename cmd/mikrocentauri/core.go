@@ -15,6 +15,7 @@ import (
 	"mikrocentauri.local/core/internal/config"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/rulesets"
 	"mikrocentauri.local/core/internal/singbox"
 	"mikrocentauri.local/core/internal/subscriptions"
 )
@@ -30,6 +31,7 @@ func coreCommand(action string, args []string) error {
 	id := fs.String("id", "", "subscription identifier for status")
 	uriFile := fs.String("uri-file", "", "private 0600 endpoint URI file")
 	interval := fs.Duration("interval", time.Hour, "periodic subscription refresh interval")
+	rulesetState := fs.String("ruleset-state", "", "private verified rule-set store for generation")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -50,7 +52,7 @@ func coreCommand(action string, args []string) error {
 			return err
 		}
 		return json.NewEncoder(os.Stdout).Encode(ep.Preview())
-	case "core-generate", "core-check":
+	case "core-generate", "core-check", "core-preview":
 		if *input == "" || (action == "core-generate" && *output == "") {
 			return errors.New("private config and candidate output required")
 		}
@@ -62,7 +64,27 @@ func coreCommand(action string, args []string) error {
 		if err != nil {
 			return err
 		}
-		b, err = coreconfig.Generate(m)
+		if action == "core-preview" {
+			return json.NewEncoder(os.Stdout).Encode(m.Preview())
+		}
+		opts := coreconfig.Options{DNSPort: 5353, MixedPort: 2080}
+		if len(m.RuleSets) > 0 {
+			if *rulesetState == "" {
+				return errors.New("private rule-set store required")
+			}
+			manager, e := rulesets.New(*rulesetState, *binary, rulesets.Policy{})
+			if e != nil {
+				return e
+			}
+			for _, ref := range m.RuleSets {
+				artifact, e := manager.Load(ref.ID)
+				if e != nil {
+					return e
+				}
+				opts.RuleSets = append(opts.RuleSets, artifact)
+			}
+		}
+		b, err = coreconfig.GenerateWithOptions(m, opts)
 		if err != nil {
 			return err
 		}

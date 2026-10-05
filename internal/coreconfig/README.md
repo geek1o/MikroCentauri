@@ -16,12 +16,17 @@ The publication controller must use the existing finite namespace admission,
 engine guard, DNS gate, and durable activation mechanisms before exposure.
 
 Routing order is DNS interception, source DIRECT, source PROXY, terminal exact
-selected-domain routes, sniff, then application rules in declared order and
+selected-domain routes, sniff, then application rules in stable priority order and
 the default outbound. Source lists may overlap: DIRECT has explicit precedence;
-overlapping PROXY policies use declared order. Domain-only rules determine the
-immutable outbound for selected aliases. Service/port/network rules run after
-the terminal selected-domain rules and therefore cannot reinterpret an already
-published selected alias. They classify ordinary real-DNS destinations. Exact
+overlapping PROXY policies use declared order. Rules carry names, optional enabled
+flags (omission preserves existing v2 enabled behavior), integer priorities and
+source CIDRs. Lower priorities run first; ties retain declared order. Domain-only
+rules determine the unconditional fallback for selected aliases. Source, port,
+network and service qualifiers are compiled as terminal predicates tied to each
+exact known domain before sniff. These can change the outbound for a device or
+service without reinterpreting the alias's destination identity. External rule-set
+and destination IP predicates classify ordinary real-DNS destinations after the
+terminal known-domain policy. Exact
 FakeIP domain routes precede sniff because FakeIP rewriting makes a raw CIDR
 sniff exclusion insufficient (ADR0014).
 
@@ -79,3 +84,36 @@ its disposable local fixture by explicitly disabling certificate verification
 inside the test client. This proves engine binding on private mixed sockets;
 external DNS retirement responses, native RouterOS forwarding, and publication
 admission remain the responsibility of the runtime bridge and existing gates.
+
+Named service lists preserve port/network tuples through logical OR clauses;
+combining services uses logical AND with the rule's source/domain predicates.
+This prevents UDP ports from accidentally acquiring a service's TCP policy.
+Rule-set references resolve to verified immutable local binary artifacts from
+`internal/rulesets`; `Options.RuleSets` is trusted runtime input. No generated
+engine config contains remote downloads. Rule-set contents never add names to
+the DNS allocator or expand FakeIP admission.
+
+`Model.WireGuard` holds modern sing-box WireGuard endpoints. Enabled endpoint IDs
+share the same reference namespace as proxy nodes and groups; collisions and
+disabled references are rejected. Generation emits a top-level `endpoints`
+array rather than the removed WireGuard outbound. WG-only models are valid when
+at least one endpoint is enabled. `Model.Clone` deeply copies and revalidates
+all nested state. `Model.Preview` exposes explicit diagnostic projections and
+omits WireGuard key material and proxy credentials.
+
+CLI rule-set flow uses private input files and a private verified store:
+
+```sh
+mikrocentauri ruleset-import -state /data/rulesets -id selected-list -format source -file /data/input.json -sing-box /usr/bin/sing-box
+mikrocentauri ruleset-refresh -state /data/rulesets -config /data/ruleset-spec.json -sing-box /usr/bin/sing-box
+mikrocentauri ruleset-load -state /data/rulesets -id selected-list
+mikrocentauri core-generate -config /data/model.json -out /data/candidate.json -ruleset-state /data/rulesets -sing-box /usr/bin/sing-box
+mikrocentauri core-preview -config /data/model.json
+```
+
+`core-check` accepts the same `-ruleset-state` mapping without replacing output.
+Generation loads artifact IDs from the verified store; user models cannot inject
+resolved file paths. The CLI never enables a remote engine fetch as a substitute
+for a missing local artifact. Modern WireGuard model/group integration is tested
+with the pinned binary; actual handshake/UDP transport has separate WireGuard
+runtime tests.

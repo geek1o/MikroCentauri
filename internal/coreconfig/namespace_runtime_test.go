@@ -118,6 +118,17 @@ func TestPinnedNamespaceCachedAliasBinding(t *testing.T) {
 		t.Fatal("retired alias promoted to proxy by Host")
 	}
 	stop()
+	secureURL, _ := url.Parse(secure.URL)
+	securePort, _ := strconv.ParseUint(secureURL.Port(), 10, 16)
+	m.Services = []Service{{ID: "secure-web", Ports: []uint16{uint16(securePort)}, Networks: []string{"tcp"}}}
+	m.Rules = []Rule{{ID: "source-direct", Name: "Device policy", Priority: -10, SourceCIDRs: []string{"127.0.0.1/32"}, Services: []string{"secure-web"}, Domains: []string{"selected.example"}, Outbound: "direct"}}
+	stop = start()
+	requestAlias(t, o.MixedPort, selected, secure.URL, "unselected.example", "unselected.example")
+	if proxyHits.Load() != 2 {
+		t.Fatal("per-rule source policy failed for bound alias")
+	}
+	stop()
+	m.Rules = nil
 	m.DNS.SelectedDomains = nil
 	s.Revision = 2
 	s.Active = []string{}

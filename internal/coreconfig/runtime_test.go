@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/rulesets"
 	"mikrocentauri.local/core/internal/singbox"
 	"net"
 	"net/http"
@@ -90,6 +91,9 @@ func TestPinnedMixedRuntimeRoutes(t *testing.T) {
 	directURL, _ := url.Parse(direct.URL)
 	port64, _ := strconv.ParseUint(directURL.Port(), 10, 16)
 	m := Model{SchemaVersion: 2, Instance: "runtime", Mode: "socksify", Endpoints: []endpoints.Endpoint{ep}, Groups: []Group{{ID: "manual", Type: "selector", Members: []string{ep.ID}}}, Rules: []Rule{{ID: "direct-service", Ports: []uint16{uint16(port64)}, Outbound: "direct"}}, DefaultOutbound: "manual", DNS: DNS{Bootstrap: "1.1.1.1", FakeIPRange: "198.18.0.0/15", CachePath: "/data/runtime/cache.db"}}
+	disabled := false
+	m.Services = []Service{{ID: "target-service", Name: "Fixture HTTP", Ports: []uint16{uint16(port64)}, Networks: []string{"tcp"}}}
+	m.Rules = []Rule{{ID: "lower-proxy", Name: "Lower priority proxy", Priority: 20, Ports: []uint16{uint16(port64)}, Outbound: "manual"}, {ID: "disabled-proxy", Enabled: &disabled, Priority: -20, Ports: []uint16{uint16(port64)}, Outbound: "manual"}, {ID: "direct-service", Priority: -10, SourceCIDRs: []string{"127.0.0.1/32"}, Services: []string{"target-service"}, Outbound: "direct"}}
 	b, e := GenerateWithOptions(m, Options{DNSPort: dnsPort, MixedPort: mixedPort})
 	if e != nil {
 		t.Fatal(e)
@@ -106,7 +110,7 @@ func TestPinnedMixedRuntimeRoutes(t *testing.T) {
 		t.Fatal(e)
 	}
 	stopClient := runPinned(t, binary, clientPath, mixedPort)
-	defer stopClient()
+	defer func() { stopClient() }()
 	proxyURL, _ := url.Parse(fmt.Sprintf("http://127.0.0.1:%d", mixedPort))
 	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), DisableKeepAlives: true}
 	defer transport.CloseIdleConnections()
@@ -130,6 +134,39 @@ func TestPinnedMixedRuntimeRoutes(t *testing.T) {
 	request(proxied.URL, "proxy-target")
 	if connections.Load() != 1 {
 		t.Fatalf("selected proxy endpoint connections=%d want 1", connections.Load())
+	}
+	stopClient()
+	canonicalDir, e := filepath.EvalSymlinks(dir)
+	if e != nil {
+		t.Fatal(e)
+	}
+	manager, e := rulesets.New(filepath.Join(canonicalDir, "rule-sets"), binary, rulesets.Policy{})
+	if e != nil {
+		t.Fatal(e)
+	}
+	proxyURLTarget, _ := url.Parse(proxied.URL)
+	proxyPort, _ := strconv.ParseUint(proxyURLTarget.Port(), 10, 16)
+	source, _ := json.Marshal(rulesets.Source{Version: 5, Rules: []rulesets.Headless{{Ports: []uint16{uint16(proxyPort)}, Networks: []string{"tcp"}}}})
+	a, e := manager.Import(context.Background(), "target-list", "source", source)
+	if e != nil {
+		t.Fatal(e)
+	}
+	m.RuleSets = []rulesets.Spec{{ID: "target-list", Format: "source"}}
+	m.Rules = append(m.Rules, Rule{ID: "direct-set", Priority: -15, RuleSets: []string{"target-list"}, Outbound: "direct"})
+	b, e = GenerateWithOptions(m, Options{DNSPort: dnsPort, MixedPort: mixedPort, CachePath: filepath.Join(dir, "private-cache.db"), RuleSets: []rulesets.Artifact{a}})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(clientPath, b, 0600); e != nil {
+		t.Fatal(e)
+	}
+	if e = singbox.Check(context.Background(), binary, clientPath); e != nil {
+		t.Fatal(e)
+	}
+	stopClient = runPinned(t, binary, clientPath, mixedPort)
+	request(proxied.URL, "proxy-target")
+	if connections.Load() != 1 {
+		t.Fatal("local compiled rule-set did not route DIRECT")
 	}
 }
 func freePort(t *testing.T) uint16 {

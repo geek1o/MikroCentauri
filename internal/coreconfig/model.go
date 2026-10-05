@@ -15,9 +15,14 @@ import (
 	"time"
 
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/rulesets"
+	"mikrocentauri.local/core/internal/wireguard"
 )
 
 type Model struct {
+	WireGuard       []wireguard.Endpoint `json:"wireguard,omitempty"`
+	Services        []Service            `json:"services,omitempty"`
+	RuleSets        []rulesets.Spec      `json:"rule_sets,omitempty"`
 	SchemaVersion   int                  `json:"schema_version"`
 	Instance        string               `json:"instance"`
 	Mode            string               `json:"mode"`
@@ -42,7 +47,19 @@ type SourcePolicy struct {
 	CIDRs    []string `json:"cidrs"`
 	Outbound string   `json:"outbound"`
 }
+type Service struct {
+	ID       string   `json:"id"`
+	Name     string   `json:"name,omitempty"`
+	Ports    []uint16 `json:"ports"`
+	Networks []string `json:"networks"`
+}
 type Rule struct {
+	Name             string   `json:"name,omitempty"`
+	Enabled          *bool    `json:"enabled,omitempty"`
+	Priority         int      `json:"priority,omitempty"`
+	SourceCIDRs      []string `json:"source_cidrs,omitempty"`
+	Services         []string `json:"services,omitempty"`
+	RuleSets         []string `json:"rule_sets,omitempty"`
 	ID               string   `json:"id"`
 	Domains          []string `json:"domains,omitempty"`
 	Suffixes         []string `json:"suffixes,omitempty"`
@@ -140,7 +157,7 @@ func (m Model) Validate() error {
 	if m.Mode != "hybrid" && m.Mode != "full" && m.Mode != "socksify" {
 		return errors.New("invalid core mode")
 	}
-	if len(m.Endpoints) == 0 || len(m.Endpoints) > 1024 || len(m.Groups) > 256 || len(m.Rules) > 4096 || len(m.SourceProxy) > 4096 {
+	if len(m.Endpoints)+len(m.WireGuard) == 0 || len(m.Endpoints)+len(m.WireGuard) > 1024 || len(m.Groups) > 256 || len(m.Rules) > 4096 || len(m.SourceProxy) > 4096 {
 		return errors.New("core collection bounds exceeded")
 	}
 	p, e := netip.ParsePrefix(m.DNS.FakeIPRange)
@@ -177,6 +194,16 @@ func (m Model) Validate() error {
 			refs[ep.ID] = true
 		} else {
 			refs[ep.ID] = false
+		}
+	}
+	for _, ep := range m.WireGuard {
+		if !endpointIDPattern.MatchString(ep.ID) || seen[ep.ID] || ep.Validate() != nil {
+			return errors.New("invalid or duplicate WireGuard endpoint")
+		}
+		seen[ep.ID] = true
+		refs[ep.ID] = ep.Enabled
+		if ep.Enabled {
+			enabled++
 		}
 	}
 	if enabled == 0 {
@@ -265,13 +292,16 @@ func (m Model) Validate() error {
 			return errors.New("invalid proxy source policy")
 		}
 	}
+	if e := m.validateRuleExtensions(p); e != nil {
+		return e
+	}
 	ruleIDs := map[string]bool{}
 	for _, r := range m.Rules {
 		if !idPattern.MatchString(r.ID) || ruleIDs[r.ID] || !refs[r.Outbound] {
 			return errors.New("invalid rule ID or outbound")
 		}
 		ruleIDs[r.ID] = true
-		if len(r.Domains)+len(r.Suffixes)+len(r.DestinationCIDRs)+len(r.Ports) == 0 {
+		if len(r.Domains)+len(r.Suffixes)+len(r.DestinationCIDRs)+len(r.Ports)+len(r.SourceCIDRs)+len(r.Services)+len(r.RuleSets) == 0 {
 			return errors.New("rule has no match")
 		}
 		if domains(r.Domains) != nil || domains(r.Suffixes) != nil || cidrs(r.DestinationCIDRs, p) != nil {

@@ -58,13 +58,15 @@ func GenerateForNamespace(m Model, s namespace.Snapshot, o Options) ([]byte, err
 		active[n] = true
 	}
 	for _, n := range s.Known {
-		outbound := "direct"
-		if active[n] {
-			outbound = m.SelectedOutbound(n)
+		for _, rule := range m.namespaceTerminalRules(n, !active[n]) {
+			next = append(next, rule)
 		}
-		next = append(next, object{"domain": []string{n}, "action": "route", "outbound": outbound})
 	}
-	next = append(next, rules[prefixCount+len(s.Active):]...)
+	terminalCount := 0
+	for _, n := range s.Active {
+		terminalCount += len(m.namespaceTerminalRules(n, false))
+	}
+	next = append(next, rules[prefixCount+terminalCount:]...)
 	route["rules"] = next
 	result, e := json.MarshalIndent(cfg, "", "  ")
 	if e != nil || len(result) > 4<<20 {
