@@ -1,0 +1,8 @@
+{
+  "image_sha256": "74ed276a2240aeaf2d246cd47596b59f693faf988b65e55ca72c01dbb4929bc5",
+  "binary_sha256": "81abfacf2f2d19573d9711c8cbd395440412568f248c0708933f8f33dd316ea4",
+  "sing_box_sha256": "4b5cef575df2e5572eddf7c204b4adea03a27d9721c5e39a89df5fb6977643cb",
+  "rootfs_sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677",
+  "pool": "198.19.0.0/16",
+  "state_directory": "/data/core-v3"
+}

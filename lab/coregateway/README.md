@@ -36,7 +36,9 @@ unauthorized readback fails immediately.
 
 The acceptance script can resume a retained namespace with additional Known
 names. It never deletes reservations or reassigns an alias; fault scenarios add
-or reactivate an existing name. The server fixture supplies six bounded names.
+or reactivate an existing name. The server fixture supplies six bounded names. Acceptance explicitly sets their
+real-DNS TTL to 30 seconds through its disposable `/dns-fixture` control;
+the default legacy fixture TTL remains 5 seconds. Native cleanup restores it.
 
 Private fixture HTTP API, bound only to the lab veth:
 

@@ -1,0 +1,435 @@
+{
+  "scope": "Earlier run proved fresh fourth/fifth additions from three Known names; full run resumed retained six-name namespace. Earlier run stopped when sixth was absent from server DNS fixture; this is bounded partial evidence, not a completed run.",
+  "initial_bindings": {
+    "selected.test": "198.19.0.2",
+    "second.test": "198.19.0.3",
+    "third.test": "198.19.0.4"
+  },
+  "expanded_bindings": {
+    "selected.test": "198.19.0.2",
+    "second.test": "198.19.0.3",
+    "third.test": "198.19.0.4",
+    "fourth.test": "198.19.0.5"
+  },
+  "addition_dns": {
+    "request_id": 26,
+    "resolved_ipv4": "198.19.0.5",
+    "target": {
+      "local_ip": "10.77.0.20",
+      "path": "/core-new-domain",
+      "remote_ip": "10.77.0.10"
+    },
+    "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/core-new-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+    "proxy_seen_ip": "10.77.0.10",
+    "elapsed_ms": 63
+  },
+  "after-verify": {
+    "down": {
+      "observed_ms_from_poll": 1056,
+      "flags": {
+        "mikrocentauri:lab:route:fakeip": false,
+        "mikrocentauri:lab:nat:dns-tcp": false,
+        "mikrocentauri:lab:nat:dns-udp": false,
+        "mikrocentauri:lab:nat:dynamic-jump": false
+      },
+      "lease": []
+    },
+    "disk": {
+      "revision": 6,
+      "known": [
+        "selected.test",
+        "second.test",
+        "third.test",
+        "fourth.test"
+      ],
+      "active": [
+        "selected.test",
+        "fourth.test"
+      ],
+      "pending": {
+        "revision": 7,
+        "known": [
+          "selected.test",
+          "second.test",
+          "third.test",
+          "fourth.test",
+          "fifth.test"
+        ],
+        "active": [
+          "selected.test",
+          "fourth.test",
+          "fifth.test"
+        ]
+      }
+    },
+    "cached_direct": {
+      "selected.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 59,
+          "resolved_ipv4": "198.19.0.2",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 29
+        },
+        "udp": {
+          "request_id": 60,
+          "resolved_ipv4": "198.19.0.2",
+          "payload": "phase8-7-selected.test-29",
+          "elapsed_ms": 2,
+          "capture_marker": "phase8-7-selected.test-29"
+        }
+      },
+      "second.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 61,
+          "resolved_ipv4": "198.19.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 6
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 28
+        },
+        "udp": {
+          "request_id": 62,
+          "resolved_ipv4": "198.19.0.3",
+          "payload": "phase8-7-second.test-30",
+          "elapsed_ms": 2,
+          "capture_marker": "phase8-7-second.test-30"
+        }
+      },
+      "third.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 63,
+          "resolved_ipv4": "198.19.0.4",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 5
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 27
+        },
+        "udp": {
+          "request_id": 64,
+          "resolved_ipv4": "198.19.0.4",
+          "payload": "phase8-7-third.test-31",
+          "elapsed_ms": 2,
+          "capture_marker": "phase8-7-third.test-31"
+        }
+      },
+      "fourth.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 65,
+          "resolved_ipv4": "198.19.0.5",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 4
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 23
+        },
+        "udp": {
+          "request_id": 66,
+          "resolved_ipv4": "198.19.0.5",
+          "payload": "phase8-7-fourth.test-32",
+          "elapsed_ms": 2,
+          "capture_marker": "phase8-7-fourth.test-32"
+        }
+      }
+    },
+    "recovery": {
+      "native": {
+        "observed_ms_from_poll": 7361,
+        "flags": {
+          "mikrocentauri:lab:route:fakeip": false,
+          "mikrocentauri:lab:nat:dns-tcp": false,
+          "mikrocentauri:lab:nat:dns-udp": false,
+          "mikrocentauri:lab:nat:dynamic-jump": false
+        },
+        "lease": [
+          {
+            ".id": "*A",
+            "address": "192.168.88.0/24",
+            "comment": "mikrocentauri:lab:lease:up",
+            "creation-time": "2026-10-05 22:23:47",
+            "disabled": "false",
+            "dynamic": "true",
+            "list": "mc-lab-up-lease",
+            "timeout": "5s"
+          }
+        ]
+      },
+      "status": {
+        "admission": {
+          "admitted": true,
+          "reason": "admitted",
+          "epoch": 4,
+          "bindings": [
+            {
+              "domain": "selected.test",
+              "alias": "198.19.0.2"
+            },
+            {
+              "domain": "second.test",
+              "alias": "198.19.0.3"
+            },
+            {
+              "domain": "third.test",
+              "alias": "198.19.0.4"
+            },
+            {
+              "domain": "fourth.test",
+              "alias": "198.19.0.5"
+            },
+            {
+              "domain": "fifth.test",
+              "alias": "198.19.0.6"
+            }
+          ]
+        },
+        "namespace": {
+          "revision": 7,
+          "known": [
+            "selected.test",
+            "second.test",
+            "third.test",
+            "fourth.test",
+            "fifth.test"
+          ],
+          "active": [
+            "selected.test",
+            "fourth.test",
+            "fifth.test"
+          ]
+        },
+        "process": {
+          "Live": true,
+          "Ready": true,
+          "PID": 41,
+          "Revision": "eba8a24a89d010e1df68c8df002a7d87e831998b5868a4768ff40650552df7b5",
+          "State": "ready",
+          "Restarts": 0,
+          "LastError": ""
+        },
+        "ready": true
+      }
+    },
+    "cached_recovered": {
+      "selected.test": {
+        "expected_peer": "10.77.0.10",
+        "http_foreign_host": {
+          "request_id": 67,
+          "resolved_ipv4": "198.19.0.2",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 22
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.10"
+          },
+          "remote_ip": "10.77.0.10",
+          "elapsed_ms": 46
+        },
+        "udp": {
+          "request_id": 68,
+          "resolved_ipv4": "198.19.0.2",
+          "payload": "phase8-7-selected.test-33",
+          "elapsed_ms": 14,
+          "capture_marker": "phase8-7-selected.test-33"
+        }
+      },
+      "second.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 69,
+          "resolved_ipv4": "198.19.0.3",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 16
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 31
+        },
+        "udp": {
+          "request_id": 70,
+          "resolved_ipv4": "198.19.0.3",
+          "payload": "phase8-7-second.test-34",
+          "elapsed_ms": 6,
+          "capture_marker": "phase8-7-second.test-34"
+        }
+      },
+      "third.test": {
+        "expected_peer": "10.77.0.1",
+        "http_foreign_host": {
+          "request_id": 71,
+          "resolved_ipv4": "198.19.0.4",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.1"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+          "proxy_seen_ip": "10.77.0.1",
+          "elapsed_ms": 11
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.1"
+          },
+          "remote_ip": "10.77.0.1",
+          "elapsed_ms": 30
+        },
+        "udp": {
+          "request_id": 72,
+          "resolved_ipv4": "198.19.0.4",
+          "payload": "phase8-7-third.test-35",
+          "elapsed_ms": 6,
+          "capture_marker": "phase8-7-third.test-35"
+        }
+      },
+      "fourth.test": {
+        "expected_peer": "10.77.0.10",
+        "http_foreign_host": {
+          "request_id": 73,
+          "resolved_ipv4": "198.19.0.5",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 14
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.10"
+          },
+          "remote_ip": "10.77.0.10",
+          "elapsed_ms": 34
+        },
+        "udp": {
+          "request_id": 74,
+          "resolved_ipv4": "198.19.0.5",
+          "payload": "phase8-7-fourth.test-36",
+          "elapsed_ms": 9,
+          "capture_marker": "phase8-7-fourth.test-36"
+        }
+      },
+      "fifth.test": {
+        "expected_peer": "10.77.0.10",
+        "http_foreign_host": {
+          "request_id": 75,
+          "resolved_ipv4": "198.19.0.6",
+          "target": {
+            "local_ip": "10.77.0.20",
+            "path": "/phase6-bound-domain",
+            "remote_ip": "10.77.0.10"
+          },
+          "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+          "proxy_seen_ip": "10.77.0.10",
+          "elapsed_ms": 13
+        },
+        "http3_foreign_sni": {
+          "protocol": "HTTP/3.0",
+          "target": {
+            "path": "/quic",
+            "protocol": "HTTP/3.0",
+            "remote_ip": "10.77.0.10"
+          },
+          "remote_ip": "10.77.0.10",
+          "elapsed_ms": 79
+        },
+        "udp": {
+          "request_id": 76,
+          "resolved_ipv4": "198.19.0.6",
+          "payload": "phase8-7-fifth.test-37",
+          "elapsed_ms": 19,
+          "capture_marker": "phase8-7-fifth.test-37"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "core_stopped": true,
+  "observer_disabled": true,
+  "native_down": {
+    "observed_ms_from_poll": 1317,
+    "flags": {
+      "mikrocentauri:lab:route:fakeip": false,
+      "mikrocentauri:lab:nat:dns-tcp": false,
+      "mikrocentauri:lab:nat:dns-udp": false,
+      "mikrocentauri:lab:nat:dynamic-jump": false
+    },
+    "lease": []
+  },
+  "existing_objects_differences": {
+    "ip/route": [],
+    "ip/firewall/nat": [],
+    "ip/firewall/mangle": [],
+    "ip/service": [],
+    "system/scheduler": [],
+    "certificate": []
+  },
+  "dns_fixture_restored": {
+    "target": "10.77.0.20",
+    "ttl": 5,
+    "fail": false
+  },
+  "namespace": {
+    "revision": 17,
+    "known": [
+      "selected.test",
+      "second.test",
+      "third.test",
+      "fourth.test",
+      "fifth.test",
+      "sixth.test"
+    ],
+    "active": [
+      "selected.test",
+      "fourth.test",
+      "fifth.test",
+      "sixth.test"
+    ]
+  },
+  "all_legacy_containers_stopped": true,
+  "volatile_readback_note": "Connected route row IDs changed across lab reboot; transient service connection rows are excluded from static-object comparison."
+}

@@ -110,11 +110,12 @@ and production runtime/installation integration remain open. See the
 [Phase-3 publication](docs/reports/phase-3-publication.md),
 [Phase-2 comparison](docs/reports/phase-2-resilience.md),
 [publication ADR](docs/adr/0011-dynamic-dns-publication.md) and [lab guide](docs/lab.md).
-Next gates are core subscription/group/rule/supervisor lifecycle and wider boot/device coverage;
+The [core phase is complete on the pinned profile](docs/reports/product-phase-3-core-completion.md).
+Next gates are production Backend/API and wider boot/device coverage;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
-No full subscription/group/rule manager, supervisor/LKG lifecycle, auth API, UI or
-release image yet. Full frontend work starts only after dataplane acceptance.
+The core now provides subscription/group/rule management and supervisor/LKG
+lifecycle. Production authentication/API, UI and release images remain open.
 Production packaging is a placeholder, not an installation-ready App.
 
 replaces its temporary name. Source is independently written under MIT; sing-box

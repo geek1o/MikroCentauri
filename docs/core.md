@@ -2,9 +2,9 @@
 
 The product core uses schema v2, separate from the v1 bounded CHR laboratory
 configuration. This block adds endpoint import, subscription persistence, group
-and rule generation, and a reusable child supervisor. Product Phase 3 remains
-in progress until the generalized runtime is connected to namespace admission
-and the complete rule/endpoint requirements are accepted.
+and rule generation, and a reusable child supervisor. Product Phase 3 is
+[accepted on the pinned CHR profile](reports/product-phase-3-core-completion.md),
+including coordinated namespace admission and native recovery.
 
 ## Private CLI
 
@@ -130,13 +130,13 @@ and perform real readiness checks. `/live` and `/ready` HTTP integration remains
 part of the backend work; the supervisor exposes separate process and readiness
 state to that integration.
 
-## Remaining Phase 3 work
+## Accepted core and subsequent work
 
-Accept the generalized bridge and platform Barrier on native CHR, including
-coordinated namespace retirement/addition, process replacement and crash recovery.
-Complete acceptance of private startup and retained immutable rule-set recovery.
-Host process/schema checks do not substitute for this RouterOS forwarding proof.
-Modern [WireGuard endpoints](https://sing-box.sagernet.org/configuration/endpoint/wireguard/),
-ordered rule metadata, service lists and verified remote rule-set imports are now
-implemented. Native RouterOS WireGuard remains a future adapter. Backend/API and
-its authenticated health endpoints belong to Phase4.
+The generalized transition owner and platform barriers passed native CHR
+retirement/reactivation, retained aliases, child replacement, damaged backend
+recovery and both namespace crash windows. Private startup permissions and the
+actual runtime binary were checked offline; immutable SRS recovery after refresh
+also passed fault tests. See [the acceptance report](reports/product-phase-3-core-completion.md)
+for the bounded forwarding evidence and explicit limits. Native RouterOS
+WireGuard provisioning remains a future adapter. The next product phase is
+Backend/API with production authentication, OpenAPI, diagnostics and backup.

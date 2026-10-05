@@ -39,3 +39,6 @@ modern WireGuard and broader protocol runtime coverage remain Phase3 work.
 See [the adapter contract](../../internal/coreactivation/README.md),
 [health contract](../../internal/grouphealth/README.md) and
 [ADR0019](../adr/0019-supervised-core-admission-and-group-health.md).
+
+This intermediate report is superseded by [product Phase 3 completion](product-phase-3-core-completion.md)
+for current acceptance status; its earlier open items describe that block only.

@@ -42,3 +42,6 @@ substitute for RouterOS activation proof.
 Reproduce with `make check cross-build`. Tests that need the actual binary use
 `SING_BOX_BINARY`, supplied by the Makefile. See [the core guide](../core.md)
 for private CLI usage and the remaining Phase3 acceptance work.
+
+This intermediate report is superseded by [product Phase 3 completion](product-phase-3-core-completion.md)
+for current acceptance status; its earlier open items describe that block only.
