@@ -1,0 +1,23 @@
+{
+  "owned_apps_disabled": 28,
+  "qemu_quit_requested": true,
+  "clone_disks_preserved": true,
+  "shared_original_lab_modified": false,
+  "servers_stopped": [
+    18526,
+    18527,
+    18528
+  ],
+  "app_cleanup_used": false,
+  "verified_closed_ports": [
+    18326,
+    18426,
+    22326,
+    18526,
+    18527,
+    18528,
+    18529,
+    18530
+  ],
+  "vm_shutdown_confirmed": true
+}

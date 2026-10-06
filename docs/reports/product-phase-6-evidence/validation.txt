@@ -1,0 +1,8 @@
+make check cross-build: PASS
+Go CLI race tests and vet after final launcher: PASS
+Packaging regressions: 5 PASS
+OCI graph, ELF architecture, archive and no private layer data: PASS amd64/arm64
+Repeated full image build: identical multi-platform index
+Native CHR7.24.5 App extraction/health/secrets metadata/volume stop-start: PASS
+Actual app-run API-only and strict TLS1.3 app-health after stop/start: PASS
+Not accepted: full product installation, native App packet path, image upgrade/rollback, physical arm64

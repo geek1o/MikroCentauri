@@ -9,6 +9,7 @@ test:
 	SING_BOX_BINARY="$(SING_BOX)" $(GO) test -race ./...
 	$(GO) vet ./...
 	python3 tests/integration/lab_switch.py
+	python3 tests/integration/app_image.py
 smoke:
 	python3 tests/integration/namespace_policy.py --sing-box "$(SING_BOX)"
 	python3 tests/integration/binding_policy.py --sing-box "$(SING_BOX)"
@@ -40,3 +41,9 @@ webui-check:
 	python3 scripts/build-webui.py --check
 webui-test:
 	SING_BOX_BINARY="$(SING_BOX)" python3 scripts/test-webui.py
+
+.PHONY: app-image app-image-check
+app-image:
+	python3 scripts/build-app-image.py --go "$(GO)"
+app-image-check:
+	python3 scripts/verify-app-image.py

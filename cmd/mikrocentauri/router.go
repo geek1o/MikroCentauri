@@ -53,8 +53,8 @@ func readRouterFile(path string, limit int64, private bool) ([]byte, error) {
 	}
 	defer f.Close()
 	st, err := f.Stat()
-	if err != nil || !st.Mode().IsRegular() || st.Size() > limit || (private && st.Mode().Perm() != 0600) {
-		return nil, errors.New("input must be a bounded regular file; private files require0600")
+	if err != nil || !st.Mode().IsRegular() || st.Size() > limit || (private && st.Mode().Perm() != 0600 && st.Mode().Perm() != 0400) {
+		return nil, errors.New("input must be a bounded regular file; private files require owner-only0400 or0600")
 	}
 	data, err := io.ReadAll(io.LimitReader(f, limit+1))
 	if err != nil || int64(len(data)) > limit {

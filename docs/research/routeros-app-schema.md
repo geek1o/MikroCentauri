@@ -4,6 +4,11 @@ Research date: 2026-10-04. **CONFIRMED** from [Apps manual](https://manual.mikro
 
 Custom apps are available since **7.22** and require the `container` package plus device-mode enablement. The YAML resembles Compose but is a RouterOS-specific schema; Docker Compose validation is not RouterOS validation. Do not ship an invented generic `routeros:` section or assume arbitrary Compose properties are supported.
 
+This is the original research snapshot. Native 7.24.5 import and generated-container
+observations supersede its untested statements: [Phase 6 investigation](product-phase-6-app-import.md).
+Current manual version 7.26 is not identical to the pinned target; admitting unknown
+fields does not establish privilege support.
+
 ## Documented fields
 
 | Level | Fields |

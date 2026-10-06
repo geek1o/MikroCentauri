@@ -1,7 +1,7 @@
 # MikroCentauri
 
 RouterOS-native selective routing application. **Product Phases 2–4 are accepted on the pinned
-CHR profile; Phase 5 Web UI is complete for that backend. Next is Phase 6 RouterOS App.** RouterOS remains the main router;
+CHR profile; Phase 5 Web UI is complete for that backend. Phase 6 RouterOS App packaging is in progress.** RouterOS remains the main router;
 sing-box supplies the selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent

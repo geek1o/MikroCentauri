@@ -1,0 +1,148 @@
+{
+  "routeros": "7.24.5 (stable)",
+  "board": "CHR QEMU Standard PC (i440FX + PIIX, 1996)",
+  "scope": "disabled YAML admission only; no image pull or runtime proof",
+  "probes": {
+    "baseline": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "privileged": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "cap_add": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "unknown_field": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "devices": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "net/tun:none:default:/dev/net/tun",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "healthcheck": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    },
+    "secrets": {
+      "http_status": 201,
+      "projection": {
+        "disabled": "true",
+        "running": "false",
+        "devices": "",
+        "required-hw-devices": "",
+        "required-mounts": "state",
+        "firewall-redirects": "9443:8443:tcp:api-secure",
+        "default-network": "internal"
+      }
+    }
+  },
+  "interpretation": "Unknown fields also accepted: admission does not prove privileged/cap_add translation or healthcheck/secrets execution.",
+  "cleanup": {
+    "disabled_probe_records_removed": 7,
+    "app_cleanup_used": false
+  },
+  "runtime": {
+    "scope": "generated-container fixture; not production installation readiness",
+    "manifest_digest": "sha256:4809dfd1bd991c86f9b55c355b9fbb9d220170663d1dcebd1a8fd2daa951fd27",
+    "containers": {
+      "baseline": {
+        "privileged": "false",
+        "restart-policy": "no",
+        "default-entrypoint": "/usr/bin/mikrocentauri app-run -config /data/bootstrap/app.json",
+        "image-id": "709b832e02086f37845e7b02f3c4d1e8586747c0bb07c4c43d9941690bc661eb",
+        "stopped": "true",
+        "check-certificate": "true",
+        "startup_failure": "invalid private app settings"
+      },
+      "privileged": {
+        "privileged": "false",
+        "restart-policy": "no",
+        "default-entrypoint": "/usr/bin/mikrocentauri app-run -config /data/bootstrap/app.json",
+        "image-id": "709b832e02086f37845e7b02f3c4d1e8586747c0bb07c4c43d9941690bc661eb",
+        "stopped": "true",
+        "check-certificate": "true"
+      },
+      "cap_add": {
+        "privileged": "false",
+        "restart-policy": "no",
+        "default-entrypoint": "/usr/bin/mikrocentauri app-run -config /data/bootstrap/app.json",
+        "image-id": "709b832e02086f37845e7b02f3c4d1e8586747c0bb07c4c43d9941690bc661eb",
+        "stopped": "true",
+        "check-certificate": "true"
+      }
+    },
+    "files": {
+      "secret_metadata": "444:0:0:32",
+      "first_marker_state": "created",
+      "marker_after_stop_start": "existing",
+      "healthcheck_status": "good",
+      "secret_value_read_or_reported": false
+    },
+    "api_only": {
+      "production_app_run_started": true,
+      "strict_tls13_app_health_passed": true,
+      "healthy_after_stop_start": true,
+      "runtime_profile_supplied": false,
+      "packet_steering_tested": false,
+      "management_exposure": "container loopback only",
+      "fixtures": "synthetic private bootstrap inputs; no user credentials"
+    },
+    "cleanup": {
+      "apps_disabled": 5,
+      "data_retained": true,
+      "app_cleanup_used": false
+    }
+  }
+}

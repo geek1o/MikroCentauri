@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "alpine_version": "3.24.2",
+  "sing_box_version": "1.14.2",
+  "sources": {
+    "alpine_checksums": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/ARCH/latest-releases.yaml",
+    "sing_box_checksums": "https://api.github.com/repos/SagerNet/sing-box/releases/tags/v1.14.2"
+  },
+  "platforms": {
+    "amd64": {
+      "rootfs": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-minirootfs-3.24.2-x86_64.tar.gz",
+        "sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-amd64-musl.tar.gz",
+        "sha256": "8f6cb4bcf94d2b33c65d52e0d5b142db29a938336f1ff7267f397ac3758fc297"
+      }
+    },
+    "arm64": {
+      "rootfs": {
+        "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-minirootfs-3.24.2-aarch64.tar.gz",
+        "sha256": "9bf70a7f18ea44094cbb5f70c58f9af129c8214745743db0e68e5502cc2ce773"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-arm64-musl.tar.gz",
+        "sha256": "675297394f9430cebb72b3c48ba8bce0d6f7c750a9d68a8f7f88c515c8255cd1"
+      }
+    }
+  },
+  "license": {
+    "url": "https://raw.githubusercontent.com/SagerNet/sing-box/v1.14.2/LICENSE",
+    "sha256": "650d5e3b99a446fb38e820fa87a49562e0c79eab868fff58618ac487a58e554c"
+  }
+}
