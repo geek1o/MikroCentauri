@@ -123,3 +123,7 @@ binary distribution has separate GPL/source obligations in [notices](THIRD_PARTY
 Development is recorded in local Git and published to the private
 [MicroCentauri repository](https://github.com/geek1o/MikroCentauri).
 The product name remains MikroCentauri.
+
+The [authenticated API foundation](docs/api/README.md) starts product Phase 4;
+its standalone service supports private configuration work and reports readiness
+false until connected to the production runtime.

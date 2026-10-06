@@ -1,0 +1,1566 @@
+{
+  "components": {
+    "schemas": {
+      "CoreModel": {
+        "additionalProperties": false,
+        "properties": {
+          "default_outbound": {
+            "type": "string"
+          },
+          "dns": {
+            "additionalProperties": false,
+            "properties": {
+              "bootstrap": {
+                "type": "string"
+              },
+              "cache_path": {
+                "type": "string"
+              },
+              "fakeip_range": {
+                "type": "string"
+              },
+              "selected_domains": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "selected_suffixes": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "bootstrap",
+              "fakeip_range",
+              "cache_path"
+            ],
+            "type": "object"
+          },
+          "endpoints": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "fingerprint": {
+                  "type": "string"
+                },
+                "flow": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "method": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "port": {
+                  "type": "integer"
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "reality_key": {
+                  "type": "string"
+                },
+                "reality_short_id": {
+                  "type": "string"
+                },
+                "server": {
+                  "type": "string"
+                },
+                "sni": {
+                  "type": "string"
+                },
+                "tls": {
+                  "type": "boolean"
+                },
+                "uuid": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "enabled",
+                "id",
+                "name",
+                "protocol",
+                "server",
+                "port",
+                "tls"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "groups": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "interval": {
+                  "type": "string"
+                },
+                "members": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "selected": {
+                  "type": "string"
+                },
+                "tolerance": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "members"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "instance": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "rule_sets": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "format": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "format"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "rules": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "destination_cidrs": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "domains": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "network": {
+                  "type": "string"
+                },
+                "outbound": {
+                  "type": "string"
+                },
+                "ports": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "priority": {
+                  "type": "integer"
+                },
+                "rule_sets": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "services": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "source_cidrs": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "suffixes": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "outbound"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "schema_version": {
+            "type": "integer"
+          },
+          "services": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "networks": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "ports": {
+                  "items": {
+                    "type": "integer"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "ports",
+                "networks"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "source_direct": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "source_proxy": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "cidrs": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "outbound": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cidrs",
+                "outbound"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "wireguard": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "address": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "listen_port": {
+                  "type": "integer"
+                },
+                "mtu": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "peers": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "address": {
+                        "type": "string"
+                      },
+                      "allowed_ips": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "persistent_keepalive_interval": {
+                        "type": "integer"
+                      },
+                      "port": {
+                        "type": "integer"
+                      },
+                      "pre_shared_key": {
+                        "type": "string"
+                      },
+                      "public_key": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "public_key",
+                      "allowed_ips"
+                    ],
+                    "type": "object"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "private_key": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "enabled",
+                "address",
+                "private_key",
+                "peers"
+              ],
+              "type": "object"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "schema_version",
+          "instance",
+          "mode",
+          "endpoints",
+          "groups",
+          "rules",
+          "default_outbound",
+          "dns"
+        ],
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "session": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "TLS, exact origin, client CIDR policy and expiring opaque bearer sessions. No cookies. Disconnected RouterOS/subscription adapters return 501; standalone apply returns 503.",
+    "title": "MikroCentauri API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "post_auth_login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "password": {
+                    "maxLength": 1024,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "post_auth_logout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/backup": {
+      "get": {
+        "operationId": "get_backup",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/backup/restore-preview": {
+      "post": {
+        "operationId": "post_backup_restore-preview",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "default_outbound": {
+                    "type": "string"
+                  },
+                  "dns": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "bootstrap": {
+                        "type": "string"
+                      },
+                      "cache_path": {
+                        "type": "string"
+                      },
+                      "fakeip_range": {
+                        "type": "string"
+                      },
+                      "selected_domains": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "selected_suffixes": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "bootstrap",
+                      "fakeip_range",
+                      "cache_path"
+                    ],
+                    "type": "object"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "endpoints": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "Fingerprint": {
+                              "type": "string"
+                            },
+                            "ID": {
+                              "type": "string"
+                            },
+                            "Name": {
+                              "type": "string"
+                            },
+                            "Port": {
+                              "type": "integer"
+                            },
+                            "Protocol": {
+                              "type": "string"
+                            },
+                            "Reality": {
+                              "type": "boolean"
+                            },
+                            "SNI": {
+                              "type": "string"
+                            },
+                            "Server": {
+                              "type": "string"
+                            },
+                            "TLS": {
+                              "type": "boolean"
+                            },
+                            "Transport": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "ID",
+                            "Name",
+                            "Protocol",
+                            "Server",
+                            "Transport",
+                            "SNI",
+                            "Fingerprint",
+                            "Port",
+                            "TLS",
+                            "Reality"
+                          ],
+                          "type": "object"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "groups": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "interval": {
+                              "type": "string"
+                            },
+                            "members": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "selected": {
+                              "type": "string"
+                            },
+                            "tolerance": {
+                              "type": "integer"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "type",
+                            "members"
+                          ],
+                          "type": "object"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "instance": {
+                        "type": "string"
+                      },
+                      "mode": {
+                        "type": "string"
+                      },
+                      "rule_count": {
+                        "type": "integer"
+                      },
+                      "wireguard": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "address": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "listen_port": {
+                              "type": "integer"
+                            },
+                            "mtu": {
+                              "type": "integer"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "peer_count": {
+                              "type": "integer"
+                            },
+                            "protocol": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "protocol",
+                            "enabled",
+                            "address",
+                            "listen_port",
+                            "mtu",
+                            "peer_count"
+                          ],
+                          "type": "object"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "instance",
+                      "mode",
+                      "endpoints",
+                      "wireguard",
+                      "groups",
+                      "rule_count"
+                    ],
+                    "type": "object"
+                  },
+                  "rules": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "destination_cidrs": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "domains": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "network": {
+                          "type": "string"
+                        },
+                        "outbound": {
+                          "type": "string"
+                        },
+                        "ports": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "priority": {
+                          "type": "integer"
+                        },
+                        "rule_sets": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "services": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "source_cidrs": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "suffixes": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "outbound"
+                      ],
+                      "type": "object"
+                    },
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  },
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "services": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "networks": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "ports": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "ports",
+                        "networks"
+                      ],
+                      "type": "object"
+                    },
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  },
+                  "source_direct": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  },
+                  "source_proxy": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "cidrs": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "outbound": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "cidrs",
+                        "outbound"
+                      ],
+                      "type": "object"
+                    },
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "schema",
+                  "format",
+                  "model",
+                  "rules",
+                  "services",
+                  "dns",
+                  "source_direct",
+                  "source_proxy",
+                  "default_outbound"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/config": {
+      "get": {
+        "operationId": "get_config",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/config/apply": {
+      "post": {
+        "operationId": "post_config_apply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "plan_id": {
+                    "maxLength": 64,
+                    "minLength": 64,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "plan_id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/config/draft": {
+      "get": {
+        "operationId": "get_config_draft",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_config_draft",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoreModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/config/plan": {
+      "post": {
+        "operationId": "post_config_plan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "draft_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "draft_revision"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/config/validate": {
+      "post": {
+        "operationId": "post_config_validate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "draft_revision": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "draft_revision"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/devices": {
+      "get": {
+        "operationId": "get_devices",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/diagnostics": {
+      "get": {
+        "operationId": "get_diagnostics",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/dns": {
+      "get": {
+        "operationId": "get_dns",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/groups": {
+      "get": {
+        "operationId": "get_groups",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/health/live": {
+      "get": {
+        "operationId": "get_health_live",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "operationId": "get_health_ready",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/logs": {
+      "get": {
+        "operationId": "get_logs",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "operationId": "get_openapi_json",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/proxies": {
+      "get": {
+        "operationId": "get_proxies",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/routeros": {
+      "get": {
+        "operationId": "get_routeros",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "501": {
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/rules": {
+      "get": {
+        "operationId": "get_rules",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/subscriptions": {
+      "get": {
+        "operationId": "get_subscriptions",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "501": {
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/system": {
+      "get": {
+        "operationId": "get_system",
+        "responses": {
+          "200": {
+            "description": "Redacted resource"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    }
+  }
+}

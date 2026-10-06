@@ -11,7 +11,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
 | 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
 | 3 | sing-box Core | Complete for pinned sing-box 1.14.2 / CHR 7.24.5 x86_64: imports/subscription LKG, groups/health/fallback, ordered rules/services/verified SRS, modern WireGuard, DNS/FakeIP, validator/supervisor and coordinated native activation/recovery; broader device/release acceptance remains in later phases |
-| 4 | Backend/API | Production API, OpenAPI, authentication and backup remain open |
+| 4 | Backend/API | In progress: TLS/authenticated v1 foundation, generated OpenAPI, durable drafts, validated single-use plans, core-owner adapter, safe core export/restore preview; production runtime/resource adapters and application-wide backup remain open |
 | 5 | Web UI | Not started |
 | 6 | RouterOS App | Lab image builders and manifest draft exist; installable application remains open |
 | 7 | Hardening | Selected failure, boot, source-policy and FastTrack experiments exist; complete security/device acceptance remains open |
@@ -48,3 +48,6 @@ The next block connects supervised admission and real endpoint observations:
 
 The completed core checklist, native lifecycle results and packet witnesses are in
 [product Phase 3 acceptance](../reports/product-phase-3-core-completion.md).
+
+The first authenticated backend block is documented in
+[Phase 4 API foundation](../reports/product-phase-4-api-foundation.md).
