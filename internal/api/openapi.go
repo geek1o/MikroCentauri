@@ -2,18 +2,29 @@ package api
 
 import (
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/subscriptions"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // OpenAPI is generated from route declarations and the actual model JSON types.
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
-	reads := []string{"system", "routeros", "proxies", "subscriptions", "groups", "rules", "devices", "dns", "diagnostics", "config", "config/draft", "health/live", "health/ready", "logs", "backup", "openapi.json"}
+	reads := []string{"system", "routeros", "proxies", "subscriptions", "groups", "rules", "devices", "dns", "diagnostics", "diagnostics/bundle", "config", "config/draft", "health/live", "health/ready", "logs", "backup", "openapi.json"}
 	for _, path := range reads {
 		responses := map[string]any{"200": map[string]any{"description": "Redacted resource"}, "401": map[string]any{"description": "Authentication required"}, "503": map[string]any{"description": "Not ready or unavailable"}}
 		if path == "routeros" || path == "subscriptions" {
 			responses["501"] = map[string]any{"description": "Adapter not connected"}
+		}
+		if path == "diagnostics/bundle" {
+			responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
+		}
+		if path == "routeros" {
+			responses["200"] = map[string]any{"description": "Read-only capabilities and owned counts", "content": map[string]any{"application/json": map[string]any{"schema": schema(reflect.TypeFor[RouterSnapshot]())}}}
+		}
+		if path == "subscriptions" {
+			responses["200"] = map[string]any{"description": "Redacted configured providers", "content": map[string]any{"application/json": map[string]any{"schema": schema(reflect.TypeFor[[]SubscriptionView]())}}}
 		}
 		op := map[string]any{"operationId": "get_" + strings.ReplaceAll(strings.ReplaceAll(path, "/", "_"), ".", "_"), "responses": responses, "security": []any{map[string]any{"session": []any{}}}}
 		if path == "health/live" {
@@ -22,10 +33,14 @@ func OpenAPI() map[string]any {
 		paths["/api/v1/"+path] = map[string]any{"get": op}
 	}
 	objects := map[string]any{
-		"auth/login":      map[string]any{"type": "object", "required": []string{"password"}, "additionalProperties": false, "properties": map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}},
-		"auth/logout":     map[string]any{"type": "object"},
-		"config/draft":    map[string]any{"$ref": "#/components/schemas/CoreModel"},
-		"config/validate": revisionSchema(), "config/plan": revisionSchema(),
+		"auth/login":            map[string]any{"type": "object", "required": []string{"password"}, "additionalProperties": false, "properties": map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}},
+		"auth/logout":           map[string]any{"type": "object"},
+		"system/recover":        map[string]any{"type": "object", "additionalProperties": false},
+		"subscriptions":         schema(reflect.TypeFor[subscriptions.Spec]()),
+		"subscriptions/inspect": map[string]any{"type": "object", "required": []string{"id", "offset", "limit"}, "additionalProperties": false, "properties": map[string]any{"id": map[string]any{"type": "string"}, "offset": map[string]any{"type": "integer", "minimum": 0}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 128}}},
+		"subscriptions/refresh": map[string]any{"type": "object", "required": []string{"id"}, "additionalProperties": false, "properties": map[string]any{"id": map[string]any{"type": "string", "pattern": "^[a-zA-Z0-9_-]{1,64}$"}}},
+		"config/draft":          map[string]any{"$ref": "#/components/schemas/CoreModel"},
+		"config/validate":       revisionSchema(), "config/plan": revisionSchema(),
 		"config/apply":           map[string]any{"type": "object", "required": []string{"plan_id"}, "additionalProperties": false, "properties": map[string]any{"plan_id": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}}},
 		"backup/restore-preview": schema(reflect.TypeFor[SafeExport]()),
 	}
@@ -48,6 +63,9 @@ func revisionSchema() map[string]any {
 	return map[string]any{"type": "object", "required": []string{"draft_revision"}, "additionalProperties": false, "properties": map[string]any{"draft_revision": map[string]any{"type": "integer", "minimum": 1}}}
 }
 func schema(t reflect.Type) map[string]any {
+	if t == reflect.TypeFor[time.Time]() {
+		return map[string]any{"type": "string", "format": "date-time"}
+	}
 	if t.Kind() == reflect.Pointer {
 		return schema(t.Elem())
 	}
@@ -71,6 +89,8 @@ func schema(t reflect.Type) map[string]any {
 			}
 		}
 		return map[string]any{"type": "object", "properties": p, "required": required, "additionalProperties": false}
+	case reflect.Map:
+		return map[string]any{"type": "object", "additionalProperties": schema(t.Elem())}
 	case reflect.Slice:
 		return map[string]any{"type": []string{"array", "null"}, "items": schema(t.Elem())}
 	case reflect.Bool:

@@ -20,17 +20,21 @@ import (
 	"time"
 
 	"mikrocentauri.local/core/internal/config"
+	"mikrocentauri.local/core/internal/coreactivation"
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/subscriptions"
 )
 
 type Options struct {
-	Directory string
-	Auth      *Auth
-	Model     coreconfig.Model
-	Runtime   Runtime
-	Validate  func(context.Context, coreconfig.Model) error
-	Origin    string
-	Clients   []netip.Prefix
+	Directory     string
+	Auth          *Auth
+	Model         coreconfig.Model
+	Runtime       Runtime
+	Router        *RouterResources
+	Subscriptions *SubscriptionResources
+	Validate      func(context.Context, coreconfig.Model) error
+	Origin        string
+	Clients       []netip.Prefix
 }
 type draft struct {
 	Version      int              `json:"version"`
@@ -41,6 +45,7 @@ type draft struct {
 type plan struct {
 	ID                 string
 	Sequence, Revision uint64
+	Fingerprint        string
 	Digest             [32]byte
 	Expires            time.Time
 }
@@ -233,8 +238,38 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		reply(w, 200, OpenAPI())
 		return
 	}
+	if r.URL.Path == "/api/v1/diagnostics/bundle" {
+		s.downloadBundle(w, r)
+		return
+	}
 	if r.URL.Path == "/api/v1/logs" {
 		reply(w, 200, s.events)
+		return
+	}
+	if r.URL.Path == "/api/v1/routeros" {
+		if s.opts.Router == nil {
+			reject(w, 501, "adapter_not_connected")
+			return
+		}
+		snapshot, e := s.opts.Router.Snapshot(r.Context())
+		if e != nil {
+			reject(w, 503, "routeros_unavailable")
+			return
+		}
+		reply(w, 200, snapshot)
+		return
+	}
+	if r.URL.Path == "/api/v1/subscriptions" {
+		if s.opts.Subscriptions == nil {
+			reject(w, 501, "adapter_not_connected")
+			return
+		}
+		result, e := s.opts.Subscriptions.List()
+		if e != nil {
+			reject(w, 503, "subscriptions_unavailable")
+			return
+		}
+		reply(w, 200, result)
 		return
 	}
 	m, e := s.model()
@@ -246,7 +281,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 	case "/api/v1/system":
 		reply(w, 200, map[string]any{"api_version": "v1", "core_schema": 2, "runtime_connected": s.opts.Runtime != nil, "status": v, "ipv6_fakeip": false})
 	case "/api/v1/config":
-		reply(w, 200, map[string]any{"revision": v.Revision, "model": m.Preview()})
+		reply(w, 200, map[string]any{"revision": v.Revision, "model": m.Preview(), "policy": policyPreview(m)})
 	case "/api/v1/proxies":
 		reply(w, 200, map[string]any{"endpoints": m.Preview().Endpoints, "wireguard": m.Preview().WireGuard})
 	case "/api/v1/groups":
@@ -265,10 +300,8 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		if s.draft == nil {
 			reject(w, 404, "draft_absent")
 		} else {
-			reply(w, 200, map[string]any{"draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "model": s.draft.Model.Preview()})
+			reply(w, 200, map[string]any{"draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "model": s.draft.Model.Preview(), "policy": policyPreview(s.draft.Model)})
 		}
-	case "/api/v1/routeros", "/api/v1/subscriptions":
-		reject(w, 501, "adapter_not_connected")
 	default:
 		reject(w, 404, "not_found")
 	}
@@ -313,6 +346,80 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		return
 	}
 	switch r.URL.Path {
+	case "/api/v1/subscriptions":
+		if s.opts.Subscriptions == nil {
+			reject(w, 501, "adapter_not_connected")
+			return
+		}
+		var spec subscriptions.Spec
+		if decode(raw, &spec) != nil || validateSpec(spec) != nil {
+			reject(w, 400, "invalid_subscription")
+			return
+		}
+		if s.opts.Subscriptions.Configure(spec) != nil {
+			reject(w, 503, "subscription_persistence_failed")
+			return
+		}
+		s.event("subscription_configured", id)
+		reply(w, 200, map[string]string{"id": spec.ID})
+	case "/api/v1/subscriptions/inspect":
+		if s.opts.Subscriptions == nil {
+			reject(w, 501, "adapter_not_connected")
+			return
+		}
+		var input struct {
+			ID     string `json:"id"`
+			Offset int    `json:"offset"`
+			Limit  int    `json:"limit"`
+		}
+		if decode(raw, &input) != nil || !subscriptionID.MatchString(input.ID) || input.Offset < 0 || input.Limit < 1 || input.Limit > 128 {
+			reject(w, 400, "invalid_request")
+			return
+		}
+		result, e := s.opts.Subscriptions.Inspect(input.ID, input.Offset, input.Limit)
+		if e != nil {
+			reject(w, 503, "subscription_page_unavailable")
+			return
+		}
+		reply(w, 200, result)
+	case "/api/v1/subscriptions/refresh":
+		if s.opts.Subscriptions == nil {
+			reject(w, 501, "adapter_not_connected")
+			return
+		}
+		var input struct {
+			ID string `json:"id"`
+		}
+		if decode(raw, &input) != nil || !subscriptionID.MatchString(input.ID) {
+			reject(w, 400, "invalid_request")
+			return
+		}
+		result, e := s.opts.Subscriptions.Refresh(r.Context(), input.ID)
+		if e != nil {
+			s.event("subscription_refresh_failed", id)
+			reply(w, 503, map[string]any{"error": "subscription_refresh_failed", "subscription": result})
+			return
+		}
+		s.event("subscription_refreshed", id)
+		reply(w, 200, result)
+	case "/api/v1/system/recover":
+		var input struct{}
+		if decode(raw, &input) != nil {
+			reject(w, 400, "invalid_request")
+			return
+		}
+		host, ok := s.opts.Runtime.(interface{ Recover(context.Context) error })
+		if !ok {
+			reject(w, 503, "runtime_not_connected")
+			return
+		}
+		if host.Recover(r.Context()) != nil {
+			s.event("recovery_failed", id)
+			reject(w, 503, "recovery_failed")
+			return
+		}
+		s.event("recovered", id)
+		reply(w, 200, s.view())
 	case "/api/v1/config/draft":
 		m, e := coreconfig.Decode(raw)
 		if e != nil {
@@ -351,8 +458,20 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			return
 		}
 		b, _ := json.Marshal(s.draft.Model)
-		s.plan = &plan{key, s.draft.Sequence, s.draft.BaseRevision, sha256.Sum256(b), s.now().Add(5 * time.Minute)}
-		reply(w, 200, map[string]any{"plan_id": key, "draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "expires_at": s.plan.Expires, "model": s.draft.Model.Preview(), "apply_available": s.opts.Runtime != nil})
+		fingerprint := ""
+		if runtime, ok := s.opts.Runtime.(PreparedRuntime); ok {
+			var err error
+			fingerprint, err = runtime.CandidateFingerprint(r.Context(), s.draft.BaseRevision, s.draft.Model)
+			if err != nil || len(fingerprint) != 64 {
+				reject(w, 422, "candidate_unavailable")
+				return
+			}
+		} else if s.opts.Runtime != nil && len(s.draft.Model.RuleSets) > 0 {
+			reject(w, 422, "prepared_runtime_required")
+			return
+		}
+		s.plan = &plan{ID: key, Sequence: s.draft.Sequence, Revision: s.draft.BaseRevision, Digest: sha256.Sum256(b), Fingerprint: fingerprint, Expires: s.now().Add(5 * time.Minute)}
+		reply(w, 200, map[string]any{"plan_id": key, "draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "expires_at": s.plan.Expires, "model": s.draft.Model.Preview(), "policy": policyPreview(s.draft.Model), "apply_available": s.opts.Runtime != nil})
 	case "/api/v1/config/apply":
 		var input struct {
 			PlanID string `json:"plan_id"`
@@ -376,7 +495,18 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			return
 		}
 		s.plan = nil
-		if s.opts.Runtime.Apply(r.Context(), p.Revision, s.draft.Model) != nil {
+		var applyErr error
+		if runtime, ok := s.opts.Runtime.(PreparedRuntime); ok {
+			applyErr = runtime.ApplyPrepared(r.Context(), p.Revision, s.draft.Model, p.Fingerprint)
+		} else {
+			applyErr = s.opts.Runtime.Apply(r.Context(), p.Revision, s.draft.Model)
+		}
+		if errors.Is(applyErr, coreactivation.ErrCandidateChanged) {
+			s.event("candidate_changed", id)
+			reject(w, 409, "candidate_changed")
+			return
+		}
+		if applyErr != nil {
 			s.event("apply_failed", id)
 			reject(w, 503, "apply_failed")
 			return

@@ -232,14 +232,17 @@ func (t *Transition) ports(ctx context.Context, m coreconfig.Model) (coreconfig.
 	return ports, nil
 }
 func (t *Transition) save(ctx context.Context, s namespace.Snapshot, m coreconfig.Model) error {
-	if t.poisoned {
-		return errors.New("transition durability unresolved; reopen required")
-	}
 	ports, err := t.ports(ctx, m)
 	if err != nil {
 		return err
 	}
-	if _, err = coreconfig.GenerateForNamespace(m, s, ports); err != nil {
+	return t.saveResolved(ctx, s, m, ports)
+}
+func (t *Transition) saveResolved(ctx context.Context, s namespace.Snapshot, m coreconfig.Model, ports coreconfig.Options) error {
+	if t.poisoned {
+		return errors.New("transition durability unresolved; reopen required")
+	}
+	if _, err := coreconfig.GenerateForNamespace(m, s, ports); err != nil {
 		return err
 	}
 	artifacts, err := t.pinArtifacts(ports.RuleSets)

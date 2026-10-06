@@ -4,9 +4,12 @@ Product Phase 4 is in progress. `internal/api` provides the HTTPS/authenticated
 boundary and an adapter to the accepted core transition owner. Standalone
 `api-serve` intentionally has no forwarding runtime: readiness is false and
 apply returns `503 runtime_not_connected`. It can manage private drafts, run the
-real validator, produce plans and export/preview backups. Production RouterOS
-and subscription resource adapters are the next integration block; their
-routes currently return `501 adapter_not_connected`, never fabricated state.
+real validator, produce plans and export/preview backups. It now creates a
+private subscription registry/cache and exposes configure/refresh/inspection.
+`-router-config` connects read-only RouterOS capabilities and owned-object counts.
+Absent optional RouterOS connections still return `501 adapter_not_connected`.
+A composed application can pass `Host` as the runtime; the standalone CLI does
+not construct a native forwarding profile and therefore still cannot apply.
 
 ## Start locally
 
@@ -52,10 +55,14 @@ fsync outcomes. Sessions and plans are not persisted.
 1. POST `/api/v1/config/draft` with a complete schema-v2 model. Schema validation
    and private durable save do not activate the core. GET responses show projections.
 2. POST `/config/validate` or `/config/plan` with `{"draft_revision":N}`. Validation
-   calls the real pinned sing-box validator. With `CoreRuntime`, it also previews
+   calls the real pinned sing-box validator. With the connected core owner, it also previews
    the finite namespace without reserving a revision or stopping the active child.
 3. Plan returns a random `plan_id`, base revision, candidate preview and a
    five-minute expiry. It binds the exact immutable draft/model digest and revision.
+   A prepared runtime additionally binds the generated candidate, including
+   resolved SRS artifact paths/hashes. Apply compares and pins that one artifact
+   resolution under the core owner lock; changed sources return 409
+   `candidate_changed` before quarantine or namespace reservation.
 4. POST `/config/apply` with `{"plan_id":"..."}`. A connected runtime delegates
    solely to `Transition.Apply`; draft changes, namespace drift, pending recovery,
    expiry and replay fail. A plan is consumed before an actual apply attempt.
@@ -89,4 +96,66 @@ codes are stable and contain no user input or private dependency messages.
 [OpenAPI](openapi.json) is generated from the route declarations and actual model
 JSON field types. It includes bearer security, request schemas and disconnected
 adapter error statuses. It is an initial contract; comprehensive typed resource
-responses and RouterOS/subscription mutation schemas remain in Phase 4.
+responses, unified RouterOS mutations and remaining provider-management schemas
+remain in Phase 4.
+
+## Runtime host and resource adapters
+
+`NewHost(HostOptions)` accepts an existing `*coreactivation.Transition`, the
+publisher's `Reconcile` and a fresh active-process canary `Check`. It implements
+`Runtime`/`PreparedRuntime`; pass it in `api.Options.Runtime`. These are trusted
+composition inputs, never supplied by HTTP request JSON. Bind DNS and the
+separate private `host.ReadinessHandler()` before `host.Run(ctx)`. The native
+observer must consume this boolean endpoint, not the authenticated admin route.
+
+Run first holds the core, attempts durable recovery and periodically verifies
+ledger mappings, core admission and the active canary. Readiness is false until
+all proofs succeed; failures stop/hold the core under a fresh cleanup context.
+Subsequent ticks recover the retained intent forward. Cancellation withdraws
+readiness, cancels work and closes the owner once; Run waits for concurrent
+shutdown. POST `/system/recover` provides authenticated explicit recovery.
+One host owns the lifecycle; do not run the old lab loop or another supervisor
+alongside it. Host tests use a deterministic CoreOwner; new native deployment
+acceptance is not claimed by those tests.
+
+The available mapping backend is still a lab-specific chain/lease profile.
+A deployment factory must supply an accepted native mapping/placement/boot
+profile; this block does not silently reuse `NewLabLeaseMappingBackend` as a
+production backend. CLI-native runtime composition and that profile acceptance
+remain open, as do unified RouterOS/core plans and application-wide restore.
+
+GET `/routeros` uses verified HTTPS discovery and returns capabilities plus owned
+counts/disabled counts by resource. No raw object fields, script bodies, router
+password or connection URL are exposed. Capability availability does not prove
+write permission, placement, TUN or native readiness. Add `-router-config` with
+the existing private connection schema documented in the controller guide.
+The endpoint performs GET only; RouterOS mutations stay behind controller plans.
+
+POST `/subscriptions` accepts a private `{id,url,include?,exclude?}` specification
+with HTTPS required. Saving does not download or change the active model. POST
+`/subscriptions/refresh` with `{id}` invokes the existing bounded downloader.
+The default denies private/special addresses, pins validated resolved addresses,
+disables environment proxies, repeats checks across redirects and verifies TLS.
+An operator can supply a separate trusted root pool through the Go library;
+the pool is cloned and TLS verification remains enabled. The HTTP API and CLI
+do not expose private-address or insecure-TLS overrides.
+
+A failed refresh reports a fixed error plus redacted prior LKG status/nodes;
+it never replaces a working core model. URL and node credentials remain private.
+Registry ownership is locked, specifications are atomic 0600 files, at most
+64 providers are accepted. List/refresh responses return at most 128 node
+previews/provider with `node_count`, `offset` and `has_more`. POST
+`/subscriptions/inspect` with `{id,offset,limit}` retrieves pages, limit 1–128.
+The registry/cache reopen across restart. Adding imported nodes to a core remains
+an explicit draft/validate/plan/apply operation, not an automatic network change.
+
+GET `/diagnostics/bundle` downloads a fixed-name gzip/tar archive containing
+runtime status, model preview, API events and optional redacted resource views.
+Archive entries have mode 0600 and an 8 MiB aggregate JSON limit. It never walks
+the filesystem or includes journals, cache databases, secret models, raw engine
+output, script bodies or subscription URLs. A failed RouterOS read is recorded
+as a fixed error; other serialization/resource failures deny the download.
+
+Config, draft and plan responses include a `policy` projection for reviewing rules,
+services, source policies, DNS membership and rule-set IDs/formats. It excludes
+remote URLs and local artifact/cache paths; model previews exclude credentials.

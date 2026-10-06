@@ -21,6 +21,7 @@ import (
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/rulesets"
 	"mikrocentauri.local/core/internal/singbox"
+	"mikrocentauri.local/core/internal/subscriptions"
 )
 
 func apiCommand(action string, args []string) error {
@@ -34,6 +35,7 @@ func apiCommand(action string, args []string) error {
 	binary := fs.String("sing-box", "sing-box", "pinned validator")
 	out := fs.String("out", "", "OpenAPI output file")
 	clients := fs.String("allow-clients", "", "explicit comma separated client CIDRs")
+	routerConfig := fs.String("router-config", "", "private HTTPS RouterOS connection file for read-only resources")
 	ruleState := fs.String("ruleset-state", "", "private verified rule-set store")
 	if e := fs.Parse(args); e != nil {
 		return e
@@ -145,7 +147,24 @@ func apiCommand(action string, args []string) error {
 	if e != nil {
 		return e
 	}
-	handler, e := api.New(api.Options{Directory: directory, Auth: a, Model: m, Validate: validate, Origin: "https://" + *listen, Clients: allowed})
+	manager, e := subscriptions.New(filepath.Join(directory, "subscription-state"), subscriptions.Policy{})
+	if e != nil {
+		return e
+	}
+	providers, e := api.NewSubscriptionResources(filepath.Join(directory, "subscription-registry"), manager)
+	if e != nil {
+		return e
+	}
+	defer providers.Close()
+	var routerResources *api.RouterResources
+	if *routerConfig != "" {
+		client, _, err := connectRouter(*routerConfig)
+		if err != nil {
+			return err
+		}
+		routerResources = &api.RouterResources{Client: client, Instance: m.Instance}
+	}
+	handler, e := api.New(api.Options{Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: "https://" + *listen, Clients: allowed})
 	if e != nil {
 		return e
 	}

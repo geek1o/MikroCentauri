@@ -4,6 +4,7 @@ package subscriptions
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -73,6 +74,8 @@ func (URIList) Parse(data []byte) ([]endpoints.Endpoint, error) {
 func Parse(data []byte) ([]endpoints.Endpoint, error) { return (URIList{}).Parse(data) }
 
 type Policy struct {
+	// RootCAs is an operator-supplied trust store; TLS verification stays enabled.
+	RootCAs      *x509.CertPool
 	AllowedCIDRs []netip.Prefix
 	Timeout      time.Duration
 	MaxBytes     int64
@@ -139,6 +142,9 @@ func NewWithParser(directory string, policy Policy, parser Parser) (*Manager, er
 	}
 	if policy.MaxRedirects < 0 || policy.MaxRedirects > 10 {
 		return nil, errors.New("invalid redirect limit")
+	}
+	if policy.RootCAs != nil {
+		policy.RootCAs = policy.RootCAs.Clone()
 	}
 	return &Manager{dir: abs, policy: policy, parser: parser}, nil
 }
@@ -376,7 +382,7 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 	}
 	ctx, cancel := context.WithTimeout(ctx, m.policy.Timeout)
 	defer cancel()
-	transport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12}, Proxy: nil, DisableKeepAlives: true, ResponseHeaderTimeout: m.policy.Timeout, MaxResponseHeaderBytes: 64 << 10}
+	transport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: m.policy.RootCAs}, Proxy: nil, DisableKeepAlives: true, ResponseHeaderTimeout: m.policy.Timeout, MaxResponseHeaderBytes: 64 << 10}
 	defer transport.CloseIdleConnections()
 	transport.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
 		host, port, err := net.SplitHostPort(address)

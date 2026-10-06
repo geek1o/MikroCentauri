@@ -33,3 +33,7 @@ for persistence-error poisoning and generated/published OpenAPI consistency.
 
 See [API usage and security contract](../api/README.md),
 [generated OpenAPI](../api/openapi.json) and [roadmap](../product/progress.md).
+
+The runtime-host/resource block is now recorded in
+[Phase 4 runtime host and resources](product-phase-4-runtime-resources.md);
+its implemented adapters supersede those earlier open items only.

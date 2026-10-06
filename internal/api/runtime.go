@@ -31,3 +31,18 @@ func (r CoreRuntime) Apply(ctx context.Context, rev uint64, m coreconfig.Model) 
 	_, e := r.Core.Apply(ctx, rev, m.DNS.SelectedDomains, m)
 	return e
 }
+
+// PreparedRuntime binds application plans to the resolved generated candidate.
+type PreparedRuntime interface {
+	Runtime
+	CandidateFingerprint(context.Context, uint64, coreconfig.Model) (string, error)
+	ApplyPrepared(context.Context, uint64, coreconfig.Model, string) error
+}
+
+func (r CoreRuntime) CandidateFingerprint(ctx context.Context, rev uint64, m coreconfig.Model) (string, error) {
+	return r.Core.CandidateFingerprint(ctx, rev, m)
+}
+func (r CoreRuntime) ApplyPrepared(ctx context.Context, rev uint64, m coreconfig.Model, fp string) error {
+	_, e := r.Core.ApplyPrepared(ctx, rev, m.DNS.SelectedDomains, m, fp)
+	return e
+}

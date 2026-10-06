@@ -1329,6 +1329,35 @@
         ]
       }
     },
+    "/api/v1/diagnostics/bundle": {
+      "get": {
+        "operationId": "get_diagnostics_bundle",
+        "responses": {
+          "200": {
+            "content": {
+              "application/gzip": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Redacted fixed-name diagnostics archive"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "503": {
+            "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
     "/api/v1/dns": {
       "get": {
         "operationId": "get_dns",
@@ -1477,7 +1506,131 @@
         "operationId": "get_routeros",
         "responses": {
           "200": {
-            "description": "Redacted resource"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "capabilities": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "architecture": {
+                          "type": "string"
+                        },
+                        "board": {
+                          "type": "string"
+                        },
+                        "interfaces": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "running": {
+                                "type": "boolean"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "type",
+                              "disabled",
+                              "running"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "packages": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "version": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "version",
+                              "disabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "platform": {
+                          "type": "string"
+                        },
+                        "resources": {
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "type": "object"
+                        },
+                        "version": {
+                          "type": "string"
+                        },
+                        "version_support_reason": {
+                          "type": "string"
+                        },
+                        "version_supported": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "architecture",
+                        "board",
+                        "platform",
+                        "packages",
+                        "resources",
+                        "interfaces",
+                        "version_supported",
+                        "version_support_reason"
+                      ],
+                      "type": "object"
+                    },
+                    "owned_counts": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "owned_disabled": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "capabilities",
+                    "owned_counts",
+                    "owned_disabled"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Read-only capabilities and owned counts"
           },
           "401": {
             "description": "Authentication required"
@@ -1522,7 +1675,114 @@
         "operationId": "get_subscriptions",
         "responses": {
           "200": {
-            "description": "Redacted resource"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "failed": {
+                        "type": "boolean"
+                      },
+                      "has_more": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "imported_count": {
+                        "type": "integer"
+                      },
+                      "last_attempt": {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "last_success": {
+                        "format": "date-time",
+                        "type": "string"
+                      },
+                      "node_count": {
+                        "type": "integer"
+                      },
+                      "nodes": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "Fingerprint": {
+                              "type": "string"
+                            },
+                            "ID": {
+                              "type": "string"
+                            },
+                            "Name": {
+                              "type": "string"
+                            },
+                            "Port": {
+                              "type": "integer"
+                            },
+                            "Protocol": {
+                              "type": "string"
+                            },
+                            "Reality": {
+                              "type": "boolean"
+                            },
+                            "SNI": {
+                              "type": "string"
+                            },
+                            "Server": {
+                              "type": "string"
+                            },
+                            "TLS": {
+                              "type": "boolean"
+                            },
+                            "Transport": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "ID",
+                            "Name",
+                            "Protocol",
+                            "Server",
+                            "Transport",
+                            "SNI",
+                            "Fingerprint",
+                            "Port",
+                            "TLS",
+                            "Reality"
+                          ],
+                          "type": "object"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "offset": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "node_count",
+                      "offset",
+                      "has_more",
+                      "id",
+                      "last_attempt",
+                      "last_success",
+                      "failed",
+                      "imported_count",
+                      "nodes"
+                    ],
+                    "type": "object"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "description": "Redacted configured providers"
           },
           "401": {
             "description": "Authentication required"
@@ -1532,6 +1792,182 @@
           },
           "503": {
             "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_subscriptions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "exclude": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "include": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "url"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/subscriptions/inspect": {
+      "post": {
+        "operationId": "post_subscriptions_inspect",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "maximum": 128,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "id",
+                  "offset",
+                  "limit"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/subscriptions/refresh": {
+      "post": {
+        "operationId": "post_subscriptions_refresh",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
           }
         },
         "security": [
@@ -1553,6 +1989,50 @@
           },
           "503": {
             "description": "Not ready or unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/system/recover": {
+      "post": {
+        "operationId": "post_system_recover",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operation completed"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "description": "Validation failed"
+          },
+          "429": {
+            "description": "Login limit"
+          },
+          "503": {
+            "description": "Runtime or persistence unavailable"
           }
         },
         "security": [
