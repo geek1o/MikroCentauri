@@ -8,6 +8,7 @@ bootstrap:
 test:
 	SING_BOX_BINARY="$(SING_BOX)" $(GO) test -race ./...
 	$(GO) vet ./...
+	python3 tests/integration/lab_switch.py
 smoke:
 	python3 tests/integration/namespace_policy.py --sing-box "$(SING_BOX)"
 	python3 tests/integration/binding_policy.py --sing-box "$(SING_BOX)"

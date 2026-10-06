@@ -1,8 +1,8 @@
 # MikroCentauri
 
-RouterOS-native selective routing application. **Current stage: product Phase 3 core development;
-controller accepted on the pinned CHR profile. Not a functional MVP.** RouterOS remains the main router;
-sing-box is the proposed selected-traffic gateway. No anti-DPI components.
+RouterOS-native selective routing application. **Product Phases 2–4 are accepted on the pinned
+CHR profile; next is Phase 5 Web UI.** RouterOS remains the main router;
+sing-box supplies the selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent
 capability must be proved on each supported release/device. Pinned researched
@@ -14,7 +14,7 @@ baseline: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/vers
 - Generalized core v2: four-protocol URI import, private subscription LKG,
   selector/URLTest/fallback policy, ordered rules and DNS generation; see [core guide](docs/core.md).
 - Namespace-aware v2 preflight and isolated endpoint health/fallback, composed
-  with supervisor/admission/DNS gates; [native bridge acceptance remains pending](docs/reports/product-phase-3-supervised-admission.md).
+  with supervisor/admission/DNS gates; [native core acceptance](docs/reports/product-phase-3-core-completion.md).
 - Version-pinned sing-box generator, three golden fixtures, real `sing-box check`.
 - Real local VLESS TCP and DIRECT routing smoke, typed FakeIP DNS over UDP/TCP,
   selected AAAA suppression, invalid-candidate preservation.
@@ -98,9 +98,14 @@ retain their disabled-object restriction.
 
 ## Remaining gates
 
+The [backend/API phase is complete](docs/reports/product-phase-4-api-completion.md):
+authenticated HTTPS v1, typed OpenAPI, private drafts and verified apply,
+subscription/policy editing, safe application backup/restore and diagnostics.
+Production CLI lifecycle passed CHR TCP/UDP/HTTP3 and SIGKILL recovery.
+
 The transparent CHR path and dynamic publication for a bounded IPv4 namespace
 are proved for lab cases. Complete FakeIP lifecycle, IPv6, version/device coverage
-and production runtime/installation integration remain open. See the
+and installation/release integration remain open. See the
 [completed controller phase](docs/reports/product-phase-2-controller-completion.md),
 [latest dataplane engineering report](docs/reports/phase-8-activation-recovery.md),
 [Phase-7 namespace lifecycle](docs/reports/phase-7-namespace-lifecycle.md),
@@ -111,11 +116,11 @@ and production runtime/installation integration remain open. See the
 [Phase-2 comparison](docs/reports/phase-2-resilience.md),
 [publication ADR](docs/adr/0011-dynamic-dns-publication.md) and [lab guide](docs/lab.md).
 The [core phase is complete on the pinned profile](docs/reports/product-phase-3-core-completion.md).
-Next gates are production Backend/API and wider boot/device coverage;
+Next gates are Web UI, installable RouterOS App and wider boot/device coverage;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
 The core now provides subscription/group/rule management and supervisor/LKG
-lifecycle. Production authentication/API, UI and release images remain open.
+lifecycle. The backend is connected to that owner; UI and release images remain open.
 Production packaging is a placeholder, not an installation-ready App.
 
 replaces its temporary name. Source is independently written under MIT; sing-box
@@ -124,6 +129,6 @@ Development is recorded in local Git and published to the private
 [MicroCentauri repository](https://github.com/geek1o/MikroCentauri).
 The product name remains MikroCentauri.
 
-The [authenticated API foundation](docs/api/README.md) starts product Phase 4;
-its standalone service supports private configuration work and reports readiness
-false until connected to the production runtime.
+The [backend API guide](docs/api/README.md) covers private configuration workflows
+and the production native owner. Offline mode reports readiness false; the
+[operator runtime profile](docs/api/runtime.md) connects the accepted CHR dataplane.

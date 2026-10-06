@@ -19,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"mikrocentauri.local/core/internal/config"
 	"mikrocentauri.local/core/internal/coreactivation"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/subscriptions"
@@ -41,6 +40,7 @@ type draft struct {
 	Sequence     uint64           `json:"sequence"`
 	BaseRevision uint64           `json:"base_revision"`
 	Model        coreconfig.Model `json:"model"`
+	Restore      *RestoreSettings `json:"restore,omitempty"`
 }
 type plan struct {
 	ID                 string
@@ -104,6 +104,17 @@ func New(o Options) (*Server, error) {
 		s.draft = &d
 	} else if !os.IsNotExist(e) {
 		return nil, errors.New("durable draft unavailable")
+	}
+	if e := s.validateRestoreSettings(func() *RestoreSettings {
+		if s.draft != nil {
+			return s.draft.Restore
+		}
+		return nil
+	}()); e != nil {
+		return nil, e
+	}
+	if e := s.recoverRestoreSettings(); e != nil {
+		return nil, e
 	}
 	return s, nil
 }
@@ -225,6 +236,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	reject(w, 405, "method_not_allowed")
 }
 func (s *Server) get(w http.ResponseWriter, r *http.Request) {
+	if s.recoverRestoreSettings() != nil {
+		reject(w, 503, "restore_settings_pending")
+		return
+	}
+	if s.backupGet(w, r) {
+		return
+	}
 	v := s.view()
 	if r.URL.Path == "/api/v1/health/ready" {
 		status := 200
@@ -243,7 +261,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.URL.Path == "/api/v1/logs" {
-		reply(w, 200, s.events)
+		reply(w, 200, s.logEvents())
 		return
 	}
 	if r.URL.Path == "/api/v1/routeros" {
@@ -293,9 +311,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 	case "/api/v1/dns":
 		reply(w, 200, map[string]any{"bootstrap": m.DNS.Bootstrap, "fakeip_range": m.DNS.FakeIPRange, "selected_domains": m.DNS.SelectedDomains, "ipv6_fakeip": false})
 	case "/api/v1/diagnostics":
-		reply(w, 200, map[string]any{"status": v, "model": m.Preview(), "events": s.events, "runtime_connected": s.opts.Runtime != nil})
-	case "/api/v1/backup":
-		reply(w, 200, Export(m))
+		reply(w, 200, map[string]any{"status": v, "model": m.Preview(), "events": s.logEvents(), "runtime_connected": s.opts.Runtime != nil})
 	case "/api/v1/config/draft":
 		if s.draft == nil {
 			reject(w, 404, "draft_absent")
@@ -307,22 +323,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (s *Server) saveDraft(m coreconfig.Model) error {
-	seq := uint64(1)
-	if s.draft != nil {
-		seq = s.draft.Sequence + 1
-	}
-	d := draft{1, seq, s.view().Revision, m}
-	b, e := json.Marshal(d)
-	if e != nil {
-		return e
-	}
-	if e = config.WriteAtomic(filepath.Join(s.dir, "draft.json"), b); e != nil {
-		s.poisoned = true
-		return e
-	}
-	s.draft = &d
-	s.plan = nil
-	return nil
+	return s.saveDraftWithRestore(m, nil)
 }
 func (s *Server) event(code, id string) {
 	s.events = append(s.events, Event{s.now().UTC(), "info", "api", code, id, s.view().Revision})
@@ -343,6 +344,9 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 	raw, e := readBody(w, r, 4<<20)
 	if e != nil {
 		reject(w, 400, "invalid_request")
+		return
+	}
+	if s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {
@@ -418,6 +422,10 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			reject(w, 503, "recovery_failed")
 			return
 		}
+		if s.recoverRestoreSettings() != nil {
+			reject(w, 503, "restore_settings_pending")
+			return
+		}
 		s.event("recovered", id)
 		reply(w, 200, s.view())
 	case "/api/v1/config/draft":
@@ -444,12 +452,21 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			reject(w, 409, "stale_draft")
 			return
 		}
+		if s.validateRestoreSettings(s.draft.Restore) != nil {
+			reject(w, 409, "restore_metadata_changed")
+			return
+		}
 		if s.validate(r.Context(), s.draft.BaseRevision, s.draft.Model) != nil {
 			reject(w, 422, "validation_failed")
 			return
 		}
 		if r.URL.Path == "/api/v1/config/validate" {
 			reply(w, 200, map[string]bool{"valid": true})
+			return
+		}
+		current, e := s.model()
+		if e != nil {
+			reject(w, 503, "model_unavailable")
 			return
 		}
 		key := randomToken()
@@ -471,7 +488,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			return
 		}
 		s.plan = &plan{ID: key, Sequence: s.draft.Sequence, Revision: s.draft.BaseRevision, Digest: sha256.Sum256(b), Fingerprint: fingerprint, Expires: s.now().Add(5 * time.Minute)}
-		reply(w, 200, map[string]any{"plan_id": key, "draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "expires_at": s.plan.Expires, "model": s.draft.Model.Preview(), "policy": policyPreview(s.draft.Model), "apply_available": s.opts.Runtime != nil})
+		reply(w, 200, map[string]any{"plan_id": key, "draft_revision": s.draft.Sequence, "base_revision": s.draft.BaseRevision, "expires_at": s.plan.Expires, "model": s.draft.Model.Preview(), "policy": policyPreview(s.draft.Model), "apply_available": s.opts.Runtime != nil, "changed_sections": planChanges(current, s.draft.Model, s.draft.Restore)})
 	case "/api/v1/config/apply":
 		var input struct {
 			PlanID string `json:"plan_id"`
@@ -494,6 +511,10 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			reject(w, 503, "runtime_not_connected")
 			return
 		}
+		if s.validateRestoreSettings(s.draft.Restore) != nil {
+			reject(w, 409, "restore_metadata_changed")
+			return
+		}
 		s.plan = nil
 		var applyErr error
 		if runtime, ok := s.opts.Runtime.(PreparedRuntime); ok {
@@ -511,29 +532,13 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			reject(w, 503, "apply_failed")
 			return
 		}
+		if s.recoverRestoreSettings() != nil {
+			s.event("restore_settings_pending", id)
+			reject(w, 503, "restore_settings_pending")
+			return
+		}
 		s.event("apply_committed", id)
 		reply(w, 200, s.view())
-	case "/api/v1/backup/restore-preview":
-		var input SafeExport
-		if decode(raw, &input) != nil {
-			reject(w, 400, "invalid_backup")
-			return
-		}
-		current, e := s.model()
-		if e != nil {
-			reject(w, 503, "model_unavailable")
-			return
-		}
-		m, e := Restore(input, current)
-		if e != nil {
-			reject(w, 422, "backup_requires_matching_secrets")
-			return
-		}
-		if s.validate(r.Context(), s.view().Revision, m) != nil {
-			reject(w, 422, "validation_failed")
-			return
-		}
-		reply(w, 200, map[string]any{"valid": true, "model": m.Preview(), "apply_performed": false})
 	default:
 		reject(w, 404, "not_found")
 	}

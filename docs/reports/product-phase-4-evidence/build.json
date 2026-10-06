@@ -1,0 +1,9 @@
+{
+  "image_sha256": "63414b7fa061888c89ac7eff65a604841f9ec424cc171ea58a982b5bd1cfe2fc",
+  "binary_sha256": "19ad0498ea6c913a785bc555294c47b4ae4dc88114077b3ee7efe7eb2634078c",
+  "sing_box_sha256": "4b5cef575df2e5572eddf7c204b4adea03a27d9721c5e39a89df5fb6977643cb",
+  "rootfs_sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677",
+  "pool": "198.19.128.0/17",
+  "state_directory": "/data/api4/runtime",
+  "entrypoint": "production CLI api-serve"
+}

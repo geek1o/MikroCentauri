@@ -73,12 +73,16 @@ type SubscriptionView struct {
 	Nodes         []endpoints.Preview `json:"nodes"`
 }
 type SubscriptionResources struct {
-	lock     *os.File
-	mu       sync.Mutex
-	dir      string
-	manager  SubscriptionManager
-	specs    []subscriptions.Spec
-	poisoned bool
+	lock      *os.File
+	mu        sync.Mutex
+	refreshMu sync.Mutex
+	running   bool
+	eventsMu  sync.Mutex
+	events    []Event
+	dir       string
+	manager   SubscriptionManager
+	specs     []subscriptions.Spec
+	poisoned  bool
 }
 
 var subscriptionID = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
@@ -104,6 +108,22 @@ func NewSubscriptionResources(directory string, m SubscriptionManager) (*Subscri
 		return nil, e
 	}
 	s := &SubscriptionResources{dir: dir, manager: m, specs: []subscriptions.Spec{}}
+	lock, e := os.OpenFile(filepath.Join(dir, "subscription-registry.lock"), os.O_CREATE|os.O_RDWR|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0600)
+	if e != nil {
+		return nil, errors.New("subscription registry lock unavailable")
+	}
+	fi, e := lock.Stat()
+	if e != nil || !fi.Mode().IsRegular() || fi.Mode().Perm() != 0600 || syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
+		lock.Close()
+		return nil, errors.New("subscription registry already owned or unsafe")
+	}
+	s.lock = lock
+	ready := false
+	defer func() {
+		if !ready {
+			s.Close()
+		}
+	}()
 	raw, e := privateRead(filepath.Join(dir, "subscription-specs.json"), 2<<20)
 	if e == nil {
 		if decode(raw, &s.specs) != nil || len(s.specs) > 64 {
@@ -119,16 +139,7 @@ func NewSubscriptionResources(directory string, m SubscriptionManager) (*Subscri
 	} else if !os.IsNotExist(e) {
 		return nil, errors.New("private subscription specs unavailable")
 	}
-	lock, e := os.OpenFile(filepath.Join(dir, "subscription-registry.lock"), os.O_CREATE|os.O_RDWR|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0600)
-	if e != nil {
-		return nil, errors.New("subscription registry lock unavailable")
-	}
-	fi, e := lock.Stat()
-	if e != nil || !fi.Mode().IsRegular() || fi.Mode().Perm() != 0600 || syscall.Flock(int(lock.Fd()), syscall.LOCK_EX|syscall.LOCK_NB) != nil {
-		lock.Close()
-		return nil, errors.New("subscription registry already owned or unsafe")
-	}
-	s.lock = lock
+	ready = true
 	return s, nil
 }
 func (s *SubscriptionResources) Configure(spec subscriptions.Spec) error {
@@ -164,6 +175,7 @@ func (s *SubscriptionResources) Configure(spec subscriptions.Spec) error {
 		return errors.New("subscription specification persistence failed")
 	}
 	s.specs = next
+	s.recordEvent("subscription_configured")
 	return nil
 }
 func subscriptionPreview(state subscriptions.State) SubscriptionView {
@@ -212,18 +224,32 @@ func (s *SubscriptionResources) List() ([]SubscriptionView, error) {
 	return result, nil
 }
 func (s *SubscriptionResources) Refresh(ctx context.Context, id string) (SubscriptionView, error) {
+	s.refreshMu.Lock()
+	defer s.refreshMu.Unlock()
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if s.poisoned || s.lock == nil {
+		s.mu.Unlock()
 		return SubscriptionView{}, errors.New("subscription registry requires reopen")
 	}
+	var selected *subscriptions.Spec
 	for _, spec := range s.specs {
 		if spec.ID == id {
-			state, e := s.manager.Refresh(ctx, spec)
-			return subscriptionPreview(state), e
+			copy := spec
+			selected = &copy
+			break
 		}
 	}
-	return SubscriptionView{}, errors.New("subscription not configured")
+	s.mu.Unlock()
+	if selected == nil {
+		return SubscriptionView{}, errors.New("subscription not configured")
+	}
+	state, e := s.manager.Refresh(ctx, *selected)
+	if e != nil {
+		s.recordEvent("subscription_refresh_failed")
+	} else {
+		s.recordEvent("subscription_refreshed")
+	}
+	return subscriptionPreview(state), e
 }
 
 func (s *SubscriptionResources) Close() {

@@ -35,6 +35,7 @@ type HostOptions struct {
 	Interval, Timeout time.Duration
 }
 type Host struct {
+	history    history
 	closeDone  chan struct{}
 	closeError error
 	op         sync.Mutex
@@ -89,19 +90,25 @@ func (h *Host) Validate(ctx context.Context, rev uint64, m coreconfig.Model) err
 	return h.o.Core.ValidateModel(c, rev, m)
 }
 func (h *Host) hold() error {
-	h.ready.Store(false)
+	wasReady := h.ready.Swap(false)
+	if wasReady {
+		h.history.record("readiness_withdrawn", false, h.View().Revision)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), h.o.Timeout)
 	defer cancel()
 	return h.o.Core.Hold(ctx)
 }
 func (h *Host) verify(ctx context.Context) error {
 	if e := h.o.Reconcile(ctx); e != nil {
+		h.history.record("mapping_reconcile_failed", false, h.View().Revision)
 		return e
 	}
 	if e := h.o.Core.Check(ctx); e != nil {
+		h.history.record("core_check_failed", false, h.View().Revision)
 		return e
 	}
 	if e := h.o.Probe(ctx); e != nil {
+		h.history.record("canary_failed", false, h.View().Revision)
 		return errors.New("current canary failed")
 	}
 	if e := ctx.Err(); e != nil {
@@ -135,6 +142,7 @@ func (h *Host) apply(ctx context.Context, rev uint64, m coreconfig.Model, fp str
 	}
 	wasReady := h.View().Ready
 	h.ready.Store(false)
+	h.history.record("apply_started", false, h.View().Revision)
 	var applyErr error
 	if fp != "" {
 		if owner, ok := h.o.Core.(interface {
@@ -157,12 +165,14 @@ func (h *Host) apply(ctx context.Context, rev uint64, m coreconfig.Model, fp str
 			h.ready.Store(true)
 			return applyErr
 		}
+		h.history.record("apply_failed", false, h.View().Revision)
 		return errors.Join(errors.New("runtime apply failed"), applyErr, h.hold())
 	}
 	if e := h.verify(c); e != nil {
 		return errors.Join(e, h.hold())
 	}
 	h.ready.Store(true)
+	h.history.record("apply_verified", true, h.View().Revision)
 	return nil
 }
 func (h *Host) Recover(ctx context.Context) error {
@@ -175,15 +185,18 @@ func (h *Host) recover(ctx context.Context) error {
 		return errors.New("runtime closed")
 	}
 	h.ready.Store(false)
+	h.history.record("recovery_started", false, h.View().Revision)
 	c, done := h.bounded(ctx)
 	defer done()
 	if _, e := h.o.Core.Recover(c); e != nil {
+		h.history.record("recovery_failed", false, h.View().Revision)
 		return errors.Join(errors.New("runtime recovery failed"), h.hold())
 	}
 	if e := h.verify(c); e != nil {
 		return errors.Join(e, h.hold())
 	}
 	h.ready.Store(true)
+	h.history.record("recovery_verified", true, h.View().Revision)
 	return nil
 }
 func (h *Host) Tick(ctx context.Context) error {
@@ -245,6 +258,7 @@ func (h *Host) Close(ctx context.Context) error {
 	}
 	defer close(h.closeDone)
 	h.ready.Store(false)
+	h.history.record("runtime_stopped", false, h.View().Revision)
 	h.cancel()
 	h.op.Lock()
 	defer h.op.Unlock()

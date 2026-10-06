@@ -14,6 +14,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -547,33 +548,52 @@ func (p *Publisher) ensureReady(ctx context.Context, index int) error {
 	return ctx.Err()
 }
 
-// Reconcile re-establishes and freshly verifies every reserved mapping, including
-// pending reservations. The caller must independently check the proxy engine's
-// alias cache before using this result as a readiness signal.
+// Reconcile re-establishes and freshly verifies every mapping reserved when
+// the call starts, including pending reservations. Records are append-only;
+// later additions independently pass the same publication proof. Each record's
+// durable before/after transition remains atomic, while DNS publication can
+// interleave between proofs instead of waiting for the whole ledger sweep.
+// The caller must independently check the proxy engine's alias cache before
+// using this result as a readiness signal.
 func (p *Publisher) Reconcile(ctx context.Context) error {
 	p.mu.Lock()
-	defer p.mu.Unlock()
-	if p.closed {
-		return ErrClosed
-	}
-	if p.poisoned {
-		return errors.New("journal write failed; reopen publisher before continuing")
-	}
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	for i := range p.state.Records {
-		err := p.refreshReady(ctx, i)
-		if errors.Is(err, ErrLeaseExpiredDuringVerification) {
-			// The preceding proof consumed the old lease. Resolve from a new
-			// origin and verify once more; persistent slowness remains an error.
-			err = p.refreshReady(ctx, i)
+	count := len(p.state.Records)
+	p.mu.Unlock()
+	check := func() error {
+		if p.closed {
+			return ErrClosed
 		}
+		if p.poisoned {
+			return errors.New("journal write failed; reopen publisher before continuing")
+		}
+		return ctx.Err()
+	}
+	for i := 0; i < count; i++ {
+		err := func() error {
+			p.mu.Lock()
+			defer p.mu.Unlock()
+			if err := check(); err != nil {
+				return err
+			}
+			err := p.refreshReady(ctx, i)
+			if errors.Is(err, ErrLeaseExpiredDuringVerification) {
+				// The preceding proof consumed the old lease. Resolve from a new
+				// origin and verify once more; persistent slowness remains an error.
+				err = p.refreshReady(ctx, i)
+			}
+			return err
+		}()
 		if err != nil {
 			return err
 		}
+		// Give a queued DNS publisher or Close a chance to acquire the lock.
+		// An immediately reacquiring sweep can otherwise monopolize even a
+		// per-record mutex while the next backend proof blocks on I/O.
+		runtime.Gosched()
 	}
-	return ctx.Err()
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return check()
 }
 
 // Mappings returns an independent snapshot of all alias reservations and current targets,

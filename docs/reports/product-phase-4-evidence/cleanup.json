@@ -1,0 +1,39 @@
+{
+  "core_stopped": true,
+  "all_containers_not_running": true,
+  "native_down": {
+    "watchdog": [
+      {
+        "disabled": "false",
+        "status": "down",
+        "host": "172.30.0.2",
+        "port": "9099"
+      }
+    ],
+    "authority": []
+  },
+  "observer_and_boot_guard_disabled": true,
+  "volatile_authority": [],
+  "preserved_aliases": {
+    "198.19.128.2": "10.77.0.20",
+    "198.19.128.3": "10.77.0.20",
+    "198.19.128.4": "10.77.0.20"
+  },
+  "permanent_backup_jump_enabled": true,
+  "existing_objects_differences": {
+    "ip/route": [],
+    "ip/firewall/nat": [],
+    "tool/netwatch": [],
+    "system/scheduler": [],
+    "ip/service": [],
+    "certificate": []
+  },
+  "dns_fixture_restored": {
+    "target": "10.77.0.20",
+    "ttl": 5,
+    "fail": false,
+    "all_ttl": 5
+  },
+  "router_tls_service_and_certificate_inventory_restored": true,
+  "note": "Connected route IDs and transient service connection rows excluded; api4 maps, backup jump, private state and older roots retained."
+}

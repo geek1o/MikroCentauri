@@ -33,16 +33,43 @@ func Serve(ctx context.Context, listen string, handler Handler) error {
 }
 
 func serve(ctx context.Context, listen string, handler Handler, maxMessage int, timeout time.Duration) error {
-	tcp, err := net.Listen("tcp", listen)
+	listener, err := Listen(listen)
 	if err != nil {
 		return err
 	}
-	defer tcp.Close()
+	return listener.serve(ctx, handler, maxMessage, timeout)
+}
+
+// Listener binds TCP and UDP before runtime admission can become ready.
+// Its owner must close it if startup fails before Serve is entered.
+type Listener struct {
+	tcp net.Listener
+	udp net.PacketConn
+}
+
+func Listen(address string) (*Listener, error) {
+	tcp, err := net.Listen("tcp", address)
+	if err != nil {
+		return nil, err
+	}
 	udp, err := net.ListenPacket("udp", tcp.Addr().String())
 	if err != nil {
-		return err
+		tcp.Close()
+		return nil, err
 	}
-	defer udp.Close()
+	return &Listener{tcp, udp}, nil
+}
+func (l *Listener) Close() error   { return errors.Join(l.tcp.Close(), l.udp.Close()) }
+func (l *Listener) Addr() net.Addr { return l.tcp.Addr() }
+func (l *Listener) Run(ctx context.Context, handler Handler) error {
+	if handler == nil {
+		return errors.New("DNS handler is required")
+	}
+	return l.serve(ctx, handler, 4096, 2*time.Second)
+}
+func (l *Listener) serve(ctx context.Context, handler Handler, maxMessage int, timeout time.Duration) error {
+	tcp, udp := l.tcp, l.udp
+	defer l.Close()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	stop := context.AfterFunc(ctx, func() { _ = tcp.Close(); _ = udp.Close() })

@@ -21,9 +21,11 @@ const LabMappingJump = "mikrocentauri:lab:nat:dynamic-jump"
 // watchdog changes one jump, never individual map flags; publication cannot race
 // its iteration of a growing map set. Production schemas/placement remain gates.
 type LabMappingBackend struct {
-	client *Client
-	lease  bool
-	mu     sync.Mutex
+	client  *Client
+	lease   bool
+	mu      sync.Mutex
+	profile *MappingBackendOptions
+	barrier *CoreNativeBarrier
 }
 
 func NewLabMappingBackend(c *Client) (*LabMappingBackend, error) {
@@ -111,21 +113,27 @@ func (b *LabMappingBackend) inspect(ctx context.Context, m fakeip.Mapping) (*Obj
 // Only the two journaled endpoints are allowed during recovery. REST provides
 // no atomic compare-and-swap: the isolated lab requires one map writer.
 func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapping, before *fakeip.Mapping) (*Object, error) {
-	want, err := mappingFields(m)
+	want, err := b.fields(m)
 	if err != nil {
 		return nil, err
 	}
 	var previous map[string]string
 	if before != nil {
-		previous, err = mappingFields(*before)
+		previous, err = b.fields(*before)
 		if err != nil {
 			return nil, err
 		}
 	}
-	rows, err := b.client.discover(ctx, []string{"ip/firewall/nat"})
+	var rows []Object
+	if b.barrier != nil {
+		rows, err = b.profileRows(ctx)
+	} else {
+		rows, err = b.client.discover(ctx, []string{"ip/firewall/nat"})
+	}
 	if err != nil {
 		return nil, err
 	}
+
 	jumpCount := 0
 	var found *Object
 	jump := map[string]string{"comment": LabMappingJump, "chain": "dstnat", "action": "jump", "jump-target": LabMappingChain, "in-interface": "bridge-lan", "src-address": "192.168.88.0/24", "dst-address": "198.18.0.0/15"}
@@ -133,11 +141,21 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 		jump["src-address-list"] = "!" + LabReadinessList
 		jump["disabled"] = "false"
 	}
+	chain, jumpComment := LabMappingChain, LabMappingJump
+	if b.profile != nil {
+		chain, jumpComment = b.profile.Chain, b.profile.JumpComment
+		jump = mappingJumpFields(*b.profile)
+	}
+	aliases := map[string]bool{}
 	for _, o := range rows {
 		if o.Path != "ip/firewall/nat" {
 			continue
 		}
-		if o.Fields["chain"] == LabMappingChain {
+		if o.Fields["chain"] == chain {
+			if aliases[o.Fields["dst-address"]] {
+				return nil, errors.New("duplicate immutable alias in mapping chain")
+			}
+			aliases[o.Fields["dst-address"]] = true
 			other := fakeip.Mapping{Fake: netip.Addr{}, Real: netip.Addr{}}
 			other.Fake, err = netip.ParseAddr(o.Fields["dst-address"])
 			if err != nil {
@@ -147,12 +165,12 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 			if err != nil {
 				return nil, errors.New("noncanonical target in lab mapping chain")
 			}
-			shape, shapeErr := mappingFields(other)
+			shape, shapeErr := b.fields(other)
 			if shapeErr != nil || !exactNAT(o, shape) {
 				return nil, fmt.Errorf("unsafe rule in lab mapping chain: %s", natMismatchField(o, shape))
 			}
 		}
-		if o.Fields["comment"] == LabMappingJump {
+		if o.Fields["comment"] == jumpComment {
 			jp := o
 			jp.Fields = map[string]string{}
 			for k, v := range o.Fields {
@@ -165,7 +183,7 @@ func (b *LabMappingBackend) inspectTransition(ctx context.Context, m fakeip.Mapp
 			}
 			jumpCount++
 		}
-		if o.Fields["comment"] == want["comment"] || (o.Fields["chain"] == LabMappingChain && o.Fields["dst-address"] == m.Fake.String()) {
+		if o.Fields["comment"] == want["comment"] || (o.Fields["chain"] == chain && o.Fields["dst-address"] == m.Fake.String()) {
 			if found != nil || (!exactNAT(o, want) && (previous == nil || !exactNAT(o, previous))) {
 				return nil, errors.New("conflicting lab alias mapping")
 			}
@@ -226,7 +244,7 @@ func (b *LabMappingBackend) Ensure(ctx context.Context, m fakeip.Mapping) error 
 	if found != nil {
 		return nil
 	}
-	f, err := mappingFields(m)
+	f, err := b.fields(m)
 	if err != nil {
 		return err
 	}

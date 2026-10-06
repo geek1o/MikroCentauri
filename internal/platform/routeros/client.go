@@ -3,6 +3,7 @@ package routeros
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,18 @@ import (
 	"strings"
 	"time"
 )
+
+// ErrReadUnavailable marks a failed read transport, never evidence of DOWN.
+// Startup may retry it within quarantine; denied or malformed reads are permanent.
+var ErrReadUnavailable = errors.New("native read unavailable")
+
+func readTransportError(err error) error {
+	var verification *tls.CertificateVerificationError
+	if errors.As(err, &verification) {
+		return errors.New("RouterOS TLS verification failed")
+	}
+	return ErrReadUnavailable
+}
 
 // Client refuses cleartext outside an explicit lab constructor. TLS uses system/custom transport trust.
 type Client struct {
@@ -69,6 +82,9 @@ func (c *Client) request(ctx context.Context, method, path, id string, fields ma
 	req.Header.Set("Content-Type", "application/json")
 	res, e := c.http.Do(req)
 	if e != nil {
+		if method == http.MethodGet {
+			return nil, readTransportError(e)
+		}
 		return nil, errors.New("RouterOS transport failed")
 	}
 	defer res.Body.Close()

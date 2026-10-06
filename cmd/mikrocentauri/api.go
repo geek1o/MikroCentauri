@@ -12,13 +12,16 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
 	"mikrocentauri.local/core/internal/api"
+	"mikrocentauri.local/core/internal/application"
 	"mikrocentauri.local/core/internal/config"
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/platform/routeros"
 	"mikrocentauri.local/core/internal/rulesets"
 	"mikrocentauri.local/core/internal/singbox"
 	"mikrocentauri.local/core/internal/subscriptions"
@@ -36,6 +39,8 @@ func apiCommand(action string, args []string) error {
 	out := fs.String("out", "", "OpenAPI output file")
 	clients := fs.String("allow-clients", "", "explicit comma separated client CIDRs")
 	routerConfig := fs.String("router-config", "", "private HTTPS RouterOS connection file for read-only resources")
+	runtimeProfile := fs.String("runtime-profile", "", "private preprovisioned native runtime profile (Linux only)")
+	refreshInterval := fs.Duration("subscription-refresh", 0, "periodic refresh interval, 0 disables scheduling")
 	ruleState := fs.String("ruleset-state", "", "private verified rule-set store")
 	if e := fs.Parse(args); e != nil {
 		return e
@@ -69,9 +74,10 @@ func apiCommand(action string, args []string) error {
 	if *password != "" {
 		return errors.New("initialize credentials with api-auth-init")
 	}
-	host, _, e := net.SplitHostPort(*listen)
+	host, port, e := net.SplitHostPort(*listen)
+	portNumber, portError := strconv.Atoi(port)
 	addr, err := netip.ParseAddr(host)
-	if e != nil || err != nil || addr.IsUnspecified() || (!addr.IsLoopback() && !addr.IsPrivate()) {
+	if e != nil || err != nil || portError != nil || portNumber < 1 || portNumber > 65535 || addr.IsUnspecified() || (!addr.IsLoopback() && !addr.IsPrivate()) {
 		return errors.New("API listener must be a literal loopback or private LAN address")
 	}
 	if !addr.IsLoopback() && *clients == "" {
@@ -156,29 +162,86 @@ func apiCommand(action string, args []string) error {
 		return e
 	}
 	defer providers.Close()
+	if *refreshInterval != 0 && (*refreshInterval < time.Minute || *refreshInterval > 24*time.Hour) {
+		return errors.New("invalid subscription refresh interval")
+	}
+	var routerClient *routeros.Client
 	var routerResources *api.RouterResources
 	if *routerConfig != "" {
 		client, _, err := connectRouter(*routerConfig)
 		if err != nil {
 			return err
 		}
+		routerClient = client
 		routerResources = &api.RouterResources{Client: client, Instance: m.Instance}
 	}
-	handler, e := api.New(api.Options{Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: "https://" + *listen, Clients: allowed})
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	var owner *application.Runtime
+	var runtimeAdapter api.Runtime
+	if *runtimeProfile != "" {
+		if routerClient == nil {
+			return errors.New("native runtime requires HTTPS router connection")
+		}
+		var profile application.Profile
+		if privateJSON(*runtimeProfile, &profile, 1<<20) != nil {
+			return errors.New("invalid runtime profile")
+		}
+		setup, done := context.WithTimeout(ctx, 30*time.Second)
+		owner, e = application.New(setup, profile, m, routerClient, *binary)
+		done()
+		if e != nil {
+			return errors.Join(errors.New("native runtime startup preflight failed"), e)
+		}
+		runtimeAdapter = owner
+		defer func() {
+			c, done := context.WithTimeout(context.Background(), 30*time.Second)
+			defer done()
+			owner.Close(c)
+		}()
+	}
+	handler, e := api.New(api.Options{Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: "https://" + *listen, Clients: allowed})
 	if e != nil {
 		return e
 	}
 	srv := &http.Server{Addr: *listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 16384, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS13}}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	done := make(chan error, 1)
-	go func() { done <- srv.ListenAndServeTLS(*cert, *key) }()
+	pair, e := tls.LoadX509KeyPair(*cert, *key)
+	if e != nil {
+		return errors.New("invalid server certificate/key")
+	}
+	listener, e := net.Listen("tcp", *listen)
+	if e != nil {
+		return errors.New("HTTPS API bind failed")
+	}
+	defer listener.Close()
+	srv.TLSConfig.Certificates = []tls.Certificate{pair}
+	done := make(chan error, 3)
+	go func() { done <- srv.Serve(tls.NewListener(listener, srv.TLSConfig)) }()
+	if owner != nil {
+		go func() {
+			e := owner.RunListeners(ctx)
+			if e == nil && ctx.Err() == nil {
+				e = errors.New("runtime stopped")
+			}
+			done <- e
+		}()
+	}
+	if *refreshInterval != 0 {
+		go func() {
+			e := providers.Run(ctx, *refreshInterval)
+			if e != nil {
+				done <- e
+			}
+		}()
+	}
+	defer srv.Close()
 	select {
 	case e := <-done:
 		if errors.Is(e, http.ErrServerClosed) {
 			return nil
 		}
-		return errors.New("HTTPS API listener failed")
+		stop()
+		return errors.New("application listener or runtime failed")
 	case <-ctx.Done():
 		shutdown, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

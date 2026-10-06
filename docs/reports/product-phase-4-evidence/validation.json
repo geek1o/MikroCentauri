@@ -1,0 +1,10 @@
+{
+  "commands": {
+    "make check cross-build": "passed",
+    "Python syntax checks for native builder/E2E/capture/switch": "passed",
+    "exact-run UDP verifier": "15 workloads passed",
+    "negative capture checks": "missing marker and wrong run rejected"
+  },
+  "scope": "Race tests, vet, pinned sing-box smoke checks, static Linux builds; native acceptance separately recorded on CHR x86_64.",
+  "raw_logs": "Local .cache/api-phase4-complete-check.log; not committed"
+}

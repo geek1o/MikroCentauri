@@ -51,7 +51,7 @@ type controllerStep struct {
 // flags cannot enter rollback payloads; executable hooks require exact generation.
 var controllerWritable = map[string]map[string]bool{
 	"ip/route":           fieldSet("comment disabled dst-address gateway routing-table distance scope target-scope check-gateway pref-src suppress-hw-offload"),
-	"ip/firewall/nat":    fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port to-addresses to-ports connection-mark connection-state ipsec-policy log log-prefix"),
+	"ip/firewall/nat":    fieldSet("comment disabled chain action jump-target in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port to-addresses to-ports connection-mark connection-state ipsec-policy log log-prefix"),
 	"ip/firewall/mangle": fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port connection-mark connection-state new-connection-mark new-routing-mark passthrough log log-prefix"),
 	"ip/firewall/filter": fieldSet("comment disabled chain action in-interface out-interface in-interface-list out-interface-list src-address dst-address src-address-list dst-address-list protocol src-port dst-port connection-mark connection-state connection-nat-state ipsec-policy log log-prefix hw-offload"),
 	"tool/netwatch":      fieldSet("comment disabled host type port interval timeout start-delay startup-delay http-codes thr-http-time ignore-initial-up ignore-initial-down up-script down-script test-script"),

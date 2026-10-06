@@ -59,7 +59,7 @@ func (c *Client) capabilityGET(ctx context.Context, path string) ([]byte, bool, 
 		if ctx.Err() != nil {
 			return nil, false, ctx.Err()
 		}
-		return nil, false, errors.New("RouterOS capability transport failed")
+		return nil, false, readTransportError(err)
 	}
 	defer res.Body.Close()
 	body, err := io.ReadAll(io.LimitReader(res.Body, (4<<20)+1))

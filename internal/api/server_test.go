@@ -168,7 +168,7 @@ func TestExportDiagnosticsAndLogsExcludeCredentials(t *testing.T) {
 	if w.Code != 200 || field(t, w, "apply_performed") != false {
 		t.Fatal(w.Body.String())
 	}
-	backup.Schema = 2
+	backup.Schema = SafeBackupSchema + 1
 	if w = call(s, "POST", "/api/v1/backup/restore-preview", token, backup); w.Code != 422 {
 		t.Fatal("future backup accepted")
 	}

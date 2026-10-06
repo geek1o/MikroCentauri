@@ -144,6 +144,12 @@ func connectRouter(path string) (*routeros.Client, string, error) {
 		return nil, "", errors.New("router credentials required in private file")
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
+	// The accepted CHR control plane requires a bounded physical TLS pool.
+	// Keep the one socket warm: cold parallel handshakes caused native broken
+	// pipes under repeated profile proofs. Logical readers remain context-bound.
+	transport.ForceAttemptHTTP2 = false
+	transport.MaxConnsPerHost = 1
+	transport.MaxIdleConnsPerHost = 1
 	transport.TLSClientConfig = &tls.Config{MinVersion: tls.VersionTLS12}
 	if cfg.CAFile != "" {
 		data, err := readRouterFile(cfg.CAFile, 1<<20, false)

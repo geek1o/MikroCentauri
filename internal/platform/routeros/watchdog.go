@@ -26,6 +26,7 @@ type WatchdogSpec struct {
 	Interval         time.Duration `json:"interval"`
 	Timeout          time.Duration `json:"timeout"`
 	SuccessThreshold int           `json:"success_threshold"`
+	LANLeaseCIDR     string        `json:"lan_lease_cidr,omitempty"`
 	Targets          []Object      `json:"targets"`
 }
 
@@ -43,6 +44,12 @@ func DesiredWatchdog(spec WatchdogSpec) (Object, error) {
 	}
 	if spec.Port < 1 || spec.Port > 65535 || spec.Interval < time.Second || spec.Interval > time.Minute || spec.Timeout < time.Millisecond || spec.Timeout >= spec.Interval || spec.Interval%time.Millisecond != 0 || spec.Timeout%time.Millisecond != 0 || spec.SuccessThreshold < 2 || spec.SuccessThreshold > 10 {
 		return Object{}, errors.New("invalid watchdog probe or debounce bounds")
+	}
+	if spec.LANLeaseCIDR != "" {
+		lan, err := netip.ParsePrefix(spec.LANLeaseCIDR)
+		if err != nil || !lan.Addr().Is4() || lan != lan.Masked() || lan.Bits() < 8 || lan.Addr().IsUnspecified() || lan.Addr().IsMulticast() || lan.Addr().IsLoopback() {
+			return Object{}, errors.New("invalid watchdog LAN lease prefix")
+		}
 	}
 	if len(spec.Targets) == 0 || len(spec.Targets) > 16 {
 		return Object{}, errors.New("watchdog requires 1 to 16 steering targets")
@@ -68,7 +75,8 @@ func DesiredWatchdog(spec WatchdogSpec) (Object, error) {
 	counterList := "mc-" + spec.Instance + "-watch-count"
 	counterComment := "mikrocentauri:" + spec.Instance + ":watchdog-counter"
 	clearCounter := watchdogCounterClear(spec.Instance)
-	down := clearCounter + watchdogDisable(spec.Targets)
+	clearLease := watchdogLeaseClear(spec)
+	down := clearCounter + clearLease + watchdogDisable(spec.Targets)
 	encoded, err := json.Marshal(spec)
 	if err != nil {
 		return Object{}, err
@@ -100,6 +108,14 @@ func DesiredWatchdog(spec WatchdogSpec) (Object, error) {
 		script += "}; "
 	}
 
+	if spec.LANLeaseCIDR != "" {
+		script += ":local leases [/ip/firewall/address-list/find where list=" + watchdogQuote("mc-"+spec.Instance+"-up-lease") + "]; :if ([:len $leases] > 1) do={ :set ready false; }; :if ([:len $leases] = 1) do={ :if (([/ip/firewall/address-list/get $leases dynamic] != true) || ([/ip/firewall/address-list/get $leases comment] != " + watchdogQuote("mikrocentauri:"+spec.Instance+":lease:up") + ") || ([:tostr [/ip/firewall/address-list/get $leases address]] != " + watchdogQuote(spec.LANLeaseCIDR) + ")) do={ :set ready false; }; }; "
+	}
+
+	if spec.LANLeaseCIDR != "" {
+		script += ":if ([:len $leases] = 1) do={ :if (([/ip/firewall/address-list/get $leases timeout] <= 0s) || ([/ip/firewall/address-list/get $leases timeout] > " + (2*spec.Interval + spec.Timeout).String() + ")) do={ :set ready false; }; }; "
+	}
+
 	// Netwatch globals are invocation-local on the verified RouterOS build. A
 	// finite dynamic address-list row keeps debounce state in RAM across probes.
 	script += ":local counters [/ip/firewall/address-list/find where list=" + watchdogQuote(counterList) + "]; :if ([:len $counters] > 1) do={ :set ready false; }; :if ([:len $counters] = 1) do={ :if (([/ip/firewall/address-list/get $counters dynamic] != true) || ([/ip/firewall/address-list/get $counters comment] != " + watchdogQuote(counterComment) + ")) do={ :set ready false; } else={ "
@@ -107,7 +123,14 @@ func DesiredWatchdog(spec WatchdogSpec) (Object, error) {
 		script += ":if ([:tostr [/ip/firewall/address-list/get $counters address]] = " + watchdogQuote("127.0.0."+strconv.Itoa(n)) + ") do={ :set count " + strconv.Itoa(n) + "; }; "
 	}
 	script += ":if ($count = 0) do={ :set ready false; }; }; }; "
-	script += ":if ($ready = false) do={ " + clearCounter + watchdogDisable(spec.Targets) + "} else={ :if ($count < " + strconv.Itoa(spec.SuccessThreshold) + ") do={ :set count ($count + 1); }; :do { " + clearCounter + "/ip/firewall/address-list/add list=" + watchdogQuote(counterList) + " address=(\"127.0.0.\".$count) timeout=" + (2*spec.Interval + spec.Timeout).String() + " comment=" + watchdogQuote(counterComment) + "; } on-error={ :set ready false; }; :if (($ready = true) && ($count >= " + strconv.Itoa(spec.SuccessThreshold) + ")) do={ "
+	if spec.LANLeaseCIDR != "" {
+		script += ":if ([:len $counters] = 1) do={ :if (([/ip/firewall/address-list/get $counters timeout] <= 0s) || ([/ip/firewall/address-list/get $counters timeout] > " + (2*spec.Interval + spec.Timeout).String() + ")) do={ :set ready false; }; }; "
+	}
+	refreshCounter := clearCounter + "/ip/firewall/address-list/add list=" + watchdogQuote(counterList) + " address=(\"127.0.0.\".$count) timeout=" + (2*spec.Interval + spec.Timeout).String() + " comment=" + watchdogQuote(counterComment) + "; "
+	if spec.LANLeaseCIDR != "" {
+		refreshCounter = ":if ([:len $counters] = 1) do={ /ip/firewall/address-list/set $counters address=(\"127.0.0.\".$count) timeout=" + (2*spec.Interval + spec.Timeout).String() + "; } else={ /ip/firewall/address-list/add list=" + watchdogQuote(counterList) + " address=(\"127.0.0.\".$count) timeout=" + (2*spec.Interval + spec.Timeout).String() + " comment=" + watchdogQuote(counterComment) + "; }; "
+	}
+	script += ":if ($ready = false) do={ " + down + "} else={ :if ($count < " + strconv.Itoa(spec.SuccessThreshold) + ") do={ :set count ($count + 1); }; :do { " + refreshCounter + "} on-error={ :set ready false; }; :if (($ready = true) && ($count >= " + strconv.Itoa(spec.SuccessThreshold) + ")) do={ "
 
 	enableTargets := append([]Object(nil), spec.Targets...)
 	sort.SliceStable(enableTargets, func(i, j int) bool {
@@ -116,7 +139,18 @@ func DesiredWatchdog(spec WatchdogSpec) (Object, error) {
 	for _, o := range enableTargets {
 		script += watchdogSwitch(o, "enable", true)
 	}
-	script += "} else={ " + watchdogDisable(spec.Targets) + "}; }; } on-error={ " + down + "};"
+	if spec.LANLeaseCIDR != "" {
+		// A successful command response cannot replace readback of all targets.
+		for _, target := range enableTargets {
+			path := "/" + target.Path
+			script += ":local enabled [" + path + "/find where comment=" + watchdogQuote(target.Fields["comment"]) + "]; :if ([:len $enabled] != 1) do={ :error \"steering ownership changed\"; }; :if ([" + path + "/get $enabled disabled] != false) do={ :error \"steering enable unproved\"; }; "
+		}
+		// Publish authority last, after all exact steering targets were enabled.
+		// Refresh the existing RAM row in place. Removing it before add creates
+		// a DIRECT window for fresh cached-alias connections on every UP probe.
+		script += ":if ([:len $leases] = 1) do={ /ip/firewall/address-list/set $leases timeout=" + (2*spec.Interval + spec.Timeout).String() + "; } else={ /ip/firewall/address-list/add list=" + watchdogQuote("mc-"+spec.Instance+"-up-lease") + " address=" + watchdogQuote(spec.LANLeaseCIDR) + " timeout=" + (2*spec.Interval + spec.Timeout).String() + " comment=" + watchdogQuote("mikrocentauri:"+spec.Instance+":lease:up") + "; }; "
+	}
+	script += "} else={ " + clearLease + watchdogDisable(spec.Targets) + "}; }; } on-error={ " + down + "};"
 	if len(script) > 32<<10 {
 		return Object{}, errors.New("watchdog script exceeds bounded size")
 	}
@@ -148,7 +182,7 @@ func WatchdogBootGuardScript(spec WatchdogSpec) (string, error) {
 	}
 	spec.Targets = append([]Object(nil), spec.Targets...)
 	sort.Slice(spec.Targets, func(i, j int) bool { return key(spec.Targets[i]) < key(spec.Targets[j]) })
-	return watchdogCounterClear(spec.Instance) + watchdogDisable(spec.Targets), nil
+	return watchdogCounterClear(spec.Instance) + watchdogLeaseClear(spec) + watchdogDisable(spec.Targets), nil
 }
 
 // ValidateGeneratedWatchdog admits only the exact deterministic generated hooks.
@@ -281,4 +315,12 @@ func enablePriority(path string) int {
 	default:
 		return 2
 	}
+}
+
+// A LAN lease is finite RAM authority. Foreign/static rows are never removed.
+func watchdogLeaseClear(spec WatchdogSpec) string {
+	if spec.LANLeaseCIDR == "" {
+		return ""
+	}
+	return "/ip/firewall/address-list/remove [find where list=" + watchdogQuote("mc-"+spec.Instance+"-up-lease") + " and comment=" + watchdogQuote("mikrocentauri:"+spec.Instance+":lease:up") + " and dynamic=yes]; "
 }

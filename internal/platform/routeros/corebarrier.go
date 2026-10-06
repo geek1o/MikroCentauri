@@ -30,9 +30,10 @@ type CoreNativeBarrier struct {
 	options   CoreNativeBarrierOptions
 	targets   []Object
 	threshold int
+	lifetime  time.Duration
 }
 
-var errCoreNativeTransport = errors.New("native read unavailable")
+var errCoreNativeTransport = ErrReadUnavailable
 
 func NewCoreNativeBarrier(c *Client, o CoreNativeBarrierOptions) (*CoreNativeBarrier, error) {
 	if c == nil || c.base.Scheme != "https" {
@@ -60,8 +61,14 @@ func newCoreNativeBarrier(c *Client, o CoreNativeBarrierOptions, lab bool) (*Cor
 		if err != nil || controllerDecode(raw, &spec) != nil {
 			return nil, errors.New("invalid native generated policy")
 		}
-		if len(o.ReservedLists) != 1 || o.ReservedLists[0].List != "mc-"+o.Instance+"-watch-count" || o.ReservedLists[0].Comment != "mikrocentauri:"+o.Instance+":watchdog-counter" || o.ReservedLists[0].Address != "" {
-			return nil, errors.New("generated observer requires exact counter identity")
+		expected := WatchdogReservedLists(spec)
+		if len(o.ReservedLists) != len(expected) {
+			return nil, errors.New("generated observer requires exact volatile identities")
+		}
+		for i := range expected {
+			if o.ReservedLists[i] != expected[i] {
+				return nil, errors.New("generated observer requires exact volatile identities")
+			}
 		}
 	}
 	for _, field := range []string{"host", "port", "type", "http-codes"} {
@@ -82,7 +89,7 @@ func newCoreNativeBarrier(c *Client, o CoreNativeBarrierOptions, lab bool) (*Cor
 	}
 	o.Observer = copy
 	o.ReservedLists = append([]CoreReservedList(nil), o.ReservedLists...)
-	return &CoreNativeBarrier{client: c, options: o, targets: spec.Targets, threshold: spec.SuccessThreshold}, nil
+	return &CoreNativeBarrier{client: c, options: o, targets: spec.Targets, threshold: spec.SuccessThreshold, lifetime: 2*spec.Interval + spec.Timeout}, nil
 }
 func (b *CoreNativeBarrier) rows(ctx context.Context, path string) ([]map[string]string, error) {
 	u := *b.client.base
@@ -94,7 +101,7 @@ func (b *CoreNativeBarrier) rows(ctx context.Context, path string) ([]map[string
 	req.SetBasicAuth(b.client.user, b.client.password)
 	resp, err := b.client.http.Do(req)
 	if err != nil {
-		return nil, errCoreNativeTransport
+		return nil, readTransportError(err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -111,7 +118,10 @@ func (b *CoreNativeBarrier) rows(ctx context.Context, path string) ([]map[string
 	return rows, nil
 }
 func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
-	rows, err := b.rows(ctx, "tool/netwatch")
+	return b.revokedUsing(ctx, b.rows)
+}
+func (b *CoreNativeBarrier) revokedUsing(ctx context.Context, read func(context.Context, string) ([]map[string]string, error)) (bool, error) {
+	rows, err := read(ctx, "tool/netwatch")
 	if err != nil {
 		return false, err
 	}
@@ -135,12 +145,15 @@ func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
 			return false, errors.New("native observer configuration differs")
 		}
 	}
+	if b.threshold > 0 && !nativeExactFields("tool/netwatch", observer, b.options.Observer.Fields) {
+		return false, errors.New("native observer contains unsupported configuration")
+	}
 	if observer["disabled"] != "true" && observer["disabled"] != "false" {
 		return false, errors.New("invalid native observer state")
 	}
 	down := observer["disabled"] == "true" || observer["status"] == "down"
 	for _, target := range b.targets {
-		targetRows, err := b.rows(ctx, target.Path)
+		targetRows, err := read(ctx, target.Path)
 		if err != nil {
 			return false, err
 		}
@@ -158,6 +171,9 @@ func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
 					return false, errors.New("native steering target differs")
 				}
 			}
+			if !nativeExactFields(target.Path, row, target.Fields) {
+				return false, errors.New("native steering target contains unsupported configuration")
+			}
 			if row["disabled"] != "true" {
 				down = false
 			}
@@ -166,7 +182,7 @@ func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
 			return false, errors.New("native steering target ownership ambiguous")
 		}
 	}
-	rows, err = b.rows(ctx, "ip/firewall/address-list")
+	rows, err = read(ctx, "ip/firewall/address-list")
 	if err != nil {
 		return false, err
 	}
@@ -182,10 +198,10 @@ func (b *CoreNativeBarrier) revoked(ctx context.Context) (bool, error) {
 				return false, errors.New("foreign or invalid native volatile authority")
 			}
 			duration, err := time.ParseDuration(row["timeout"])
-			if err != nil || duration < 0 || duration > 15*time.Minute {
+			if err != nil || duration <= 0 || duration > 15*time.Minute || b.lifetime > 0 && duration > b.lifetime {
 				return false, errors.New("invalid native volatile lifetime")
 			}
-			if b.threshold > 0 {
+			if b.threshold > 0 && list.Address == "" {
 				address, err := netip.ParseAddr(row["address"])
 				if err != nil || !address.Is4() {
 					return false, errors.New("invalid native counter address")
@@ -225,4 +241,34 @@ func (b *CoreNativeBarrier) Verify(ctx context.Context) error {
 		return errors.New("native authority remains live")
 	}
 	return nil
+}
+
+// WatchdogReservedLists returns the exact native authorities bound to the hooks.
+func WatchdogReservedLists(spec WatchdogSpec) []CoreReservedList {
+	lists := []CoreReservedList{{List: "mc-" + spec.Instance + "-watch-count", Comment: "mikrocentauri:" + spec.Instance + ":watchdog-counter"}}
+	if spec.LANLeaseCIDR != "" {
+		lists = append(lists, CoreReservedList{List: "mc-" + spec.Instance + "-up-lease", Comment: "mikrocentauri:" + spec.Instance + ":lease:up", Address: spec.LANLeaseCIDR})
+	}
+	return lists
+}
+
+func nativeExactFields(path string, row, fields map[string]string) bool {
+	actual := Object{Path: path, Fields: map[string]string{}}
+	expected := Object{Path: path, Fields: map[string]string{}}
+	for k, v := range fields {
+		expected.Fields[k] = v
+	}
+	for k, v := range row {
+		if k == ".id" {
+			continue
+		}
+		if v != "" && !controllerWritable[path][k] && !controllerReadOnly(k) {
+			return false
+		}
+		actual.Fields[k] = v
+	}
+	// Enabled state may change under the independent native observer.
+	actual.Fields["disabled"] = "true"
+	expected.Fields["disabled"] = "true"
+	return controllerSame(actual, expected)
 }

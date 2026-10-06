@@ -1,0 +1,116 @@
+{
+  "inspection": "offline read-only debugfs after container stop and QEMU termination",
+  "actual_executables": {
+    "binary_sha256": "19ad0498ea6c913a785bc555294c47b4ae4dc88114077b3ee7efe7eb2634078c",
+    "sing_box_sha256": "4b5cef575df2e5572eddf7c204b4adea03a27d9721c5e39a89df5fb6977643cb"
+  },
+  "private_metadata": [
+    {
+      "path": "/data/api4/api",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/runtime",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/runtime/publication",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/runtime/namespace",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/runtime/transitions",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/runtime/process",
+      "type": "directory",
+      "mode": "0700"
+    },
+    {
+      "path": "/data/api4/model.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/profile.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/router.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/api.key",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/api/auth.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/runtime/namespace/namespace.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/runtime/publication/mappings.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/runtime/process/journal.json",
+      "type": "regular",
+      "mode": "0600"
+    },
+    {
+      "path": "/data/api4/runtime/transitions/engine-cache.db",
+      "type": "regular",
+      "mode": "0600"
+    }
+  ],
+  "namespace": {
+    "version": 1,
+    "capacity": 32,
+    "revision": 8,
+    "known": [
+      "selected.test",
+      "second.test",
+      "third.test"
+    ],
+    "active": [
+      "selected.test",
+      "third.test"
+    ]
+  },
+  "immutable_mappings": [
+    {
+      "domain": "selected.test",
+      "fake": "198.19.128.2",
+      "real": "10.77.0.20"
+    },
+    {
+      "domain": "second.test",
+      "fake": "198.19.128.3",
+      "real": "10.77.0.20"
+    },
+    {
+      "domain": "third.test",
+      "fake": "198.19.128.4",
+      "real": "10.77.0.20"
+    }
+  ],
+  "deployment": "Existing imported fixture root hotupdated with exact CLI; namespace, journals and engine cache preserved; image rebuild is not an accepted install/upgrade artifact."
+}

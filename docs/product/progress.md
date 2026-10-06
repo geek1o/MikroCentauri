@@ -11,7 +11,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
 | 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
 | 3 | sing-box Core | Complete for pinned sing-box 1.14.2 / CHR 7.24.5 x86_64: imports/subscription LKG, groups/health/fallback, ordered rules/services/verified SRS, modern WireGuard, DNS/FakeIP, validator/supervisor and coordinated native activation/recovery; broader device/release acceptance remains in later phases |
-| 4 | Backend/API | In progress: TLS/authenticated v1 foundation, generated OpenAPI, durable drafts, validated single-use plans, runtime-host lifecycle, read-only RouterOS and private subscription adapters, diagnostic bundles, safe core export/restore preview; native deployment factory, unified plans and application-wide backup remain open |
+| 4 | Backend/API | Complete for the pinned CHR profile: TLS/authenticated typed v1 API, durable drafts and verified single-use plans, production native owner, public policy/subscription workflows, safe application backup/restore, bounded logs and diagnostics; native TCP/UDP/HTTP3, SIGKILL recovery and exact-run packet evidence accepted |
 | 5 | Web UI | Not started |
 | 6 | RouterOS App | Lab image builders and manifest draft exist; installable application remains open |
 | 7 | Hardening | Selected failure, boot, source-policy and FastTrack experiments exist; complete security/device acceptance remains open |
@@ -32,7 +32,7 @@ Engineering milestones already recorded:
 | 8 | Integrated policy activation and startup recovery |
 
 Do not use the largest report number as a completion percentage. Product Phase 2
-and Phase 3 are accepted on the pinned CHR profile. Next is Phase 4 Backend/API.
+and Phases 3–4 are accepted on the pinned CHR profile. Next is Phase 5 Web UI.
 A completed controller does not imply an installable application or accepted
 release/device matrix.
 
@@ -54,3 +54,8 @@ The first authenticated backend block is documented in
 
 [Phase 4 runtime host and resources](../reports/product-phase-4-runtime-resources.md)
 records the next backend block and its native deployment boundary.
+
+The completed backend checklist, native CLI results and packet witnesses are in
+[product Phase 4 acceptance](../reports/product-phase-4-api-completion.md).
+This completion report supersedes the open native/backup boundaries in the
+earlier Phase 4 foundation and runtime-resource reports.

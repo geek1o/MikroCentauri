@@ -53,7 +53,13 @@ with path.open('wb') as capture:
             while len(buffer) >= 4:
                 size = struct.unpack('!I', buffer[:4])[0]
                 if size > 65535:
-                    raise RuntimeError('Invalid QEMU Ethernet frame size')
+                    # A malformed local peer must not terminate the switch or
+                    # disconnect unrelated QEMU guests. No payload is logged.
+                    print(f'Rejected invalid Ethernet frame size: {size}', flush=True)
+                    del peers[sock]
+                    sock.close()
+                    macs = {m: p for m, p in macs.items() if p is not sock}
+                    break
                 if len(buffer) < size + 4:
                     break
                 packet = bytes(buffer[4:size + 4])

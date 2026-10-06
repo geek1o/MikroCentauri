@@ -20,7 +20,7 @@ func (s *Server) bundle(ctx context.Context) ([]byte, error) {
 	entries := []struct {
 		name  string
 		value any
-	}{{"status.json", s.view()}, {"model-preview.json", m.Preview()}, {"events.json", s.events}}
+	}{{"status.json", s.view()}, {"model-preview.json", m.Preview()}, {"events.json", s.logEvents()}}
 	if s.opts.Router != nil {
 		snapshot, e := s.opts.Router.Snapshot(ctx)
 		if e != nil {
