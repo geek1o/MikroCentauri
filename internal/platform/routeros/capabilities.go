@@ -43,7 +43,7 @@ var routerVersion = regexp.MustCompile(`^[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:beta[0-9]
 
 // capabilityGET has a separate GET-only allowlist; it never widens mutation paths.
 func (c *Client) capabilityGET(ctx context.Context, path string) ([]byte, bool, error) {
-	if !capabilityPaths[path] && !paths[path] {
+	if !capabilityPaths[path] && !networkPaths[path] && !paths[path] {
 		return nil, false, errors.New("unsupported RouterOS capability resource")
 	}
 	u := *c.base

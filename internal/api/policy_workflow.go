@@ -97,6 +97,9 @@ func mergePolicy(m coreconfig.Model, in DraftPolicyRequest) (coreconfig.Model, e
 // policyWorkflow is called under the Server mutation mutex. Saving a policy is
 // schema validation only; generation and network mutation use the normal plan.
 func (s *Server) policyWorkflow(w http.ResponseWriter, r *http.Request, raw []byte, id string) bool {
+	if s.proxyWorkflow(w, r, raw, id) {
+		return true
+	}
 	if r.URL.Path != "/api/v1/config/draft/policy" && r.URL.Path != "/api/v1/proxies/import" {
 		return false
 	}

@@ -1,0 +1,8 @@
+make check cross-build: PASS
+Go race suite, vet, pinned integration smokes, switch regression: PASS
+Actual sing-box 1.14.2 isolated node proof: PASS (not skipped)
+Frontend: 0 errors/warnings, 11 tests PASS, embedded rebuild byte comparison PASS
+Linux amd64/arm64 cross-build: PASS
+Chromium/WebKit HTTPS browser workflows: PASS
+Firefox launch: NOT ACCEPTED (host sandbox/compositor)
+Native CHR routing proof reused from accepted Phase 4; no new hardware claim.

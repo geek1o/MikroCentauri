@@ -22,6 +22,7 @@ import (
 	"mikrocentauri.local/core/internal/coreactivation"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/subscriptions"
+	"mikrocentauri.local/core/internal/webui"
 )
 
 type Options struct {
@@ -193,6 +194,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reject(w, 503, "busy")
 		return
 	}
+	if webui.Serve(w, r) {
+		return
+	}
 	if r.URL.Path == "/api/v1/health/live" && r.Method == "GET" {
 		reply(w, 200, map[string]bool{"live": true})
 		return
@@ -241,6 +245,15 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.backupGet(w, r) {
+		return
+	}
+	if s.networkGet(w, r) {
+		return
+	}
+	if s.scheduleGet(w, r) {
+		return
+	}
+	if s.systemInfoGet(w, r) {
 		return
 	}
 	v := s.view()
@@ -346,7 +359,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		reject(w, 400, "invalid_request")
 		return
 	}
-	if s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) {
+	if s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {

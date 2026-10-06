@@ -23,3 +23,10 @@ assets. These include separately licensed operating-system components (including
 Linux/BusyBox GPL and musl MIT); generated local archives are ignored and are not
 redistributed here. A future distributed app image requires a complete binary
 license/source inventory in addition to sing-box's corresponding-source obligation.
+
+The embedded administrative UI contains Svelte 5.57.1 runtime code (MIT) and
+Vite 8.3.3's generated module-preload helper (MIT). Their exact upstream copyright
+and permission notices are retained in `frontend/public/licenses.txt`, copied into
+the embedded bundle and served at `/licenses.txt`. TypeScript, the Svelte/Vite
+plugins, formatters and Playwright are development tooling pinned in lockfiles;
+they are not included as server runtimes or redistributed browser dependencies.

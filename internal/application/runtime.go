@@ -59,10 +59,12 @@ type Profile struct {
 
 type Runtime struct {
 	*api.Host
-	DNS     dnsgate.Handler
-	Profile Profile
-	ledger  *fakeip.Publisher
-	store   *namespace.Store
+	DNS              dnsgate.Handler
+	Profile          Profile
+	ledger           *fakeip.Publisher
+	store            *namespace.Store
+	diagnosticProbes map[string]func(context.Context) error
+	binary           string
 }
 
 type guardedOwner struct {
@@ -301,7 +303,12 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 		ledger.Close()
 		return nil, e
 	}
-	return &Runtime{Host: h, DNS: t.Handler(), Profile: p, ledger: ledger, store: store}, nil
+	return &Runtime{Host: h, DNS: t.Handler(), Profile: p, ledger: ledger, store: store, binary: binary, diagnosticProbes: map[string]func(context.Context) error{"proxy": probe.Check, "watchdog": backend.VerifyProfile, "routing": func(ctx context.Context) error {
+		if e := barrier.InspectActive(ctx); e != nil {
+			return e
+		}
+		return backend.VerifyProfile(ctx)
+	}}}, nil
 }
 func (r *Runtime) Close(ctx context.Context) error {
 	e := r.Host.Close(ctx)

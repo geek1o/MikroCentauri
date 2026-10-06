@@ -165,6 +165,9 @@ func apiCommand(action string, args []string) error {
 	if *refreshInterval != 0 && (*refreshInterval < time.Minute || *refreshInterval > 24*time.Hour) {
 		return errors.New("invalid subscription refresh interval")
 	}
+	if e = providers.InitializeSchedule(*refreshInterval); e != nil {
+		return e
+	}
 	var routerClient *routeros.Client
 	var routerResources *api.RouterResources
 	if *routerConfig != "" {
@@ -226,14 +229,12 @@ func apiCommand(action string, args []string) error {
 			done <- e
 		}()
 	}
-	if *refreshInterval != 0 {
-		go func() {
-			e := providers.Run(ctx, *refreshInterval)
-			if e != nil {
-				done <- e
-			}
-		}()
-	}
+	go func() {
+		e := providers.RunScheduled(ctx)
+		if e != nil {
+			done <- e
+		}
+	}()
 	defer srv.Close()
 	select {
 	case e := <-done:

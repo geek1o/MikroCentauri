@@ -12,7 +12,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
 | 3 | sing-box Core | Complete for pinned sing-box 1.14.2 / CHR 7.24.5 x86_64: imports/subscription LKG, groups/health/fallback, ordered rules/services/verified SRS, modern WireGuard, DNS/FakeIP, validator/supervisor and coordinated native activation/recovery; broader device/release acceptance remains in later phases |
 | 4 | Backend/API | Complete for the pinned CHR profile: TLS/authenticated typed v1 API, durable drafts and verified single-use plans, production native owner, public policy/subscription workflows, safe application backup/restore, bounded logs and diagnostics; native TCP/UDP/HTTP3, SIGKILL recovery and exact-run packet evidence accepted |
-| 5 | Web UI | Not started |
+| 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain hardening |
 | 6 | RouterOS App | Lab image builders and manifest draft exist; installable application remains open |
 | 7 | Hardening | Selected failure, boot, source-policy and FastTrack experiments exist; complete security/device acceptance remains open |
 | 8 | Release candidate | Not started: release images, upgrade/rollback acceptance, SBOM and complete E2E delivery remain open |
@@ -32,7 +32,8 @@ Engineering milestones already recorded:
 | 8 | Integrated policy activation and startup recovery |
 
 Do not use the largest report number as a completion percentage. Product Phase 2
-and Phases 3–4 are accepted on the pinned CHR profile. Next is Phase 5 Web UI.
+and Phases 3–4 are accepted on the pinned CHR profile. Phase 5 UI is accepted
+against that backend boundary. Next is Phase 6 RouterOS App.
 A completed controller does not imply an installable application or accepted
 release/device matrix.
 
@@ -59,3 +60,7 @@ The completed backend checklist, native CLI results and packet witnesses are in
 [product Phase 4 acceptance](../reports/product-phase-4-api-completion.md).
 This completion report supersedes the open native/backup boundaries in the
 earlier Phase 4 foundation and runtime-resource reports.
+
+The complete UI checklist, browser contracts and build evidence are in
+[product Phase 5 acceptance](../reports/product-phase-5-web-ui-completion.md).
+Its preprovisioned setup review does not close the Phase 6 installation gate.

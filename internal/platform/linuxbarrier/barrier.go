@@ -291,3 +291,25 @@ func (b *Barrier) Release(ctx context.Context) error {
 	}
 	return ctx.Err()
 }
+
+// InspectActive is read-only: inspect the released owned ingress table and TUN
+// without changing the activation verification latch or issuing ip mutations.
+func (b *Barrier) InspectActive(ctx context.Context) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	found, e := b.rule(ctx)
+	if e != nil {
+		return e
+	}
+	if !found {
+		return errors.New("ingress rule absent")
+	}
+	route, e := b.route(ctx)
+	if e != nil {
+		return e
+	}
+	if !strings.HasPrefix(route, "default dev "+b.options.TUN) {
+		return errors.New("ingress route not active")
+	}
+	return b.tun(ctx)
+}

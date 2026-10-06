@@ -73,16 +73,18 @@ type SubscriptionView struct {
 	Nodes         []endpoints.Preview `json:"nodes"`
 }
 type SubscriptionResources struct {
-	lock      *os.File
-	mu        sync.Mutex
-	refreshMu sync.Mutex
-	running   bool
-	eventsMu  sync.Mutex
-	events    []Event
-	dir       string
-	manager   SubscriptionManager
-	specs     []subscriptions.Spec
-	poisoned  bool
+	lock           *os.File
+	mu             sync.Mutex
+	refreshMu      sync.Mutex
+	running        bool
+	eventsMu       sync.Mutex
+	events         []Event
+	dir            string
+	manager        SubscriptionManager
+	specs          []subscriptions.Spec
+	poisoned       bool
+	schedule       *SubscriptionSchedule
+	scheduleNotify chan struct{}
 }
 
 var subscriptionID = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)

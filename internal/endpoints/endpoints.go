@@ -35,7 +35,7 @@ type Endpoint struct {
 type Preview struct {
 	ID, Name, Protocol, Server, Transport, SNI, Fingerprint string
 	Port                                                    uint16
-	TLS, Reality                                            bool
+	TLS, Reality, Enabled                                   bool
 }
 
 func (e Endpoint) Preview() Preview {
@@ -43,7 +43,7 @@ func (e Endpoint) Preview() Preview {
 	if e.Protocol == "hysteria2" {
 		transport = "quic"
 	}
-	return Preview{e.ID, e.Name, e.Protocol, e.Server, transport, e.SNI, e.Fingerprint, e.Port, e.TLS, e.RealityKey != ""}
+	return Preview{e.ID, e.Name, e.Protocol, e.Server, transport, e.SNI, e.Fingerprint, e.Port, e.TLS, e.RealityKey != "", e.Enabled}
 }
 func failure() (Endpoint, error) {
 	return Endpoint{}, errors.New("invalid or unsupported endpoint URI")

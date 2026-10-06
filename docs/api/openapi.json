@@ -971,6 +971,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -1012,7 +1015,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -1638,6 +1642,9 @@
                         "items": {
                           "additionalProperties": false,
                           "properties": {
+                            "Enabled": {
+                              "type": "boolean"
+                            },
                             "Fingerprint": {
                               "type": "string"
                             },
@@ -1679,7 +1686,8 @@
                             "Fingerprint",
                             "Port",
                             "TLS",
-                            "Reality"
+                            "Reality",
+                            "Enabled"
                           ],
                           "type": "object"
                         },
@@ -2086,6 +2094,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -2127,7 +2138,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -2802,6 +2814,9 @@
                         "items": {
                           "additionalProperties": false,
                           "properties": {
+                            "Enabled": {
+                              "type": "boolean"
+                            },
                             "Fingerprint": {
                               "type": "string"
                             },
@@ -2843,7 +2858,8 @@
                             "Fingerprint",
                             "Port",
                             "TLS",
-                            "Reality"
+                            "Reality",
+                            "Enabled"
                           ],
                           "type": "object"
                         },
@@ -3250,6 +3266,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -3291,7 +3310,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -3923,6 +3943,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -3964,7 +3987,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -4791,6 +4815,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -4832,7 +4859,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -5966,6 +5994,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -6007,7 +6038,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -6636,6 +6668,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -6677,7 +6712,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -7767,6 +7803,9 @@
                           "items": {
                             "additionalProperties": false,
                             "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
                               "Fingerprint": {
                                 "type": "string"
                               },
@@ -7808,7 +7847,8 @@
                               "Fingerprint",
                               "Port",
                               "TLS",
-                              "Reality"
+                              "Reality",
+                              "Enabled"
                             ],
                             "type": "object"
                           },
@@ -8314,6 +8354,280 @@
               }
             },
             "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/diagnostics/run": {
+      "post": {
+        "operationId": "post_diagnostics_run",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "routeros",
+                      "core",
+                      "dns",
+                      "direct",
+                      "proxy",
+                      "routing",
+                      "watchdog"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "checked_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "latency_ms": {
+                      "type": "integer"
+                    },
+                    "revision": {
+                      "type": "integer"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "success",
+                    "code",
+                    "scope",
+                    "latency_ms",
+                    "checked_at",
+                    "revision"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Adapter not connected"
           },
           "503": {
             "content": {
@@ -10094,6 +10408,9 @@
                       "items": {
                         "additionalProperties": false,
                         "properties": {
+                          "Enabled": {
+                            "type": "boolean"
+                          },
                           "Fingerprint": {
                             "type": "string"
                           },
@@ -10135,7 +10452,8 @@
                           "Fingerprint",
                           "Port",
                           "TLS",
-                          "Reality"
+                          "Reality",
+                          "Enabled"
                         ],
                         "type": "object"
                       },
@@ -10206,6 +10524,669 @@
               }
             },
             "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/proxies/delete": {
+      "post": {
+        "operationId": "post_proxies_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "draft_revision": {
+                    "type": "integer"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "draft_revision",
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_revision": {
+                      "type": "integer"
+                    },
+                    "draft_revision": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "endpoints": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
+                              "Fingerprint": {
+                                "type": "string"
+                              },
+                              "ID": {
+                                "type": "string"
+                              },
+                              "Name": {
+                                "type": "string"
+                              },
+                              "Port": {
+                                "type": "integer"
+                              },
+                              "Protocol": {
+                                "type": "string"
+                              },
+                              "Reality": {
+                                "type": "boolean"
+                              },
+                              "SNI": {
+                                "type": "string"
+                              },
+                              "Server": {
+                                "type": "string"
+                              },
+                              "TLS": {
+                                "type": "boolean"
+                              },
+                              "Transport": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "ID",
+                              "Name",
+                              "Protocol",
+                              "Server",
+                              "Transport",
+                              "SNI",
+                              "Fingerprint",
+                              "Port",
+                              "TLS",
+                              "Reality",
+                              "Enabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "groups": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "interval": {
+                                "type": "string"
+                              },
+                              "members": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "selected": {
+                                "type": "string"
+                              },
+                              "tolerance": {
+                                "type": "integer"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "members"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "instance": {
+                          "type": "string"
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "rule_count": {
+                          "type": "integer"
+                        },
+                        "wireguard": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "listen_port": {
+                                "type": "integer"
+                              },
+                              "mtu": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "peer_count": {
+                                "type": "integer"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "protocol",
+                              "enabled",
+                              "address",
+                              "listen_port",
+                              "mtu",
+                              "peer_count"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "instance",
+                        "mode",
+                        "endpoints",
+                        "wireguard",
+                        "groups",
+                        "rule_count"
+                      ],
+                      "type": "object"
+                    },
+                    "policy": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "default_outbound": {
+                          "type": "string"
+                        },
+                        "dns": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "bootstrap": {
+                              "type": "string"
+                            },
+                            "fakeip_range": {
+                              "type": "string"
+                            },
+                            "selected_domains": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "selected_suffixes": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "bootstrap",
+                            "fakeip_range",
+                            "selected_domains",
+                            "selected_suffixes"
+                          ],
+                          "type": "object"
+                        },
+                        "rule_sets": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "format": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "format"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "rules": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "destination_cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "domains": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "network": {
+                                "type": "string"
+                              },
+                              "outbound": {
+                                "type": "string"
+                              },
+                              "ports": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "priority": {
+                                "type": "integer"
+                              },
+                              "rule_sets": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "services": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "source_cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "suffixes": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "outbound"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "services": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "networks": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "ports": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ports",
+                              "networks"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "source_direct": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "source_proxy": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "outbound": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "cidrs",
+                              "outbound"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rules",
+                        "services",
+                        "source_direct",
+                        "source_proxy",
+                        "default_outbound",
+                        "dns",
+                        "rule_sets"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "draft_revision",
+                    "base_revision",
+                    "id",
+                    "model",
+                    "policy"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
           },
           "400": {
             "content": {
@@ -10627,6 +11608,929 @@
         ]
       }
     },
+    "/api/v1/proxies/probe": {
+      "post": {
+        "operationId": "post_proxies_probe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "maxLength": 64,
+                    "minLength": 64,
+                    "pattern": "^[a-f0-9]{64}$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "checked_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "latency_ms": {
+                      "type": "integer"
+                    },
+                    "node_id": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "integer"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "success": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "node_id",
+                    "success",
+                    "code",
+                    "scope",
+                    "latency_ms",
+                    "checked_at",
+                    "revision"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/proxies/update": {
+      "post": {
+        "operationId": "post_proxies_update",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "draft_revision": {
+                    "type": "integer"
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "maxLength": 16384,
+                    "type": "string",
+                    "writeOnly": true
+                  }
+                },
+                "required": [
+                  "draft_revision",
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_revision": {
+                      "type": "integer"
+                    },
+                    "draft_revision": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "endpoints": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "Enabled": {
+                                "type": "boolean"
+                              },
+                              "Fingerprint": {
+                                "type": "string"
+                              },
+                              "ID": {
+                                "type": "string"
+                              },
+                              "Name": {
+                                "type": "string"
+                              },
+                              "Port": {
+                                "type": "integer"
+                              },
+                              "Protocol": {
+                                "type": "string"
+                              },
+                              "Reality": {
+                                "type": "boolean"
+                              },
+                              "SNI": {
+                                "type": "string"
+                              },
+                              "Server": {
+                                "type": "string"
+                              },
+                              "TLS": {
+                                "type": "boolean"
+                              },
+                              "Transport": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "ID",
+                              "Name",
+                              "Protocol",
+                              "Server",
+                              "Transport",
+                              "SNI",
+                              "Fingerprint",
+                              "Port",
+                              "TLS",
+                              "Reality",
+                              "Enabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "groups": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "interval": {
+                                "type": "string"
+                              },
+                              "members": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "selected": {
+                                "type": "string"
+                              },
+                              "tolerance": {
+                                "type": "integer"
+                              },
+                              "type": {
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "type",
+                              "members"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "instance": {
+                          "type": "string"
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "rule_count": {
+                          "type": "integer"
+                        },
+                        "wireguard": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "listen_port": {
+                                "type": "integer"
+                              },
+                              "mtu": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "peer_count": {
+                                "type": "integer"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "protocol",
+                              "enabled",
+                              "address",
+                              "listen_port",
+                              "mtu",
+                              "peer_count"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "instance",
+                        "mode",
+                        "endpoints",
+                        "wireguard",
+                        "groups",
+                        "rule_count"
+                      ],
+                      "type": "object"
+                    },
+                    "policy": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "default_outbound": {
+                          "type": "string"
+                        },
+                        "dns": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "bootstrap": {
+                              "type": "string"
+                            },
+                            "fakeip_range": {
+                              "type": "string"
+                            },
+                            "selected_domains": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "selected_suffixes": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "bootstrap",
+                            "fakeip_range",
+                            "selected_domains",
+                            "selected_suffixes"
+                          ],
+                          "type": "object"
+                        },
+                        "rule_sets": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "format": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "format"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "rules": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "destination_cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "domains": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "network": {
+                                "type": "string"
+                              },
+                              "outbound": {
+                                "type": "string"
+                              },
+                              "ports": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "priority": {
+                                "type": "integer"
+                              },
+                              "rule_sets": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "services": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "source_cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "suffixes": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "outbound"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "services": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "networks": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "ports": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "ports",
+                              "networks"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "source_direct": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "source_proxy": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "cidrs": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": [
+                                  "array",
+                                  "null"
+                                ]
+                              },
+                              "outbound": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "cidrs",
+                              "outbound"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "rules",
+                        "services",
+                        "source_direct",
+                        "source_proxy",
+                        "default_outbound",
+                        "dns",
+                        "rule_sets"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "draft_revision",
+                    "base_revision",
+                    "id",
+                    "model",
+                    "policy"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
     "/api/v1/routeros": {
       "get": {
         "operationId": "get_routeros",
@@ -10751,6 +12655,353 @@
                     "capabilities",
                     "owned_counts",
                     "owned_disabled"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/routeros/network": {
+      "get": {
+        "operationId": "get_routeros_network",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "addresses": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "interface": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "address",
+                          "interface",
+                          "disabled"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "available": {
+                      "additionalProperties": {
+                        "type": "boolean"
+                      },
+                      "type": "object"
+                    },
+                    "default_routes": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "disabled": {
+                            "type": "boolean"
+                          },
+                          "gateway": {
+                            "type": "string"
+                          },
+                          "table": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "gateway",
+                          "table",
+                          "disabled"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "devices": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "address": {
+                            "type": "string"
+                          },
+                          "hostname": {
+                            "type": "string"
+                          },
+                          "mac": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "hostname",
+                          "address",
+                          "mac",
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "disk_free": {
+                      "type": "integer"
+                    },
+                    "disk_total": {
+                      "type": "integer"
+                    },
+                    "dns_remote_requests": {
+                      "type": "boolean"
+                    },
+                    "dns_servers": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "fasttrack_enabled": {
+                      "type": "integer"
+                    },
+                    "fasttrack_rules": {
+                      "type": "integer"
+                    },
+                    "memory_free": {
+                      "type": "integer"
+                    },
+                    "memory_total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "addresses",
+                    "default_routes",
+                    "devices",
+                    "dns_servers",
+                    "dns_remote_requests",
+                    "fasttrack_rules",
+                    "fasttrack_enabled",
+                    "memory_total",
+                    "memory_free",
+                    "disk_total",
+                    "disk_free"
                   ],
                   "type": "object"
                 }
@@ -11332,6 +13583,9 @@
                         "items": {
                           "additionalProperties": false,
                           "properties": {
+                            "Enabled": {
+                              "type": "boolean"
+                            },
                             "Fingerprint": {
                               "type": "string"
                             },
@@ -11373,7 +13627,8 @@
                             "Fingerprint",
                             "Port",
                             "TLS",
-                            "Reality"
+                            "Reality",
+                            "Enabled"
                           ],
                           "type": "object"
                         },
@@ -12429,6 +14684,9 @@
                       "items": {
                         "additionalProperties": false,
                         "properties": {
+                          "Enabled": {
+                            "type": "boolean"
+                          },
                           "Fingerprint": {
                             "type": "string"
                           },
@@ -12470,7 +14728,8 @@
                           "Fingerprint",
                           "Port",
                           "TLS",
-                          "Reality"
+                          "Reality",
+                          "Enabled"
                         ],
                         "type": "object"
                       },
@@ -12755,6 +15014,9 @@
                       "items": {
                         "additionalProperties": false,
                         "properties": {
+                          "Enabled": {
+                            "type": "boolean"
+                          },
                           "Fingerprint": {
                             "type": "string"
                           },
@@ -12796,7 +15058,8 @@
                           "Fingerprint",
                           "Port",
                           "TLS",
-                          "Reality"
+                          "Reality",
+                          "Enabled"
                         ],
                         "type": "object"
                       },
@@ -13050,6 +15313,9 @@
                               "items": {
                                 "additionalProperties": false,
                                 "properties": {
+                                  "Enabled": {
+                                    "type": "boolean"
+                                  },
                                   "Fingerprint": {
                                     "type": "string"
                                   },
@@ -13091,7 +15357,8 @@
                                   "Fingerprint",
                                   "Port",
                                   "TLS",
-                                  "Reality"
+                                  "Reality",
+                                  "Enabled"
                                 ],
                                 "type": "object"
                               },
@@ -13129,6 +15396,485 @@
               }
             },
             "description": "Refresh failed; cached last-known-good nodes retained"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/subscriptions/schedule": {
+      "get": {
+        "operationId": "get_subscriptions_schedule",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "interval_seconds": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "interval_seconds",
+                    "running"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_subscriptions_schedule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "interval_seconds": {
+                    "oneOf": [
+                      {
+                        "const": 0,
+                        "type": "integer"
+                      },
+                      {
+                        "maximum": 86400,
+                        "minimum": 60,
+                        "type": "integer"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "interval_seconds"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "interval_seconds": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "running": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "interval_seconds",
+                    "running"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
           }
         },
         "security": [
@@ -13188,6 +15934,245 @@
                     "ipv6_fakeip",
                     "runtime_connected",
                     "status"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/system/info": {
+      "get": {
+        "operationId": "get_system_info",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "app_version": {
+                      "type": "string"
+                    },
+                    "build_revision": {
+                      "type": "string"
+                    },
+                    "sing_box_expected": {
+                      "type": "string"
+                    },
+                    "sing_box_observed": {
+                      "type": "string"
+                    },
+                    "sing_box_verified": {
+                      "type": "boolean"
+                    },
+                    "storage": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "available_bytes": {
+                          "type": "integer"
+                        },
+                        "free_bytes": {
+                          "type": "integer"
+                        },
+                        "total_bytes": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "total_bytes",
+                        "free_bytes",
+                        "available_bytes"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "app_version",
+                    "build_revision",
+                    "sing_box_expected",
+                    "sing_box_observed",
+                    "sing_box_verified",
+                    "storage"
                   ],
                   "type": "object"
                 }

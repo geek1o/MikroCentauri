@@ -322,3 +322,17 @@ func (h *Host) CandidateFingerprint(ctx context.Context, rev uint64, m coreconfi
 }
 
 var _ PreparedRuntime = (*Host)(nil)
+
+// Inspect serializes a bounded read-only diagnostic with policy transitions and
+// the health owner. It never changes readiness or authorizes arbitrary hooks via
+// HTTP; only the trusted application composition supplies this function.
+func (h *Host) Inspect(ctx context.Context, probe func(context.Context) error) error {
+	h.op.Lock()
+	defer h.op.Unlock()
+	if h.closed.Load() {
+		return errors.New("runtime closed")
+	}
+	c, done := h.bounded(ctx)
+	defer done()
+	return probe(c)
+}

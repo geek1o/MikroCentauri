@@ -1,7 +1,7 @@
 # MikroCentauri
 
 RouterOS-native selective routing application. **Product Phases 2–4 are accepted on the pinned
-CHR profile; next is Phase 5 Web UI.** RouterOS remains the main router;
+CHR profile; Phase 5 Web UI is complete for that backend. Next is Phase 6 RouterOS App.** RouterOS remains the main router;
 sing-box supplies the selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent
@@ -42,12 +42,14 @@ baseline: RouterOS 7.24.5 and sing-box 1.14.2. See [baseline](docs/research/vers
   reconcile/verify/cleanup and placement-preserving rollback on native CHR.
 - Generated Netwatch/startup guard with RAM debounce, fail-open, generation/counter
   refusal and reboot recovery; staged/lost-reply acceptance retained.
-- Phase-0 research, license inventory, UX specification, nineteen ADRs and a draft `/app` manifest.
+- Embedded Svelte/TypeScript Web UI: ten pages, reviewed policy plans, private
+  proxy edits, subscription scheduling, diagnostics and safe backup/restore.
+- Phase-0 research, license inventory, UX specification, twenty ADRs and a draft `/app` manifest.
 
 The [product roadmap](docs/product/progress.md) has nine phases (0–8).
 Historical engineering report numbers differ from the product phases; current
-product Phase 2 controller is complete for the pinned CHR profile. Current product
-work advances Phase 3 core requirements; installation and release gates remain.
+product Phases 2–5 are complete within their recorded profile and test boundaries.
+Installation and wider device/release gates remain.
 
 ## Try the local prototype
 
@@ -116,19 +118,29 @@ and installation/release integration remain open. See the
 [Phase-2 comparison](docs/reports/phase-2-resilience.md),
 [publication ADR](docs/adr/0011-dynamic-dns-publication.md) and [lab guide](docs/lab.md).
 The [core phase is complete on the pinned profile](docs/reports/product-phase-3-core-completion.md).
-Next gates are Web UI, installable RouterOS App and wider boot/device coverage;
+The [Web UI phase is complete](docs/reports/product-phase-5-web-ui-completion.md)
+for the accepted backend: Chromium/WebKit browser contracts, bounded network
+discovery and actual isolated sing-box node probes. The setup wizard reviews an
+existing profile; it does not install the application. Next gates are installable
+RouterOS App and wider boot/device/browser coverage;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
 The core now provides subscription/group/rule management and supervisor/LKG
-lifecycle. The backend is connected to that owner; UI and release images remain open.
+lifecycle. The backend and embedded UI are connected to that owner; release images remain open.
 Production packaging is a placeholder, not an installation-ready App.
 
 replaces its temporary name. Source is independently written under MIT; sing-box
 binary distribution has separate GPL/source obligations in [notices](THIRD_PARTY_NOTICES.md).
 Development is recorded in local Git and published to the private
-[MicroCentauri repository](https://github.com/geek1o/MikroCentauri).
+[MikroCentauri repository](https://github.com/geek1o/MikroCentauri).
 The product name remains MikroCentauri.
 
 The [backend API guide](docs/api/README.md) covers private configuration workflows
 and the production native owner. Offline mode reports readiness false; the
 [operator runtime profile](docs/api/runtime.md) connects the accepted CHR dataplane.
+
+The UI uses the same HTTPS address as the API (`/`). Build it with `make webui`;
+`make webui-check` compares the reproducible embedded assets and runs frontend
+checks/tests. `make webui-test` runs Chromium/WebKit against a disposable real
+HTTPS API with a simulated runtime/router and the actual pinned validator.
+See [UI operation and acceptance](docs/api/web-ui.md) for scope and optional Firefox.

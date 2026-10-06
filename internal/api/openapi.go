@@ -2,6 +2,7 @@ package api
 
 import (
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/platform/routeros"
 	"mikrocentauri.local/core/internal/subscriptions"
 	"reflect"
 	"sort"
@@ -15,23 +16,26 @@ import (
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
 	reads := map[string]map[string]any{
-		"system":        objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema()}),
-		"routeros":      schema(reflect.TypeFor[RouterSnapshot]()),
-		"subscriptions": schema(reflect.TypeFor[[]SubscriptionView]()),
-		"proxies":       objectSchema(map[string]any{"endpoints": schema(reflect.TypeFor[coreconfig.ModelPreview]())["properties"].(map[string]any)["endpoints"], "wireguard": schema(reflect.TypeFor[coreconfig.ModelPreview]())["properties"].(map[string]any)["wireguard"]}),
-		"groups":        schema(reflect.TypeFor[[]coreconfig.Group]()),
-		"rules":         objectSchema(map[string]any{"rules": schema(reflect.TypeFor[[]coreconfig.Rule]()), "services": schema(reflect.TypeFor[[]coreconfig.Service]())}),
-		"devices":       objectSchema(map[string]any{"source_direct": schema(reflect.TypeFor[[]string]()), "source_proxy": schema(reflect.TypeFor[[]coreconfig.SourcePolicy]())}),
-		"dns":           objectSchema(map[string]any{"bootstrap": stringSchema(), "fakeip_range": stringSchema(), "selected_domains": schema(reflect.TypeFor[[]string]()), "ipv6_fakeip": boolSchema()}),
-		"diagnostics":   objectSchema(map[string]any{"status": schema(reflect.TypeFor[RuntimeView]()), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "events": schema(reflect.TypeFor[[]Event]()), "runtime_connected": boolSchema()}),
-		"config":        objectSchema(map[string]any{"revision": integerSchema(), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]())}),
-		"config/draft":  objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema(), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]())}),
-		"health/live":   objectSchema(map[string]any{"live": boolSchema()}),
-		"health/ready":  objectSchema(map[string]any{"ready": boolSchema()}),
-		"logs":          schema(reflect.TypeFor[[]Event]()),
-		"backup":        schema(reflect.TypeFor[SafeExport]()),
-		"preferences":   schema(reflect.TypeFor[Preferences]()),
-		"openapi.json":  {"type": "object", "additionalProperties": true},
+		"system":                 objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema()}),
+		"routeros":               schema(reflect.TypeFor[RouterSnapshot]()),
+		"routeros/network":       schema(reflect.TypeFor[routeros.Network]()),
+		"system/info":            schema(reflect.TypeFor[SystemInfo]()),
+		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
+		"subscriptions":          schema(reflect.TypeFor[[]SubscriptionView]()),
+		"proxies":                objectSchema(map[string]any{"endpoints": schema(reflect.TypeFor[coreconfig.ModelPreview]())["properties"].(map[string]any)["endpoints"], "wireguard": schema(reflect.TypeFor[coreconfig.ModelPreview]())["properties"].(map[string]any)["wireguard"]}),
+		"groups":                 schema(reflect.TypeFor[[]coreconfig.Group]()),
+		"rules":                  objectSchema(map[string]any{"rules": schema(reflect.TypeFor[[]coreconfig.Rule]()), "services": schema(reflect.TypeFor[[]coreconfig.Service]())}),
+		"devices":                objectSchema(map[string]any{"source_direct": schema(reflect.TypeFor[[]string]()), "source_proxy": schema(reflect.TypeFor[[]coreconfig.SourcePolicy]())}),
+		"dns":                    objectSchema(map[string]any{"bootstrap": stringSchema(), "fakeip_range": stringSchema(), "selected_domains": schema(reflect.TypeFor[[]string]()), "ipv6_fakeip": boolSchema()}),
+		"diagnostics":            objectSchema(map[string]any{"status": schema(reflect.TypeFor[RuntimeView]()), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "events": schema(reflect.TypeFor[[]Event]()), "runtime_connected": boolSchema()}),
+		"config":                 objectSchema(map[string]any{"revision": integerSchema(), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]())}),
+		"config/draft":           objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema(), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]())}),
+		"health/live":            objectSchema(map[string]any{"live": boolSchema()}),
+		"health/ready":           objectSchema(map[string]any{"ready": boolSchema()}),
+		"logs":                   schema(reflect.TypeFor[[]Event]()),
+		"backup":                 schema(reflect.TypeFor[SafeExport]()),
+		"preferences":            schema(reflect.TypeFor[Preferences]()),
+		"openapi.json":           {"type": "object", "additionalProperties": true},
 	}
 	for path, body := range reads {
 		responses := errorResponses()
@@ -39,7 +43,7 @@ func OpenAPI() map[string]any {
 		if path == "health/ready" {
 			responses["503"] = jsonResponse("Not ready or unavailable", map[string]any{"oneOf": []any{body, errorSchema()}})
 		}
-		if path == "routeros" || path == "subscriptions" {
+		if path == "routeros" || path == "routeros/network" || (path == "subscriptions" || path == "subscriptions/schedule") {
 			responses["501"] = jsonResponse("Adapter not connected", errorSchema())
 		}
 		paths["/api/v1/"+path] = map[string]any{"get": operation("get", path, responses)}
@@ -48,18 +52,23 @@ func OpenAPI() map[string]any {
 	responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
 	paths["/api/v1/diagnostics/bundle"] = map[string]any{"get": operation("get", "diagnostics/bundle", responses)}
 	objects := map[string]map[string]any{
-		"auth/login":            objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
-		"auth/logout":           {"type": "object", "additionalProperties": false},
-		"system/recover":        {"type": "object", "additionalProperties": false},
-		"subscriptions":         schema(reflect.TypeFor[subscriptions.Spec]()),
-		"subscriptions/inspect": objectSchema(map[string]any{"id": subscriptionIDSchema(), "offset": map[string]any{"type": "integer", "minimum": 0}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 128}}),
-		"subscriptions/refresh": objectSchema(map[string]any{"id": subscriptionIDSchema()}),
-		"subscriptions/delete":  schema(reflect.TypeFor[SubscriptionDeleteRequest]()),
-		"subscriptions/import":  schema(reflect.TypeFor[SubscriptionImportRequest]()),
-		"config/draft":          {"$ref": "#/components/schemas/CoreModel"},
-		"config/draft/policy":   schema(reflect.TypeFor[DraftPolicyRequest]()),
-		"proxies/import":        schema(reflect.TypeFor[ProxyImportRequest]()),
-		"config/validate":       revisionSchema(), "config/plan": revisionSchema(),
+		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
+		"auth/login":             objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
+		"auth/logout":            {"type": "object", "additionalProperties": false},
+		"system/recover":         {"type": "object", "additionalProperties": false},
+		"subscriptions":          schema(reflect.TypeFor[subscriptions.Spec]()),
+		"subscriptions/inspect":  objectSchema(map[string]any{"id": subscriptionIDSchema(), "offset": map[string]any{"type": "integer", "minimum": 0}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 128}}),
+		"subscriptions/refresh":  objectSchema(map[string]any{"id": subscriptionIDSchema()}),
+		"subscriptions/delete":   schema(reflect.TypeFor[SubscriptionDeleteRequest]()),
+		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema()}),
+		"subscriptions/import":   schema(reflect.TypeFor[SubscriptionImportRequest]()),
+		"config/draft":           {"$ref": "#/components/schemas/CoreModel"},
+		"config/draft/policy":    schema(reflect.TypeFor[DraftPolicyRequest]()),
+		"proxies/import":         schema(reflect.TypeFor[ProxyImportRequest]()),
+		"proxies/update":         schema(reflect.TypeFor[ProxyUpdateRequest]()),
+		"proxies/delete":         schema(reflect.TypeFor[ProxyDeleteRequest]()),
+		"diagnostics/run":        schema(reflect.TypeFor[DiagnosticRequest]()),
+		"config/validate":        revisionSchema(), "config/plan": revisionSchema(),
 		"config/apply":           objectSchema(map[string]any{"plan_id": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}}),
 		"backup/restore-preview": schema(reflect.TypeFor[SafeExport]()),
 		"backup/restore-draft":   schema(reflect.TypeFor[SafeExport]()),
@@ -67,6 +76,8 @@ func OpenAPI() map[string]any {
 	}
 	revisionResponse := objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema()})
 	resultSchemas := map[string]map[string]any{
+		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),
+		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
 		"auth/login":             objectSchema(map[string]any{"access_token": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}, "token_type": map[string]any{"const": "Bearer"}, "expires_in": map[string]any{"const": 1800}}),
 		"auth/logout":            objectSchema(map[string]any{"logged_out": boolSchema()}),
 		"system/recover":         schema(reflect.TypeFor[RuntimeView]()),
@@ -78,6 +89,9 @@ func OpenAPI() map[string]any {
 		"config/draft":           revisionResponse,
 		"config/draft/policy":    schema(reflect.TypeFor[DraftPolicyResult]()),
 		"proxies/import":         schema(reflect.TypeFor[SubscriptionImportResult]()),
+		"proxies/update":         schema(reflect.TypeFor[ProxyChangeResult]()),
+		"proxies/delete":         schema(reflect.TypeFor[ProxyChangeResult]()),
+		"diagnostics/run":        schema(reflect.TypeFor[DiagnosticResult]()),
 		"config/validate":        objectSchema(map[string]any{"valid": boolSchema()}),
 		"config/plan":            objectSchema(map[string]any{"plan_id": stringSchema(), "draft_revision": integerSchema(), "base_revision": integerSchema(), "expires_at": schema(reflect.TypeFor[time.Time]()), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]()), "apply_available": boolSchema(), "changed_sections": schema(reflect.TypeFor[[]string]())}),
 		"config/apply":           schema(reflect.TypeFor[RuntimeView]()),
@@ -90,6 +104,10 @@ func OpenAPI() map[string]any {
 	for _, path := range []string{"config/draft/policy", "proxies/import"} {
 		objects[path]["properties"].(map[string]any)["draft_revision"] = integerSchema()
 	}
+	objects["proxies/probe"]["properties"].(map[string]any)["id"] = map[string]any{"type": "string", "pattern": "^[a-f0-9]{64}$", "minLength": 64, "maxLength": 64}
+	objects["subscriptions/schedule"]["properties"].(map[string]any)["interval_seconds"] = map[string]any{"oneOf": []any{map[string]any{"type": "integer", "const": 0}, map[string]any{"type": "integer", "minimum": 60, "maximum": 86400}}}
+	objects["proxies/update"]["properties"].(map[string]any)["uri"] = map[string]any{"type": "string", "maxLength": 16384, "writeOnly": true}
+	objects["diagnostics/run"]["properties"].(map[string]any)["kind"] = map[string]any{"type": "string", "enum": []string{"routeros", "core", "dns", "direct", "proxy", "routing", "watchdog"}}
 	objects["proxies/import"]["properties"].(map[string]any)["uris"] = map[string]any{"type": "array", "minItems": 1, "maxItems": 128, "items": map[string]any{"type": "string", "maxLength": 16384, "writeOnly": true}}
 	objects["subscriptions/import"]["properties"].(map[string]any)["node_ids"] = map[string]any{"type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true, "items": stringSchema()}
 	for _, path := range []string{"subscriptions", "subscriptions/delete", "subscriptions/import"} {
@@ -98,7 +116,7 @@ func OpenAPI() map[string]any {
 	for path, body := range objects {
 		responses := errorResponses()
 		responses["200"] = jsonResponse("Operation completed", resultSchemas[path])
-		if strings.HasPrefix(path, "subscriptions") {
+		if strings.HasPrefix(path, "subscriptions") || path == "diagnostics/run" {
 			responses["501"] = jsonResponse("Adapter not connected", errorSchema())
 		}
 		if path == "subscriptions/refresh" {

@@ -226,3 +226,29 @@ func TestBarrierFailureRetainsQuarantine(t *testing.T) {
 		})
 	}
 }
+
+func TestActiveInspectionDoesNotChangeRoutesOrVerificationLatch(t *testing.T) {
+	b, r, n, p := barrierFixture(t)
+	r.rules = "0: from all lookup local\n10000: from all iif mc-probe lookup 100\n32766: from all lookup main"
+	r.route = "default dev mc-tun scope link"
+	b.verified = true
+	if e := b.InspectActive(context.Background()); e != nil {
+		t.Fatal(e)
+	}
+	for _, command := range r.commands {
+		if strings.Contains(command, " replace ") || strings.Contains(command, " add ") || strings.Contains(command, " del ") {
+			t.Fatal("inspection changed kernel", command)
+		}
+	}
+	if !b.verified || len(n.calls) != 0 || p.calls != 0 {
+		t.Fatal("inspection changed authority")
+	}
+	r.route = "blackhole default"
+	if b.InspectActive(context.Background()) == nil {
+		t.Fatal("quarantined route called active")
+	}
+	r.route = "default dev foreign"
+	if b.InspectActive(context.Background()) == nil {
+		t.Fatal("foreign route called active")
+	}
+}

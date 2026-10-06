@@ -1,0 +1,23 @@
+{
+  "raw_bytes": 111270,
+  "gzip_bytes": 37197,
+  "gzip_budget_bytes": 100000,
+  "files": {
+    "assets/index-CLP1dEoH.js": {
+      "bytes": 100492,
+      "sha256": "5473a5f84baa6f08bca50e0a4d201b511c5713c7ea6ca44010b6ee7b0b8e9d2e"
+    },
+    "assets/index-oWn0r1A3.css": {
+      "bytes": 7972,
+      "sha256": "305a9704cd7a1336a62928c147a932644cff7e1fa729405377af0dd5ec0ba324"
+    },
+    "index.html": {
+      "bytes": 400,
+      "sha256": "9cb5b5eafefc39b82747305ef56ce6ee4ddca8bdab8cbe2ddcd5e2d91f8b9139"
+    },
+    "licenses.txt": {
+      "bytes": 2406,
+      "sha256": "b153b248b5a619271a8ba8df65718077d252cc0fdafd1668f8b3e9afffca84b4"
+    }
+  }
+}

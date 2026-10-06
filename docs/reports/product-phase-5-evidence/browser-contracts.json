@@ -1,0 +1,41 @@
+{
+  "fixture": "simulated runtime/router/subscription transport; real HTTPS API/auth/drafts/pinned validator",
+  "stats": {
+    "startTime": "2026-10-06T17:23:52.715Z",
+    "duration": 20502.86,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "browser": "chromium",
+      "title": "administrative workflow over real HTTPS API and pinned validator",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration_ms": 8538
+        }
+      ]
+    },
+    {
+      "browser": "webkit",
+      "title": "administrative workflow over real HTTPS API and pinned validator",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration_ms": 5970
+        }
+      ]
+    }
+  ],
+  "firefox": {
+    "accepted": false,
+    "reason": "headless and headed browser launch timed out before application navigation; macOS sandbox/compositor errors",
+    "scope": "host environment; wider browser acceptance remains hardening"
+  },
+  "webkit_capture": "Playwright screenshotter transient inline body {} rejected by unchanged CSP; zero application violations"
+}
