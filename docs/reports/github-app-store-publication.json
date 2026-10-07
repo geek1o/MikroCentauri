@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-07",
+  "source_commit": "c07c614a61055a9d189ca7bb1e3131cf65c76d0e",
+  "main_workflow": "https://github.com/geek1o/MikroCentauri/actions/runs/37680044711",
+  "develop_workflow": "https://github.com/geek1o/MikroCentauri/actions/runs/37680045779",
+  "build_result": "success",
+  "publish_result": "success",
+  "catalog_url": "https://geek1o.github.io/MikroCentauri/catalog.yml",
+  "release_url": "https://github.com/geek1o/MikroCentauri/releases/tag/build-c07c614a61055a9d189ca7bb1e3131cf65c76d0e",
+  "qualification": "CI image graph, corresponding sources, offline engine reproduction and smoke tests passed. Native RouterOS installation and packet-path acceptance for this exact image remain unverified.",
+  "anonymous-pull": {
+    "image": "ghcr.io/geek1o/mikrocentauri@sha256:006b107c22d6250617a00530d98d8cd538a594bca855121c02f9106e3ac8371b",
+    "source_url": "https://github.com/geek1o/MikroCentauri/releases/download/build-c07c614a61055a9d189ca7bb1e3131cf65c76d0e/corresponding-sources.tar.gz",
+    "public_sources_verified": true,
+    "anonymous_pull_verified": true,
+    "catalog_publication_allowed": true
+  },
+  "provenance": {
+    "source_commit": "c07c614a61055a9d189ca7bb1e3131cf65c76d0e",
+    "image_index_digest": "sha256:006b107c22d6250617a00530d98d8cd538a594bca855121c02f9106e3ac8371b",
+    "qualification": "CI build and smoke verification; native RouterOS acceptance must be established for these exact bytes"
+  }
+}
