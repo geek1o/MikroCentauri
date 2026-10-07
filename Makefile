@@ -10,6 +10,8 @@ test:
 	$(GO) vet ./...
 	python3 tests/integration/lab_switch.py
 	python3 tests/integration/app_image.py
+	python3 tests/integration/release_artifacts.py
+	python3 tests/integration/release_sbom.py
 smoke:
 	python3 tests/integration/namespace_policy.py --sing-box "$(SING_BOX)"
 	python3 tests/integration/binding_policy.py --sing-box "$(SING_BOX)"
@@ -47,3 +49,10 @@ app-image:
 	python3 scripts/build-app-image.py --go "$(GO)"
 app-image-check:
 	python3 scripts/verify-app-image.py
+
+.PHONY: release-candidate release-candidate-check
+RC_DIRECTORY ?= .cache/releases/v0.1.0-rc.1
+release-candidate:
+	python3 scripts/build-release.py --go "$(GO)" --output "$(RC_DIRECTORY)"
+release-candidate-check:
+	python3 scripts/build-release.py --verify "$(RC_DIRECTORY)"

@@ -15,7 +15,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain release qualification |
 | 6 | RouterOS App | Complete for CHR 7.24.5 x86_64: amd64/arm64 packaging and custom store draft, protected Go provisioning, explicit HTTPS origin, stopped identity/privilege review, kernel/TUN preparation, production Go startup/default health, TCP/UDP/HTTP3, cached-alias restart and real immutable-image replacement/rollback; reviewed operator topology remains required, wider runtime/release matrix belongs to later phases |
 | 7 | Hardening | Complete for CHR 7.24.5 x86_64 / sing-box 1.14.2 and the explicit lab profile: security/SSRF/secret review, immutable client admission, bounded private lease renewal, native FastTrack/IPv6/failure/three-reboot matrix, cached-flow resource smoke, actual image rollback and exact-run packet witnesses; broader hardware/browser/version acceptance remains release qualification |
-| 8 | Release candidate | Not started: release images, upgrade/rollback acceptance, SBOM and complete E2E delivery remain open |
+| 8 | Release candidate | Local RC v0.1.0-rc.1 assembled for the exact Phase 7 accepted image: E2E report, install/upgrade/rollback guides, known limitations, two-platform OCI/import images, checksums and CycloneDX inventory. Binary distribution remains blocked pending complete corresponding-source/native dependency closure and license assessment; registry/catalog publication and wider hardware qualification are not complete |
 
 Engineering milestones already recorded:
 
@@ -95,5 +95,9 @@ private lease correction. Its earlier open native/capture gates are superseded b
 
 [Phase 7 hardening completion](../reports/product-phase-7-hardening-completion.md)
 closes the seven original deliverables for the pinned lab profile and supersedes
-open gates in the preceding Phase 7 reports. Product Phase 8 release candidate
-is next; publication and wider release qualification remain separate.
+open gates in the preceding Phase 7 reports.
+
+[Phase 8 E2E report](../reports/product-phase-8-e2e.md) and
+[local RC guide](../release.md) assemble the exact accepted images and evidence.
+The RC is local only; [source distribution](../legal/rc-source-distribution.md)
+remains an explicit publication blocker, not a completed gate.

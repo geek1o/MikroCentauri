@@ -1,7 +1,7 @@
 # MikroCentauri
 
-RouterOS-native selective routing application. **Product Phases 2–4 are accepted on the pinned
-CHR profile; Phase 5 Web UI is complete for that backend. Phase 6 RouterOS App is complete for the pinned CHR profile.** RouterOS remains the main router;
+RouterOS-native selective routing application. **Product Phases 2–7 are accepted
+on the pinned CHR profile; a local v0.1.0-rc.1 candidate packages that acceptance.** RouterOS remains the main router;
 sing-box supplies the selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent
@@ -126,7 +126,12 @@ acceptance. Next gates are wider security/boot/device/browser coverage;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
 The core now provides subscription/group/rule management and supervisor/LKG
-lifecycle. The backend and embedded UI are connected to that owner; release images remain open.
+lifecycle. The backend and embedded UI are connected to that owner. The
+[local RC guide](docs/release.md) covers immutable images, checksums, CycloneDX
+inventory, [E2E evidence](docs/reports/product-phase-8-e2e.md),
+[upgrade](docs/upgrade.md), [rollback](docs/rollback.md) and
+[known limitations](docs/known-limitations.md). Binary publication remains
+blocked by complete third-party corresponding-source/license coverage.
 Local multiarch images and App/catalog drafts are implemented; the pinned operator
 installation is documented in [the install guide](docs/install.md). Phase 6 results
 are in [App completion](docs/reports/product-phase-6-app-completion.md). Registry

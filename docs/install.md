@@ -7,6 +7,14 @@ replacement are accepted. Registry/catalog publication, RouterOS 7.22 and
 physical arm64 runtime remain later gates. See [App completion](reports/product-phase-6-app-completion.md)
 and [native import observations](research/product-phase-6-app-import.md).
 
+For the local `v0.1.0-rc.1` bundle, start with the
+[release inventory/checksum guide](release.md). Follow [upgrade](upgrade.md) and
+[rollback](rollback.md) for stopped image replacement. Its
+[known limitations](known-limitations.md) and
+[E2E report](reports/product-phase-8-e2e.md) define the accepted scope.
+Binary registry/catalog publication remains blocked by the recorded
+source-distribution gate; no registry URL is implied by these local artifacts.
+
 ## Build locally
 
 ```sh
