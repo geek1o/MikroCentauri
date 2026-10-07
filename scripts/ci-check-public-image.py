@@ -10,11 +10,21 @@ from urllib.request import Request, urlopen
 from pathlib import Path
 
 
-def verify(image, output=None):
+def verify(image, source_url, output=None):
     match = re.fullmatch(r'ghcr\.io/([a-z0-9][a-z0-9._-]*/[a-z0-9][a-z0-9._/-]*)@(sha256:[0-9a-f]{64})', image)
     if not match:
         raise ValueError('exact GHCR image digest required')
     repository, digest = match.groups()
+    if not source_url.startswith('https://github.com/') or '/releases/download/' not in source_url or not source_url.endswith('/corresponding-sources.tar.gz'):
+        raise ValueError('public corresponding-source release URL required')
+    try:
+        with urlopen(Request(source_url, method='HEAD'), timeout=60) as response:
+            if response.status != 200:
+                raise ValueError('corresponding source unavailable anonymously')
+    except HTTPError as exc:
+        if exc.code in {401, 403, 404}:
+            raise SystemExit('App Store publication blocked: corresponding sources are not publicly downloadable. Make the cleaned source repository/release public before making the image public, then rerun this workflow.') from None
+        raise
     query = urlencode({'service': 'ghcr.io', 'scope': 'repository:' + repository + ':pull'})
     try:
         with urlopen('https://ghcr.io/token?' + query, timeout=60) as response:
@@ -47,12 +57,13 @@ def verify(image, output=None):
         raise
     print('Anonymous immutable image pull verified:', image)
     if output:
-        output.write_text(json.dumps({'image': image, 'anonymous_pull_verified': True, 'catalog_publication_allowed': True}, indent=2) + '\n')
+        output.write_text(json.dumps({'image': image, 'source_url': source_url, 'public_sources_verified': True, 'anonymous_pull_verified': True, 'catalog_publication_allowed': True}, indent=2) + '\n')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--image', required=True)
+    parser.add_argument('--source-url', required=True)
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    verify(args.image, args.output)
+    verify(args.image, args.source_url, args.output)

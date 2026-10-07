@@ -7,10 +7,14 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
+from urllib.error import HTTPError
 
 spec = importlib.util.spec_from_file_location('publisher', Path(__file__).with_name('publish-ghcr.py'))
 publisher = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(publisher)
+public_spec = importlib.util.spec_from_file_location('public_pull', Path(__file__).with_name('ci-check-public-image.py'))
+public_pull = importlib.util.module_from_spec(public_spec)
+public_spec.loader.exec_module(public_pull)
 
 
 class Response:
@@ -29,6 +33,15 @@ class Response:
 
 
 class Publication(unittest.TestCase):
+    def test_private_sources_block_catalog_before_registry_probe(self):
+        source = 'https://github.com/owner/app/releases/download/build-test/corresponding-sources.tar.gz'
+        with patch.object(public_pull, 'urlopen', side_effect=HTTPError(source,404,'Not Found',{},None)) as opener:
+            with self.assertRaisesRegex(SystemExit,'sources are not publicly downloadable'):
+                public_pull.verify('ghcr.io/owner/app@sha256:'+'a'*64,source)
+            self.assertEqual(opener.call_count,1)
+            self.assertEqual(opener.call_args.args[0].method,'HEAD')
+            self.assertNotIn('Authorization',opener.call_args.args[0].headers)
+
     def test_local_descriptor_requires_exact_hash_and_size(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
