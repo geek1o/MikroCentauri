@@ -1,0 +1,220 @@
+{
+  "routeros": "7.24.5 (stable)",
+  "scope": "production App native owner; separate clone; synthetic fixtures",
+  "run_id": "1791375304793189000",
+  "image_manifest": "sha256:8928ca20c53a477d3b4de01d08f6db91ccd5320cd5136c90dfad834bbbc6df70",
+  "image_config": "sha256:cd65a03108f59755a62d03db95426a185166191fc83113559730ee7691c31aba",
+  "platform": {
+    "ip": "172.18.0.12",
+    "linux_ingress": "veth-app-mc-nat",
+    "routeros_veth": "veth-app-mc-native-8216b616"
+  },
+  "provisioning": {
+    "go_provisioner": true,
+    "encrypted_transfer": "SFTP",
+    "temporary_mount_removed": true
+  },
+  "staged_installation": {
+    "native_plan_verify": true,
+    "manual_exact_privilege_verified": true
+  },
+  "production_entrypoint": {
+    "default_go_launcher": true,
+    "native_ready": true,
+    "healthy": true
+  },
+  "packets": {
+    "selected.test": {
+      "expected_peer": "10.77.0.10",
+      "tcp": {
+        "request_id": 4,
+        "resolved_ipv4": "198.19.192.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/app6-native",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/app6-native\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 965
+      },
+      "udp": {
+        "request_id": 5,
+        "resolved_ipv4": "198.19.192.2",
+        "payload": "phase4-1791375304793189000-1-selected.test-1",
+        "elapsed_ms": 2046,
+        "capture_marker": "phase4-1791375304793189000-1-selected.test-1"
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 151
+      }
+    },
+    "unselected.test": {
+      "expected_peer": "10.77.0.1",
+      "tcp": {
+        "request_id": 6,
+        "resolved_ipv4": "10.77.0.20",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/app6-native",
+          "remote_ip": "10.77.0.1"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/app6-native\",\"remote_ip\":\"10.77.0.1\"}\n",
+        "proxy_seen_ip": "10.77.0.1",
+        "elapsed_ms": 11
+      },
+      "udp": {
+        "request_id": 7,
+        "resolved_ipv4": "10.77.0.20",
+        "payload": "phase4-1791375304793189000-1-unselected.test-2",
+        "elapsed_ms": 22,
+        "capture_marker": "phase4-1791375304793189000-1-unselected.test-2"
+      },
+      "http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.1"
+        },
+        "remote_ip": "10.77.0.1",
+        "elapsed_ms": 24
+      }
+    }
+  },
+  "native_restart": {
+    "lease_withdrawn": true,
+    "cached_down_direct": {
+      "request_id": 8,
+      "resolved_ipv4": "198.19.192.2",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.1"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.1\"}\n",
+      "proxy_seen_ip": "10.77.0.1",
+      "elapsed_ms": 6
+    },
+    "cached_up_proxy": {
+      "request_id": 9,
+      "resolved_ipv4": "198.19.192.2",
+      "target": {
+        "local_ip": "10.77.0.20",
+        "path": "/phase6-bound-domain",
+        "remote_ip": "10.77.0.10"
+      },
+      "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+      "proxy_seen_ip": "10.77.0.10",
+      "elapsed_ms": 79
+    },
+    "auth_preserved": true,
+    "namespace_preserved": true
+  },
+  "native_image_replacement": [
+    {
+      "stage": "previous-native",
+      "manifest": "sha256:2f2b33ce75d0d4209e80d91b84945bfb47801af7898091cb592a81a848a36417",
+      "config": "sha256:a2af9e23dd59b902dd6268474c031af8993d2f4598d7e6339475074c9c9ea1e9",
+      "restored_original_bytes": {
+        "app_id": "*228",
+        "container_id": "*1E",
+        "cache_bytes_equal_before_start": true,
+        "all_original_files_equal_before_start": true,
+        "stopped": true
+      },
+      "native_ready": true,
+      "default_healthcheck": true,
+      "cached_tcp": {
+        "request_id": 10,
+        "resolved_ipv4": "198.19.192.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-bound-domain",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 201
+      },
+      "cached_http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 77
+      },
+      "udp": {
+        "request_id": 11,
+        "resolved_ipv4": "198.19.192.2",
+        "payload": "phase4-1791375304793189000-1-selected.test-3",
+        "elapsed_ms": 1469,
+        "capture_marker": "phase4-1791375304793189000-1-selected.test-3"
+      },
+      "expected_peer": "10.77.0.10",
+      "auth_preserved": true
+    },
+    {
+      "stage": "final-native",
+      "manifest": "sha256:8928ca20c53a477d3b4de01d08f6db91ccd5320cd5136c90dfad834bbbc6df70",
+      "config": "sha256:cd65a03108f59755a62d03db95426a185166191fc83113559730ee7691c31aba",
+      "restored_original_bytes": {
+        "app_id": "*229",
+        "container_id": "*1F",
+        "cache_bytes_equal_before_start": true,
+        "all_original_files_equal_before_start": true,
+        "stopped": true
+      },
+      "native_ready": true,
+      "default_healthcheck": true,
+      "cached_tcp": {
+        "request_id": 12,
+        "resolved_ipv4": "198.19.192.2",
+        "target": {
+          "local_ip": "10.77.0.20",
+          "path": "/phase6-bound-domain",
+          "remote_ip": "10.77.0.10"
+        },
+        "body": "{\"local_ip\":\"10.77.0.20\",\"path\":\"/phase6-bound-domain\",\"remote_ip\":\"10.77.0.10\"}\n",
+        "proxy_seen_ip": "10.77.0.10",
+        "elapsed_ms": 108
+      },
+      "cached_http3": {
+        "protocol": "HTTP/3.0",
+        "target": {
+          "path": "/quic",
+          "protocol": "HTTP/3.0",
+          "remote_ip": "10.77.0.10"
+        },
+        "remote_ip": "10.77.0.10",
+        "elapsed_ms": 140
+      },
+      "udp": {
+        "request_id": 13,
+        "resolved_ipv4": "198.19.192.2",
+        "payload": "phase4-1791375304793189000-1-selected.test-4",
+        "elapsed_ms": 1458,
+        "capture_marker": "phase4-1791375304793189000-1-selected.test-4"
+      },
+      "expected_peer": "10.77.0.10",
+      "auth_preserved": true
+    }
+  ],
+  "accepted": true,
+  "completed": true,
+  "cleanup": {
+    "app_disabled": true,
+    "owned_native_objects_removed": true,
+    "data_preserved": true
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "app-native": {
+    "apps_disabled": true,
+    "containers_stopped_or_failed_extraction": true,
+    "remaining_reserved_maps_removed": [
+      {
+        "path": "ip/firewall/nat",
+        "comment": "mikrocentauri:app6:nat:map-c613c002"
+      },
+      {
+        "path": "ip/firewall/nat",
+        "comment": "mikrocentauri:app6:nat:map-c613c003"
+      },
+      {
+        "path": "ip/firewall/nat",
+        "comment": "mikrocentauri:app6:nat:map-c613c004"
+      }
+    ],
+    "profile_objects_removed": true,
+    "data_preserved": true,
+    "original_disks_used": false
+  },
+  "app-schema": {
+    "fixture_cleanup": {
+      "app_disabled": true,
+      "data_preserved": true,
+      "app_cleanup_used": false,
+      "temporary_management_rule_removed": true,
+      "temporary_management_rule_created": true
+    },
+    "rest_forward_closed": true,
+    "vm_already_stopped": true
+  },
+  "temporary_registry": {
+    "schema_registry_shutdown_by_fixture": true,
+    "native_registry_shutdown_by_fixture": true
+  },
+  "processes": {
+    "root_vm_stopped": true,
+    "linux_client_server_stopped": true,
+    "lan_wan_switches_stopped": true
+  },
+  "all_test_ports_closed": true
+}

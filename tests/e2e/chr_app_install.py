@@ -11,11 +11,13 @@ import pathlib, re, socket, ssl, subprocess, tempfile, threading, time, urllib.e
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--oci', type=pathlib.Path, default=pathlib.Path('.cache/app-image/oci'))
-    parser.add_argument('--image-updates', action='store_true', help='experimental A/B/A; not yet admitted on pinned App parser')
+    parser.add_argument('--image-updates', action='store_true',
+        help='exercise stopped-backup/recreate/restore A/B/A with immutable distinct digests')
     parser.add_argument('--expected-ip', default='', help='optional isolated first-free App IP, asserted after allocation')
     parser.add_argument('--candidate-oci', type=pathlib.Path)
     parser.add_argument('--public-origin', default='')
     parser.add_argument('--browser-node', help='optional Node executable for real Chromium management check')
+    parser.add_argument('--ssh-port', type=int, default=22326)
     parser.add_argument('--port', type=int, default=18326)
     parser.add_argument('--monitor', type=pathlib.Path, default=pathlib.Path('.cache/app-schema/monitor'))
     parser.add_argument('--output', type=pathlib.Path, default=pathlib.Path('.cache/app-schema/install-results.json'))
@@ -232,13 +234,19 @@ def main():
                 'timeout -s TERM 2 /usr/bin/sing-box run -c /data/bootstrap/cache-init.json; fi; '
                 'sha256sum /data/api/auth.json /data/bootstrap/model.json /data/api/draft.json '
                 '/data/api/preferences.json /data/runtime/cache.db > /data/proof/hashes 2>/dev/null; '
+                '(/sbin/ip -o link; /sbin/ip rule show; /sbin/ip route show table all; '
+                'cat /proc/sys/net/ipv4/ip_forward; ls -l /dev/net/tun) > /data/proof/platform 2>&1; '
                 'exec /usr/bin/mikrocentauri app-run -config /data/bootstrap/app.json"')
             inputs['install.sh'] = command[4:-1]
             composition['services']['core'].update(entrypoint='/bin/sh', command='/fixture-input/install.sh',
                 configs=[{'source': 'input' + str(i), 'target': '/fixture-input/' + filename, 'mode': '0600'}
                          for i, filename in enumerate(inputs)],
-                healthcheck={'test': ['CMD', '/usr/bin/mikrocentauri', 'app-health', '-config',
-                                     '/data/bootstrap/app.json'], 'interval': '2s', 'timeout': '5s', 'retries': 1})
+                healthcheck={'test': ['CMD', '/bin/sh', '-c',
+                    'sha256sum /data/api/auth.json /data/bootstrap/model.json '
+                    '/data/api/draft.json /data/api/preferences.json /data/runtime/cache.db '
+                    '> /data/proof/hashes 2>/dev/null; '
+                    'exec /usr/bin/mikrocentauri app-health -config /data/bootstrap/app.json'],
+                    'interval': '2s', 'timeout': '5s', 'retries': 1})
             composition['configs'] = {'input' + str(i): {'content': value} for i, value in enumerate(inputs.values())}
             created_app = native('PUT', 'app', {'yaml': json.dumps(composition),
                 'disabled': 'true', 'use-https': 'false'})['.id']
@@ -317,7 +325,7 @@ def main():
 
             def disable():
                 native('PATCH', 'app/' + created_app, {'disabled': 'true'})
-                settle(lambda: core().get('stopped') == 'true')
+                settle(lambda: (c := core()) is None or c.get('stopped') == 'true')
 
             def hashes():
                 rows = native('POST', 'file/read', {'file': f"{disk['slot']}/apps/{name}/state/proof/hashes",
@@ -328,25 +336,83 @@ def main():
                                        '/data/api/preferences.json', '/data/runtime/cache.db'}
                 return result
 
-            baseline = None
+            disable()
+            snapshot = private / 'volume-backup'
+            snapshot.mkdir(mode=0o700)
+            scp = ['scp', '-pr', '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=no',
+                   '-o', 'UserKnownHostsFile=/dev/null', '-P', str(args.ssh_port)]
+            remote_state = f"admin@127.0.0.1:{disk['slot']}/apps/{name}/state"
+            subprocess.run(scp + [remote_state, str(snapshot)], check=True, timeout=90,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            for path in (snapshot / 'state').rglob('*'):
+                path.chmod(0o700 if path.is_dir() else 0o600)
+            (snapshot / 'state').chmod(0o700)
+            baseline = {'/data/' + path: hashlib.sha256((snapshot / 'state' / path).read_bytes()).hexdigest()
+                for path in ('api/auth.json', 'bootstrap/model.json', 'api/draft.json',
+                             'api/preferences.json', 'runtime/cache.db')}
+
+            repair = snapshot / 'state' / 'bootstrap' / 'permission-repair.sh'
+            repair.write_text('set -eu\nfind /data -type d -exec chmod 0700 {} +\n'
+                'find /data -type f -exec chmod 0600 {} +\n'
+                'printf repaired > /data/proof/permissions-repaired\n'
+                'chmod 0600 /data/proof/permissions-repaired\n')
+            repair.chmod(0o600)
+
+            def restore_volume():
+                for directory in (f"{disk['slot']}/apps/{name}", f"{disk['slot']}/apps/{name}/state"):
+                    native('POST', 'file/add', {'name': directory, 'type': 'directory'})
+                subprocess.run(scp + [str(snapshot / 'state') + '/.',
+                    f"admin@127.0.0.1:{disk['slot']}/apps/{name}/state"], check=True, timeout=90,
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                # RouterOS SFTP accepts -p but drops private Unix modes.
+                # Materialize the generated production container, then repair
+                # permissions in a bounded one-shot helper while App is disabled.
+                native('PATCH', 'app/' + created_app, {'disabled': 'false'})
+                settle(lambda: (c := core()) and c.get('image-id') and c.get('stopped') == 'true')
+                disable()
+                container_id = core()['.id']
+                native('PATCH', 'container/' + container_id, {'entrypoint': '/bin/sh',
+                    'cmd': '/data/bootstrap/permission-repair.sh'})
+                native('POST', 'container/start', {'.id': container_id})
+                settle(lambda: native('POST', 'file/read', {'file':
+                    f"{disk['slot']}/apps/{name}/state/proof/permissions-repaired",
+                    'offset': '0', 'chunk-size': '64'}))
+                settle(lambda: core().get('stopped') == 'true')
+                native('PATCH', 'container/' + container_id, {'entrypoint': '', 'cmd': ''})
+
+            def remove_record():
+                old_interface = app().get('interface', '')
+                native('DELETE', 'app/' + created_app)
+                if old_interface:
+                    settle(lambda: not any(v.get('name') == old_interface for v in native('GET', 'interface/veth')))
+
+            composition['services']['core'].pop('entrypoint')
+            composition['services']['core'].pop('command')
+            composition['services']['core'].pop('configs')
+            composition.pop('configs')
+            remove_record()
+            created_app = native('PUT', 'app', {'yaml': json.dumps(composition),
+                'disabled': 'true', 'use-https': 'false'})['.id']
             stages = [('A-restart-1', digest_a, manifest_a), ('A-restart-2', digest_a, manifest_a)]
             if args.image_updates:
                 stages = [('A', digest_a, manifest_a), ('B', digest_b, manifest_b), ('A-rollback', digest_a, manifest_a)]
             for label, digest, manifest in stages:
+                print('native image stage ' + label, flush=True)
                 disable()
                 if args.image_updates:
                     composition['services']['core']['image'] = 'https://10.0.2.2:18529/mikrocentauri@' + digest
-                    native('PATCH', 'app/' + created_app, {'yaml': json.dumps(composition)})
-                    native('PATCH', 'app/' + created_app, {'container-command-lines':
-                        'core:' + ('https://10.0.2.2:18529/mikrocentauri@' + digest).replace(':', r'\\:') + ':/fixture-input/install.sh'})
+                    remove_record()
+                    created_app = native('PUT', 'app', {'yaml': json.dumps(composition),
+                        'disabled': 'true', 'use-https': 'false'})['.id']
                     settle(lambda: digest[7:] in app().get('container-command-lines', ''))
+                if args.image_updates or label == 'A-restart-1':
+                    restore_volume()
                 native('PATCH', 'app/' + created_app, {'disabled': 'false'})
                 settle(lambda: (c if (c := core()) and c.get('healthy') == 'true'
                                and c.get('image-id') == manifest['config']['digest'][7:] else None))
                 assert app()['ip-address'] == assigned
+                assert core().get('entrypoint', '') == '' and core().get('cmd', '') == ''
                 current = hashes()
-                if baseline is None:
-                    baseline = current
                 assert current == baseline
                 status, raw, _, _ = api('POST', '/api/v1/auth/login', {'password': password}, authenticated=False)
                 assert status == 200
@@ -360,9 +426,26 @@ def main():
                     'persistent_auth_model_draft_preferences_cache_bytes_equal': True,
                     'stable_ip': assigned, 'ui_reachable': api('GET', '/')[0] == 200})
             disable()
-            report['production_entrypoint'] = {'default_go_entrypoint_running': False,
-                'fixture_shell_executes_production_go_launcher': True,
-                'fixture_config_mounts_retained': True}
+            # Comparison stages used a fixture hash probe. Admit the actual
+            # image healthcheck separately, with all native overrides cleared.
+            composition['services']['core'].pop('healthcheck')
+            remove_record()
+            created_app = native('PUT', 'app', {'yaml': json.dumps(composition),
+                'disabled': 'true', 'use-https': 'false'})['.id']
+            restore_volume()
+            native('PATCH', 'app/' + created_app, {'disabled': 'false'})
+            health_started = time.monotonic()
+            settle(lambda: time.monotonic() - health_started > 35 and core().get('healthy') == 'true')
+            assert core().get('healthcheck-cmd', '') == ''
+            assert core()['default-healthcheck-cmd'] == 'CMD,/usr/bin/mikrocentauri,app-health,-config,/data/bootstrap/app.json'
+            report['production_healthcheck'] = {'comparison_stages_fixture_hash_override': True,
+                'final_native_override_empty': True, 'image_default_app_health': True,
+                'default_interval': '30s', 'healthy_after_full_interval': True}
+            disable()
+            report['production_entrypoint'] = {'default_go_entrypoint_running': True,
+                'fixture_shell_executes_production_go_launcher': False,
+                'fixture_config_mounts_retained': False}
+            report['update_workflow'] = 'private binary-safe stopped-volume SFTP backup, remove App record, recreate same name with exact immutable image, restore volume, enable'
             report['image_update_admitted'] = bool(args.image_updates)
             report['images']['B_exercised'] = bool(args.image_updates)
             bundle = args.output.parent / 'install-bundle' / 'bootstrap'

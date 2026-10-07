@@ -1,0 +1,10 @@
+{
+  "identical_full_build_metadata": true,
+  "index_digest": "sha256:d5a7b8b45efc1763e5139900c6992a0b0e9f38d09cf53cb6cdddf5b7e6ac7999",
+  "platforms": {
+    "amd64": "sha256:8928ca20c53a477d3b4de01d08f6db91ccd5320cd5136c90dfad834bbbc6df70",
+    "arm64": "sha256:ef7e49b076c087baa113982e42384a64246e35f316815de4e4f68576940b685c"
+  },
+  "tracked_profile_matches_accepted_model_and_profile": true,
+  "capture_negative_control_missing_transition_rejected": true
+}

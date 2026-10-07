@@ -1,6 +1,7 @@
 # ADR 0021: Explicit App management origin and stopped installation review
 
-Status: accepted for implementation; native installation admission remains open.
+Status: implemented; pinned native installation admission is accepted in
+[Phase 6 completion](../reports/product-phase-6-app-completion.md).
 
 An App API binds its private VETH address. RouterOS can expose the management
 port at a different host/port. The browser's actual Host/Origin therefore need

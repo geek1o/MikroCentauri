@@ -175,6 +175,8 @@ func TestAppInstallIdentityRejectsForeignRunningImagesAndVolumes(t *testing.T) {
 			v.Containers[0]["mount"] = "/pcie1/apps/mikrocentauri/state:/data:ro"
 		},
 		"shadowed state":      func(v *routeros.AppInstallation) { v.Containers[0]["mount"] += ",/foreign:/data/bootstrap:rw" },
+		"shadowed executable": func(v *routeros.AppInstallation) { v.Containers[0]["mount"] += ",/foreign:/usr/bin:ro" },
+		"retained provision":  func(v *routeros.AppInstallation) { v.Containers[0]["mount"] += ",/provision:/provision:ro" },
 		"missing privilege":   func(v *routeros.AppInstallation) { delete(v.Containers[0], "privileged") },
 		"version drift":       func(v *routeros.AppInstallation) { v.Resource["version"] = "7.26 (stable)" },
 		"architecture drift":  func(v *routeros.AppInstallation) { v.Resource["architecture-name"] = "arm64" },

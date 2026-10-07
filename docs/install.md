@@ -1,9 +1,11 @@
 # RouterOS App packaging and installation status
 
-Phase 6 is **in progress**. Local production-code images exist for Linux amd64 and
-arm64 with a two-platform OCI index, persistent volume and protected startup
-inputs. A published/installable selective-routing release remains open.
-Native observations: [App import research](research/product-phase-6-app-import.md).
+Phase 6 is **complete for CHR RouterOS 7.24.5 x86_64**. Local production images
+exist for Linux amd64/arm64 with an OCI index, persistent volume and protected
+startup. The pinned operator installation, native packets, restart and image
+replacement are accepted. Registry/catalog publication, RouterOS 7.22 and
+physical arm64 runtime remain later gates. See [App completion](reports/product-phase-6-app-completion.md)
+and [native import observations](research/product-phase-6-app-import.md).
 
 ## Build locally
 
@@ -69,7 +71,10 @@ and do not replace a protected installation-volume backup.
 For native startup provide **both** `router_config` and `runtime_profile`, pointing
 to private operator files. Runtime directory stays beneath `/data`; configured
 rule-set directory must be `/data/rulesets`. Use the accepted preprovisioned
-immutable profile. The launcher does not create arbitrary networking/privileges.
+immutable profile. The launcher verifies the named Linux ingress interface and fixed TUN device,
+quarantines its dedicated policy table, then enables IPv4 forwarding if needed.
+It refuses foreign priorities/routes and leaves admission to the native owner.
+It does not grant RouterOS privilege or infer a LAN profile.
 API-only startup is live management with readiness false/503.
 
 ## Health and secrets
@@ -108,18 +113,16 @@ and YAML-array `catalog.yml` drafts and publishes neither. Documented import is
 `/app/add yaml=[/file/get mikrocentauri.yml contents]`; enablement remains behind
 prepared-profile/TLS/capability installation acceptance. No catalog URL is hosted.
 
-## Remaining gates
+## Native boundary and later gates
 
-End-user provisioning, automatic LAN management topology, native installation
-privilege verification, restart/watchdog coordination, production-volume image
-upgrade/rollback and resource measurements remain open. On 7.24.5 YAML
-`privileged`/`cap_add` were ignored and `restart: unless-stopped` yielded policy
-`no`. YAML admission alone is insufficient. Fixture health/secrets/volume tests
-are separate from full production installation. Neither 7.22 compatibility nor
-physical arm64 runtime is accepted here.
-Explicit mapped-origin HTTPS access, Chromium login and byte retention across
-two API-only App restarts passed on the isolated clone with temporary DNAT.
-See [management and review acceptance](reports/product-phase-6-management-install-review.md).
+RouterOS 7.24.5 ignored YAML `privileged`/`cap_add` and translated
+`restart: unless-stopped` as policy `no`. Use the stopped native privilege review;
+YAML alone is insufficient. The accepted launcher/kernel/readiness and image
+replacement evidence supersedes the earlier management-only scope. The browser
+uses an explicit HTTPS origin and reviewed management access rule; unattended LAN
+topology setup, wider device/security/reboot/failure coverage and release publication
+remain later gates. Neither RouterOS 7.22 nor physical arm64 runtime is accepted
+here. See [App completion](reports/product-phase-6-app-completion.md).
 
 ## Stopped installation review
 
@@ -165,3 +168,70 @@ the only permitted identity change. Neither command enables an App, mutates
 RouterOS or publishes FakeIP state. A verified privilege flag does not prove
 Linux TUN/kernel ingress, installed private files or native runtime readiness.
 Both commands explicitly return readiness false.
+
+
+## First protected volume installation
+
+Keep the generated App disabled and its container stopped. Prepare the reviewed
+model, native profile, RouterOS HTTPS connection, TLS certificate/key and initial
+password in a local `0700` bundle. The listener and watchdog host must use the
+App's discovered IP. RouterOS exposes the actual Linux interface in
+`variables-to-use-in-environment` as `[containerInterface]`; it can differ from
+the longer RouterOS VETH name. Generate watchdog scripts from the final profile;
+text substitution cannot update the encoded watchdog specification.
+
+Transfer a private tar archive over SFTP, outside `state`. Use only regular
+`bootstrap/<filename>` entries with mode `0600`: settings `app.json`, `model.json`,
+optional paired `runtime.json` and `router.json`, certificate/key/CA inputs and
+`password`. Entries are allowlisted; no directories, symlinks, PAX metadata,
+duplicates or arbitrary paths are admitted. The archive is bounded to 9 MiB,
+contents to 8 MiB and each file to 4 MiB. The settings must use `/data` and the
+initial password path `/data/bootstrap/password`.
+
+Run this production command once in the stopped generated container with a
+short-lived operator mount for the archive:
+
+```text
+/usr/bin/mikrocentauri app-provision -archive /provision/install.tar -data /data
+```
+
+The source archive must be `0400` or `0600`. Native RouterOS SFTP on 7.24.5 accepts
+permission-preservation flags but uploads files as `0644`. Repair the archive
+mode with a bounded, reviewed operator helper before calling the Go provisioner;
+the temporary source mount needs write access for that repair. Remove the mount,
+helper and command/entrypoint overrides afterward. Do not relax private-file
+checks or keep a shell wrapper as the application entrypoint.
+
+The destination must be empty, apart from a sole real empty `bootstrap`
+directory prepopulated from the image. Provisioning validates the complete
+bundle privately before publication, preserves that directory's inode/owner,
+creates `0700` directories and `0600` files, and publishes `app.json` last.
+Existing state is never overwritten. This command initializes neither auth nor
+readiness. Compare the installed files with the private source, then perform the
+stopped installation plan/manual privilege/verify procedure above. Extra mounts
+are rejected, even if they appear unrelated to `/data`.
+
+Enable the App only after verification. Require the actual production image
+healthcheck and authenticated native readiness, then test selected and direct
+traffic. A healthy API alone is insufficient. The default Go launcher establishes inherited `umask0077` (native RouterOS
+otherwise starts with `0000`), initializes auth only after kernel preparation and starts the existing runtime owner; shutdown
+closes that owner before restoring initially disabled forwarding.
+
+## Protected image replacement and rollback
+
+On the pinned native release, updating YAML or deleting an App can recreate its
+container and clear managed `state`. Do not rely on Docker-style volume retention,
+manual editing of `container-command-lines`, or `/app/update` as a safe upgrade.
+Use exclusive administrative control, stop the App and take a complete protected,
+binary-safe SFTP backup outside the managed volume before removing anything.
+
+Recreate the exact same App name using YAML with the intended immutable image.
+Wait for the previous VETH to disappear before recreating it, restore snapshot
+**contents** into the exact `state` directory and repair private directory/file
+modes (`0700`/`0600`) with a bounded stopped-container helper. Clear its overrides
+and verify image, IP, interface, mount and privilege before enabling. Keep the
+original backup unchanged through the upgrade and rollback. Compare original
+file bytes before startup and test authenticated state and cached-alias routing
+after startup. See [native update research](research/product-phase-6-app-update.md)
+for the observed parser and volume behavior. This is an explicit operator
+procedure; automatic updates stay disabled.

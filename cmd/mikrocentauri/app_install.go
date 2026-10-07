@@ -308,17 +308,14 @@ func appInstallIdentityFor(snapshot routeros.AppInstallation, expected appInstal
 	stateMatches := 0
 	for _, mount := range strings.Split(container["mount"], ",") {
 		parts := strings.Split(mount, ":")
-		if len(parts) != 3 {
-			return identity, false, errors.New("unrecognized generated App mount syntax")
+		if len(parts) != 3 || parts[1] != "/data" {
+			return identity, false, errors.New("generated production App must mount only its persistent state; remove temporary provisioning or executable-shadow mounts")
 		}
 		if parts[1] == "/data" {
 			if parts[0] != stateSource || parts[2] != "rw" {
 				return identity, false, errors.New("generated state mount is not exact persistent read-write /data")
 			}
 			stateMatches++
-		}
-		if strings.HasPrefix(parts[1], "/data/") {
-			return identity, false, errors.New("generated mount shadows persistent data")
 		}
 	}
 	if stateMatches != 1 {

@@ -1,0 +1,16 @@
+{
+  "routeros": "7.24.5 (stable)",
+  "before": {
+    "app_umask": "0000",
+    "engine_cache_permissions": "0666",
+    "native_ready": false,
+    "scope": "observed isolated App failure; existing engine guard correctly refused public cache"
+  },
+  "after": {
+    "app_umask": "0077",
+    "engine_umask": "0077",
+    "native_ready": true,
+    "scope": "fresh final-image App installation; real native acceptance and process metadata"
+  },
+  "fix": "default Go App launcher establishes inherited private process mask before owners/children; file guard unchanged"
+}

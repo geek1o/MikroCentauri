@@ -16,11 +16,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"mikrocentauri.local/core/internal/api"
 	"mikrocentauri.local/core/internal/application"
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/platform/linuxbarrier"
 )
 
 // appSettings is an operator-provisioned private file, never an environment
@@ -131,7 +133,7 @@ func prepareApp(s appSettings) error {
 	}
 	if s.RuntimeProfile != "" {
 		var profile application.Profile
-		if privateJSON(s.RuntimeProfile, &profile, 1<<20) != nil || !beneathAppData(s.DataDirectory, profile.Directory) || (profile.RuleSetDirectory != "" && profile.RuleSetDirectory != filepath.Join(s.DataDirectory, "rulesets")) {
+		if privateJSON(s.RuntimeProfile, &profile, 1<<20) != nil || profile.Validate(model) != nil || !beneathAppData(s.DataDirectory, profile.Directory) || (profile.RuleSetDirectory != "" && profile.RuleSetDirectory != filepath.Join(s.DataDirectory, "rulesets")) {
 			return errors.New("app runtime directories must remain beneath data_directory")
 		}
 		if _, _, e := connectRouter(s.RouterConfig); e != nil {
@@ -141,8 +143,23 @@ func prepareApp(s appSettings) error {
 	if _, e := api.PrivateDirectory(s.DataDirectory); e != nil {
 		return errors.New("app persistent data_directory must be a private0700 directory without symlinks")
 	}
-	state := filepath.Join(s.DataDirectory, "api")
-	return initializeAppAuth(state, s.PasswordFile)
+	return nil
+}
+
+func prepareAppKernel(s appSettings) (func() error, error) {
+	var profile application.Profile
+	data, e := readRouterFile(s.Model, 4<<20, true)
+	if e != nil {
+		return nil, errors.New("private app model unavailable")
+	}
+	model, e := coreconfig.Decode(data)
+	if e != nil || privateJSON(s.RuntimeProfile, &profile, 1<<20) != nil || profile.Validate(model) != nil {
+		return nil, errors.New("invalid native App kernel profile")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	return linuxbarrier.PrepareAppKernel(ctx, linuxbarrier.AppKernelOptions{Interface: profile.IngressInterface,
+		Table: profile.Table, RulePriority: profile.RulePriority, LocalRulePriority: profile.LocalRulePriority})
 }
 
 func initializeAppAuth(state, passwordFile string) error {
@@ -241,7 +258,7 @@ func appHealth(ctx context.Context, s appSettings) error {
 	return nil
 }
 
-func appCommand(action string, args []string) error {
+func appCommand(action string, args []string) (result error) {
 	fs := flag.NewFlagSet(action, flag.ContinueOnError)
 	settings := fs.String("config", "/data/bootstrap/app.json", "private operator-provisioned application settings")
 	if e := fs.Parse(args); e != nil {
@@ -257,7 +274,22 @@ func appCommand(action string, args []string) error {
 	if action == "app-health" {
 		return appHealth(context.Background(), s)
 	}
+	// RouterOS starts App processes with umask0000. sing-box creates its own
+	// cache file, so explicit Go file modes alone cannot protect child outputs.
+	// Establish the inherited process mask before initializing or starting owners.
+	previousMask := syscall.Umask(0077)
+	defer syscall.Umask(previousMask)
 	if e := prepareApp(s); e != nil {
+		return e
+	}
+	if s.RuntimeProfile != "" {
+		cleanup, e := prepareAppKernel(s)
+		if e != nil {
+			return e
+		}
+		defer func() { result = errors.Join(result, cleanup()) }()
+	}
+	if e := initializeAppAuth(filepath.Join(s.DataDirectory, "api"), s.PasswordFile); e != nil {
 		return e
 	}
 	// Existing api-serve owns SIGTERM/SIGINT, child shutdown, subscription owner,

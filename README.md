@@ -1,7 +1,7 @@
 # MikroCentauri
 
 RouterOS-native selective routing application. **Product Phases 2–4 are accepted on the pinned
-CHR profile; Phase 5 Web UI is complete for that backend. Phase 6 RouterOS App packaging is in progress.** RouterOS remains the main router;
+CHR profile; Phase 5 Web UI is complete for that backend. Phase 6 RouterOS App is complete for the pinned CHR profile.** RouterOS remains the main router;
 sing-box supplies the selected-traffic gateway. No anti-DPI components.
 
 Target installation: RouterOS >=7.22; linux/arm64 and linux/amd64. Full transparent
@@ -107,7 +107,7 @@ Production CLI lifecycle passed CHR TCP/UDP/HTTP3 and SIGKILL recovery.
 
 The transparent CHR path and dynamic publication for a bounded IPv4 namespace
 are proved for lab cases. Complete FakeIP lifecycle, IPv6, version/device coverage
-and installation/release integration remain open. See the
+and release integration/wider installation coverage remain open. See the
 [completed controller phase](docs/reports/product-phase-2-controller-completion.md),
 [latest dataplane engineering report](docs/reports/phase-8-activation-recovery.md),
 [Phase-7 namespace lifecycle](docs/reports/phase-7-namespace-lifecycle.md),
@@ -121,13 +121,16 @@ The [core phase is complete on the pinned profile](docs/reports/product-phase-3-
 The [Web UI phase is complete](docs/reports/product-phase-5-web-ui-completion.md)
 for the accepted backend: Chromium/WebKit browser contracts, bounded network
 discovery and actual isolated sing-box node probes. The setup wizard reviews an
-existing profile; it does not install the application. Next gates are installable
-RouterOS App and wider boot/device/browser coverage;
+existing profile; it does not install the application. The App now has protected provisioning and native startup/restart/image-replacement
+acceptance. Next gates are wider security/boot/device/browser coverage;
 publication does not make arbitrary cached aliases safe after ledger loss or reuse.
 
 The core now provides subscription/group/rule management and supervisor/LKG
 lifecycle. The backend and embedded UI are connected to that owner; release images remain open.
-Production packaging is a placeholder, not an installation-ready App.
+Local multiarch images and App/catalog drafts are implemented; the pinned operator
+installation is documented in [the install guide](docs/install.md). Phase 6 results
+are in [App completion](docs/reports/product-phase-6-app-completion.md). Registry
+publication and the release/device matrix remain later gates.
 
 replaces its temporary name. Source is independently written under MIT; sing-box
 binary distribution has separate GPL/source obligations in [notices](THIRD_PARTY_NOTICES.md).

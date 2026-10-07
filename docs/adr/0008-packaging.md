@@ -1,7 +1,7 @@
 # ADR-0008: One application container, RouterOS App target
 
-Status: PARTIALLY IMPLEMENTED. Local images and native App translation tested;
-complete installation/update acceptance remains open.
+Status: IMPLEMENTED for the pinned CHR profile; broader release/device acceptance
+remains open. See [Phase 6 completion](../reports/product-phase-6-app-completion.md).
 
 One Go controller/embedded UI plus sing-box child use private persistent `/data`.
 The original RouterOS 7.22 App target remains conditional; pinned native proof is
@@ -22,7 +22,8 @@ Native 7.24.5 admits unknown YAML fields. Generated containers ignored service
 translation occurs after extraction. Generated secret mounts have mode 0444 and cannot
 serve directly as private operator inputs. See [native observations](../research/product-phase-6-app-import.md).
 
-Stable prepared networking, privileges, TLS access, volume upgrade preservation,
-whole-App recovery and installation remain gates. Image sizes are measured;
+Reviewed topology, exact privilege, protected Go provisioning, native startup/health,
+restart and backup-backed image replacement are accepted on the pinned profile.
+Unattended installation and wider recovery/device matrices remain gates. Image sizes are measured;
 physical arm64 performance is not inferred from cross-builds.
 See [packaging/installation](../install.md).
