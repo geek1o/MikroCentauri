@@ -157,7 +157,7 @@ func (m Model) Validate() error {
 	if m.Mode != "hybrid" && m.Mode != "full" && m.Mode != "socksify" {
 		return errors.New("invalid core mode")
 	}
-	if len(m.Endpoints)+len(m.WireGuard) == 0 || len(m.Endpoints)+len(m.WireGuard) > 1024 || len(m.Groups) > 256 || len(m.Rules) > 4096 || len(m.SourceProxy) > 4096 {
+	if len(m.Endpoints)+len(m.WireGuard) > 1024 || len(m.Groups) > 256 || len(m.Rules) > 4096 || len(m.SourceProxy) > 4096 {
 		return errors.New("core collection bounds exceeded")
 	}
 	p, e := netip.ParsePrefix(m.DNS.FakeIPRange)
@@ -206,7 +206,10 @@ func (m Model) Validate() error {
 			enabled++
 		}
 	}
-	if enabled == 0 {
+	// A new installation can expose management without inventing a proxy.
+	// This exception admits only an empty DIRECT configuration.
+	directOnly := m.Mode == "hybrid" && m.DefaultOutbound == "direct" && len(m.Endpoints) == 0 && len(m.WireGuard) == 0 && len(m.Groups) == 0 && len(m.Rules) == 0 && len(m.SourceProxy) == 0 && len(m.DNS.SelectedDomains) == 0
+	if enabled == 0 && !directOnly {
 		return errors.New("at least one enabled endpoint is required")
 	}
 	for _, g := range m.Groups {

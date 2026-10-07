@@ -1,9 +1,9 @@
-# DRAFT: local images exist; no registry image has been published.
-# Render with scripts/render-app.py using the built immutable index digest.
-# Native /app YAML admission does not establish dataplane privileges/readiness.
+# Render only after registry publication and immutable digest verification.
 name: mikrocentauri
 descr: Selective routing controller and proxy engine
+page: https://github.com/geek1o/MikroCentauri
 category: networking
+default-credentials: "admin:[secret:admin_password]"
 auto-update: false
 supported-archs:
   - arm64
@@ -13,15 +13,20 @@ services:
     image: REQUIRED_ACTUAL_IMAGE_AT_IMMUTABLE_DIGEST
     container_name: mikrocentauri
     environment:
+      MC_APP_BOOTSTRAP: "1"
       MC_ROUTER_IP: "[routerIP]"
       MC_CONTAINER_IP: "[containerIP]"
       MC_CONTAINER_INTERFACE: "[containerInterface]"
+      MC_ACCESS_IP: "[accessIP]"
+      MC_ACCESS_PORT: "[accessPort]"
     ports:
       - "8443:8443:api-secure"
     volumes:
       - state:/data
-    # Provision /data/bootstrap/app.json and its private input files first.
-    # The image entrypoint owns app-run; a command would append extra arguments.
+    secrets:
+      - admin_password
     stop_grace_period: 30s
 volumes:
   state:
+secrets:
+  admin_password:

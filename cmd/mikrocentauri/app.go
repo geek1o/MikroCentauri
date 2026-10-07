@@ -267,6 +267,11 @@ func appCommand(action string, args []string) (result error) {
 	if fs.NArg() != 0 || (action != "app-run" && action != "app-health") {
 		return errors.New("unsupported app command or arguments")
 	}
+	if action == "app-run" && os.Getenv("MC_APP_BOOTSTRAP") == "1" && *settings == "/data/bootstrap/app.json" {
+		if e := bootstrapApp("/data", os.Getenv("MC_CONTAINER_IP"), os.Getenv("MC_ACCESS_IP"), os.Getenv("MC_ACCESS_PORT"), "/run/secrets/admin_password"); e != nil {
+			return e
+		}
+	}
 	s, e := loadAppSettings(*settings)
 	if e != nil {
 		return e
