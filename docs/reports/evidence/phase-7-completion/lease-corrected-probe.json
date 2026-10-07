@@ -1,0 +1,2002 @@
+{
+  "scope": "diagnostic only; not accepted",
+  "raw_probe_sha256": "45baecc4cb0c33017e29ef2ba390112a3de9f05acc83710ce67c6c40b8391970",
+  "run_id": "1791396979007039000",
+  "image_config": "sha256:a3750b0dce3c211026ad85828bef3cd72da109d24ea2cbd41edd96a68076cd86",
+  "elapsed_seconds": 190.29,
+  "samples": [
+    {
+      "elapsed_seconds": 2.07,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 499,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 433
+        },
+        {
+          "request_id": 500,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1628
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 10.2,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 501,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 820
+        },
+        {
+          "request_id": 502,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1902
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 20.17,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 503,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 790
+        },
+        {
+          "request_id": 504,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1847
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 28.36,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 505,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 913
+        },
+        {
+          "request_id": 506,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1726
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 39.07,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 507,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 978
+        },
+        {
+          "request_id": 508,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1707
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 47.95,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 509,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 1024
+        },
+        {
+          "request_id": 510,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 2661
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 57.94,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 511,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 839
+        },
+        {
+          "request_id": 512,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 2108
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 69.51,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 513,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 794
+        },
+        {
+          "request_id": 514,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 2677
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 79.4,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 515,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 1122
+        },
+        {
+          "request_id": 516,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1582
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 87.55,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 517,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 993
+        },
+        {
+          "request_id": 518,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1910
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 98.42,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 519,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 845
+        },
+        {
+          "request_id": 520,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1904
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 107.14,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 521,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 837
+        },
+        {
+          "request_id": 522,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 2567
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 116.43,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 523,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 750
+        },
+        {
+          "request_id": 524,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1649
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 127.05,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 525,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 804
+        },
+        {
+          "request_id": 526,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 4525
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 135.18,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 527,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 947
+        },
+        {
+          "request_id": 528,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 2018
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 143.3,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:51.00366Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 529,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 945
+        },
+        {
+          "request_id": 530,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1971
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 153.21,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:51.00366Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 531,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 1075
+        },
+        {
+          "request_id": 532,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 1543
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 163.36,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:17:45.526938Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:55.684592Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:17:58.059671Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:15.852409Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:18:37.87424Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:02.731569Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:21.124291Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:19:32.32185Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:01.946377Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:20.201326Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:20:51.00366Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:21:16.46647Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "publication_lease_refreshed",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 533,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 899
+        },
+        {
+          "request_id": 534,
+          "error": "resolve: lookup selected.test on 192.168.88.1:53: server misbehaving",
+          "elapsed_ms": 4072
+        }
+      ]
+    }
+  ],
+  "after_observation": {
+    "elapsed_seconds": 190.08,
+    "system": [
+      200,
+      {
+        "api_version": "v1",
+        "core_schema": 2,
+        "ipv6_fakeip": false,
+        "runtime_connected": true,
+        "status": {
+          "revision": 1,
+          "ready": true,
+          "pending": false
+        }
+      }
+    ],
+    "logs": [
+      200,
+      [
+        {
+          "timestamp": "2026-10-07T18:17:45.526938Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:17:55.684592Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_failed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:17:58.059671Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:18:15.852409Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "recovery_verified",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:18:37.87424Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:19:02.731569Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:19:21.124291Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:19:32.32185Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:20:01.946377Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:20:20.201326Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:20:51.00366Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:21:16.46647Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "publication_lease_refreshed",
+          "request_id": "",
+          "config_revision": 1
+        }
+      ]
+    ]
+  },
+  "note": "Legacy unexpected_withdrawal also flags DNS denial; inspect actual ready state in snapshots."
+}

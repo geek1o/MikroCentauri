@@ -520,3 +520,54 @@ The runner's final unrelated-state hashes include the six managed tables while
 excluding runtime counters. Restore native TLS service/certificate settings after
 the run and shut down CHR normally. See
 [controller completion](reports/product-phase-2-controller-completion.md).
+
+## Product Phase 7: native App hardening
+
+Use an independent clone of the prepared Phase 6 CHR disk pair; the original
+snapshot must not be opened by a second QEMU process. The runner refuses other
+board/version profiles and uses synthetic private bootstrap material. It is not
+a production-router test. Retain failed clone disks/captures before replacing a
+fixture; a clean clone alone is not causal evidence.
+
+The hardening topology uses LAN/WAN switches at localhost19336/19346, client and
+server Linux control forwards19010/19020, QUIC controls19110/19120 and CHR native
+management18336/18436/22336. The runner temporarily adds App API18446 and registry
+18539. Rebuild the RAM-root from the current `lab/workload` binary and existing
+pinned sing-box/QUIC fixture payload before starting the Linux guests. The workload
+adds fixed IPv6 addresses/routes and bounded DNS/literal-IPv6/proxy-stop probes.
+Only these disposable addresses and processes can be controlled by those helpers.
+
+Start each command in a separate terminal using the prepared independent fixture:
+
+```sh
+python3 scripts/lab-switch.py --port 19336 --capture .cache/phase7-hardening/lan.pcap
+python3 scripts/lab-switch.py --port 19346 --capture .cache/phase7-hardening/wan.pcap
+python3 scripts/linux-lab.py --role client --socket 127.0.0.1:19336
+python3 scripts/linux-lab.py --role server --socket 127.0.0.1:19346 --mac 52:54:00:77:00:10
+python3 scripts/chr-lab.py --image .cache/app-native/chr.img \
+  --workdir .cache/phase7-hardening --ssh-port 22336 --http-port 18336 \
+  --https-port 18436 --lan-socket 19336 --lan-connect --wan-socket 19346
+python3 tests/e2e/chr_app_native.py --hardening \
+  --oci .cache/app-image-phase7-complete/oci \
+  --rollback-oci .cache/app-image-phase7-ipv6/oci \
+  --work .cache/phase7-hardening
+```
+
+The prepared CHR snapshot has its plain disposable admin account and App storage,
+SSH key and kernel/container prerequisites; production inputs are not interchangeable.
+The explicit hardening observer profile is 10 s interval, 3 s timeout, two successes
+and a 23 s RAM lease. Source policies, user FastTrack, temporary IPv6 guard and
+operator startup scheduler are native test fixtures, with final restoration/removal.
+Reboots are issued by the runner; no manual acceptance marker is needed.
+
+`--hardening-probe` is mutually exclusive with `--hardening`. It records a modest
+load, system/history and native state to diagnose withdrawals. It never sets native
+accepted/completed. Public DNS can deny a proof crossing its TTL floor even while
+runtime readiness is true; resource smoke and immutable-image UDP witnesses use
+cached verified aliases and real IPs, with fresh DNS behavior recorded separately.
+
+Stop the VMs and switches before final capture summarization. Verify exact-run UDP
+witnesses with `scripts/verify-app-capture.py` and scoped IPv6 witnesses with
+`scripts/verify-phase7-capture.py`; require the native completed/accepted flags.
+Retain raw PCAP/disks/private state outside Git and commit only safe hashed summaries
+and test results. See the [Phase 7 report](reports/product-phase-7-hardening-completion.md).

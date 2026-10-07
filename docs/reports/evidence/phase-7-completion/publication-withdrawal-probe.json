@@ -1,0 +1,260 @@
+{
+  "scope": "diagnostic only; not accepted",
+  "raw_probe_sha256": "ed09d60f82f74b16bc05a70ba978da0d0569820216ed1b2da3a79a2e25297bad",
+  "run_id": "1791396525830503000",
+  "image_config": "sha256:9cb732f4d908bd45236e7f564e603e029c61c056bc8b88bfec515f57638d5c91",
+  "elapsed_seconds": 45.66,
+  "samples": [
+    {
+      "elapsed_seconds": 4.29,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": true,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:10:41.804047Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:03.048253Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 489,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 860
+        },
+        {
+          "request_id": 490,
+          "resolved_ipv4": "198.19.192.2",
+          "proxy_seen_ip": "10.77.0.10",
+          "bytes": 65536,
+          "elapsed_ms": 3419
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 11.12,
+      "system": [
+        200,
+        {
+          "api_version": "v1",
+          "core_schema": 2,
+          "ipv6_fakeip": false,
+          "runtime_connected": true,
+          "status": {
+            "revision": 1,
+            "ready": false,
+            "pending": false
+          }
+        }
+      ],
+      "logs": [
+        200,
+        [
+          {
+            "timestamp": "2026-10-07T18:10:41.804047Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:03.048253Z",
+            "level": "info",
+            "component": "runtime",
+            "event": "recovery_verified",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:26.101967Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "core_publication_check_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:26.102158Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "readiness_withdrawn",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:26.477449Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:34.865461Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_failed",
+            "request_id": "",
+            "config_revision": 1
+          },
+          {
+            "timestamp": "2026-10-07T18:11:35.169946Z",
+            "level": "warning",
+            "component": "runtime",
+            "event": "recovery_started",
+            "request_id": "",
+            "config_revision": 1
+          }
+        ]
+      ],
+      "transfers": [
+        {
+          "request_id": 491,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 262144,
+          "elapsed_ms": 816
+        },
+        {
+          "request_id": 492,
+          "resolved_ipv4": "10.77.0.20",
+          "proxy_seen_ip": "10.77.0.1",
+          "bytes": 65536,
+          "elapsed_ms": 532
+        }
+      ]
+    }
+  ],
+  "after_observation": {
+    "elapsed_seconds": 43.26,
+    "system": [
+      200,
+      {
+        "api_version": "v1",
+        "core_schema": 2,
+        "ipv6_fakeip": false,
+        "runtime_connected": true,
+        "status": {
+          "revision": 1,
+          "ready": false,
+          "pending": false
+        }
+      }
+    ],
+    "logs": [
+      200,
+      [
+        {
+          "timestamp": "2026-10-07T18:10:41.804047Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:03.048253Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "recovery_verified",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:26.101967Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "core_publication_check_failed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:26.102158Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "readiness_withdrawn",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:26.477449Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:34.865461Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_failed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:35.169946Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:44.922451Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_failed",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:11:45.374281Z",
+          "level": "warning",
+          "component": "runtime",
+          "event": "recovery_started",
+          "request_id": "",
+          "config_revision": 1
+        },
+        {
+          "timestamp": "2026-10-07T18:12:02.56187Z",
+          "level": "info",
+          "component": "runtime",
+          "event": "recovery_verified",
+          "request_id": "",
+          "config_revision": 1
+        }
+      ]
+    ]
+  },
+  "note": "Legacy unexpected_withdrawal also flags DNS denial; inspect actual ready state in snapshots."
+}

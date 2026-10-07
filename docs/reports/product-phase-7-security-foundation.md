@@ -1,5 +1,7 @@
 # Product Phase 7: security foundation
 
+Historical intermediate status; superseded by [Phase 7 completion](product-phase-7-hardening-completion.md) for its pinned native profile.
+
 Date: 2026-10-07. Status: first hardening block complete; **product Phase 7 remains
 in progress**. Starting point: Phase 6 commit `b129cc5`, with pinned CHR 7.24.5
 x86_64 and sing-box 1.14.2 acceptance. This block changes production download and

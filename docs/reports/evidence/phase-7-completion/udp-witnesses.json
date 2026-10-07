@@ -1,0 +1,813 @@
+{
+  "run_id": "1791398213085080000",
+  "scope": "exact-run UDP ingress/forwarding witnesses; TCP/H3 peers in native report",
+  "lan_sha256": "bcf50a8d5cfb3575420bf725a19fcc0cc3643e99cf55034a1566d57c4f3176d0",
+  "wan_sha256": "17ba227b8000f7a3fe8726c5390b9f99d2b091033b07209e1d4ed926d81910a4",
+  "workloads": [
+    {
+      "stage": "packets.selected.test",
+      "marker": "phase4-1791398213085080000-1-selected.test-1",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-1",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398303.825043,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 1,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 41496,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-1",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398303.843914,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 1,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50166,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "packets.unselected.test",
+      "marker": "phase4-1791398213085080000-1-unselected.test-2",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-2",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398304.198823,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 2,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "10.77.0.20",
+        "source_port": 53876,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-2",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398304.199725,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 2,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 53876,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.0",
+      "marker": "phase4-1791398213085080000-1-selected.test-3",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-3",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398352.839473,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 3,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 39624,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-3",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398352.849303,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 3,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50336,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.1",
+      "marker": "phase4-1791398213085080000-1-unselected.test-4",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-4",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398352.911499,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 4,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "10.77.0.20",
+        "source_port": 58739,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-4",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398352.911752,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 4,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58739,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.2",
+      "marker": "phase4-1791398213085080000-1-second.test-5",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-5",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.249778,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 5,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.3",
+        "source_port": 38219,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-5",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.290088,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 5,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 50293,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.3",
+      "marker": "phase4-1791398213085080000-1-second.test-6",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-6",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.450217,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 6,
+        "protocol": "udp",
+        "source": "192.168.88.20",
+        "destination": "198.19.192.3",
+        "source_port": 41843,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-6",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.512789,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 6,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50346,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.4",
+      "marker": "phase4-1791398213085080000-1-selected.test-7",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-7",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.802957,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 7,
+        "protocol": "udp",
+        "source": "192.168.88.30",
+        "destination": "198.19.192.2",
+        "source_port": 43090,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-7",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398353.807893,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 7,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 49361,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.5",
+      "marker": "phase4-1791398213085080000-1-selected.test-8",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-8",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.39413,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 8,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 39842,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-8",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.399898,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 8,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50364,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.6",
+      "marker": "phase4-1791398213085080000-1-unselected.test-9",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-9",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.474117,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 9,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "10.77.0.20",
+        "source_port": 45920,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-unselected.test-9",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.474887,
+        "revision": 1,
+        "domain": "unselected.test",
+        "sequence": 9,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 45920,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.7",
+      "marker": "phase4-1791398213085080000-1-second.test-10",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-10",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.573014,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 10,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.3",
+        "source_port": 49318,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-10",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.633701,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 10,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 39459,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.8",
+      "marker": "phase4-1791398213085080000-1-second.test-11",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-11",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.910519,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 11,
+        "protocol": "udp",
+        "source": "192.168.88.20",
+        "destination": "198.19.192.3",
+        "source_port": 49682,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-second.test-11",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398356.919747,
+        "revision": 1,
+        "domain": "second.test",
+        "sequence": 11,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50376,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.9",
+      "marker": "phase4-1791398213085080000-1-selected.test-12",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-12",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398357.045099,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 12,
+        "protocol": "udp",
+        "source": "192.168.88.30",
+        "destination": "198.19.192.2",
+        "source_port": 48236,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-12",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398357.058378,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 12,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58823,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.10",
+      "marker": "phase4-1791398213085080000-1-selected.test-13",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-13",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398378.409287,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 13,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 58437,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-13",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398378.409866,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 13,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 58437,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.11",
+      "marker": "phase4-1791398213085080000-1-selected.test-14",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-14",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398408.836788,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 14,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 47346,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-14",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398408.848858,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 14,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50574,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.12",
+      "marker": "phase4-1791398213085080000-1-selected.test-15",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-15",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398460.292982,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 15,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 50675,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-15",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398460.308357,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 15,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50746,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.13",
+      "marker": "phase4-1791398213085080000-1-selected.test-16",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-16",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398471.649132,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 16,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 39892,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-16",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398471.649951,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 16,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 39892,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.14",
+      "marker": "phase4-1791398213085080000-1-selected.test-17",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-17",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398549.598624,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 17,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 53681,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-17",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398549.616346,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 17,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 50994,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.15",
+      "marker": "phase4-1791398213085080000-1-selected.test-18",
+      "expected_forward_path": [
+        "udp",
+        "10.77.0.20",
+        9000
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-18",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398610.109146,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 18,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 47459,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-18",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398610.109815,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 18,
+        "protocol": "udp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.20",
+        "source_port": 47459,
+        "destination_port": 9000
+      }
+    },
+    {
+      "stage": "hardening.forwarding.16",
+      "marker": "phase4-1791398213085080000-1-selected.test-19",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-19",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398682.608282,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 19,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 54558,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-19",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398682.635333,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 19,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 57256,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.17",
+      "marker": "phase4-1791398213085080000-1-selected.test-20",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-20",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398862.381414,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 20,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 52536,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-20",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398862.426188,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 20,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 51860,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "hardening.forwarding.18",
+      "marker": "phase4-1791398213085080000-1-selected.test-21",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-21",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398977.961915,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 21,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 39644,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-21",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791398977.978671,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 21,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 47778,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "native_image_replacement.0",
+      "marker": "phase4-1791398213085080000-1-selected.test-22",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-22",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791399129.13144,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 22,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 50636,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-22",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791399129.144136,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 22,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 48196,
+        "destination_port": 8443
+      }
+    },
+    {
+      "stage": "native_image_replacement.1",
+      "marker": "phase4-1791398213085080000-1-selected.test-23",
+      "expected_forward_path": [
+        "tcp",
+        "10.77.0.10",
+        8443
+      ],
+      "lan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-23",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791399190.073297,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 23,
+        "protocol": "udp",
+        "source": "192.168.88.10",
+        "destination": "198.19.192.2",
+        "source_port": 39698,
+        "destination_port": 9000
+      },
+      "wan_packet": {
+        "marker": "phase4-1791398213085080000-1-selected.test-23",
+        "run_id": "1791398213085080000",
+        "time_utc_epoch": 1791399190.110367,
+        "revision": 1,
+        "domain": "selected.test",
+        "sequence": 23,
+        "protocol": "tcp",
+        "source": "10.77.0.1",
+        "destination": "10.77.0.10",
+        "source_port": 48364,
+        "destination_port": 8443
+      }
+    }
+  ]
+}

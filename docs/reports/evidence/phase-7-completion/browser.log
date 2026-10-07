@@ -1,0 +1,29 @@
+
+added 4 packages in 331ms
+npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn install-scripts   fsevents@2.3.2 (install: (install scripts present))
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+
+Running 4 tests using 1 worker
+
+(node:17186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17186) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+2026/10/07 16:52:56 http: TLS handshake error from 127.0.0.1:54747: remote error: tls: unknown certificate
+2026/10/07 16:52:56 http: TLS handshake error from 127.0.0.1:54751: remote error: tls: unknown certificate
+2026/10/07 16:52:57 http: TLS handshake error from 127.0.0.1:54754: remote error: tls: unknown certificate
+  ✓  1 [chromium] › workflows.spec.ts:4:1 › administrative workflow over real HTTPS API and pinned validator (8.0s)
+2026/10/07 16:53:04 http: TLS handshake error from 127.0.0.1:54805: remote error: tls: unknown certificate
+2026/10/07 16:53:04 http: TLS handshake error from 127.0.0.1:54807: remote error: tls: unknown certificate
+2026/10/07 16:53:04 http: TLS handshake error from 127.0.0.1:54808: remote error: tls: unknown certificate
+  ✓  2 [chromium] › workflows.spec.ts:176:1 › IPv6 settings never claim packet isolation when disabled or unavailable (726ms)
+(node:17278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [webkit] › workflows.spec.ts:4:1 › administrative workflow over real HTTPS API and pinned validator (5.5s)
+  ✓  4 [webkit] › workflows.spec.ts:176:1 › IPv6 settings never claim packet isolation when disabled or unavailable (758ms)
+
+  4 passed (16.9s)

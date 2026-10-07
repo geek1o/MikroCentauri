@@ -1,0 +1,12 @@
+test_absent_bypass_witness_refused (test_capture_verifiers.CaptureVerification.test_absent_bypass_witness_refused) ... ok
+test_boot_renderer_binds_names_digest_and_disabled_boundary (test_capture_verifiers.CaptureVerification.test_boot_renderer_binds_names_digest_and_disabled_boundary) ... ok
+test_ipv6_parser_and_truncated_record (test_capture_verifiers.CaptureVerification.test_ipv6_parser_and_truncated_record) ... ok
+test_missing_hardening_stages_refused (test_capture_verifiers.CaptureVerification.test_missing_hardening_stages_refused) ... ok
+test_scoped_guard_requires_positive_ingress_and_zero_egress (test_capture_verifiers.CaptureVerification.test_scoped_guard_requires_positive_ingress_and_zero_egress) ... ok
+test_source_policy_requires_exact_ingress (test_capture_verifiers.CaptureVerification.test_source_policy_requires_exact_ingress) ... ok
+test_wrong_run_or_wrong_forward_path_refused (test_capture_verifiers.CaptureVerification.test_wrong_run_or_wrong_forward_path_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK

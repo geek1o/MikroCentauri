@@ -9,12 +9,12 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | --- | --- | --- |
 | 0 | Research | Research recorded for the pinned lab architecture; refresh before a release |
 | 1 | Dataplane laboratory | Bounded CHR TCP/UDP/HTTP3 proof completed; device/version coverage remains limited |
-| 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to hardening |
+| 2 | RouterOS Controller | Complete for CHR 7.24.5 x86_64: HTTPS discovery, desired model/planner, active/staged apply, placement-preserving rollback, reconcile/verify/cleanup, exact ownership and generated native Netwatch/startup guard; wider release/device acceptance belongs to release qualification |
 | 3 | sing-box Core | Complete for pinned sing-box 1.14.2 / CHR 7.24.5 x86_64: imports/subscription LKG, groups/health/fallback, ordered rules/services/verified SRS, modern WireGuard, DNS/FakeIP, validator/supervisor and coordinated native activation/recovery; broader device/release acceptance remains in later phases |
 | 4 | Backend/API | Complete for the pinned CHR profile: TLS/authenticated typed v1 API, durable drafts and verified single-use plans, production native owner, public policy/subscription workflows, safe application backup/restore, bounded logs and diagnostics; native TCP/UDP/HTTP3, SIGKILL recovery and exact-run packet evidence accepted |
-| 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain hardening |
+| 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain release qualification |
 | 6 | RouterOS App | Complete for CHR 7.24.5 x86_64: amd64/arm64 packaging and custom store draft, protected Go provisioning, explicit HTTPS origin, stopped identity/privilege review, kernel/TUN preparation, production Go startup/default health, TCP/UDP/HTTP3, cached-alias restart and real immutable-image replacement/rollback; reviewed operator topology remains required, wider runtime/release matrix belongs to later phases |
-| 7 | Hardening | In progress: redirect credential disclosure, mutable download authority and inherited RouterOS proxy fixed with regressions; read-only IPv6 detection and setup/DNS notices verified on CHR and browsers; complete packet/security/device acceptance remains open |
+| 7 | Hardening | Complete for CHR 7.24.5 x86_64 / sing-box 1.14.2 and the explicit lab profile: security/SSRF/secret review, immutable client admission, bounded private lease renewal, native FastTrack/IPv6/failure/three-reboot matrix, cached-flow resource smoke, actual image rollback and exact-run packet witnesses; broader hardware/browser/version acceptance remains release qualification |
 | 8 | Release candidate | Not started: release images, upgrade/rollback acceptance, SBOM and complete E2E delivery remain open |
 
 Engineering milestones already recorded:
@@ -77,18 +77,23 @@ and restart evidence, and the unresolved App command parser/update gate.
 [Phase 6 App completion](../reports/product-phase-6-app-completion.md) records
 protected first installation, native kernel/default launcher and health admission,
 exact-run TCP/UDP/HTTP3, cached-alias restart, genuine image replacement/rollback,
-private state equality and complete build/capture validation. Phase 7 is in progress;
+private state equality and complete build/capture validation. Phase 7 hardening completion below supersedes its open native gates;
 physical arm64/RouterOS 7.22 and release publication remain separate gates.
 
 
 [Phase 7 security foundation](../reports/product-phase-7-security-foundation.md)
 records reproduced download/control transport defects, targeted fixes and regression
-evidence. It does not close the native IPv6/FastTrack/reboot/device acceptance gates.
+evidence. The completion report below supplies its later native gates; wider device qualification remains separate.
 
 [Phase 7 IPv6 observation](../reports/product-phase-7-ipv6-observation.md)
 records GET-only IPv6 metadata, explicit UI limits, native REST schema and missing
-FastTrack/route flag handling. Packet isolation and reboot/failure matrices remain open.
+FastTrack/route flag handling. Later packet/reboot/failure evidence is in the completion report below.
 
 [Phase 7 native hardening progress](../reports/product-phase-7-native-hardening-progress.md)
-records the management review, native failure/reboot matrix and the unresolved
-load/readiness withdrawal. Complete native/capture acceptance remains open.
+records the management review, historical rejected attempts, native matrix and
+private lease correction. Its earlier open native/capture gates are superseded below.
+
+[Phase 7 hardening completion](../reports/product-phase-7-hardening-completion.md)
+closes the seven original deliverables for the pinned lab profile and supersedes
+open gates in the preceding Phase 7 reports. Product Phase 8 release candidate
+is next; publication and wider release qualification remain separate.

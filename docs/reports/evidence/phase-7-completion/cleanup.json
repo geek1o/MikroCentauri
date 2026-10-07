@@ -1,0 +1,35 @@
+{
+  "controlled_objects_remaining": {
+    "ip/route": [],
+    "ip/firewall/nat": [],
+    "tool/netwatch": [],
+    "system/scheduler": [],
+    "ip/firewall/address-list": [],
+    "system/script": []
+  },
+  "fasttrack_restored": [
+    {
+      "comment": "disposable-user-fasttrack",
+      "disabled": "false",
+      "action": "fasttrack-connection"
+    }
+  ],
+  "native_cleanup": {
+    "app_disabled": true,
+    "owned_native_objects_removed": true,
+    "data_preserved": true
+  },
+  "loopback_ports_closed": {
+    "18336": true,
+    "18436": true,
+    "22336": true,
+    "18446": true,
+    "18539": true,
+    "19336": true,
+    "19346": true,
+    "19010": true,
+    "19110": true,
+    "19020": true,
+    "19120": true
+  }
+}

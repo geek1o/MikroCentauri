@@ -1,0 +1,11 @@
+{
+  "scope": "Rejected observations are not acceptance; preserved full local artifacts stay outside Git.",
+  "cutover": "Early attempts observed REAL DNS, DIRECT or EHOSTUNREACH before native convergence; bounded state convergence and quiet periods are now explicit. Zero-delay cutover is not established.",
+  "boot": "Enabled App did not recover automatically; restart field did not change child boot flag. Explicit child flag recovered once but App setup reset it. Digest-bound separate operator scheduler is tested instead.",
+  "conntrack": "Snapshot after a closed transfer had no connection row; exact new-tuple polling during a bounded transfer now supplies the FastTrack witness.",
+  "authentication": "Attempt 13 returned 401 on old session after scheduled App restart; an independent fresh login returned ready=true and recovery_verified. Harness refreshes only on 401.",
+  "continuous_up": "Attempt 14 passed the functional/reboot matrix but the subsequent 64 KiB selected transfer resolved REAL and used DIRECT. No contemporaneous runtime snapshot was retained; root cause is not established from that result.",
+  "load_related_observation": "Attempt 15 observed cached selected DIRECT after a 256 KiB DIRECT transfer; readiness=false, UP lease absent and Netwatch down. Snapshot establishes fail-open state, not the initiating cause.",
+  "fixture": "Earlier malformed script argument and initial DNS timeout were rejected. Old clone/disks/jobs remain preserved; cloning again is not proof of a causal attribution.",
+  "follow_up": "Diagnostic publication withdrawal was followed by bounded private lease renewal. Corrected native diagnostics recorded eight renewals without withdrawal; public DNS SERVFAIL retained readiness. Final cached-flow matrix accepted run 1791398213085080000."
+}

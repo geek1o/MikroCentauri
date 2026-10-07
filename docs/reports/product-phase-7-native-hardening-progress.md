@@ -1,5 +1,7 @@
 # Product Phase 7 — native hardening progress
 
+Historical intermediate status; superseded by [Phase 7 completion](product-phase-7-hardening-completion.md) for its pinned native profile.
+
 Date: 2026-10-07. Phase 7 remains **in progress**. All observations below concern
 only the disposable CHR 7.24.5 x86_64 / sing-box 1.14.2 synthetic fixture.
 

@@ -1,0 +1,43 @@
+{
+  "/system": [
+    200,
+    {
+      "api_version": "v1",
+      "core_schema": 2,
+      "ipv6_fakeip": false,
+      "runtime_connected": true,
+      "status": {
+        "revision": 1,
+        "ready": true,
+        "pending": false
+      }
+    }
+  ],
+  "/logs": [
+    200,
+    [
+      {
+        "timestamp": "2026-10-07T14:56:24.001672Z",
+        "level": "warning",
+        "component": "runtime",
+        "event": "recovery_started",
+        "request_id": "",
+        "config_revision": 1
+      },
+      {
+        "timestamp": "2026-10-07T14:56:40.20702Z",
+        "level": "info",
+        "component": "runtime",
+        "event": "recovery_verified",
+        "request_id": "",
+        "config_revision": 1
+      }
+    ]
+  ],
+  "/health/ready": [
+    200,
+    {
+      "ready": true
+    }
+  ]
+}

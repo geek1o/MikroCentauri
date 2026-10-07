@@ -1,0 +1,8 @@
+--- FAIL: TestRuntimeCheckLeaseRefreshIsPrivateAndBounded (0.25s)
+    --- FAIL: TestRuntimeCheckLeaseRefreshIsPrivateAndBounded/once (0.09s)
+        adapter_test.go:400: fresh private proof was not admitted: core runtime verification failed calls=1
+    --- FAIL: TestRuntimeCheckLeaseRefreshIsPrivateAndBounded/always (0.08s)
+        adapter_test.go:408: failure retried or admitted: core runtime verification failed calls=1
+FAIL
+FAIL	mikrocentauri.local/core/internal/coreactivation	0.537s
+FAIL

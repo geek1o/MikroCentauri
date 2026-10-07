@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "go_version": "1.27.1",
+  "index_digest": "sha256:0ae1b54998cf60e48deec5b766a4c20d711b6f5c8db907b492e0af47f8a7a24f",
+  "platforms": {
+    "amd64": {
+      "manifest_digest": "sha256:51b788255d2ecf90d8e2cc693bbcaef1843441d7eab3e14129a863baf620f3f6",
+      "archive_sha256": "651c3d93841ab8ca95a1ef14247eafd24e5936814366f4eb8b37ff4bb9d539af",
+      "compressed_layer_bytes": 40110533,
+      "uncompressed_layer_bytes": 111114240,
+      "controller_sha256": "f8260b520532b727873d7e66398529b8cf3a1a192825330b0ad702f5be44438c",
+      "engine_sha256": "4b5cef575df2e5572eddf7c204b4adea03a27d9721c5e39a89df5fb6977643cb",
+      "inputs": {
+        "rootfs": {
+          "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-minirootfs-3.24.2-x86_64.tar.gz",
+          "sha256": "c5ca053cfe1d85c5b96dff8b9bc57045f7f184a30ffb6b65776409ca90388677"
+        },
+        "sing_box": {
+          "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-amd64-musl.tar.gz",
+          "sha256": "8f6cb4bcf94d2b33c65d52e0d5b142db29a938336f1ff7267f397ac3758fc297"
+        }
+      }
+    },
+    "arm64": {
+      "manifest_digest": "sha256:4a3ddd1002caaa49570346c279f8b4a7395150e806b3744e46fb93190da520dd",
+      "archive_sha256": "0e0d23d8d74602867e15c52d660d9fc93671a92f7091b698509ece87c15f8f86",
+      "compressed_layer_bytes": 37315438,
+      "uncompressed_layer_bytes": 104601600,
+      "controller_sha256": "976bbe77b4fa15ecce8073f24aad0f2b4aa122c50c075ba2f2488722a719a9d3",
+      "engine_sha256": "fb9189e2d14f2795aa86adc070f7a61d1c74c299f519e52a021b1bbc720b4769",
+      "inputs": {
+        "rootfs": {
+          "url": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-minirootfs-3.24.2-aarch64.tar.gz",
+          "sha256": "9bf70a7f18ea44094cbb5f70c58f9af129c8214745743db0e68e5502cc2ce773"
+        },
+        "sing_box": {
+          "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-arm64-musl.tar.gz",
+          "sha256": "675297394f9430cebb72b3c48ba8bce0d6f7c750a9d68a8f7f88c515c8255cd1"
+        }
+      }
+    }
+  },
+  "entrypoint": "app-run",
+  "volume": "/data",
+  "registry_published": false,
+  "runtime_acceptance": "not implied by image construction"
+}

@@ -1,5 +1,7 @@
 # Product Phase 7: IPv6 observation and deployment boundary
 
+Historical intermediate status; superseded by [Phase 7 completion](product-phase-7-hardening-completion.md) for its pinned native profile.
+
 Date: 2026-10-07. Status: read-only capability/UI block complete; **Phase 7 remains
 in progress**. This follows [security foundation](product-phase-7-security-foundation.md).
 

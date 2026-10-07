@@ -1,0 +1,105 @@
+{
+  "run_id": "1791398213085080000",
+  "lan_sha256": "bcf50a8d5cfb3575420bf725a19fcc0cc3643e99cf55034a1566d57c4f3176d0",
+  "wan_sha256": "17ba227b8000f7a3fe8726c5390b9f99d2b091033b07209e1d4ed926d81910a4",
+  "bypass_and_guard_removal_witnesses": [
+    {
+      "marker": "/phase7-v6-1791398348559138000-literal",
+      "lan_packet": {
+        "time_utc_epoch": 1791398368.775887,
+        "source": "fd7a:7:1::10",
+        "destination": "fd7a:7:2::20",
+        "source_port": 53179,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-literal"
+      },
+      "wan_packet": {
+        "time_utc_epoch": 1791398368.776531,
+        "source": "fd7a:7:1::10",
+        "destination": "fd7a:7:2::20",
+        "source_port": 53179,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-literal"
+      }
+    },
+    {
+      "marker": "/phase7-v6-1791398348559138000-before-guard",
+      "lan_packet": {
+        "time_utc_epoch": 1791398368.787081,
+        "source": "fd7a:7:1::30",
+        "destination": "fd7a:7:2::20",
+        "source_port": 33051,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-before-guard"
+      },
+      "wan_packet": {
+        "time_utc_epoch": 1791398368.787362,
+        "source": "fd7a:7:1::30",
+        "destination": "fd7a:7:2::20",
+        "source_port": 33051,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-before-guard"
+      }
+    },
+    {
+      "marker": "/phase7-v6-1791398348559138000-after-guard",
+      "lan_packet": {
+        "time_utc_epoch": 1791398371.883741,
+        "source": "fd7a:7:1::30",
+        "destination": "fd7a:7:2::20",
+        "source_port": 60525,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-after-guard"
+      },
+      "wan_packet": {
+        "time_utc_epoch": 1791398371.883931,
+        "source": "fd7a:7:1::30",
+        "destination": "fd7a:7:2::20",
+        "source_port": 60525,
+        "destination_port": 8087,
+        "syn": false,
+        "marker": "/phase7-v6-1791398348559138000-after-guard"
+      }
+    }
+  ],
+  "guard_lan_syn": [
+    {
+      "time_utc_epoch": 1791398368.861178,
+      "source": "fd7a:7:1::30",
+      "destination": "fd7a:7:2::20",
+      "source_port": 47341,
+      "destination_port": 8087,
+      "syn": true,
+      "marker": null
+    },
+    {
+      "time_utc_epoch": 1791398369.909231,
+      "source": "fd7a:7:1::30",
+      "destination": "fd7a:7:2::20",
+      "source_port": 47341,
+      "destination_port": 8087,
+      "syn": true,
+      "marker": null
+    },
+    {
+      "time_utc_epoch": 1791398370.933887,
+      "source": "fd7a:7:1::30",
+      "destination": "fd7a:7:2::20",
+      "source_port": 47341,
+      "destination_port": 8087,
+      "syn": true,
+      "marker": null
+    }
+  ],
+  "guard_wan_syn": [],
+  "blocked_window_epoch": [
+    1791398368.857557,
+    1791398371.862321
+  ],
+  "scope": "fixed literal IPv6 target and operator scoped guard only; alternate DNS/DoH enforcement not established"
+}

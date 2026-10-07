@@ -1,10 +1,12 @@
 # Security status
 
-Product Phase 7 is in progress. Phases 2–6 have bounded acceptance on CHR 7.24.5
+Product Phase 7 is complete for the explicit synthetic CHR 7.24.5 profile.
+Phases 2–7 have bounded acceptance on CHR 7.24.5
 x86_64 and the pinned sing-box 1.14.2 profile; this does not establish security
 acceptance across RouterOS versions, physical devices or arbitrary topologies.
 See [the roadmap](product/progress.md) and
-[Phase 7 security foundation](reports/product-phase-7-security-foundation.md).
+[Phase 7 hardening completion](reports/product-phase-7-hardening-completion.md)
+and [management review](reports/phase7-management-security-review.md).
 
 ## Management and secrets
 
@@ -51,15 +53,19 @@ an empty answer; unsupported managed query types, including SVCB/HTTPS, fail clo
 instead of forwarding to the allocator. This is an IPv4 selective-routing boundary,
 not proof against IPv6 bypass: cached/literal IPv6, alternate resolvers and client
 DoH/DoT require a reviewed network policy. Read-only IPv6 configuration detection and setup/DNS notices are implemented;
-configured-disabled and missing settings do not prove isolation. The complete leak
-matrix remains a Phase 7 gate. See [IPv6 observation](reports/product-phase-7-ipv6-observation.md).
+configured-disabled and missing settings do not prove isolation. The scoped DNS/literal-bypass/operator-guard
+matrix is accepted; general IPv6 isolation remains unsupported. See [IPv6 observation](reports/product-phase-7-ipv6-observation.md).
 
 Owned firewall placement, quarantine and readiness guards coordinate activation
 and recovery. Native Phase 6 tests cover selected TCP/UDP/HTTP3, cached aliases,
 engine restart and image replacement/rollback on the pinned CHR profile. Existing
-FastTrack and unrelated rules are preserved; a complete FastTrack/IPv6/reboot/failure
-matrix and sustained resource testing remain open. Passing local failure-injection
-and recovery tests does not replace a fresh native reboot or packet capture.
+FastTrack and unrelated rules are preserved; the pinned FastTrack/IPv6/reboot/failure matrix and a one-minute cached-flow
+resource smoke have native capture acceptance. Physical hardware capacity, broader
+versions/browsers and long-term resource behavior remain release qualification.
+Private readiness proofs renew an expired verification lease once from a fresh
+authoritative origin; repeated expiry and other errors still quarantine. Public
+DNS remains strict and may return SERVFAIL at a TTL boundary while readiness
+remains true. No zero-loss or continuous existing-session guarantee is established.
 
 ## Laboratory boundary
 

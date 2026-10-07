@@ -1,0 +1,18 @@
+{
+  "implementation_commit": "9e7b2fd5a1fb5b532a56dd7b62f9b8a9390cd7af",
+  "code_sha256": {
+    "internal/api/server.go": "a975719852ed632f8564064dcc249db1e0f98aad0e4f731812b4c5fe9426d21a",
+    "internal/api/host.go": "9c7c9e62c41a9307f1fcc5ba361280a8d706c1615c575f0985983ce49c2f67f0",
+    "internal/coreactivation/adapter.go": "992ce63a51ef56c0bd86bdbf5e43e4d4119b0da4b0fde2b9effa80b174f1a452",
+    "internal/fakeip/publisher.go": "ee8510c083cc37159ae4ae6cd9a25fcdbc2dfa6758a720bbc617d8cde3dbb36a",
+    "tests/e2e/chr_app_native.py": "bf884552a3bde72dd5954d71b96ff868960d682c0577d89688587ba1b9ed7c79",
+    "tests/e2e/chr_app_hardening.py": "e2bfdc75fbb3f964ef7f019dc6bbdf9706c793303f07ac271c06a67c1e683c3e",
+    "scripts/render-app-boot.py": "4afd89324a3d85f737f36284216ec6153839520dd628a618b8a103f25c5147ec",
+    "scripts/summarize-lab-pcap.py": "262e98ce6b411513ecb0382e8d4d9a507e344ba6c364f63d486d1cd48dbf06db",
+    "scripts/verify-app-capture.py": "5e79d04fb5ebda97145c5b458d1dcf75189ca8860cd7d95196eff637abc0233d",
+    "scripts/verify-phase7-capture.py": "2a4bfc44f623a4c20a216c84a8984025f3adb8018412841547a3578466acbf23",
+    "lab/workload/hardening.go": "1a0eaadb1e02a5cf9a4bf36af8f90acefebd646525fa67021a3f234064707aa7",
+    "lab/linux/init.sh": "9139f6d7d31a8e74ef267a7fc26b23d753e6b871557033c207ca8acfaee960e5"
+  },
+  "scope": "source identity for accepted run; final report/docs commit follows; private/raw fixtures excluded"
+}
