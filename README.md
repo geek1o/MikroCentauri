@@ -1,4 +1,8 @@
-# MikroCentauri
+# MikroCentauri development branch
+
+`develop` retains architecture notes, laboratory fixtures and engineering evidence.
+The public distribution source and operator documentation are maintained on `main`.
+
 
 RouterOS-native selective routing application. **Product Phases 2–7 are accepted
 on the pinned CHR profile; a local v0.1.0-rc.1 candidate packages that acceptance.** RouterOS remains the main router;
@@ -137,7 +141,7 @@ installation is documented in [the install guide](docs/install.md). Phase 6 resu
 are in [App completion](docs/reports/product-phase-6-app-completion.md). Registry
 publication and the release/device matrix remain later gates.
 
-replaces its temporary name. Source is independently written under MIT; sing-box
+Source is independently written under MIT; sing-box
 binary distribution has separate GPL/source obligations in [notices](THIRD_PARTY_NOTICES.md).
 Development is recorded in local Git and published to the private
 [MikroCentauri repository](https://github.com/geek1o/MikroCentauri).

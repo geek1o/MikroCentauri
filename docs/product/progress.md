@@ -1,6 +1,6 @@
 # Product roadmap and engineering milestones
 
-The canonical roadmap is Phase 0–8 in section 62 of
+The roadmap contains nine product phases (0–8). Historical report
 numbers after Phase 1 label additional engineering milestones; they do not mean
 that the corresponding product phase is complete. In particular, engineering
 Phase 8 activation/recovery is not product Phase 8 release candidate.
