@@ -51,10 +51,12 @@ func init() {
 }
 
 type ledgerFixture struct {
-	mu       sync.Mutex
-	mappings []fakeip.Mapping
-	fail     atomic.Bool
-	calls    atomic.Int32
+	mu           sync.Mutex
+	mappings     []fakeip.Mapping
+	fail         atomic.Bool
+	expireOnce   atomic.Bool
+	expireAlways atomic.Bool
+	calls        atomic.Int32
 }
 
 func (l *ledgerFixture) Mappings() []fakeip.Mapping {
@@ -64,6 +66,9 @@ func (l *ledgerFixture) Mappings() []fakeip.Mapping {
 }
 func (l *ledgerFixture) PublishAlias(ctx context.Context, n string, ip netip.Addr) (fakeip.Mapping, time.Duration, error) {
 	l.calls.Add(1)
+	if l.expireOnce.Swap(false) || l.expireAlways.Load() {
+		return fakeip.Mapping{}, 0, fakeip.ErrLeaseExpiredDuringVerification
+	}
 	if l.fail.Load() {
 		return fakeip.Mapping{}, 0, errors.New("fixture REST outage with secret")
 	}
@@ -358,5 +363,51 @@ func TestRuntimeCheckStagesQuarantineWithoutPrivateErrors(t *testing.T) {
 	}
 	if RuntimeCheckEvent(errors.New("credential-bearing error")) != "core_check_failed" {
 		t.Fatal("raw error projected")
+	}
+}
+
+func TestRuntimeCheckLeaseRefreshIsPrivateAndBounded(t *testing.T) {
+	for _, mode := range []string{"once", "always", "backend"} {
+		t.Run(mode, func(t *testing.T) {
+			o, _, ledger, _, barrier := setup(t)
+			a, err := New(o)
+			if err != nil {
+				t.Fatal(err)
+			}
+			s := newSupervisor(t, a, privateDir(t))
+			defer func() { s.Close(context.Background()); a.Close(context.Background()) }()
+			b, err := a.Register(fixtureModel(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = s.Apply(context.Background(), b); err != nil {
+				t.Fatal(err)
+			}
+			bindings := len(a.Status().Admission.Bindings)
+			before := ledger.calls.Load()
+			switch mode {
+			case "once":
+				ledger.expireOnce.Store(true)
+			case "always":
+				ledger.expireAlways.Store(true)
+			case "backend":
+				ledger.fail.Store(true)
+			}
+			err = a.Check(context.Background())
+			calls := ledger.calls.Load() - before
+			if mode == "once" {
+				if err != nil || calls != int32(bindings+1) || !a.Status().Ready || barrier.quarantined.Load() || a.Status().LeaseRefreshRetries != 1 {
+					t.Fatalf("fresh private proof was not admitted: %v calls=%d", err, calls)
+				}
+			} else {
+				want := int32(2)
+				if mode == "backend" {
+					want = 1
+				}
+				if err == nil || calls != want || a.Status().Ready || !barrier.quarantined.Load() {
+					t.Fatalf("failure retried or admitted: %v calls=%d", err, calls)
+				}
+			}
+		})
 	}
 }

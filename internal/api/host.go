@@ -103,9 +103,13 @@ func (h *Host) verify(ctx context.Context) error {
 		h.history.record("mapping_reconcile_failed", false, h.View().Revision)
 		return e
 	}
+	leaseRetries := h.o.Core.Status().Traffic.LeaseRefreshRetries
 	if e := h.o.Core.Check(ctx); e != nil {
 		h.history.record(coreactivation.RuntimeCheckEvent(e), false, h.View().Revision)
 		return e
+	}
+	if h.o.Core.Status().Traffic.LeaseRefreshRetries > leaseRetries {
+		h.history.record("publication_lease_refreshed", true, h.View().Revision)
 	}
 	if e := h.o.Probe(ctx); e != nil {
 		h.history.record("canary_failed", false, h.View().Revision)

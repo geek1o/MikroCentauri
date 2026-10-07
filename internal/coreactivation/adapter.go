@@ -22,6 +22,7 @@ import (
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/dnsgate"
 	"mikrocentauri.local/core/internal/engineguard"
+	"mikrocentauri.local/core/internal/fakeip"
 	"mikrocentauri.local/core/internal/generation"
 	"mikrocentauri.local/core/internal/namespace"
 	"mikrocentauri.local/core/internal/supervisor"
@@ -54,10 +55,11 @@ type Options struct {
 	Timeout        time.Duration
 }
 type Status struct {
-	Ready             bool
-	Revision          string
-	NamespaceRevision uint64
-	Admission         generation.Snapshot
+	Ready               bool
+	LeaseRefreshRetries uint64
+	Revision            string
+	NamespaceRevision   uint64
+	Admission           generation.Snapshot
 }
 type Adapter struct {
 	lifecycle  sync.Mutex
@@ -405,6 +407,16 @@ func (a *Adapter) Check(ctx context.Context) error {
 	}
 	for _, binding := range admission.Snapshot().Bindings {
 		m, ttl, err := a.opts.Ledger.PublishAlias(bounded, binding.Domain, binding.Alias)
+		if errors.Is(err, fakeip.ErrLeaseExpiredDuringVerification) && bounded.Err() == nil {
+			// This is a private readiness proof, not a public DNS answer. A
+			// proof may cross the old TTL floor; resolve and verify once from
+			// a fresh origin, as Publisher.Reconcile does. Never extend a TTL
+			// or retry other backend failures/cancellation.
+			a.mu.Lock()
+			a.status.LeaseRefreshRetries++
+			a.mu.Unlock()
+			m, ttl, err = a.opts.Ledger.PublishAlias(bounded, binding.Domain, binding.Alias)
+		}
 		if err != nil || bounded.Err() != nil || m.Domain != binding.Domain || m.Fake != binding.Alias || ttl <= 0 {
 			return fail("publication")
 		}

@@ -39,3 +39,24 @@ Private disks, credentials and raw captures remain outside Git. Validation and
 rejected-observation summaries are staged under `evidence/phase-7-completion`;
 that directory name is not a completion claim. A final report will identify the
 accepted exact run and supersede this intermediate status when all gates pass.
+
+## Follow-up: private publication lease proof
+
+The diagnostic image localized the withdrawal to publication. A private
+`Adapter.Check` proof could cross the old TTL floor and return
+`ErrLeaseExpiredDuringVerification`; unlike reconcile, it did not renew once.
+The bounded correction retries only that sentinel, verifies from a fresh DNS
+origin and never extends the authoritative TTL. Persistent expiry, other failures,
+invalid receipts and cancellation still quarantine; public DNS remains strict.
+
+The regression fails with renewal disabled and passes after correction. Native
+corrected diagnostics observed eight `publication_lease_refreshed` events and
+17 successful PROXY/DIRECT load pairs through 153 seconds without readiness
+withdrawal. A later DNS SERVFAIL retained ready=true. Another full native attempt
+passed all 19 forwarding/failure/reboot stages, then encountered a DNS SERVFAIL
+with readiness retained. Neither diagnostic nor rejected attempt is acceptance.
+
+The final resource smoke therefore exercises cached verified aliases and literal
+real IPs; it separately retains the fresh-DNS denial limitation. Immutable-image
+UDP checks also use the admitted cached alias, matching their cache-preservation
+scope. Full acceptance/capture evidence is still pending.

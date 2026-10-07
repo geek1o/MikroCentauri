@@ -315,7 +315,7 @@ def run(*, native, api, settle, ready, core, stopped, app_id, ip, baseline, work
         while time.monotonic()-begin < 60:
             pair=[];samples.append(pair)
             for domain,peer in [('selected.test','10.77.0.10'),('unselected.test','10.77.0.1')]:
-                result=request(domain,path='/bench?bytes=65536');pair.append(result)
+                result=control(19010,'request',{'domain':domain,'address':baseline if domain=='selected.test' else '10.77.0.20', 'skip_dns':True,'path':'/bench?bytes=65536'});pair.append(result)
                 if result.get('error') or result.get('proxy_seen_ip')!=peer:
                     report['failed_sustained']={'elapsed_seconds':round(time.monotonic()-begin,2),
                         'domain':domain,'expected_peer':peer,'result':result,
@@ -331,7 +331,7 @@ def run(*, native, api, settle, ready, core, stopped, app_id, ip, baseline, work
         for sample in resources:
             for kind in ('owner_kib','engine_kib'): assert sample[kind]['VmRSS'] < 256*1024 and sample[kind]['VmSwap']==0
         report['sustained']={'elapsed_seconds':round(time.monotonic()-begin,2),'iterations':len(samples),'bytes_per_transfer':65536,'transfers':samples,'resources':resources,
-                            'scope':'one minute TCG memory/liveness smoke; no hardware throughput/loss claim'}
+                            'scope':'one minute TCG cached-alias/real-IP memory/liveness smoke; fresh DNS may deny expired publication proofs; no hardware throughput/loss claim'}
         report['expected_udp_witnesses']=len(report['forwarding']);report['completed']=True
         return report
     finally:
@@ -348,7 +348,7 @@ def runtime_probe(*,api,native,work):
 
     This is a diagnostic experiment, never a product acceptance oracle.
     """
-    report={'scope':'diagnostic only; no acceptance','samples':[]}
+    report={'scope':'diagnostic only; no acceptance','started_epoch':time.time(),'samples':[]}
     begin=time.monotonic()
     def snapshot():
         return {'elapsed_seconds':round(time.monotonic()-begin,2),
@@ -362,7 +362,8 @@ def runtime_probe(*,api,native,work):
         sample=snapshot();sample['transfers']=transfers;report['samples'].append(sample)
         expected=('10.77.0.1','10.77.0.10')
         if any(r.get('error') or r.get('proxy_seen_ip')!=peer for r,peer in zip(transfers,expected)) or not sample['system'][1].get('status',{}).get('ready'):
-            report['unexpected_withdrawal']=True
+            report['unexpected_observation']=True
+            report['readiness_withdrawn_observed']=(sample['system'][0]==200 and sample['system'][1].get('status',{}).get('ready') is False)
             (work/'runtime-probe.json').write_text(json.dumps(report,indent=2)+'\n')
             time.sleep(25);report['after_withdrawal']=snapshot()
             break

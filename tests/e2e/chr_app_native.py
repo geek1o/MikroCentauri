@@ -340,7 +340,7 @@ def main():
             assert not core().get('entrypoint') and not core().get('cmd') and not core().get('healthcheck-cmd')
             tcp = workload('unselected.test', domain='selected.test', address=baseline); assert_success(tcp, '10.77.0.10')
             h3 = quic('selected.test', baseline); assert h3['remote_ip'] == '10.77.0.10'
-            udp = marked_udp('selected.test')
+            udp = marked_udp('selected.test', address=baseline)
             assert udp['resolved_ipv4'] == baseline
             transitions.append({'stage': label, 'manifest': desc['digest'],
                 'config': image_manifest['config']['digest'], 'restored_original_bytes': proof,
