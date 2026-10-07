@@ -1,0 +1,26 @@
+{
+  "catalog_published": false,
+  "controller_source_proof": {
+    "amd64": "f8260b520532b727873d7e66398529b8cf3a1a192825330b0ad702f5be44438c",
+    "arm64": "976bbe77b4fa15ecce8073f24aad0f2b4aa122c50c075ba2f2488722a719a9d3"
+  },
+  "distribution": {
+    "blockers": [
+      "Complete corresponding source and build closure for sing-box native dependencies and Alpine GPL packages has not been assembled",
+      "Transitive component license assessment remains incomplete; see SBOM and source-distribution audit"
+    ],
+    "ready": false
+  },
+  "image_index_digest": "sha256:0ae1b54998cf60e48deec5b766a4c20d711b6f5c8db907b492e0af47f8a7a24f",
+  "registry_published": false,
+  "runtime_profile": "CHR 7.24.5 x86_64 / sing-box 1.14.2; synthetic Phase 7 profile",
+  "runtime_qualified_architectures": [
+    "amd64"
+  ],
+  "schema": 1,
+  "scope": "Exact accepted images; local artifact verification adds no native/hardware/browser acceptance",
+  "source_commit": "9ace276a66e705a08231c179ed3e1fbb7726cba7",
+  "source_tree": "b5fa3c5f80a6f709a223a080ddaeb869cb1bf3c3",
+  "status": "local-release-candidate",
+  "version": "v0.1.0-rc.1"
+}

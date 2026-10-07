@@ -1,0 +1,2 @@
+PASS: actual 395-component SBOM validates against official CycloneDX 1.6 schema
+Schema source: https://raw.githubusercontent.com/CycloneDX/specification/1.6/schema/bom-1.6.schema.json

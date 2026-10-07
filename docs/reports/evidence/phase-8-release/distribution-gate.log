@@ -1,0 +1,10 @@
+Expected nonzero exit: 1
+amd64: OCI digests, ELF architecture, archive and secret-free image verified
+arm64: OCI digests, ELF architecture, archive and secret-free image verified
+Traceback (most recent call last):
+  File "/Users/geekio/MikroCentauri/scripts/build-release.py", line 259, in <module>
+    verify(args.verify.resolve(), args.distribution)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/geekio/MikroCentauri/scripts/build-release.py", line 169, in verify
+    raise ValueError('binary distribution blocked: complete source/license closure has no verified evidence in this local RC')
+ValueError: binary distribution blocked: complete source/license closure has no verified evidence in this local RC

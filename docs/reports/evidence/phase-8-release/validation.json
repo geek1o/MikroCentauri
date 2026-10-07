@@ -1,0 +1,49 @@
+{
+  "artifacts": [
+    {
+      "bytes": 77215852,
+      "path": "mikrocentauri-v0.1.0-rc.1-oci.tar.gz",
+      "sha256": "9d408faab08342b14cf29088fb09dd235492272399beef50cb589d326d9b13e3"
+    },
+    {
+      "bytes": 1350092,
+      "path": "mikrocentauri-v0.1.0-rc.1-source.tar.gz",
+      "sha256": "22e2b0d2c7172482e314f65e378475547a0c4c69d662ca21480ad60e07b9cd8c"
+    },
+    {
+      "bytes": 111124480,
+      "path": "images/mikrocentauri-amd64.tar",
+      "sha256": "651c3d93841ab8ca95a1ef14247eafd24e5936814366f4eb8b37ff4bb9d539af"
+    },
+    {
+      "bytes": 104611840,
+      "path": "images/mikrocentauri-arm64.tar",
+      "sha256": "0e0d23d8d74602867e15c52d660d9fc93671a92f7091b698509ece87c15f8f86"
+    },
+    {
+      "bytes": 428028,
+      "path": "sbom.cdx.json",
+      "sha256": "8c690968ad9006cc210299c3f46298492c8c0db5ed8c8a24958d04058b29f0d0"
+    }
+  ],
+  "controller_source_reproduced": {
+    "amd64": "f8260b520532b727873d7e66398529b8cf3a1a192825330b0ad702f5be44438c",
+    "arm64": "976bbe77b4fa15ecce8073f24aad0f2b4aa122c50c075ba2f2488722a719a9d3"
+  },
+  "cyclonedx_1_6_schema": "passed against cached official specification",
+  "distribution_denial_test": "passed",
+  "distribution_ready": false,
+  "image_index_digest": "sha256:0ae1b54998cf60e48deec5b766a4c20d711b6f5c8db907b492e0af47f8a7a24f",
+  "native_evidence_reused_run_id": "1791398213085080000",
+  "new_native_run": false,
+  "oci_reachable_blob_count": 6,
+  "payload_file_count": 310,
+  "registry_published": false,
+  "regression_tests": 14,
+  "sbom_components": 395,
+  "schema": 1,
+  "scope": "Local RC byte integrity; no wider runtime/device/browser qualification",
+  "source_commit": "9ace276a66e705a08231c179ed3e1fbb7726cba7",
+  "source_tree": "b5fa3c5f80a6f709a223a080ddaeb869cb1bf3c3",
+  "version": "v0.1.0-rc.1"
+}

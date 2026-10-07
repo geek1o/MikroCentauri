@@ -1,0 +1,3 @@
+amd64: OCI digests, ELF architecture, archive and secret-free image verified
+arm64: OCI digests, ELF architecture, archive and secret-free image verified
+RC integrity, accepted image binding and component inventory verified

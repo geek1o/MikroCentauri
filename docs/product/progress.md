@@ -98,6 +98,8 @@ closes the seven original deliverables for the pinned lab profile and supersedes
 open gates in the preceding Phase 7 reports.
 
 [Phase 8 E2E report](../reports/product-phase-8-e2e.md) and
-[local RC guide](../release.md) assemble the exact accepted images and evidence.
+[local RC delivery report](../reports/product-phase-8-release-candidate.md)
+record the exact accepted images, source reproduction and artifact evidence.
+The [local RC guide](../release.md) supplies build/verification commands.
 The RC is local only; [source distribution](../legal/rc-source-distribution.md)
 remains an explicit publication blocker, not a completed gate.

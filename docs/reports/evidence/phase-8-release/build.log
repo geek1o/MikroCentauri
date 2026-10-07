@@ -1,0 +1,7 @@
+amd64: OCI digests, ELF architecture, archive and secret-free image verified
+arm64: OCI digests, ELF architecture, archive and secret-free image verified
+SBOM: 395 components; 8c690968ad9006cc210299c3f46298492c8c0db5ed8c8a24958d04058b29f0d0
+amd64: OCI digests, ELF architecture, archive and secret-free image verified
+arm64: OCI digests, ELF architecture, archive and secret-free image verified
+RC integrity, accepted image binding and component inventory verified
+/Users/geekio/MikroCentauri/.cache/releases/v0.1.0-rc.1
