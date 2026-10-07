@@ -66,6 +66,33 @@ class Integrity(unittest.TestCase):
             self.assertIsNone(release.VERSION.fullmatch(version))
         self.assertIsNotNone(release.VERSION.fullmatch('v0.1.0-rc.1'))
 
+    def test_cached_orphan_image_excluded_and_corrupt_graph_rejected(self):
+        import json
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / 'oci'
+            blobs = source / 'blobs/sha256'
+            blobs.mkdir(parents=True)
+
+            def blob(data):
+                path = blobs / release.hashlib.sha256(data).hexdigest()
+                path.write_bytes(data)
+                return {'digest': 'sha256:' + path.name, 'size': len(data)}
+
+            config = blob(b'accepted config')
+            layer = blob(b'accepted layer')
+            orphan = blob(b'unaccepted old image payload')
+            manifest = blob(json.dumps({'config': config, 'layers': [layer]}).encode())
+            (source / 'index.json').write_text(json.dumps({'manifests': [manifest]}))
+            (source / 'oci-layout').write_text('{}')
+            release.copy_oci_graph(source, root / 'release-oci')
+            actual = {p.name for p in (root / 'release-oci/blobs/sha256').iterdir()}
+            self.assertNotIn(orphan['digest'][7:], actual)
+            self.assertEqual(len(actual), 3)
+            (blobs / layer['digest'][7:]).write_bytes(b'corrupted')
+            with self.assertRaisesRegex(ValueError, 'integrity'):
+                release.copy_oci_graph(source, root / 'invalid-oci')
+
 
 if __name__ == '__main__':
     unittest.main()

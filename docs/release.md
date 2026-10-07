@@ -31,7 +31,7 @@ The output contains:
 
 | Artifact | Purpose |
 | --- | --- |
-| `images/oci/` | Exact two-platform OCI layout |
+| `images/oci/` | Exact two-platform OCI graph; stale unreferenced cache blobs excluded |
 | `mikrocentauri-v0.1.0-rc.1-oci.tar.gz` | Deterministic transport of that same OCI graph |
 | `images/mikrocentauri-amd64.tar`, `images/mikrocentauri-arm64.tar` | Original verified RouterOS container-import archives |
 | `images/build.json` | Image index/manifests, binaries and input hashes |

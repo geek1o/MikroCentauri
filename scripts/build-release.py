@@ -54,6 +54,34 @@ def archive_tree(directory, output):
                         archive.addfile(info)
 
 
+def copy_oci_graph(source, target):
+    """Copy only blobs reachable from this index, excluding stale cache images."""
+    target.mkdir(parents=True)
+    (target / 'blobs/sha256').mkdir(parents=True)
+    for name in ['index.json', 'oci-layout']:
+        shutil.copyfile(source / name, target / name)
+    seen = set()
+
+    def copy(descriptor):
+        value = descriptor['digest']
+        if not re.fullmatch(r'sha256:[0-9a-f]{64}', value):
+            raise ValueError('unsafe OCI descriptor')
+        path = source / 'blobs/sha256' / value[7:]
+        if path.is_symlink() or path.stat().st_size != descriptor['size'] or digest(path) != value[7:]:
+            raise ValueError('OCI graph integrity mismatch')
+        if value not in seen:
+            shutil.copyfile(path, target / 'blobs/sha256' / value[7:])
+            seen.add(value)
+        return path
+
+    index = json.loads((source / 'index.json').read_text())
+    for descriptor in index['manifests']:
+        manifest = json.loads(copy(descriptor).read_text())
+        copy(manifest['config'])
+        for layer in manifest['layers']:
+            copy(layer)
+
+
 def checksum_files(directory):
     result = {}
     for path in sorted(directory.rglob('*')):
@@ -95,6 +123,16 @@ def verify(directory, distribution=False):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     module.verify(directory / 'images')
+    layout = directory / 'images/oci'
+    index = json.loads((layout / 'index.json').read_text())
+    reachable = set()
+    for descriptor in index['manifests']:
+        reachable.add(descriptor['digest'][7:])
+        manifest = json.loads((layout / 'blobs/sha256' / descriptor['digest'][7:]).read_text())
+        reachable.add(manifest['config']['digest'][7:])
+        reachable.update(layer['digest'][7:] for layer in manifest['layers'])
+    if reachable != {p.name for p in (layout / 'blobs/sha256').iterdir()}:
+        raise ValueError('unreferenced OCI payload denied')
     build = json.loads((directory / 'images/build.json').read_text())
     native = json.loads((directory / 'evidence/native-results.json').read_text())
     if not native['accepted'] or not native['completed'] or not native['hardening']['completed']:
@@ -151,7 +189,7 @@ def build(args):
     try:
         images = output / 'images'
         images.mkdir()
-        shutil.copytree(image / 'oci', images / 'oci')
+        copy_oci_graph(image / 'oci', images / 'oci')
         shutil.copy2(image / 'build.json', images / 'build.json')
         image_build = json.loads((image / 'build.json').read_text())
         proof = {}
