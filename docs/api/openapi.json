@@ -209,7 +209,10 @@
                   ]
                 },
                 "enabled": {
-                  "type": "boolean"
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
                 },
                 "id": {
                   "type": "string"
@@ -1206,7 +1209,10 @@
                             ]
                           },
                           "enabled": {
-                            "type": "boolean"
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
                           },
                           "id": {
                             "type": "string"
@@ -1877,7 +1883,10 @@
                           ]
                         },
                         "enabled": {
-                          "type": "boolean"
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
                         },
                         "id": {
                           "type": "string"
@@ -2351,7 +2360,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -3049,7 +3061,10 @@
                           ]
                         },
                         "enabled": {
-                          "type": "boolean"
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
                         },
                         "id": {
                           "type": "string"
@@ -3523,7 +3538,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -4200,7 +4218,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -5072,7 +5093,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -5797,7 +5821,10 @@
                               ]
                             },
                             "enabled": {
-                              "type": "boolean"
+                              "type": [
+                                "boolean",
+                                "null"
+                              ]
                             },
                             "id": {
                               "type": "string"
@@ -6251,7 +6278,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -6928,7 +6958,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -11010,7 +11043,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -11870,7 +11906,10 @@
                     "type": "integer"
                   },
                   "enabled": {
-                    "type": "boolean"
+                    "type": [
+                      "boolean",
+                      "null"
+                    ]
                   },
                   "id": {
                     "type": "string"
@@ -12174,7 +12213,10 @@
                                 ]
                               },
                               "enabled": {
-                                "type": "boolean"
+                                "type": [
+                                  "boolean",
+                                  "null"
+                                ]
                               },
                               "id": {
                                 "type": "string"
@@ -12909,6 +12951,9 @@
                           "disabled": {
                             "type": "boolean"
                           },
+                          "disabled_known": {
+                            "type": "boolean"
+                          },
                           "gateway": {
                             "type": "string"
                           },
@@ -12917,6 +12962,7 @@
                           }
                         },
                         "required": [
+                          "disabled_known",
                           "gateway",
                           "table",
                           "disabled"
@@ -12982,6 +13028,36 @@
                     "fasttrack_rules": {
                       "type": "integer"
                     },
+                    "fasttrack_unknown": {
+                      "type": "integer"
+                    },
+                    "ipv6": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "default_routes": {
+                          "type": "integer"
+                        },
+                        "enabled_addresses": {
+                          "type": "integer"
+                        },
+                        "forwarding": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "state": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "state",
+                        "forwarding",
+                        "enabled_addresses",
+                        "default_routes"
+                      ],
+                      "type": "object"
+                    },
                     "memory_free": {
                       "type": "integer"
                     },
@@ -12990,6 +13066,8 @@
                     }
                   },
                   "required": [
+                    "fasttrack_unknown",
+                    "ipv6",
                     "available",
                     "addresses",
                     "default_routes",
@@ -13240,7 +13318,10 @@
                             ]
                           },
                           "enabled": {
-                            "type": "boolean"
+                            "type": [
+                              "boolean",
+                              "null"
+                            ]
                           },
                           "id": {
                             "type": "string"

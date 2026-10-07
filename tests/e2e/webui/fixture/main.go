@@ -50,7 +50,7 @@ func (r *runtime) Validate(ctx context.Context, revision uint64, m coreconfig.Mo
 	if revision != r.revision {
 		return errors.New("stale")
 	}
-	data, err := coreconfig.GenerateWithOptions(m, coreconfig.Options{DNSPort: 5353, MixedPort: 2080,CachePath:filepath.Join(r.directory,"validator-cache.db")})
+	data, err := coreconfig.GenerateWithOptions(m, coreconfig.Options{DNSPort: 5353, MixedPort: 2080, CachePath: filepath.Join(r.directory, "validator-cache.db")})
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,8 @@ func (routerFixture) Discover(context.Context) ([]routeros.Object, error) {
 	return []routeros.Object{}, nil
 }
 func (routerFixture) Network(context.Context) (routeros.Network, error) {
-	return routeros.Network{Available: map[string]bool{"system/resource": true, "ip/address": true, "ip/dhcp-server/lease": true, "ip/dns": true, "ip/route": true, "ip/firewall/filter": true}, Addresses: []routeros.NetworkAddress{{Address: "192.168.88.1/24", Interface: "bridge-lan"}, {Address: "172.30.0.1/30", Interface: "mc-veth"}}, DefaultRoutes: []routeros.NetworkRoute{{Gateway: "10.77.0.1", Table: "main"}}, Devices: []routeros.NetworkDevice{{Hostname: "Lab laptop", Address: "192.168.88.20", MAC: "02:00:00:00:00:20", Status: "bound"}}, DNSServers: []string{"1.1.1.1"}, DNSRemoteRequests: true, FastTrackRules: 1, FastTrackEnabled: 1, MemoryTotal: 1 << 30, MemoryFree: 512 << 20, DiskTotal: 4 << 30, DiskFree: 2 << 30}, nil
+	forwarding := true
+	return routeros.Network{IPv6: routeros.IPv6Observation{State: "configured_enabled", Forwarding: &forwarding, EnabledAddresses: 2, DefaultRoutes: 1}, Available: map[string]bool{"system/resource": true, "ip/address": true, "ip/dhcp-server/lease": true, "ip/dns": true, "ip/route": true, "ip/firewall/filter": true, "ipv6/settings": true, "ipv6/address": true, "ipv6/route": true}, Addresses: []routeros.NetworkAddress{{Address: "192.168.88.1/24", Interface: "bridge-lan"}, {Address: "172.30.0.1/30", Interface: "mc-veth"}}, DefaultRoutes: []routeros.NetworkRoute{{Gateway: "10.77.0.1", Table: "main"}}, Devices: []routeros.NetworkDevice{{Hostname: "Lab laptop", Address: "192.168.88.20", MAC: "02:00:00:00:00:20", Status: "bound"}}, DNSServers: []string{"1.1.1.1"}, DNSRemoteRequests: true, FastTrackRules: 1, FastTrackEnabled: 1, MemoryTotal: 1 << 30, MemoryFree: 512 << 20, DiskTotal: 4 << 30, DiskFree: 2 << 30}, nil
 }
 
 func (p *providers) Load(id string) (subscriptions.State, error) {

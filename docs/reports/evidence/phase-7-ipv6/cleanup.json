@@ -1,0 +1,11 @@
+{
+  "clone_stopped": true,
+  "closed_loopback_ports": [
+    18337,
+    18447,
+    22337,
+    19337
+  ],
+  "original_disks_opened": false,
+  "router_mutations_by_observation": 0
+}

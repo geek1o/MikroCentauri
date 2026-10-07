@@ -178,6 +178,9 @@ func schema(t reflect.Type) map[string]any {
 		return map[string]any{"type": "string", "format": "date-time"}
 	}
 	if t.Kind() == reflect.Pointer {
+		if t.Elem().Kind() == reflect.Bool {
+			return map[string]any{"type": []string{"boolean", "null"}}
+		}
 		return schema(t.Elem())
 	}
 	switch t.Kind() {

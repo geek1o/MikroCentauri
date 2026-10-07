@@ -121,3 +121,16 @@ mode 0600 and an 8 MiB aggregate JSON bound. The bundle never walks disk or
 includes secret files, script bodies or allocator state. GET `/routeros` uses
 verified HTTPS capabilities/discovery and returns owned counts, not raw objects.
 Readiness is separate from liveness and from the authenticated admin listener.
+
+`routeros/network.ipv6` is read-only configuration evidence. `state` is
+`configured_enabled`, `configured_disabled` or `unknown`; `forwarding: null` means
+unobserved and differs from `false`. Address counts exclude explicitly disabled
+or invalid rows; default-route counts include inactive/disabled routes and do not
+prove reachability. Check `available["ipv6/address"]` and `available["ipv6/route"]`
+before treating zero counters as an observation. Configuration state does not
+prove effective IPv6 isolation. See [Phase 7 observation](../reports/product-phase-7-ipv6-observation.md).
+
+`fasttrack_unknown` counts rules whose disabled flag was not returned; they are
+not included in `fasttrack_enabled`. For IPv4 default routes, `disabled` is an
+observation only if `disabled_known` is true. Missing native fields do not grant
+mutation authority.

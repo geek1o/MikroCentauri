@@ -14,7 +14,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 4 | Backend/API | Complete for the pinned CHR profile: TLS/authenticated typed v1 API, durable drafts and verified single-use plans, production native owner, public policy/subscription workflows, safe application backup/restore, bounded logs and diagnostics; native TCP/UDP/HTTP3, SIGKILL recovery and exact-run packet evidence accepted |
 | 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain hardening |
 | 6 | RouterOS App | Complete for CHR 7.24.5 x86_64: amd64/arm64 packaging and custom store draft, protected Go provisioning, explicit HTTPS origin, stopped identity/privilege review, kernel/TUN preparation, production Go startup/default health, TCP/UDP/HTTP3, cached-alias restart and real immutable-image replacement/rollback; reviewed operator topology remains required, wider runtime/release matrix belongs to later phases |
-| 7 | Hardening | In progress: redirect credential disclosure, mutable download authority and inherited RouterOS proxy fixed with regressions; selected DNS/failure/recovery checks passed, complete security/device acceptance remains open |
+| 7 | Hardening | In progress: redirect credential disclosure, mutable download authority and inherited RouterOS proxy fixed with regressions; read-only IPv6 detection and setup/DNS notices verified on CHR and browsers; complete packet/security/device acceptance remains open |
 | 8 | Release candidate | Not started: release images, upgrade/rollback acceptance, SBOM and complete E2E delivery remain open |
 
 Engineering milestones already recorded:
@@ -84,3 +84,7 @@ physical arm64/RouterOS 7.22 and release publication remain separate gates.
 [Phase 7 security foundation](../reports/product-phase-7-security-foundation.md)
 records reproduced download/control transport defects, targeted fixes and regression
 evidence. It does not close the native IPv6/FastTrack/reboot/device acceptance gates.
+
+[Phase 7 IPv6 observation](../reports/product-phase-7-ipv6-observation.md)
+records GET-only IPv6 metadata, explicit UI limits, native REST schema and missing
+FastTrack/route flag handling. Packet isolation and reboot/failure matrices remain open.

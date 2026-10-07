@@ -70,6 +70,10 @@ and [build metadata](evidence/phase-7-security/image-build.json) are retained.
 The new index is `sha256:f7426c71b4f39a7c883f54fd17f0c3ed628c27488db6ab1265357413bac7c9fe`.
 These images have not been published or admitted on CHR in this block.
 
+Subsequent [IPv6 observation](product-phase-7-ipv6-observation.md) implements the
+read-only detection and visible deployment policy in the first item below; the
+packet experiments and other acceptance gates remain open.
+
 ## Remaining Phase 7 acceptance
 
 - Read-only IPv6 capability detection and visible deployment policy, followed by

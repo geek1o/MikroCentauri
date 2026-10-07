@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import IPv6Notice from "./IPv6Notice.svelte";
   import {
     api,
     APIError,
@@ -802,7 +803,7 @@
                 )
                   .map((x: any) => x.gateway)
                   .join(", ") || "нет данных"}. FastTrack: {network?.fasttrack_enabled ??
-                  "не определён"} активных правил.
+                  "не определён"} подтверждённых включённых правил; статус {network?.fasttrack_unknown ?? "не определён"} правил не определён.
               </p>
               <p>
                 {network
@@ -813,6 +814,7 @@
                 Пул FakeIP: {config.policy.dns.fakeip_range}; upstream: {config
                   .policy.dns.bootstrap}
               </p>
+              <IPv6Notice {network} />
             {:else if wizard === 3}<h3>Проверка конфликтов</h3>
               {#if !network}<p class="error">
                   Данные сети не получены: проверка пересечений недоступна.
@@ -1511,6 +1513,7 @@
               Upstream, пул и сетевой перехват закреплены операторским профилем.
               DNS публикует адрес после доказательства маршрута.
             </p>
+            <IPv6Notice {network} />
           </section>
           <section class="card">
             <h2>Выборочные назначения</h2>

@@ -49,8 +49,9 @@ Managed DNS A responses require verified FakeIP publication. Managed AAAA return
 an empty answer; unsupported managed query types, including SVCB/HTTPS, fail closed
 instead of forwarding to the allocator. This is an IPv4 selective-routing boundary,
 not proof against IPv6 bypass: cached/literal IPv6, alternate resolvers and client
-DoH/DoT require a reviewed network policy. Automatic IPv6 capability detection and
-the complete leak matrix remain Phase 7 gates.
+DoH/DoT require a reviewed network policy. Read-only IPv6 configuration detection and setup/DNS notices are implemented;
+configured-disabled and missing settings do not prove isolation. The complete leak
+matrix remains a Phase 7 gate. See [IPv6 observation](reports/product-phase-7-ipv6-observation.md).
 
 Owned firewall placement, quarantine and readiness guards coordinate activation
 and recovery. Native Phase 6 tests cover selected TCP/UDP/HTTP3, cached aliases,

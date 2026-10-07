@@ -1,0 +1,50 @@
+=== RUN   TestNetworkReadOnlyProjectionSkipsIPv6AndExcludesPrivateFields
+--- PASS: TestNetworkReadOnlyProjectionSkipsIPv6AndExcludesPrivateFields (0.01s)
+=== RUN   TestNetworkUnavailableAndMalformedResponses
+=== RUN   TestNetworkUnavailableAndMalformedResponses/Not_Found
+=== RUN   TestNetworkUnavailableAndMalformedResponses/Forbidden
+=== RUN   TestNetworkUnavailableAndMalformedResponses/OK
+--- PASS: TestNetworkUnavailableAndMalformedResponses (0.02s)
+    --- PASS: TestNetworkUnavailableAndMalformedResponses/Not_Found (0.01s)
+    --- PASS: TestNetworkUnavailableAndMalformedResponses/Forbidden (0.01s)
+    --- PASS: TestNetworkUnavailableAndMalformedResponses/OK (0.01s)
+=== RUN   TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted
+=== RUN   TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted/false
+=== RUN   TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted/true
+--- PASS: TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted (0.01s)
+    --- PASS: TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted/false (0.01s)
+    --- PASS: TestNetworkIPv6ConfigurationIsReadOnlyAndRedacted/true (0.01s)
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settingsNot_Found
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","forward":"false"}OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings[]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings[{"disable-ipv6":"false","forward":"true"},{"disable-ipv6":"true","forward":"false"}]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"forward":"true"}OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"maybe","forward":"true"}OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","forward":"maybe"}OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","disable-ipv6":"true","forward":"true"}OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settingsForbidden
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"192.0.2.1/24"}]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"::ffff:192.0.2.1/128"}]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"fd00::1/64","disabled":"false","invalid":"maybe"}]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/route[{"dst-address":"0.0.0.0/0"}]OK
+=== RUN   TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/route[{"dst-address":"::/0","disabled":"maybe"}]OK
+--- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied (0.08s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settingsNot_Found (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","forward":"false"}OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings[]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings[{"disable-ipv6":"false","forward":"true"},{"disable-ipv6":"true","forward":"false"}]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"forward":"true"}OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"maybe","forward":"true"}OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","forward":"maybe"}OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settings{"disable-ipv6":"false","disable-ipv6":"true","forward":"true"}OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/settingsForbidden (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"192.0.2.1/24"}]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"::ffff:192.0.2.1/128"}]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/address[{"address":"fd00::1/64","disabled":"false","invalid":"maybe"}]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/route[{"dst-address":"0.0.0.0/0"}]OK (0.01s)
+    --- PASS: TestNetworkIPv6MissingIsUnknownAndMalformedIsDenied/ipv6/route[{"dst-address":"::/0","disabled":"maybe"}]OK (0.01s)
+=== RUN   TestNetworkNativeOmittedDisabledFlagsAreUnknown
+--- PASS: TestNetworkNativeOmittedDisabledFlagsAreUnknown (0.01s)
+PASS
+ok  	mikrocentauri.local/core/internal/platform/routeros	1.456s

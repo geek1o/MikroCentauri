@@ -26,6 +26,10 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
     await navigate(name);
     expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});
   }
+  await navigate('DNS');
+  const dnsIPv6 = page.getByRole('complementary', {name: 'Граница IPv6'});
+  await expect(dnsIPv6).toContainText('включён в настройках RouterOS');
+  await expect(dnsIPv6).toContainText('сторонний DNS может обойти');
   await navigate('Начальная настройка');
   await page.getByRole('button',{name:'Далее',exact:true}).click();
   const routerCheck=page.waitForResponse(r=>r.url().endsWith('/routeros/network'));
@@ -33,6 +37,7 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   expect((await routerCheck).ok()).toBe(true);
   await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Далее',exact:true}).click();
+  await expect(page.getByRole('complementary', {name: 'Граница IPv6'})).toContainText('Default routes обнаружено: 1');
   await expect(page.getByText(/192\.168\.88\.1\/24/).first()).toBeVisible();
   await page.getByRole('button',{name:'Далее',exact:true}).click();
   await expect(page.getByText(/пересечения\s+с\s+пулом\s+FakeIP\s+не\s+найдены/)).toBeVisible();
@@ -166,4 +171,40 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   await page.reload();
   await expect(page.getByLabel('Пароль администратора')).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test('IPv6 settings never claim packet isolation when disabled or unavailable', async ({page}) => {
+  await page.goto('/');
+  await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');
+  await page.getByRole('button', {name: 'Войти', exact: true}).click();
+  await expect(page.getByRole('heading', {name: 'Обзор', exact: true})).toBeVisible();
+  await page.getByRole('navigation').getByRole('link', {name: 'DNS', exact: true}).click();
+  const notice = page.getByRole('complementary', {name: 'Граница IPv6'});
+  for (const variant of ['disabled', 'unknown', 'unavailable']) {
+    await page.route('**/api/v1/routeros/network', async route => {
+      if (variant === 'unavailable') {
+        await route.fulfill({status: 503, json: {error: 'fixture unavailable'}});
+        return;
+      }
+      const response = await route.fetch();
+      const network = await response.json();
+      network.ipv6 = {state: variant === 'disabled' ? 'configured_disabled' : 'unknown', forwarding: variant === 'disabled' ? false : null, enabled_addresses: 2, default_routes: 1};
+      network.available['ipv6/address'] = variant === 'disabled';
+      network.available['ipv6/route'] = variant === 'disabled';
+      await route.fulfill({response, json: network});
+    });
+    await page.getByRole('button', {name: '↻ Обновить', exact: true}).click();
+    await expect(page.getByRole('button', {name: '↻ Обновить', exact: true})).toBeEnabled();
+    await expect(notice).toContainText(variant === 'disabled' ? 'выключен в настройках RouterOS' : 'настройки не получены');
+    await expect(notice).toContainText('не подтверждают отсутствие обхода');
+    await expect(notice).toContainText('могут требовать перезагрузки');
+    if (variant === 'disabled') {
+      await expect(notice).toContainText('Forwarding: выключен');
+      await expect(notice).toContainText('Default routes обнаружено: 1');
+    } else {
+      await expect(notice).not.toContainText('Forwarding:');
+      await expect(notice).not.toContainText('Default routes обнаружено:');
+    }
+    await page.unroute('**/api/v1/routeros/network');
+  }
 });
