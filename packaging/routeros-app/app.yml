@@ -1,0 +1,32 @@
+# Render only after registry publication and immutable digest verification.
+name: mikrocentauri
+descr: Selective routing controller and proxy engine
+page: https://github.com/geek1o/MikroCentauri
+category: networking
+default-credentials: "admin:[secret:admin_password]"
+auto-update: false
+supported-archs:
+  - arm64
+  - x86
+services:
+  core:
+    image: REQUIRED_ACTUAL_IMAGE_AT_IMMUTABLE_DIGEST
+    container_name: mikrocentauri
+    environment:
+      MC_APP_BOOTSTRAP: "1"
+      MC_ROUTER_IP: "[routerIP]"
+      MC_CONTAINER_IP: "[containerIP]"
+      MC_CONTAINER_INTERFACE: "[containerInterface]"
+      MC_ACCESS_IP: "[accessIP]"
+      MC_ACCESS_PORT: "[accessPort]"
+    ports:
+      - "8443:8443:api-secure"
+    volumes:
+      - state:/data
+    secrets:
+      - admin_password
+    stop_grace_period: 30s
+volumes:
+  state:
+secrets:
+  admin_password:

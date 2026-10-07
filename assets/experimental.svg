@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="124" viewBox="0 0 900 124" role="img" aria-labelledby="title desc">
+  <title id="title">Experimental, vibe-coded software for personal use</title>
+  <desc id="desc">No warranties. Review the code and test on an isolated router.</desc>
+  <rect x="1" y="1" width="898" height="122" rx="12" fill="#fff2bf" stroke="#d99400" stroke-width="2"/>
+  <path d="M61 20 98 91H24Z" fill="#ffbe00" stroke="#713f00" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M61 43v23" stroke="#422600" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="61" cy="78" r="3.5" fill="#422600"/>
+  <g fill="#422600" font-family="Arial,Helvetica,sans-serif">
+    <text x="120" y="46" font-size="24" font-weight="700">EXPERIMENTAL · VIBE-CODED · PERSONAL USE</text>
+    <text x="120" y="76" font-size="18" font-weight="700">No warranties. No guarantees. Use at your own risk.</text>
+    <text x="120" y="102" font-size="16">Review the code and test on an isolated router before installation.</text>
+  </g>
+</svg>

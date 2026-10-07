@@ -1,0 +1,5 @@
+# Bundled JavaScript contains significant whitespace inside template literals.
+internal/webui/dist/assets/*.js -whitespace
+# Preserve the original vendored license text, including its final blank line.
+frontend/public/licenses.txt whitespace=-blank-at-eof
+internal/webui/dist/licenses.txt whitespace=-blank-at-eof

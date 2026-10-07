@@ -1,0 +1,46 @@
+{
+  "go_version": "1.27.1",
+  "sing_box_version": "1.14.2",
+  "platforms": {
+    "linux-amd64": {
+      "go": {
+        "url": "https://go.dev/dl/go1.27.1.linux-amd64.tar.gz",
+        "sha256": "63d339f0da5ab53635a56f2490a7984dfe12dfcff22ad749f63edaf590168445"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-amd64.tar.gz",
+        "sha256": "a684484d7477d1437282ee411f4d131d0340aaad60a7868841ebd5d87dd8a0c6"
+      }
+    },
+    "linux-arm64": {
+      "go": {
+        "url": "https://go.dev/dl/go1.27.1.linux-arm64.tar.gz",
+        "sha256": "3450b45a3f9ee8568792736a5c5e70a1f2e9b36c35a8f74958c03e51d7d92bec"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-linux-arm64.tar.gz",
+        "sha256": "b43a1fb1bda131c6653576741ce527eb2bdeab7c9308ca90ee8b972abb7e4a7f"
+      }
+    },
+    "darwin-amd64": {
+      "go": {
+        "url": "https://go.dev/dl/go1.27.1.darwin-amd64.tar.gz",
+        "sha256": "8f8f52c6649542cf027bbc9b9c68d1ec042f9f34808a40413f0b8b3f66f3caa4"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-darwin-amd64.tar.gz",
+        "sha256": "b0bfb0dc70a5fc708710b9f5ea98b9ee76d40fa4169928d25d73edc4331df2fe"
+      }
+    },
+    "darwin-arm64": {
+      "go": {
+        "url": "https://go.dev/dl/go1.27.1.darwin-arm64.tar.gz",
+        "sha256": "ee215d57e0ec269c60cc9ceca68e6bda321ba9ee5afe24f4b0988703c2d87d12"
+      },
+      "sing_box": {
+        "url": "https://github.com/SagerNet/sing-box/releases/download/v1.14.2/sing-box-1.14.2-darwin-arm64.tar.gz",
+        "sha256": "925c5382eca8492b0150f868a6db20b18290a38700e621724b3703fd453e032d"
+      }
+    }
+  }
+}

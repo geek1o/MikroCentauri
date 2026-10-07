@@ -1,0 +1,142 @@
+{
+  "dns": {
+    "final": "bootstrap",
+    "rules": [
+      {
+        "action": "predefined",
+        "domain": [
+          "selected.test",
+          "second.test",
+          "third.test"
+        ],
+        "query_type": [
+          "AAAA"
+        ],
+        "rcode": "NOERROR"
+      },
+      {
+        "action": "route",
+        "domain": [
+          "selected.test",
+          "second.test",
+          "third.test"
+        ],
+        "query_type": [
+          "A"
+        ],
+        "rewrite_ttl": 30,
+        "server": "fakeip"
+      }
+    ],
+    "servers": [
+      {
+        "server": "10.77.0.20",
+        "tag": "bootstrap",
+        "type": "udp"
+      },
+      {
+        "inet4_range": "198.18.0.0/15",
+        "tag": "fakeip",
+        "type": "fakeip"
+      }
+    ]
+  },
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "path": "/data/singbox-cache.db",
+      "store_fakeip": true
+    }
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "listen_port": 5354,
+      "tag": "dns-in",
+      "type": "direct"
+    },
+    {
+      "listen": "127.0.0.1",
+      "listen_port": 2080,
+      "tag": "explicit-in",
+      "type": "mixed"
+    },
+    {
+      "address": [
+        "172.31.255.1/30"
+      ],
+      "auto_route": false,
+      "interface_name": "mc-tun",
+      "mtu": 1500,
+      "stack": "gvisor",
+      "tag": "gateway-in",
+      "type": "tun"
+    }
+  ],
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "outbounds": [
+    {
+      "domain_resolver": "bootstrap",
+      "tag": "direct",
+      "type": "direct"
+    },
+    {
+      "domain_resolver": "bootstrap",
+      "server": "10.77.0.10",
+      "server_port": 8443,
+      "tag": "proxy",
+      "type": "vless",
+      "uuid": "bf000d23-0752-40b4-affe-68f7707a9661"
+    }
+  ],
+  "route": {
+    "default_domain_resolver": "bootstrap",
+    "final": "direct",
+    "rules": [
+      {
+        "action": "hijack-dns",
+        "inbound": [
+          "dns-in"
+        ]
+      },
+      {
+        "action": "route",
+        "outbound": "direct",
+        "source_ip_cidr": [
+          "192.168.88.30/32"
+        ]
+      },
+      {
+        "action": "route",
+        "outbound": "proxy",
+        "source_ip_cidr": [
+          "192.168.88.20/32"
+        ]
+      },
+      {
+        "action": "route",
+        "domain": [
+          "selected.test",
+          "second.test",
+          "third.test"
+        ],
+        "outbound": "proxy"
+      },
+      {
+        "action": "sniff"
+      },
+      {
+        "action": "route",
+        "domain": [
+          "selected.test",
+          "second.test",
+          "third.test"
+        ],
+        "outbound": "proxy"
+      }
+    ]
+  }
+}
