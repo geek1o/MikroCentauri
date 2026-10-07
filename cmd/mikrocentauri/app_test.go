@@ -268,9 +268,29 @@ func TestAppAPIProcess(t *testing.T) {
 }
 
 func TestAppAPILifecycleTLSLivenessAndUnreadyRuntime(t *testing.T) {
+	testAppAPILifecycle(t, "")
+}
+
+func TestAppAPIMappedOriginLivenessAndAuthentication(t *testing.T) {
+	testAppAPILifecycle(t, "https://127.0.0.1:18443")
+}
+
+type appOriginTransport struct {
+	base   http.RoundTripper
+	origin string
+}
+
+func (o appOriginTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	r = r.Clone(r.Context())
+	r.Host = strings.TrimPrefix(o.origin, "https://")
+	r.Header.Set("Origin", o.origin)
+	return o.base.RoundTrip(r)
+}
+
+func testAppAPILifecycle(t *testing.T, publicOrigin string) {
 	args := apiRuntimeArgs(t)
 	directory := filepath.Dir(args[3])
-	s := appSettings{SchemaVersion: 1, DataDirectory: directory, Listen: "", Model: args[3], TLSCert: filepath.Join(directory, "app.crt"), TLSKey: filepath.Join(directory, "app.key")}
+	s := appSettings{SchemaVersion: 1, DataDirectory: directory, Listen: "", PublicOrigin: publicOrigin, Model: args[3], TLSCert: filepath.Join(directory, "app.crt"), TLSKey: filepath.Join(directory, "app.key")}
 	certificateServer := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	s.Listen = strings.TrimPrefix(certificateServer.URL, "https://")
 	certificate := certificateServer.TLS.Certificates[0]
@@ -303,6 +323,9 @@ func TestAppAPILifecycleTLSLivenessAndUnreadyRuntime(t *testing.T) {
 	transport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS13, RootCAs: roots}}
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, Timeout: 2 * time.Second}
+	if publicOrigin != "" {
+		client.Transport = appOriginTransport{base: transport, origin: publicOrigin}
+	}
 	for restart := 0; restart < 2; restart++ {
 		cmd := exec.Command(os.Args[0], "-test.run", "^TestAppAPIProcess$")
 		cmd.Env = append(os.Environ(), "MIKROCENTAURI_TEST_APP_SETTINGS="+settingsPath)

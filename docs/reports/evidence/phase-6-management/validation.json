@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-07",
+  "make_check_cross_build": "passed",
+  "go_race": "passed",
+  "go_vet": "passed",
+  "mapped_origin_process_tests": "passed",
+  "oci_both_architectures": "verified",
+  "repeat_build_equal": true,
+  "native_image_update_admitted": false,
+  "native_install_plan_verify_admitted": false
+}

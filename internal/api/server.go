@@ -12,7 +12,6 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,13 +70,14 @@ type Server struct {
 }
 
 func New(o Options) (*Server, error) {
-	if o.Auth == nil || !strings.HasPrefix(o.Origin, "https://") || strings.ContainsAny(o.Origin, "?#@") || strings.HasSuffix(o.Origin, "/") {
+	if o.Auth == nil {
 		return nil, errors.New("auth and exact HTTPS origin required")
 	}
-	u, e := url.Parse(o.Origin)
-	if e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.Path != "" || u.RawQuery != "" || u.Fragment != "" {
+	origin, e := CanonicalOrigin(o.Origin)
+	if e != nil {
 		return nil, errors.New("invalid HTTPS origin")
 	}
+	o.Origin = origin
 	dir, e := PrivateDirectory(o.Directory)
 	if e != nil {
 		return nil, e

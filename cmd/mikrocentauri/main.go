@@ -22,9 +22,12 @@ func main() {
 }
 func run() error {
 	if len(os.Args) < 2 {
-		return fmt.Errorf("usage: mikrocentauri app-run|app-health|api-auth-init|api-serve|api-openapi|generate|plan|core-generate|core-check|core-preview|ruleset-import|ruleset-refresh|ruleset-load|endpoint-preview|subscription-refresh|subscription-run|subscription-status|router-inspect|router-plan|router-stage|router-reconcile|router-recover|router-managed-plan|router-watchdog-plan|router-apply|router-managed-reconcile|router-managed-recover|router-rollback|router-verify|router-cleanup (see command -h)")
+		return fmt.Errorf("usage: mikrocentauri app-run|app-health|app-install-plan|app-install-verify|api-auth-init|api-serve|api-openapi|generate|plan|core-generate|core-check|core-preview|ruleset-import|ruleset-refresh|ruleset-load|endpoint-preview|subscription-refresh|subscription-run|subscription-status|router-inspect|router-plan|router-stage|router-reconcile|router-recover|router-managed-plan|router-watchdog-plan|router-apply|router-managed-reconcile|router-managed-recover|router-rollback|router-verify|router-cleanup (see command -h)")
 	}
 	action := os.Args[1]
+	if strings.HasPrefix(action, "app-install-") {
+		return appInstallCommand(action, os.Args[2:])
+	}
 	if strings.HasPrefix(action, "app-") {
 		return appCommand(action, os.Args[2:])
 	}

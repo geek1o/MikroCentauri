@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"flag"
 	"net"
 	"net/http"
 	"net/netip"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -33,6 +35,7 @@ func apiCommand(action string, args []string) error {
 	password := fs.String("password-file", "", "0600 file, initial password only")
 	input := fs.String("config", "", "private v2 model")
 	listen := fs.String("listen", "127.0.0.1:8443", "literal HTTPS listen address")
+	publicOrigin := fs.String("public-origin", "", "operator HTTPS origin, defaults to listen address; never inferred from proxy headers")
 	cert := fs.String("tls-cert", "", "server certificate")
 	key := fs.String("tls-key", "", "private server key")
 	binary := fs.String("sing-box", "sing-box", "pinned validator")
@@ -88,6 +91,14 @@ func apiCommand(action string, args []string) error {
 	}
 	if _, e = readRouterFile(*key, 1<<20, true); e != nil {
 		return errors.New("private TLS key required")
+	}
+	origin := *publicOrigin
+	if origin == "" {
+		origin = "https://" + *listen
+	}
+	origin, e = api.CanonicalOrigin(origin)
+	if e != nil {
+		return errors.New("invalid public HTTPS origin")
 	}
 	raw, e := readRouterFile(*input, 4<<20, true)
 	if e != nil {
@@ -178,18 +189,29 @@ func apiCommand(action string, args []string) error {
 		routerClient = client
 		routerResources = &api.RouterResources{Client: client, Instance: m.Instance}
 	}
+	var profile application.Profile
+	if *runtimeProfile != "" {
+		if routerClient == nil {
+			return errors.New("native runtime requires HTTPS router connection")
+		}
+		if privateJSON(*runtimeProfile, &profile, 1<<20) != nil {
+			return errors.New("invalid runtime profile")
+		}
+	}
+	pair, e := tls.LoadX509KeyPair(*cert, *key)
+	if e != nil || len(pair.Certificate) == 0 {
+		return errors.New("invalid server certificate/key")
+	}
+	leaf, e := x509.ParseCertificate(pair.Certificate[0])
+	originURL, _ := url.Parse(origin)
+	if e != nil || time.Now().Before(leaf.NotBefore) || !time.Now().Before(leaf.NotAfter) || leaf.VerifyHostname(host) != nil || leaf.VerifyHostname(originURL.Hostname()) != nil {
+		return errors.New("current server certificate must cover listen IP and public origin hostname")
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	var owner *application.Runtime
 	var runtimeAdapter api.Runtime
 	if *runtimeProfile != "" {
-		if routerClient == nil {
-			return errors.New("native runtime requires HTTPS router connection")
-		}
-		var profile application.Profile
-		if privateJSON(*runtimeProfile, &profile, 1<<20) != nil {
-			return errors.New("invalid runtime profile")
-		}
 		setup, done := context.WithTimeout(ctx, 30*time.Second)
 		owner, e = application.New(setup, profile, m, routerClient, *binary)
 		done()
@@ -203,15 +225,11 @@ func apiCommand(action string, args []string) error {
 			owner.Close(c)
 		}()
 	}
-	handler, e := api.New(api.Options{Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: "https://" + *listen, Clients: allowed})
+	handler, e := api.New(api.Options{Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
 	if e != nil {
 		return e
 	}
 	srv := &http.Server{Addr: *listen, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 70 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 16384, TLSConfig: &tls.Config{MinVersion: tls.VersionTLS13}}
-	pair, e := tls.LoadX509KeyPair(*cert, *key)
-	if e != nil {
-		return errors.New("invalid server certificate/key")
-	}
 	listener, e := net.Listen("tcp", *listen)
 	if e != nil {
 		return errors.New("HTTPS API bind failed")

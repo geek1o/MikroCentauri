@@ -42,6 +42,7 @@ files with mode 0400 or 0600. `/data` must be a persistent volume. Example API-o
 {
   "schema_version": 1,
   "listen": "192.168.88.250:8443",
+  "public_origin": "https://router.example:8443",
   "allow_clients": ["192.168.88.0/24"],
   "tls_cert": "/data/bootstrap/api.crt",
   "tls_key": "/data/bootstrap/api.key",
@@ -51,8 +52,11 @@ files with mode 0400 or 0600. `/data` must be a persistent volume. Example API-o
 ```
 
 These addresses are examples. Use the discovered container IP and reviewed
-management CIDRs. The certificate must verify for that literal IP; clients must
-trust its issuer. Existing TLS, exact Host/origin/client-network guards apply.
+management CIDRs. `public_origin` is the one URL the browser actually uses,
+including its mapped port. Omit it for direct access at the listener's address.
+Only HTTPS with no credentials, path, query or fragment is accepted. The
+certificate must verify for both the literal listener IP and advertised hostname;
+clients must trust its issuer. Existing TLS, exact Host/origin/client-network guards apply.
 RouterOS reverse proxy headers do not bypass them. Broad WAN access is excluded.
 
 Supply a valid v2 model with DNS cache beneath `/data`, e.g.
@@ -79,6 +83,9 @@ verification. `tls_ca` optionally selects trust; otherwise `tls_cert` is used.
 No redirects, proxy environment or password are used. Liveness is separate from
 native Netwatch/readiness and FakeIP publication. SIGTERM uses the existing API
 owner's server/runtime/child shutdown.
+When `public_origin` is configured, liveness still dials and verifies the private
+listener, and sends the advertised Host. `api-serve -public-origin` exposes the
+same explicit operator setting.
 
 The isolated 7.24.5 test generates App secret mounts with mode 0444. They are rejected
 as private startup inputs. Use protected operator-provisioned files. A generated
@@ -103,10 +110,58 @@ prepared-profile/TLS/capability installation acceptance. No catalog URL is hoste
 
 ## Remaining gates
 
-End-user provisioning, actual App management access/topology, explicit native
-privilege handling, restart/watchdog coordination, production-volume image
+End-user provisioning, automatic LAN management topology, native installation
+privilege verification, restart/watchdog coordination, production-volume image
 upgrade/rollback and resource measurements remain open. On 7.24.5 YAML
 `privileged`/`cap_add` were ignored and `restart: unless-stopped` yielded policy
 `no`. YAML admission alone is insufficient. Fixture health/secrets/volume tests
 are separate from full production installation. Neither 7.22 compatibility nor
 physical arm64 runtime is accepted here.
+Explicit mapped-origin HTTPS access, Chromium login and byte retention across
+two API-only App restarts passed on the isolated clone with temporary DNAT.
+See [management and review acceptance](reports/product-phase-6-management-install-review.md).
+
+## Stopped installation review
+
+`app-install-plan` and `app-install-verify` are read-only staging commands for
+RouterOS 7.24.5 x86_64. Prepare a private 0700 local bundle representing remote
+`/data`, with protected settings/model/runtime/router/key inputs. Supply a native
+profile and container RouterOS connection together, plus the operator's separate
+HTTPS connection file. This validates the intended bundle, not the actual bytes
+already on the router's disk.
+
+```text
+mikrocentauri app-install-plan \
+  -router-config /private/operator-router.json \
+  -settings-file /private/bundle/bootstrap/app.json \
+  -bundle-directory /private/bundle \
+  -app mikrocentauri \
+  -image-ref <exact-immutable-remote-image> \
+  -image-config-sha256 <OCI-config-digest> \
+  -out /private/install-review.json
+```
+
+The config digest is the image configuration SHA256, distinct from the manifest
+and multi-platform index digest. The plan requires an imported disabled App,
+stopped generated container, matching image and certificate check, production
+entrypoint without pending App command overrides, static private VETH and exact
+persistent `state:/data` mount. It binds inputs and observed identity for ten
+minutes. Settings API/DNS/readiness listeners must match the discovered App IP.
+
+Under exclusive administrative control, keep the App disabled and apply only
+the exact `/container set *ID privileged=yes` action printed in the review.
+Then reread and verify:
+
+```text
+mikrocentauri app-install-verify \
+  -router-config /private/operator-router.json \
+  -settings-file /private/bundle/bootstrap/app.json \
+  -bundle-directory /private/bundle \
+  -review /private/install-review.json
+```
+
+Changed inputs, identities or expired reviews require a new plan. Privilege is
+the only permitted identity change. Neither command enables an App, mutates
+RouterOS or publishes FakeIP state. A verified privilege flag does not prove
+Linux TUN/kernel ingress, installed private files or native runtime readiness.
+Both commands explicitly return readiness false.

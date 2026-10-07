@@ -13,7 +13,7 @@ Phase 8 activation/recovery is not product Phase 8 release candidate.
 | 3 | sing-box Core | Complete for pinned sing-box 1.14.2 / CHR 7.24.5 x86_64: imports/subscription LKG, groups/health/fallback, ordered rules/services/verified SRS, modern WireGuard, DNS/FakeIP, validator/supervisor and coordinated native activation/recovery; broader device/release acceptance remains in later phases |
 | 4 | Backend/API | Complete for the pinned CHR profile: TLS/authenticated typed v1 API, durable drafts and verified single-use plans, production native owner, public policy/subscription workflows, safe application backup/restore, bounded logs and diagnostics; native TCP/UDP/HTTP3, SIGKILL recovery and exact-run packet evidence accepted |
 | 5 | Web UI | Complete for the accepted backend profile: embedded TypeScript/Svelte SPA, ten pages, setup review, CAS drafts/reviewed plans, subscriptions and durable schedule, DHCP/source policies, fixed diagnostics and isolated real sing-box node samples, backup/restore; Chromium/WebKit HTTPS browser contracts accepted; Firefox launch on this host and wider browser/device matrix remain hardening |
-| 6 | RouterOS App | In progress: pinned local amd64/arm64 OCI index and Docker archives, persistent/private launcher and TLS liveness, manifest/catalog renderer and isolated native App tests; full installation, management topology, privileges and update/rollback remain open |
+| 6 | RouterOS App | In progress: multiarch packaging, private launcher, explicit mapped HTTPS origin, native Chromium login and persistent state across App restarts, read-only stopped installation review; automatic LAN topology, native privilege/kernel admission and immutable-image update/rollback remain open |
 | 7 | Hardening | Selected failure, boot, source-policy and FastTrack experiments exist; complete security/device acceptance remains open |
 | 8 | Release candidate | Not started: release images, upgrade/rollback acceptance, SBOM and complete E2E delivery remain open |
 
@@ -68,3 +68,7 @@ Its preprovisioned setup review does not close the Phase 6 installation gate.
 [Phase 6 packaging foundation](../reports/product-phase-6-packaging-foundation.md)
 records local multi-platform images, protected startup and native App observations.
 Full product installation and update acceptance remain open.
+
+[Phase 6 management and installation review](../reports/product-phase-6-management-install-review.md)
+records explicit HTTPS origin handling, read-only staging contracts, native browser
+and restart evidence, and the unresolved App command parser/update gate.

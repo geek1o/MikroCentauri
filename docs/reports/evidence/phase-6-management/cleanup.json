@@ -1,0 +1,15 @@
+{
+  "clone_vm_stopped": true,
+  "fixture_ports_closed": [
+    22326,
+    18326,
+    18426,
+    18443,
+    18529,
+    18530
+  ],
+  "clone_disks_preserved": true,
+  "original_lab_disks_used": false,
+  "temporary_nat_removed": true,
+  "fixture_apps_disabled": true
+}

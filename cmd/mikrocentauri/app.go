@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -28,6 +29,7 @@ type appSettings struct {
 	SchemaVersion  int      `json:"schema_version"`
 	DataDirectory  string   `json:"data_directory,omitempty"`
 	Listen         string   `json:"listen"`
+	PublicOrigin   string   `json:"public_origin,omitempty"`
 	AllowClients   []string `json:"allow_clients"`
 	TLSCert        string   `json:"tls_cert"`
 	TLSKey         string   `json:"tls_key"`
@@ -81,6 +83,12 @@ func loadAppSettings(path string) (appSettings, error) {
 	if !addr.IsLoopback() && len(s.AllowClients) == 0 {
 		return s, errors.New("LAN app requires explicit client CIDRs")
 	}
+	if s.PublicOrigin != "" {
+		s.PublicOrigin, e = api.CanonicalOrigin(s.PublicOrigin)
+		if e != nil {
+			return s, errors.New("invalid public HTTPS app origin")
+		}
+	}
 	for _, client := range s.AllowClients {
 		prefix, err := netip.ParsePrefix(client)
 		if err != nil || prefix.Bits() == 0 || prefix != prefix.Masked() || prefix.Addr().Is4In6() {
@@ -98,8 +106,20 @@ func prepareApp(s appSettings) error {
 	if _, e := readRouterFile(s.TLSCert, 1<<20, false); e != nil {
 		return errors.New("app TLS certificate unavailable")
 	}
-	if _, e := tls.LoadX509KeyPair(s.TLSCert, s.TLSKey); e != nil {
+	pair, e := tls.LoadX509KeyPair(s.TLSCert, s.TLSKey)
+	if e != nil || len(pair.Certificate) == 0 {
 		return errors.New("invalid app TLS certificate/key")
+	}
+	leaf, e := x509.ParseCertificate(pair.Certificate[0])
+	host, _, _ := net.SplitHostPort(s.Listen)
+	origin := s.PublicOrigin
+	if origin == "" {
+		origin = "https://" + s.Listen
+	}
+	origin, originError := api.CanonicalOrigin(origin)
+	originURL, _ := url.Parse(origin)
+	if e != nil || originError != nil || time.Now().Before(leaf.NotBefore) || !time.Now().Before(leaf.NotAfter) || leaf.VerifyHostname(host) != nil || leaf.VerifyHostname(originURL.Hostname()) != nil {
+		return errors.New("current app certificate must cover listen IP and public origin hostname")
 	}
 	data, e := readRouterFile(s.Model, 4<<20, true)
 	if e != nil {
@@ -163,6 +183,9 @@ func appServeArgs(s appSettings) []string {
 	// Permit the container's exact own address for local TLS liveness only.
 	clients = append(clients, netip.PrefixFrom(ip, ip.BitLen()).String())
 	args := []string{"-state", filepath.Join(s.DataDirectory, "api"), "-config", s.Model, "-listen", s.Listen, "-tls-cert", s.TLSCert, "-tls-key", s.TLSKey, "-allow-clients", strings.Join(clients, ","), "-sing-box", "/usr/bin/sing-box", "-ruleset-state", filepath.Join(s.DataDirectory, "rulesets")}
+	if s.PublicOrigin != "" {
+		args = append(args, "-public-origin", s.PublicOrigin)
+	}
 	if s.RuntimeProfile != "" {
 		args = append(args, "-runtime-profile", s.RuntimeProfile, "-router-config", s.RouterConfig)
 	}
@@ -189,6 +212,15 @@ func appHealth(ctx context.Context, s appSettings) error {
 	if e != nil {
 		return errors.New("invalid app liveness request")
 	}
+	origin := s.PublicOrigin
+	if origin == "" {
+		origin = "https://" + s.Listen
+	}
+	origin, e = api.CanonicalOrigin(origin)
+	if e != nil {
+		return errors.New("invalid app liveness origin")
+	}
+	req.Host = strings.TrimPrefix(origin, "https://")
 	response, e := client.Do(req)
 	if e != nil {
 		return errors.New("app HTTPS liveness unavailable")

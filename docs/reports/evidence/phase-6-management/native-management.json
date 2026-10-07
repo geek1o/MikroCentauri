@@ -1,0 +1,92 @@
+{
+  "routeros": "7.24.5 (stable)",
+  "scope": "native App management/persistence; no proxy dataplane",
+  "images": {
+    "A": "sha256:52e7dac4b54d316f83ab47c256245c0955fb36faccd5fa7adabe8bd2edabe6e0",
+    "B": "sha256:eff277d3396e431b0eae5bb2c8d6b285c4cdb633e56a9e8f5e4a374ac86a9c53",
+    "candidate_scope": "metadata-only OCI config label; identical executable and filesystem layer",
+    "B_exercised": false
+  },
+  "public_origin": "https://127.0.0.1:18443",
+  "stages": [
+    {
+      "image": "A-restart-1",
+      "actual_manifest": "sha256:52e7dac4b54d316f83ab47c256245c0955fb36faccd5fa7adabe8bd2edabe6e0",
+      "actual_config_digest": "sha256:f2cfd433062903987b318786700f246447e6f25f76ff1b559c588ef9c7a1da96",
+      "healthy": true,
+      "persistent_auth_model_draft_preferences_cache_bytes_equal": true,
+      "stable_ip": "172.18.0.31",
+      "ui_reachable": true
+    },
+    {
+      "image": "A-restart-2",
+      "actual_manifest": "sha256:52e7dac4b54d316f83ab47c256245c0955fb36faccd5fa7adabe8bd2edabe6e0",
+      "actual_config_digest": "sha256:f2cfd433062903987b318786700f246447e6f25f76ff1b559c588ef9c7a1da96",
+      "healthy": true,
+      "persistent_auth_model_draft_preferences_cache_bytes_equal": true,
+      "stable_ip": "172.18.0.31",
+      "ui_reachable": true
+    }
+  ],
+  "clock": "isolated TCG clone synchronized to UTC wall time during TLS waits",
+  "discovered": {
+    "ip": "172.18.0.31",
+    "veth": "veth-app-mc-install-8e18bc1a",
+    "state_directory": "pcie1/apps/mc-install-8e18bc1a/state",
+    "default_network": "internal"
+  },
+  "automatic_port_mappings": [
+    {
+      "chain": "dstnat",
+      "action": "dst-nat",
+      "protocol": "tcp",
+      "dst-address": "192.168.88.1",
+      "dst-port": "8443",
+      "to-addresses": "172.18.0.31",
+      "to-ports": "8443"
+    }
+  ],
+  "automatic_management_reachable": false,
+  "explicit_management_rule": "clone-only DNAT; source 10.0.2.2/32 and WAN destination 10.0.2.15:8443; automatic LAN mapping not admitted",
+  "browser": {
+    "engine": "Chromium",
+    "natural_host_origin": true,
+    "login_status": 200,
+    "pages": [
+      "\u041e\u0431\u0437\u043e\u0440",
+      "\u041f\u0440\u0430\u0432\u0438\u043b\u0430",
+      "\u0421\u0438\u0441\u0442\u0435\u043c\u0430"
+    ],
+    "page_errors": 0,
+    "token_browser_storage_empty": true,
+    "certificate_exception": "disposable lab certificate only"
+  },
+  "management": {
+    "ui_http_status": 200,
+    "login_http_status": 200,
+    "protected_api_http_status": 200,
+    "wrong_host_http_status": 403,
+    "wrong_origin_http_status": 403,
+    "unauthenticated_http_status": 401,
+    "runtime_ready_http_status": 503,
+    "tls_version": "TLSv1.3",
+    "private_socket_clients": [
+      "10.0.2.2/32"
+    ]
+  },
+  "production_entrypoint": {
+    "default_go_entrypoint_running": false,
+    "fixture_shell_executes_production_go_launcher": true,
+    "fixture_config_mounts_retained": true
+  },
+  "image_update_admitted": false,
+  "cache_scope": "valid empty sing-box BoltDB initialized once; no admitted FakeIP alias/state migration proof",
+  "policy_scope": "durable edited draft; no native dataplane apply",
+  "cleanup": {
+    "app_disabled": true,
+    "data_preserved": true,
+    "app_cleanup_used": false,
+    "temporary_management_rule_removed": true,
+    "temporary_management_rule_created": true
+  }
+}
