@@ -105,7 +105,12 @@ func TestCoreNativeBarrierRequiresDownAndEmptyAuthority(t *testing.T) {
 	for _, kind := range []string{"clear", "up", "tampered", "static", "foreign", "duplicate", "live"} {
 		t.Run(kind, func(t *testing.T) {
 			b, writes := nativeBarrierFixture(t, kind)
-			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+			timeout := 20 * time.Millisecond
+			if kind == "clear" {
+				// Successful TLS reads are not a latency benchmark.
+				timeout = 2 * time.Second
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 			err := b.Quarantine(ctx)
 			if (err == nil) != (kind == "clear") {
@@ -114,8 +119,12 @@ func TestCoreNativeBarrierRequiresDownAndEmptyAuthority(t *testing.T) {
 			if *writes != 0 {
 				t.Fatal("native barrier mutated configuration")
 			}
-			if kind == "clear" && b.Verify(ctx) != nil {
-				t.Fatal("revoked state rejected")
+			if kind == "clear" {
+				verifyCtx, verifyCancel := context.WithTimeout(context.Background(), 2*time.Second)
+				defer verifyCancel()
+				if err := b.Verify(verifyCtx); err != nil {
+					t.Fatal("revoked state rejected", err)
+				}
 			}
 		})
 	}
