@@ -68,6 +68,8 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 		return nil, errors.New("destination unavailable")
 	}
 	client := &http.Client{Transport: transport, CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		// Source URLs can contain subscription credentials in their path or query.
+		req.Header.Del("Referer")
 		if len(via) > 3 {
 			return errors.New("redirect limit")
 		}

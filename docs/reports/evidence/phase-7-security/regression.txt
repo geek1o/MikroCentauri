@@ -1,0 +1,102 @@
+=== RUN   TestRefreshLKGAndRename
+--- PASS: TestRefreshLKGAndRename (0.03s)
+=== RUN   TestDefaultSSRFAndRedirect
+--- PASS: TestDefaultSSRFAndRedirect (0.01s)
+=== RUN   TestDownloadBoundsAndTimeout
+--- PASS: TestDownloadBoundsAndTimeout (0.09s)
+=== RUN   TestRedirectLimit
+--- PASS: TestRedirectLimit (0.02s)
+=== RUN   TestRedirectDoesNotDiscloseSourceURL
+--- PASS: TestRedirectDoesNotDiscloseSourceURL (0.02s)
+=== RUN   TestDownloadPolicyCannotBeWidenedAfterConstruction
+--- PASS: TestDownloadPolicyCannotBeWidenedAfterConstruction (0.01s)
+PASS
+ok  	mikrocentauri.local/core/internal/subscriptions	1.322s
+=== RUN   TestCompiledCandidateLKGAndTLSDownload
+--- PASS: TestCompiledCandidateLKGAndTLSDownload (0.68s)
+=== RUN   TestRedirectDoesNotDiscloseSourceURL
+--- PASS: TestRedirectDoesNotDiscloseSourceURL (0.02s)
+=== RUN   TestDownloadPolicyCannotBeWidenedAfterConstruction
+--- PASS: TestDownloadPolicyCannotBeWidenedAfterConstruction (0.00s)
+=== RUN   TestDownloadTrustCannotBeWidenedAfterConstruction
+2026/10/07 15:43:57 http: TLS handshake error from 127.0.0.1:63477: remote error: tls: bad certificate
+--- PASS: TestDownloadTrustCannotBeWidenedAfterConstruction (0.01s)
+PASS
+ok  	mikrocentauri.local/core/internal/rulesets	1.839s
+=== RUN   TestRouterControlDoesNotInheritDefaultProxy
+--- PASS: TestRouterControlDoesNotInheritDefaultProxy (0.02s)
+PASS
+ok  	mikrocentauri.local/core/cmd/mikrocentauri	1.164s
+=== RUN   TestSelectedAAAAAndUnsupportedType
+--- PASS: TestSelectedAAAAAndUnsupportedType (0.00s)
+PASS
+ok  	mikrocentauri.local/core/internal/dnsgate	1.203s
+=== RUN   TestHTTPSSubscriptionResourceRefreshLKGAndPrivateReopen
+--- PASS: TestHTTPSSubscriptionResourceRefreshLKGAndPrivateReopen (1.96s)
+=== RUN   TestSubscriptionDefaultsRefuseSSRFAndUntrustedTLS
+2026/10/07 15:43:59 http: TLS handshake error from 127.0.0.1:63481: remote error: tls: bad certificate
+--- PASS: TestSubscriptionDefaultsRefuseSSRFAndUntrustedTLS (0.04s)
+=== RUN   TestDiagnosticsBundleHasFixedPrivateNamesAndNoCredentials
+--- PASS: TestDiagnosticsBundleHasFixedPrivateNamesAndNoCredentials (1.78s)
+=== RUN   TestTLSOriginClientAndAuthRejections
+--- PASS: TestTLSOriginClientAndAuthRejections (1.77s)
+=== RUN   TestAuthExpiryRateLimitAndRestart
+--- PASS: TestAuthExpiryRateLimitAndRestart (6.96s)
+=== RUN   TestSubscriptionImportCredentialsStayPrivateAndDraftIsVersioned
+--- PASS: TestSubscriptionImportCredentialsStayPrivateAndDraftIsVersioned (1.79s)
+=== RUN   TestSubscriptionRefreshHistoryBoundedRedactedAndLKG
+--- PASS: TestSubscriptionRefreshHistoryBoundedRedactedAndLKG (0.01s)
+PASS
+ok  	mikrocentauri.local/core/internal/api	15.464s
+=== RUN   TestFailureBoundariesAndRestartRecovery
+=== RUN   TestFailureBoundariesAndRestartRecovery/quarantine
+=== RUN   TestFailureBoundariesAndRestartRecovery/stage
+=== RUN   TestFailureBoundariesAndRestartRecovery/verify
+=== RUN   TestFailureBoundariesAndRestartRecovery/release
+=== RUN   TestFailureBoundariesAndRestartRecovery/cancel-verify
+=== RUN   TestFailureBoundariesAndRestartRecovery/cancel-release
+--- PASS: TestFailureBoundariesAndRestartRecovery (0.30s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/quarantine (0.04s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/stage (0.04s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/verify (0.05s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/release (0.06s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/cancel-verify (0.04s)
+    --- PASS: TestFailureBoundariesAndRestartRecovery/cancel-release (0.07s)
+PASS
+ok  	mikrocentauri.local/core/internal/activation	1.494s
+=== RUN   TestTransitionPendingAndCommittedFailureRecoverDurably
+=== RUN   TestTransitionPendingAndCommittedFailureRecoverDurably/before-commit
+=== RUN   TestTransitionPendingAndCommittedFailureRecoverDurably/after-commit
+--- PASS: TestTransitionPendingAndCommittedFailureRecoverDurably (1.75s)
+    --- PASS: TestTransitionPendingAndCommittedFailureRecoverDurably/before-commit (1.41s)
+    --- PASS: TestTransitionPendingAndCommittedFailureRecoverDurably/after-commit (0.34s)
+PASS
+ok  	mikrocentauri.local/core/internal/coreactivation	2.868s
+=== RUN   TestStagedCrashNeverRestartsOldPolicy
+--- PASS: TestStagedCrashNeverRestartsOldPolicy (0.14s)
+=== RUN   TestFailedReleaseQuarantinesRollback
+--- PASS: TestFailedReleaseQuarantinesRollback (0.14s)
+PASS
+ok  	mikrocentauri.local/core/internal/supervisor	1.720s
+=== RUN   TestDurableControllerRecoveryRefusesExternalEdit
+--- PASS: TestDurableControllerRecoveryRefusesExternalEdit (0.04s)
+PASS
+ok  	mikrocentauri.local/core/internal/platform/routeros	1.503s
+=== RUN   TestAppKernelForwardingFailureRestoresClosedState
+--- PASS: TestAppKernelForwardingFailureRestoresClosedState (0.00s)
+=== RUN   TestBarrierFailureRetainsQuarantine
+=== RUN   TestBarrierFailureRetainsQuarantine/native
+=== RUN   TestBarrierFailureRetainsQuarantine/canary
+=== RUN   TestBarrierFailureRetainsQuarantine/tun
+=== RUN   TestBarrierFailureRetainsQuarantine/selected
+=== RUN   TestBarrierFailureRetainsQuarantine/release-readback
+=== RUN   TestBarrierFailureRetainsQuarantine/forwarding
+--- PASS: TestBarrierFailureRetainsQuarantine (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/native (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/canary (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/tun (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/selected (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/release-readback (0.00s)
+    --- PASS: TestBarrierFailureRetainsQuarantine/forwarding (0.00s)
+PASS
+ok  	mikrocentauri.local/core/internal/platform/linuxbarrier	1.157s

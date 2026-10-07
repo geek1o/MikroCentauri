@@ -143,6 +143,7 @@ func NewWithParser(directory string, policy Policy, parser Parser) (*Manager, er
 	if policy.MaxRedirects < 0 || policy.MaxRedirects > 10 {
 		return nil, errors.New("invalid redirect limit")
 	}
+	policy.AllowedCIDRs = append([]netip.Prefix(nil), policy.AllowedCIDRs...)
 	if policy.RootCAs != nil {
 		policy.RootCAs = policy.RootCAs.Clone()
 	}
@@ -408,6 +409,8 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 		return nil, errors.New("destination unavailable")
 	}
 	client := &http.Client{Transport: transport, CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		// Source URLs can contain subscription credentials in their path or query.
+		req.Header.Del("Referer")
 		if len(via) > m.policy.MaxRedirects {
 			return errors.New("redirect limit")
 		}

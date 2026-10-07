@@ -1,0 +1,19 @@
+--- FAIL: TestRedirectDoesNotDiscloseSourceURL (0.01s)
+    subscriptions_test.go:178: redirect disclosed the credential-bearing source URL
+--- FAIL: TestDownloadPolicyCannotBeWidenedAfterConstruction (0.01s)
+    subscriptions_test.go:193: caller mutation widened private download authority
+FAIL
+FAIL	mikrocentauri.local/core/internal/subscriptions	0.234s
+--- FAIL: TestRedirectDoesNotDiscloseSourceURL (0.01s)
+    rulesets_test.go:113: redirect disclosed the credential-bearing source URL
+--- FAIL: TestDownloadPolicyCannotBeWidenedAfterConstruction (0.00s)
+    rulesets_test.go:130: caller mutation widened private download authority
+--- FAIL: TestDownloadTrustCannotBeWidenedAfterConstruction (0.00s)
+    rulesets_test.go:145: caller mutation widened TLS trust
+FAIL
+FAIL	mikrocentauri.local/core/internal/rulesets	0.289s
+--- FAIL: TestRouterControlDoesNotInheritDefaultProxy (0.01s)
+    router_test.go:99: control connection inherited an unreviewed proxy
+FAIL
+FAIL	mikrocentauri.local/core/cmd/mikrocentauri	0.230s
+FAIL

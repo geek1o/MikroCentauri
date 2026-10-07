@@ -87,3 +87,70 @@ func TestCompiledCandidateLKGAndTLSDownload(t *testing.T) {
 		t.Fatal("tampered artifact accepted")
 	}
 }
+
+func TestRedirectDoesNotDiscloseSourceURL(t *testing.T) {
+	var referer string
+	destination := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		referer = r.Header.Get("Referer")
+		w.Write([]byte("source"))
+	}))
+	defer destination.Close()
+	origin := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, destination.URL+"/download", http.StatusFound)
+	}))
+	defer origin.Close()
+	roots := x509.NewCertPool()
+	roots.AddCert(origin.Certificate())
+	roots.AddCert(destination.Certificate())
+	m, e := New(privateTestDirectory(t), "unused", Policy{AllowedCIDRs: []netip.Prefix{netip.MustParsePrefix("127.0.0.1/32")}, RootCAs: roots})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = m.download(context.Background(), origin.URL+"/private-rules?token=must-not-forward"); e != nil {
+		t.Fatal(e)
+	}
+	if referer != "" {
+		t.Fatal("redirect disclosed the credential-bearing source URL")
+	}
+}
+
+func TestDownloadPolicyCannotBeWidenedAfterConstruction(t *testing.T) {
+	hits := 0
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++; w.Write([]byte("source")) }))
+	defer server.Close()
+	prefixes := []netip.Prefix{netip.MustParsePrefix("8.8.8.8/32")}
+	roots := x509.NewCertPool()
+	roots.AddCert(server.Certificate())
+	m, e := New(privateTestDirectory(t), "unused", Policy{AllowedCIDRs: prefixes, RootCAs: roots})
+	if e != nil {
+		t.Fatal(e)
+	}
+	prefixes[0] = netip.MustParsePrefix("127.0.0.1/32")
+	if _, e = m.download(context.Background(), server.URL); e == nil || hits != 0 {
+		t.Fatal("caller mutation widened private download authority")
+	}
+}
+
+func TestDownloadTrustCannotBeWidenedAfterConstruction(t *testing.T) {
+	hits := 0
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++; w.Write([]byte("source")) }))
+	defer server.Close()
+	roots := x509.NewCertPool()
+	m, e := New(privateTestDirectory(t), "unused", Policy{AllowedCIDRs: []netip.Prefix{netip.MustParsePrefix("127.0.0.1/32")}, RootCAs: roots})
+	if e != nil {
+		t.Fatal(e)
+	}
+	roots.AddCert(server.Certificate())
+	if _, e = m.download(context.Background(), server.URL); e == nil || hits != 0 {
+		t.Fatal("caller mutation widened TLS trust")
+	}
+}
+
+func privateTestDirectory(t *testing.T) string {
+	t.Helper()
+	directory, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	return filepath.Join(directory, "sets")
+}

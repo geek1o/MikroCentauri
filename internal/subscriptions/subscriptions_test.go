@@ -155,3 +155,41 @@ func TestRedirectLimit(t *testing.T) {
 		t.Fatal("redirect chain accepted")
 	}
 }
+
+func TestRedirectDoesNotDiscloseSourceURL(t *testing.T) {
+	var referer string
+	destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		referer = r.Header.Get("Referer")
+		w.Write([]byte(node))
+	}))
+	defer destination.Close()
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, destination.URL+"/download", http.StatusFound)
+	}))
+	defer origin.Close()
+	m, e := New(privateDir(t), Policy{AllowedCIDRs: []netip.Prefix{netip.MustParsePrefix("127.0.0.1/32")}})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = m.Refresh(context.Background(), Spec{ID: "redirect-secret", URL: origin.URL + "/private-subscription?token=must-not-forward"}); e != nil {
+		t.Fatal(e)
+	}
+	if referer != "" {
+		t.Fatal("redirect disclosed the credential-bearing source URL")
+	}
+}
+
+func TestDownloadPolicyCannotBeWidenedAfterConstruction(t *testing.T) {
+	hits := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { hits++; w.Write([]byte(node)) }))
+	defer server.Close()
+	prefixes := []netip.Prefix{netip.MustParsePrefix("8.8.8.8/32")}
+	m, e := New(privateDir(t), Policy{AllowedCIDRs: prefixes})
+	if e != nil {
+		t.Fatal(e)
+	}
+	prefixes[0] = netip.MustParsePrefix("127.0.0.1/32")
+	if _, e = m.Refresh(context.Background(), Spec{ID: "policy", URL: server.URL}); e == nil || hits != 0 {
+		t.Fatal("caller mutation widened private download authority")
+	}
+}

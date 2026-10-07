@@ -296,6 +296,10 @@ func New(directory, binary string, policy Policy) (*Manager, error) {
 	if policy.Timeout < 0 || policy.Timeout > 60e9 {
 		return nil, errors.New("invalid rule-set timeout")
 	}
+	policy.AllowedCIDRs = append([]netip.Prefix(nil), policy.AllowedCIDRs...)
+	if policy.RootCAs != nil {
+		policy.RootCAs = policy.RootCAs.Clone()
+	}
 	return &Manager{directory: abs, binary: binary, policy: policy}, nil
 }
 func (m *Manager) Load(identifier string) (Artifact, error) {

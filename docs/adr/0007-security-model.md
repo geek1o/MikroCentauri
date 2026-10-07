@@ -12,9 +12,9 @@ options fail instead of being silently downgraded. Generated configs include sec
 and are written 0600, never printed as a default artifact.
 
 Future controller uses separate least-privilege RouterOS account; coarse RouterOS
-permissions cannot enforce ownership tags. Restrict network access. Subscriptions
-require bounded downloads, DNS-rebinding-aware SSRF/redirect checks and LKG semantics
-before implementation. Authenticated HTTPS, origin/socket guards, login rate limits,
+permissions cannot enforce ownership tags. Restrict network access. Subscriptions now use bounded downloads, checked-address dialing, SSRF/redirect
+checks and LKG semantics. Phase 7 additionally strips redirect Referer and freezes
+operator download policies at construction; see docs/security.md. Authenticated HTTPS, origin/socket guards, login rate limits,
 credential-free safe backups and bounded diagnostics are implemented in product
 Phases 4–5. A full encrypted credential backup remains outside that scope.
 FakeIP AAAA suppression does not claim IPv6 leak proof.

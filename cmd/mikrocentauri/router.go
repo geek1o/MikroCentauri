@@ -144,6 +144,8 @@ func connectRouter(path string) (*routeros.Client, string, error) {
 		return nil, "", errors.New("router credentials required in private file")
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
+	// Router control must use the operator-selected endpoint directly.
+	transport.Proxy = nil
 	// The accepted CHR control plane requires a bounded physical TLS pool.
 	// Keep the one socket warm: cold parallel handshakes caused native broken
 	// pipes under repeated profile proofs. Logical readers remain context-bound.

@@ -1,0 +1,3 @@
+ok  	mikrocentauri.local/core/internal/subscriptions	1.266s
+ok  	mikrocentauri.local/core/internal/rulesets	1.272s
+ok  	mikrocentauri.local/core/cmd/mikrocentauri	1.272s

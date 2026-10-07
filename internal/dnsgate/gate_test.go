@@ -162,7 +162,10 @@ func TestSelectedAAAAAndUnsupportedType(t *testing.T) {
 	if e != nil || m.flags&15 != 0 || len(m.answers) != 0 {
 		t.Fatalf("AAAA not empty NOERROR: %+v", m)
 	}
-	assertFailure(t, g.Handle(context.Background(), query("selected.test", 16)))
+	// TXT, SVCB and HTTPS must not expose an alternate route around managed A/AAAA.
+	for _, qtype := range []uint16{16, 64, 65} {
+		assertFailure(t, g.Handle(context.Background(), query("selected.test", qtype)))
+	}
 	if calls.Load() != 0 {
 		t.Fatal("AAAA or unsupported request reached allocator/publisher")
 	}

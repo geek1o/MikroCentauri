@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/pem"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
@@ -70,5 +72,30 @@ func TestConnectionTrustAndTransport(t *testing.T) {
 		if _, _, e := connectRouter(privateFixture(t, data)); e == nil {
 			t.Fatal("invalid connection accepted")
 		}
+	}
+}
+
+func TestRouterControlDoesNotInheritDefaultProxy(t *testing.T) {
+	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.Write([]byte(`[]`)) }))
+	defer srv.Close()
+	original := http.DefaultTransport
+	inherited := original.(*http.Transport).Clone()
+	proxyCalls := 0
+	inherited.Proxy = func(r *http.Request) (*url.URL, error) { proxyCalls++; return nil, nil }
+	http.DefaultTransport = inherited
+	defer func() { http.DefaultTransport = original; inherited.CloseIdleConnections() }()
+	ca := filepath.Join(filepath.Dir(privateFixture(t, `{}`)), "ca.pem")
+	if e := os.WriteFile(ca, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: srv.Certificate().Raw}), 0644); e != nil {
+		t.Fatal(e)
+	}
+	client, _, e := connectRouter(privateFixture(t, `{"base_url":"`+srv.URL+`/rest","username":"fixture","password":"FixtureOnly","ca_file":"`+ca+`"}`))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = client.Discover(context.Background()); e != nil {
+		t.Fatal(e)
+	}
+	if proxyCalls != 0 {
+		t.Fatal("control connection inherited an unreviewed proxy")
 	}
 }

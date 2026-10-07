@@ -1,0 +1,170 @@
+SING_BOX_BINARY="/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box" .cache/go/bin/go test -race ./...
+ok  	mikrocentauri.local/core/cmd/mikrocentauri	18.916s
+ok  	mikrocentauri.local/core/internal/activation	(cached)
+ok  	mikrocentauri.local/core/internal/api	85.010s
+ok  	mikrocentauri.local/core/internal/application	2.535s
+ok  	mikrocentauri.local/core/internal/config	(cached)
+ok  	mikrocentauri.local/core/internal/coreactivation	8.585s
+ok  	mikrocentauri.local/core/internal/coreconfig	3.729s
+ok  	mikrocentauri.local/core/internal/dnsgate	(cached)
+ok  	mikrocentauri.local/core/internal/endpoints	(cached)
+ok  	mikrocentauri.local/core/internal/engineguard	(cached)
+ok  	mikrocentauri.local/core/internal/fakeip	(cached)
+ok  	mikrocentauri.local/core/internal/generation	(cached)
+ok  	mikrocentauri.local/core/internal/grouphealth	4.424s
+ok  	mikrocentauri.local/core/internal/health	(cached)
+ok  	mikrocentauri.local/core/internal/namespace	(cached)
+?   	mikrocentauri.local/core/internal/platform	[no test files]
+ok  	mikrocentauri.local/core/internal/platform/linuxbarrier	1.262s
+ok  	mikrocentauri.local/core/internal/platform/routeros	(cached)
+ok  	mikrocentauri.local/core/internal/proxy	(cached)
+ok  	mikrocentauri.local/core/internal/realdns	(cached)
+ok  	mikrocentauri.local/core/internal/rulesets	2.460s
+ok  	mikrocentauri.local/core/internal/singbox	(cached)
+ok  	mikrocentauri.local/core/internal/subscriptions	1.357s
+ok  	mikrocentauri.local/core/internal/supervisor	(cached)
+?   	mikrocentauri.local/core/internal/webui	[no test files]
+ok  	mikrocentauri.local/core/internal/wireguard	(cached)
+?   	mikrocentauri.local/core/lab/controller	[no test files]
+ok  	mikrocentauri.local/core/lab/coregateway	1.422s
+?   	mikrocentauri.local/core/lab/generationtool	[no test files]
+?   	mikrocentauri.local/core/lab/stagedfault	[no test files]
+ok  	mikrocentauri.local/core/lab/workload	(cached)
+?   	mikrocentauri.local/core/tests/e2e/app_profile	[no test files]
+?   	mikrocentauri.local/core/tests/e2e/webui/fixture	[no test files]
+ok  	mikrocentauri.local/core/tests/integration/protocols	11.688s
+.cache/go/bin/go vet ./...
+python3 tests/integration/lab_switch.py
+PASS malformed peer isolation and valid Ethernet forwarding/capture
+python3 tests/integration/app_image.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK
+python3 tests/integration/namespace_policy.py --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS initial second binding PROXY
+PASS graceful expansion retains old aliases and allocates one unique addition {"fourth.test": "198.18.0.5", "second.test": "198.18.0.3", "selected.test": "198.18.0.2", "third.test": "198.18.0.4"}
+PASS retired cached alias HTTP Host=second.test DIRECT
+PASS retired cached alias HTTP Host=selected.test DIRECT
+PASS retired cached alias HTTP Host=SeLeCtEd.TeSt DIRECT
+PASS retired cached alias HTTP Host=selected.test. DIRECT
+PASS retired cached alias HTTP Host=198.18.0.3 DIRECT
+PASS retired cached alias TLS SNI=second.test DIRECT
+PASS retired cached alias TLS SNI=selected.test DIRECT
+PASS retired cached alias TLS SNI=SeLeCtEd.TeSt DIRECT
+PASS active alias cannot sniff into retired PROXY
+PASS new active alias PROXY
+PASS retirement survives engine reopen DIRECT
+PASS direct source precedes retired alias DIRECT
+PASS direct source precedes active alias DIRECT
+PASS proxy source precedes retired alias PROXY
+PASS proxy source precedes active alias PROXY
+PASS reactivation reuses second alias with HTTP foreign Host PROXY
+PASS reactivation reuses second alias with TLS foreign SNI PROXY
+PASS missing retired terminal rule reproduces HTTP reselection PROXY
+PASS missing retired terminal rule reproduces TLS reselection PROXY
+NOT RUN: public DNS retirement, controller durability, native TUN/RouterOS egress, QUIC, abrupt crash
+TLS certificate validation disabled only to isolate SNI policy in this host process fixture
+python3 tests/integration/binding_policy.py --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS FakeIP HTTP Host=selected.test PROXY
+PASS FakeIP HTTP Host=Selected.Test PROXY
+PASS FakeIP HTTP Host=selected.test. PROXY
+PASS FakeIP HTTP Host=198.18.0.2 PROXY
+PASS FakeIP HTTP Host=unselected.test PROXY
+PASS FakeIP TLS SNI=selected.test PROXY
+PASS FakeIP TLS SNI=SeLeCtEd.TeSt PROXY
+PASS FakeIP TLS SNI=unselected.test PROXY
+PASS DIRECT source precedes selected binding DIRECT
+PASS PROXY source precedes unselected destination PROXY
+PASS Real-IP selected cohost remains selected after sniff PROXY
+PASS Real-IP unselected cohost remains DIRECT DIRECT
+PASS Old ordering reproduces Host policy escape DIRECT
+PASS Old ordering reproduces TLS SNI policy escape DIRECT
+NOT RUN: native TUN, RouterOS egress, QUIC, reboot
+python3 tests/integration/smoke.py --go ".cache/go/bin/go" --sing-box "/Users/geekio/MikroCentauri/.cache/sing-box-1.14.2-darwin-arm64/sing-box"
+PASS real VLESS TCP request and nonselected DIRECT rule (process logs; not CHR egress proof)
+PASS typed FakeIP DNS on UDP/TCP, managed AAAA suppression and unselected real DNS
+PASS rejected candidate preserves previously validated output and redacts secrets
+NOT RUN: RouterOS packet path, distinct egress, TUN/UDP/QUIC, restart fail-open, reboot, FastTrack
+python3 scripts/build-webui.py --check
+
+added 51 packages in 793ms
+npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn install-scripts   fsevents@2.3.3 (install: (install scripts present))
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+
+> mikrocentauri-ui@0.5.0 check
+> svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: /Users/geekio/MikroCentauri/frontend
+Getting Svelte diagnostics...
+
+svelte-check found 0 errors and 0 warnings
+
+> mikrocentauri-ui@0.5.0 test
+> node --experimental-strip-types --test src/*.test.ts
+
+✔ same-origin request omits cookies and bearer is memory-only (14.252041ms)
+✔ 401 destroys bearer; stale draft remains explicit error (0.725375ms)
+✔ URI import preserves literal commas in query and fragment (0.130583ms)
+✔ JSON model snapshots accept nested reactive proxies (0.115209ms)
+✔ network conflict preview uses whole CIDR not hostonly (0.422583ms)
+✔ exact and suffix collision with different routes exposes real stable priority (0.870959ms)
+✔ disjoint source, network, ports or destination never produce collision (0.319208ms)
+✔ IPv4 destination overlap and source intersection detected (0.297292ms)
+✔ disabled and same route omitted; remote or excessive input explicitly incomplete (2.045833ms)
+✔ proxy rule appends finite names once and preserves prior DNS (0.577125ms)
+✔ direct and disabled rules never add names or remove retained names (0.072292ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.611625
+
+> mikrocentauri-ui@0.5.0 build
+> vite build && node scripts/budget.mjs
+
+3:45:03 PM [vite-plugin-svelte] no Svelte config found at /Users/geekio/MikroCentauri/frontend - using default configuration.
+vite v8.3.3 building client environment for production...
+transforming...
+✓ 114 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.28 kB
+dist/assets/index-oWn0r1A3.css    7.97 kB │ gzip:  2.50 kB
+dist/assets/index-CLP1dEoH.js   100.49 kB │ gzip: 34.01 kB
+
+✓ built in 242ms
+UI assets: 108464 bytes; gzip: 36275 bytes (budgets 350000 / 100000)
+{
+  "gzip_bytes": 37197,
+  "files": {
+    "assets/index-CLP1dEoH.js": {
+      "bytes": 100492,
+      "sha256": "5473a5f84baa6f08bca50e0a4d201b511c5713c7ea6ca44010b6ee7b0b8e9d2e"
+    },
+    "assets/index-oWn0r1A3.css": {
+      "bytes": 7972,
+      "sha256": "305a9704cd7a1336a62928c147a932644cff7e1fa729405377af0dd5ec0ba324"
+    },
+    "index.html": {
+      "bytes": 400,
+      "sha256": "9cb5b5eafefc39b82747305ef56ce6ee4ddca8bdab8cbe2ddcd5e2d91f8b9139"
+    },
+    "licenses.txt": {
+      "bytes": 2406,
+      "sha256": "b153b248b5a619271a8ba8df65718077d252cc0fdafd1668f8b3e9afffca84b4"
+    }
+  }
+}
+git diff --check
+mkdir -p .cache/bin
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 .cache/go/bin/go build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-amd64 ./cmd/mikrocentauri
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 .cache/go/bin/go build ./internal/...
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 .cache/go/bin/go build -trimpath -ldflags='-s -w' -o .cache/bin/mikrocentauri-linux-arm64 ./cmd/mikrocentauri
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 .cache/go/bin/go build ./internal/...
