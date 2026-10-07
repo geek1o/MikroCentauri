@@ -88,3 +88,7 @@ evidence. It does not close the native IPv6/FastTrack/reboot/device acceptance g
 [Phase 7 IPv6 observation](../reports/product-phase-7-ipv6-observation.md)
 records GET-only IPv6 metadata, explicit UI limits, native REST schema and missing
 FastTrack/route flag handling. Packet isolation and reboot/failure matrices remain open.
+
+[Phase 7 native hardening progress](../reports/product-phase-7-native-hardening-progress.md)
+records the management review, native failure/reboot matrix and the unresolved
+load/readiness withdrawal. Complete native/capture acceptance remains open.

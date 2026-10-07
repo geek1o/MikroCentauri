@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -316,5 +317,46 @@ func TestHeldGateAndRegistryPrivacy(t *testing.T) {
 	}
 	if e = a.Semantic(b); e == nil {
 		t.Fatal("duplicate registered JSON accepted")
+	}
+}
+
+func TestRuntimeCheckStagesQuarantineWithoutPrivateErrors(t *testing.T) {
+	for _, stage := range []string{"cache", "allocator", "publication"} {
+		t.Run(stage, func(t *testing.T) {
+			o, _, ledger, engine, barrier := setup(t)
+			a, err := New(o)
+			if err != nil {
+				t.Fatal(err)
+			}
+			s := newSupervisor(t, a, privateDir(t))
+			defer func() { s.Close(context.Background()); a.Close(context.Background()) }()
+			b, err := a.Register(fixtureModel(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err = s.Apply(context.Background(), b); err != nil {
+				t.Fatal(err)
+			}
+			switch stage {
+			case "cache":
+				if err = os.Chmod(a.CachePath(), 0644); err != nil {
+					t.Fatal(err)
+				}
+			case "allocator":
+				engine.changed.Store(true)
+			case "publication":
+				ledger.fail.Store(true)
+			}
+			err = a.Check(context.Background())
+			if err == nil || RuntimeCheckEvent(err) != "core_"+stage+"_check_failed" || !barrier.quarantined.Load() || a.Status().Ready {
+				t.Fatalf("verification did not classify and quarantine: %v", err)
+			}
+			if strings.Contains(err.Error(), "secret") || strings.Contains(err.Error(), a.CachePath()) {
+				t.Fatal("private failure leaked")
+			}
+		})
+	}
+	if RuntimeCheckEvent(errors.New("credential-bearing error")) != "core_check_failed" {
+		t.Fatal("raw error projected")
 	}
 }

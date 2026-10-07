@@ -14,7 +14,7 @@ def summarize(path):
     data=pathlib.Path(path).read_bytes()
     if data[:4]!=b'\xd4\xc3\xb2\xa1' or len(data)<24 or struct.unpack_from('<I',data,20)[0]!=1:
         raise ValueError('Expected little-endian classic Ethernet PCAP')
-    offset=24;counts=collections.Counter();markers=[];proxy_markers=[];cached_markers=[];boot_markers=[];namespace_markers=[];activation_markers=[];api_markers=[];packets=0;ipv6=0
+    offset=24;counts=collections.Counter();markers=[];proxy_markers=[];cached_markers=[];boot_markers=[];namespace_markers=[];activation_markers=[];api_markers=[];packets=0;ipv6=0;v6_tcp=[]
     while offset+16<=len(data):
         sec,usec,size,original=struct.unpack_from('<IIII',data,offset);offset+=16
         frame=data[offset:offset+size];offset+=size
@@ -22,7 +22,19 @@ def summarize(path):
         packets+=1
         if len(frame)<34:continue
         ether=struct.unpack_from('!H',frame,12)[0]
-        if ether==0x86dd:ipv6+=1
+        if ether==0x86dd:
+            ipv6+=1
+            # Bounded fixture: IPv6 TCP without extension headers, fixed target.
+            if len(frame)>=74 and frame[20]==6:
+                src6=str(ipaddress.IPv6Address(frame[22:38]));dst6=str(ipaddress.IPv6Address(frame[38:54]))
+                sport6,dport6=struct.unpack_from('!HH',frame,54)
+                if dst6=='fd7a:7:2::20' and dport6==8087:
+                    header=(frame[66]>>4)*4
+                    if header<20 or len(frame)<54+header:raise ValueError('Invalid IPv6 TCP header')
+                    marker6=re.search(rb'/phase7-v6-[0-9]+-(?:literal|before-guard|after-guard)',frame[54+header:])
+                    v6_tcp.append({'time_utc_epoch':sec+usec/1000000,'source':src6,'destination':dst6,
+                        'source_port':sport6,'destination_port':dport6,'syn':bool(frame[67]&2),
+                        'marker':marker6[0].decode() if marker6 else None})
         if ether!=0x0800:continue
         ihl=(frame[14]&15)*4;proto=frame[23]
         src=str(ipaddress.IPv4Address(frame[26:30]));dst=str(ipaddress.IPv4Address(frame[30:34]))
@@ -51,7 +63,7 @@ def summarize(path):
             api_markers.append({'marker':api[1].decode(),'run_id':api[2].decode(),'time_utc_epoch':sec+usec/1000000,'revision':int(api[3]),'domain':api[4].decode(),'sequence':int(api[5]),'protocol':name,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
         if proto==17 and b'D-ambiguous-UDP-20261005' in frame[start+8:]:
             markers.append({'time_utc_epoch':sec+usec/1000000,'source':src,'destination':dst,'source_port':sport,'destination_port':dport})
-    return {'file':pathlib.Path(path).name,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'ethernet_packets':packets,'ipv6_frames':ipv6,
+    return {'file':pathlib.Path(path).name,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'ethernet_packets':packets,'ipv6_frames':ipv6,'ipv6_fixture_tcp':v6_tcp,
             'flows':[{'protocol':k[0],'source':k[1],'destination':k[2],'destination_port':k[3],'packets':v} for k,v in sorted(counts.items())],
             'realip_udp_marker':markers,'proxy_udp_marker':proxy_markers,'cached_udp_marker':cached_markers,'boot_udp_marker':boot_markers,'namespace_udp_marker':namespace_markers,'activation_udp_marker':activation_markers,'api_udp_marker':api_markers,'scope':'Endpoint counts, not TCP reconstruction or a packet-loss/loop proof'}
 

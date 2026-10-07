@@ -8,6 +8,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -349,5 +350,32 @@ func TestPublishedOpenAPIEqualsGeneratedContract(t *testing.T) {
 	generated, e := json.MarshalIndent(OpenAPI(), "", "  ")
 	if e != nil || !bytes.Equal(bytes.TrimSpace(raw), generated) {
 		t.Fatal("regenerate OpenAPI with api-openapi")
+	}
+}
+
+// Caller-owned configuration must not remain authority over live admission.
+func TestClientAdmissionCannotBeWidenedAfterConstruction(t *testing.T) {
+	original, auth, _ := setup(t, nil)
+	clients := []netip.Prefix{netip.MustParsePrefix("127.0.0.1/32")}
+	server, err := New(Options{Directory: original.dir, Auth: auth, Model: fixture(t), Origin: "https://127.0.0.1:8443", Clients: clients})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := func(source string) int {
+		r := httptest.NewRequest("GET", "https://127.0.0.1:8443/api/v1/health/live", nil)
+		r.RemoteAddr = source
+		w := httptest.NewRecorder()
+		server.ServeHTTP(w, r)
+		return w.Code
+	}
+	if request("203.0.113.10:1234") != http.StatusForbidden {
+		t.Fatal("source was admitted before mutation")
+	}
+	clients[0] = netip.MustParsePrefix("203.0.113.0/24")
+	if request("203.0.113.10:1234") != http.StatusForbidden {
+		t.Fatal("caller mutation widened live API admission")
+	}
+	if request("127.0.0.1:1234") != http.StatusOK {
+		t.Fatal("original authorized source lost admission")
 	}
 }

@@ -90,6 +90,8 @@ func New(o Options) (*Server, error) {
 	if len(o.Clients) == 0 {
 		o.Clients = []netip.Prefix{netip.MustParsePrefix("127.0.0.0/8"), netip.MustParsePrefix("::1/128")}
 	}
+	// Freeze the validated socket admission policy rather than retaining caller authority.
+	o.Clients = append([]netip.Prefix(nil), o.Clients...)
 	for _, p := range o.Clients {
 		if !p.IsValid() || p.Bits() == 0 {
 			return nil, errors.New("invalid API client network")

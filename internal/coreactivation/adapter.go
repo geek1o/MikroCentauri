@@ -357,6 +357,23 @@ func (a *Adapter) resolvePath(path string) (coreconfig.Model, error) {
 func (a *Adapter) Handler() dnsgate.Handler { return a.dns }
 func (a *Adapter) CachePath() string        { return a.cache }
 
+// RuntimeCheckEvent projects only a fixed verification stage; dependency errors
+// and private paths never enter the public lifecycle history.
+func RuntimeCheckEvent(err error) string {
+	var failure runtimeCheckFailure
+	if errors.As(err, &failure) {
+		switch failure.stage {
+		case "namespace", "cache", "allocator", "publication":
+			return "core_" + failure.stage + "_check_failed"
+		}
+	}
+	return "core_check_failed"
+}
+
+type runtimeCheckFailure struct{ stage string }
+
+func (runtimeCheckFailure) Error() string { return "core runtime verification failed" }
+
 // Check revalidates admitted aliases and fresh backend readback for cached
 // traffic as well as DNS. A failure closes the publication and forwarding gates;
 // it is not a guarantee against changes between observation and packet delivery.
@@ -371,23 +388,29 @@ func (a *Adapter) Check(ctx context.Context) error {
 	}
 	bounded, cancel := context.WithTimeout(ctx, a.opts.Timeout)
 	defer cancel()
-	fail := func() error {
+	fail := func(stage string) error {
 		cleanup, stop := context.WithTimeout(context.WithoutCancel(ctx), a.opts.Timeout)
 		defer stop()
 		cleanupErr := a.quarantineLocked(cleanup)
-		return errors.Join(errors.New("core runtime verification failed"), cleanupErr)
+		return errors.Join(runtimeCheckFailure{stage}, cleanupErr)
 	}
-	if a.current() != nil || engineguard.CheckCache(a.cache, true) != nil || admission.Validate(bounded) != nil {
-		return fail()
+	if a.current() != nil {
+		return fail("namespace")
+	}
+	if engineguard.CheckCache(a.cache, true) != nil {
+		return fail("cache")
+	}
+	if admission.Validate(bounded) != nil {
+		return fail("allocator")
 	}
 	for _, binding := range admission.Snapshot().Bindings {
 		m, ttl, err := a.opts.Ledger.PublishAlias(bounded, binding.Domain, binding.Alias)
 		if err != nil || bounded.Err() != nil || m.Domain != binding.Domain || m.Fake != binding.Alias || ttl <= 0 {
-			return fail()
+			return fail("publication")
 		}
 	}
 	if a.current() != nil || !admission.Snapshot().Admitted {
-		return fail()
+		return fail("namespace")
 	}
 	return nil
 }

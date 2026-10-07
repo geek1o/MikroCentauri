@@ -104,7 +104,7 @@ func (h *Host) verify(ctx context.Context) error {
 		return e
 	}
 	if e := h.o.Core.Check(ctx); e != nil {
-		h.history.record("core_check_failed", false, h.View().Revision)
+		h.history.record(coreactivation.RuntimeCheckEvent(e), false, h.View().Revision)
 		return e
 	}
 	if e := h.o.Probe(ctx); e != nil {

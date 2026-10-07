@@ -37,8 +37,9 @@ paths and query strings are not disclosed to the next destination. Managers copy
 operator CIDRs and TLS trust stores at construction, preventing later caller
 mutation from expanding authority.
 
-Rule sets require HTTPS. Subscription import retains HTTP compatibility: it does
-not provide transport confidentiality on an HTTP hop. TLS certificate verification
+Rule sets and production API subscription imports require HTTPS. The lower-level
+subscription manager retains explicit HTTP compatibility; those callers do not
+receive transport confidentiality on an HTTP hop. TLS certificate verification
 remains enabled for HTTPS. Invalid downloads/compilation preserve the last known
 good artifact. These controls do not make arbitrary remote content trustworthy or
 prevent an intentionally granted operator override from reaching private services.

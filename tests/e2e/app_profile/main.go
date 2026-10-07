@@ -36,11 +36,20 @@ func main() {
 	}
 	ip := flag.String("ip", "", "discovered isolated App IPv4")
 	ingress := flag.String("interface", "", "observed Linux ingress")
+	hardening := flag.Bool("hardening", false, "synthetic source policy matrix")
 	flag.Parse()
 	if *ip != "" {
 		fixture.Model, fixture.Profile = template(*ip, *ingress)
 	} else if err := json.NewDecoder(os.Stdin).Decode(&fixture); err != nil {
 		panic(err)
+	}
+	if *hardening {
+		// Explicit TCG profile: the 5s lease profile was not accepted for this matrix.
+		fixture.Profile.Watchdog.Interval = 10 * time.Second
+		fixture.Profile.Watchdog.Timeout = 3 * time.Second
+		fixture.Model.SourceDirect = []string{"192.168.88.30/32"}
+		fixture.Model.Rules = append(append(fixture.Model.Rules[:1:1], coreconfig.Rule{ID: "second-domain-direct", Domains: []string{"second.test"}, Outbound: "direct"}), fixture.Model.Rules[1:]...)
+		fixture.Model.SourceProxy = []coreconfig.SourcePolicy{{CIDRs: []string{"192.168.88.20/32"}, Outbound: "proxy"}}
 	}
 	p, m := fixture.Profile, fixture.Model
 	if err := p.Validate(m); err != nil {

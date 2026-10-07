@@ -17,7 +17,10 @@ def main():
     parser.add_argument('--oci', type=pathlib.Path, default=pathlib.Path('.cache/app-image-final/oci'))
     parser.add_argument('--work', type=pathlib.Path, default=pathlib.Path('.cache/app-native'))
     parser.add_argument('--rollback-oci', type=pathlib.Path, default=pathlib.Path('.cache/app-image-complete/oci'))
+    parser.add_argument('--hardening', action='store_true', help='Phase 7 failure/FastTrack/IPv6/reboot matrix')
+    parser.add_argument('--hardening-probe', action='store_true', help='diagnostic load snapshots only; never accepted')
     args = parser.parse_args()
+    assert not (args.hardening and args.hardening_probe)
     work = args.work.resolve(); private = work / 'private'; private.mkdir(exist_ok=True); private.chmod(0o700)
     report = {'routeros': '7.24.5 (stable)', 'scope': 'production App native owner; separate clone; synthetic fixtures'}
     name = 'mc-native-' + uuid.uuid4().hex[:8]
@@ -43,9 +46,9 @@ def main():
     def settle(fn, label, timeout=180):
         deadline = time.monotonic() + timeout; synced = 0
         while time.monotonic() < deadline:
-            if time.monotonic() - synced > 10:
-                clock(); synced = time.monotonic()
             try:
+                if time.monotonic() - synced > 10:
+                    clock(); synced = time.monotonic()
                 result = fn()
                 if result: return result
             except (OSError, RuntimeError, AssertionError, http.client.HTTPException): pass
@@ -58,12 +61,14 @@ def main():
             '-o', 'StrictHostKeyChecking=accept-new', '-o', 'UserKnownHostsFile=' + str(private / 'known_hosts'),
             'admin@127.0.0.1'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=90)
 
-    def marked_udp(domain):
+    def marked_udp(domain, source="", address=None):
         nonlocal udp_sequence
         udp_sequence += 1
         marker = 'phase4-' + report['run_id'] + '-1-' + domain + '-' + str(udp_sequence)
+        body = {'domain': domain, 'payload': marker, 'source': source}
+        if address is not None: body.update(address=address, skip_dns=True)
         req = urllib.request.Request('http://127.0.0.1:19010/udp',
-            data=json.dumps({'domain': domain, 'payload': marker}).encode(),
+            data=json.dumps(body).encode(),
             headers={'Content-Type': 'application/json'})
         with urllib.request.urlopen(req, timeout=16) as response: result = json.load(response)
         assert_success(result)
@@ -168,7 +173,7 @@ def main():
         user_name = name + '-ctl'; router_password = uuid.uuid4().hex
         controller_user = native('PUT', 'user', {'name': user_name, 'password': router_password, 'group': 'full'})['.id']
         fixture = json.loads(subprocess.run(['.cache/go/bin/go', 'run', './tests/e2e/app_profile',
-            '-ip', ip, '-interface', interface], stdout=subprocess.PIPE, check=True, timeout=45).stdout)
+            '-ip', ip, '-interface', interface] + (['-hardening'] if args.hardening or args.hardening_probe else []), stdout=subprocess.PIPE, check=True, timeout=45).stdout)
         for obj in fixture['objects']:
             assert not any(r.get('comment') == obj['fields']['comment'] for r in native('GET', obj['path']))
             fields = dict(obj['fields'])
@@ -265,9 +270,12 @@ def main():
             for r in native('GET', path) if r.get('comment') in
             ('mikrocentauri:app6:route:fakeip', 'mikrocentauri:app6:nat:dns-tcp', 'mikrocentauri:app6:nat:dns-udp')),
             'native steering enabled')
+        # RouterOS REST completion precedes the observed NAT dataplane cutover.
+        time.sleep(1)
         native('POST', 'ip/dns/cache/flush', {})
         packets = {}
         for domain, peer in [('selected.test', '10.77.0.10'), ('unselected.test', '10.77.0.1')]:
+            print('PACKET_STAGE', domain, 'lease', bool([r for r in native('GET', 'ip/firewall/address-list') if r.get('list') == 'mc-app6-up-lease']), 'ready', ready(), flush=True)
             tcp = request(domain, path='/app6-native'); assert_success(tcp, peer)
             h3 = quic(domain, tcp['resolved_ipv4']); assert h3['remote_ip'] == peer
             udp = marked_udp(domain)
@@ -282,9 +290,26 @@ def main():
         _, logged = api('POST', '/auth/login', {'password': password}); token = logged['access_token']
         settle(ready, 'restart readiness')
         settle(lambda: any(r.get('list') == 'mc-app6-up-lease' for r in native('GET', 'ip/firewall/address-list')), 'restart UP lease')
+        time.sleep(1)
         cached = workload('unselected.test', domain='selected.test', address=baseline); assert_success(cached, '10.77.0.10')
         report['native_restart'] = {'lease_withdrawn': True, 'cached_down_direct': down, 'cached_up_proxy': cached,
             'auth_preserved': True, 'namespace_preserved': True}
+        if args.hardening_probe:
+            from chr_app_hardening import runtime_probe
+            report['diagnostic_only']=True
+            report['runtime_probe']=runtime_probe(api=api,native=native,work=work)
+            print('RUNTIME_PROBE_COLLECTED; diagnostic only',flush=True)
+            return
+        if args.hardening:
+            from chr_app_hardening import run as hardening_run
+            def relogin():
+                nonlocal token
+                status, logged = api('POST', '/auth/login', {'password': password})
+                if status != 200: return False
+                token = logged['access_token']; return True
+            report['hardening'] = hardening_run(native=native, api=api, settle=settle, ready=ready,
+                core=core, stopped=stopped, app_id=app_id, ip=ip, baseline=baseline, work=work,
+                name=name, marked_udp=marked_udp, relogin=relogin)
         # Preserve an admitted FakeIP generation through real binary image changes.
         snapshot_dir = private / name; snapshot_dir.mkdir(mode=0o700)
         swap = AppSwap(native, lambda fn: settle(fn, 'volume replacement'), app_id,
@@ -310,6 +335,7 @@ def main():
             settle(ready, 'image replacement native readiness')
             settle(lambda: any(r.get('list') == 'mc-app6-up-lease' for r in native('GET', 'ip/firewall/address-list')), 'replacement UP lease')
             settle(lambda: core().get('healthy') == 'true', 'image default health after replacement')
+            time.sleep(1)
             assert core().get('image-id') == image_manifest['config']['digest'][7:]
             assert not core().get('entrypoint') and not core().get('cmd') and not core().get('healthcheck-cmd')
             tcp = workload('unselected.test', domain='selected.test', address=baseline); assert_success(tcp, '10.77.0.10')

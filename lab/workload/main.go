@@ -23,10 +23,11 @@ var requestSequence atomic.Uint64
 // A disposable server-only fixture for endpoint churn. It cannot change the
 // upstream listener or the canary domain; only second.test has an override.
 type dnsOverride struct {
-	Target string `json:"target"`
-	TTL    uint32 `json:"ttl"`
-	Fail   bool   `json:"fail"`
-	AllTTL uint32 `json:"all_ttl,omitempty"`
+	Target     string `json:"target"`
+	TTL        uint32 `json:"ttl"`
+	Fail       bool   `json:"fail"`
+	AllTTL     uint32 `json:"all_ttl,omitempty"`
+	IPv6Target string `json:"ipv6_target,omitempty"`
 }
 
 var dnsFixture atomic.Pointer[dnsOverride]
@@ -87,8 +88,10 @@ func main() {
 			go func() { failures <- serveUDPEcho("10.77.0.21:9000") }()
 		}
 		go func() { failures <- http.ListenAndServe("0.0.0.0:8080", http.HandlerFunc(targetHTTP)) }()
+		go func() { failures <- http.ListenAndServe("[::]:8087", http.HandlerFunc(targetHTTP)) }()
 	}
 	mux := http.NewServeMux()
+	hardeningHandlers(mux, mode)
 	mux.HandleFunc("/request", controlHandler(dns, false))
 	mux.HandleFunc("/udp", controlHandler(dns, true))
 	if mode == "serve" {
@@ -104,7 +107,7 @@ func main() {
 			var next dnsOverride
 			dec := json.NewDecoder(io.LimitReader(r.Body, 1024))
 			dec.DisallowUnknownFields()
-			if dec.Decode(&next) != nil || (next.Target != "10.77.0.20" && next.Target != "10.77.0.21") || next.TTL < 1 || next.TTL > 30 || next.AllTTL > 30 {
+			if dec.Decode(&next) != nil || (next.Target != "10.77.0.20" && next.Target != "10.77.0.21") || next.TTL < 1 || next.TTL > 30 || next.AllTTL > 30 || (next.IPv6Target != "" && next.IPv6Target != "fd7a:7:2::20") {
 				http.Error(w, "invalid disposable DNS fixture", 400)
 				return
 			}
@@ -414,6 +417,13 @@ func dnsReply(query []byte, target string) ([]byte, error) {
 		reply = append(reply, 0xc0, 0x0c, 0, 1, 0, 1, 0, 0, 0, 5, 0, 4)
 		binary.BigEndian.PutUint32(reply[len(reply)-6:len(reply)-2], ttl)
 		reply = append(reply, ip...)
+	}
+	if known && typ == 28 && class == 1 {
+		if fixture := dnsFixture.Load(); fixture != nil && fixture.IPv6Target != "" {
+			binary.BigEndian.PutUint16(reply[6:8], 1)
+			reply = append(reply, 0xc0, 0x0c, 0, 28, 0, 1, 0, 0, 0, 5, 0, 16)
+			reply = append(reply, net.ParseIP(fixture.IPv6Target).To16()...)
+		}
 	}
 	return reply, nil
 }

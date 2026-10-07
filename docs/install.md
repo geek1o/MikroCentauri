@@ -217,6 +217,53 @@ traffic. A healthy API alone is insufficient. The default Go launcher establishe
 otherwise starts with `0000`), initializes auth only after kernel preparation and starts the existing runtime owner; shutdown
 closes that owner before restoring initially disabled forwarding.
 
+## Reviewed boot configuration
+
+On CHR 7.24.5, the generated App container defaults to `start-on-boot=false`.
+An enabled App alone did not restart the owner after a native router reboot.
+The documented Compose `restart: unless-stopped` field left that flag false.
+An explicit child `start-on-boot=yes` succeeded for one reboot, but App setup
+reset it to false during that boot. Do not rely on it for repeated recovery.
+
+Use a separate operator-reviewed startup scheduler after protected provisioning
+and installation identity review. Render its JSON from the exact reviewed App
+name, generated container name and **OCI config** SHA256 (not index/manifest):
+
+```text
+python3 scripts/render-app-boot.py \
+  --app mikrocentauri \
+  --container <exact-reviewed-generated-container> \
+  --config-sha256 <64-lowercase-hex-config-digest> \
+  --out /operator/app-boot-scheduler.json
+```
+
+Review the rendered fixed fields/source, then install exactly one scheduler via
+`/system/scheduler` under exclusive administrative control. Rendering performs
+no RouterOS writes. Its source waits five seconds, finds exactly one named App,
+and acts only if it is enabled. It requires exactly one named container with
+the reviewed image configuration before disabling that App. It waits up to 60
+seconds for the exact child to stop, rechecks the digest, then enables the App. Missing or
+changed identity fails without enabling another App. A disabled App stays disabled.
+Native App setup creates/starts the child normally; this helper supplies boot
+lifecycle only and does not grant privilege, modify credentials or enable steering.
+
+The scheduler is **operator bootstrap**, with its own `mikrocentauri:operator:`
+comment; the runtime API/controller neither installs nor manages it. Keep the
+controller-owned startup guard enabled independently: it closes persisted
+steering before admission; RAM leases do not survive reboot. Startup remains
+DIRECT until the owner verifies admission and publishes a fresh dynamic lease.
+
+Disable/update this scheduler before image replacement or changing App/container
+identity. Render and review the new config digest, reinstall/update only the
+exact operator scheduler, then test two successive real reboots. Removing an App
+requires explicitly removing this helper. Never use an unconditional script that
+enables a disabled App. The native Phase 7 report records repeated reboot,
+disabled-App and mismatched-digest checks. Review time synchronization and TLS
+validity for the target deployment; no arbitrary hardware/RouterOS version is
+qualified by the pinned CHR evidence. See the official
+[App lifecycle reference](https://manual.mikrotik.com/docs/containers/apps/) and
+[Container boot option](https://manual.mikrotik.com/docs/containers/).
+
 ## Protected image replacement and rollback
 
 On the pinned native release, updating YAML or deleting an App can recreate its

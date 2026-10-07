@@ -31,9 +31,14 @@ ip link set eth1 up
 ip address add 10.0.2.15/24 dev eth1
 echo "nameserver 192.168.88.1" > /etc/resolv.conf
 if [ "$role" = client ]; then
+    ip -6 address add fd7a:7:1::10/64 dev eth0
+    ip -6 address add fd7a:7:1::30/64 dev eth0
+    ip -6 route add fd7a:7:2::/64 via fd7a:7:1::1
     ip address add 192.168.88.20/24 dev eth0
     ip address add 192.168.88.30/24 dev eth0
 else
+    ip -6 address add fd7a:7:2::20/64 dev eth0
+    ip -6 route add fd7a:7:1::/64 via fd7a:7:2::1
     ip address add 203.0.113.20/24 dev eth0
     ip address add 10.77.0.21/24 dev eth0
 fi
