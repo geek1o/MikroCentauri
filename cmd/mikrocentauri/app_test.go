@@ -322,7 +322,8 @@ func testAppAPILifecycle(t *testing.T, publicOrigin string) {
 	roots.AppendCertsFromPEM(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certificate.Certificate[0]}))
 	transport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS13, RootCAs: roots}}
 	defer transport.CloseIdleConnections()
-	client := &http.Client{Transport: transport, Timeout: 2 * time.Second}
+	// Password derivation under the race detector is CPU-bound on shared runners.
+	client := &http.Client{Transport: transport, Timeout: 30 * time.Second}
 	if publicOrigin != "" {
 		client.Transport = appOriginTransport{base: transport, origin: publicOrigin}
 	}
