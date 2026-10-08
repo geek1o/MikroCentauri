@@ -1896,3 +1896,135 @@ nav a span {
   display: flex;
   align-items: center;
 }
+
+/* Equal control geometry independent of native input/select defaults. */
+.selector-toolbar {
+  align-items: flex-end;
+}
+.selector-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.selector-toolbar input,
+.selector-toolbar select,
+.selector-toolbar > button {
+  height: 40px;
+  min-height: 40px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 10px;
+  line-height: 20px;
+  font-size: 13px;
+}
+.latency[data-tone] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.latency[data-tone]::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 7px;
+  background: var(--muted);
+}
+.latency[data-tone="fast"] {
+  color: var(--success-ink);
+}
+.latency[data-tone="fast"]::before {
+  background: #2fa66d;
+}
+.latency[data-tone="moderate"] {
+  color: var(--note-ink);
+}
+.latency[data-tone="moderate"]::before {
+  background: #e3a329;
+}
+.latency[data-tone="slow"],
+.latency[data-tone="failed"] {
+  color: var(--error-ink);
+}
+.latency[data-tone="slow"]::before,
+.latency[data-tone="failed"]::before {
+  background: #db5c56;
+}
+.latency[data-tone="checking"]::before {
+  background: #639de8;
+  animation: probe-light 1s ease-in-out infinite alternate;
+}
+@keyframes probe-light {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .latency[data-tone="checking"]::before {
+    animation: none;
+  }
+}
+.latency-legend {
+  margin: 8px 0 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.backup-restore-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.backup-restore-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.backup-restore-form input {
+  margin: 0;
+}
+.backup-restore-form > button {
+  justify-self: start;
+  margin: 0;
+}
+.route-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.route-summary p {
+  margin: 5px 0 0;
+}
+
+/* Optical navigation mark: cropped viewBox and stronger small-size strokes. */
+.brand-icon {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+}
+.brand {
+  font-size: 16px;
+  gap: 8px;
+}
+@media (max-width: 760px) {
+  .brand-icon {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+}
+
+.test-target {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}

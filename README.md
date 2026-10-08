@@ -101,3 +101,6 @@ base-system and UI components have separate licenses and distribution
 requirements; see [third-party notices](THIRD_PARTY_NOTICES.md).
 RouterOS/CHR is proprietary MikroTik software and is not redistributed here.
 MikroCentauri is independent and is not endorsed by MikroTik or sing-box.
+
+For x86/CHR, disable RouterOS App **Use HTTPS** and use the application’s direct
+HTTPS address on port 8443. See [direct HTTPS setup](docs/direct-https.md).

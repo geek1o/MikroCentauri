@@ -41,6 +41,16 @@ For a reviewed local App YAML, import its contents with:
 Catalog publication and image availability must be confirmed by the publisher's
 successful build; repository templates alone are not installable artifacts.
 
+## x86 / CHR and direct HTTPS
+
+On x86, disable the App's **Use HTTPS** option: it requires MikroTik Cloud,
+which x86 does not support. MikroCentauri itself keeps HTTPS enabled, using the
+private access IP and the mapped TCP port 8443. Open the exact HTTPS URL printed
+in the container startup log; RouterOS may advertise an HTTP link instead.
+Standard older manifests are supported without Cloud access placeholders. Keep
+the state volume when updating. See [direct HTTPS](direct-https.md) for the
+setting, custom port mappings and startup troubleshooting.
+
 ## Prepare protected inputs
 
 Mount the persistent `state` volume at `/data`. Use `0700` directories and

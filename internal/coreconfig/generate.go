@@ -70,9 +70,7 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 			}
 			ob["default"] = selected
 		} else {
-			if g.URL != "" {
-				ob["url"] = g.URL
-			}
+			ob["url"] = g.TestURL()
 			if g.Interval != "" {
 				ob["interval"] = g.Interval
 			}

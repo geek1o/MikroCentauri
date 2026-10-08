@@ -24,6 +24,47 @@ import (
 	"mikrocentauri.local/core/internal/endpoints"
 )
 
+// bootstrapRouterOSApp uses the explicitly mapped TLS port rather than RouterOS
+// Cloud's optional web URL. Existing protected installations always win.
+func bootstrapRouterOSApp(directory, secretFile string) error {
+	if _, err := os.Lstat(filepath.Join(directory, "bootstrap/app.json")); err == nil {
+		return nil
+	}
+	host, port := os.Getenv("MC_ACCESS_IP"), os.Getenv("MC_ACCESS_PORT")
+	if os.Getenv("MC_DIRECT_HTTPS") != "0" {
+		var err error
+		mappedPort := os.Getenv("MC_DIRECT_ACCESS_PORT")
+		if mappedPort == "" {
+			mappedPort = "8443"
+		} // Published api-secure mapping, including older manifests.
+		host, port, err = directAppAccess(os.Getenv("MC_CONTAINER_IP"), host, mappedPort)
+		if err != nil {
+			return err
+		}
+	}
+	return bootstrapApp(directory, os.Getenv("MC_CONTAINER_IP"), host, port, secretFile)
+}
+
+// api-secure is a TCP mapping, not a RouterOS Cloud reverse proxy. Its public
+// port is specified by the manifest; [accessPort] may be absent or describe HTTP.
+func directAppAccess(containerIP, accessHost, mappedPort string) (string, string, error) {
+	container, err := netip.ParseAddr(containerIP)
+	port, portErr := strconv.Atoi(mappedPort)
+	if err != nil || !container.Is4() || !container.IsPrivate() || portErr != nil || port < 1 || port > 65535 {
+		return "", "", errors.New("direct HTTPS bootstrap requires private container IPv4 and explicit mapped TLS port")
+	}
+	access, accessErr := netip.ParseAddr(accessHost)
+	if accessErr != nil {
+		// Missing placeholders and Cloud hostnames cannot be the direct TLS origin.
+		// Container IP remains a precise, local, independently reachable address.
+		return container.String(), mappedPort, nil
+	}
+	if !access.Is4() || !access.IsPrivate() && !access.IsLoopback() {
+		return "", "", errors.New("direct HTTPS bootstrap refuses a public access IP")
+	}
+	return access.String(), mappedPort, nil
+}
+
 // bootstrapApp consumes only a declared RouterOS file secret on a fresh volume.
 // It never obtains router credentials or grants forwarding authority.
 func bootstrapApp(directory, containerIP, accessHost, accessPort, secretFile string) error {

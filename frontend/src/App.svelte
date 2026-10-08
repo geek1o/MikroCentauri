@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { testTargets } from "./test-targets";
   import { onMount } from "svelte";
+  import { latencyTone } from "./latency";
+  import navigationLogo from "./assets/centauri-navigation.svg";
   import centauriLogo from "./assets/centauri.svg";
   import SkyScene from "./SkyScene.svelte";
   import { defaultSky, type SkyPreferences } from "./sky";
@@ -166,6 +169,7 @@
       type: "selector",
       members: "",
       selected: "",
+      test_target: "google",
       interval: "5m",
       tolerance: 50,
     }),
@@ -397,6 +401,7 @@
       type: g.type,
       members: g.members.join("\n"),
       selected: g.selected || "",
+      test_target: g.test_target || "",
       interval: g.interval || "5m",
       tolerance: g.tolerance || 50,
     };
@@ -501,6 +506,7 @@
       g.selected = groupMembers.includes(group.selected)
         ? group.selected
         : groupMembers[0];
+    if (g.type === "urltest") g.test_target = group.test_target;
     if (g.type !== "selector") {
       g.interval = group.interval;
       g.tolerance = Number(group.tolerance);
@@ -516,6 +522,7 @@
       type: "selector",
       members: "",
       selected: "",
+      test_target: "google",
       interval: "5m",
       tolerance: 50,
     };
@@ -618,6 +625,33 @@
       nodeChecks[id] = { error: errorMessage(e) };
       throw e;
     }
+  }
+  function eligibleProbeNodes() {
+    return [
+      ...(config?.model.endpoints || [])
+        .filter((x) => x.Enabled !== false)
+        .map((x) => x.ID),
+      ...(config?.model.wireguard || [])
+        .filter((x) => x.enabled !== false)
+        .map((x) => x.id),
+    ].filter(activeNode);
+  }
+  async function probeAllNodes() {
+    const ids = eligibleProbeNodes();
+    let next = 0;
+    await Promise.all(
+      Array.from({ length: Math.min(3, ids.length) }, async () => {
+        while (next < ids.length) {
+          try {
+            await probeNode(ids[next++]);
+          } catch {
+            /* Keep checking remaining nodes; each failure stays on its tile. */
+          }
+        }
+      }),
+    );
+    const failed = ids.filter((id) => nodeChecks[id]?.success !== true).length;
+    notice = `Проверено узлов: ${ids.length}. Нет успешного ответа: ${failed}.`;
   }
   async function saveProxy() {
     const values = {
@@ -792,7 +826,7 @@
   <div class="shell">
     <aside class="sidebar">
       <a href="#dashboard" class="brand"
-        ><img class="brand-icon" src={centauriLogo} alt="" /> MikroCentauri</a
+        ><img class="brand-icon" src={navigationLogo} alt="" /> MikroCentauri</a
       >
       <p class="eyebrow">УПРАВЛЕНИЕ СЕТЬЮ</p>
       <nav aria-label="Основная навигация">
@@ -986,28 +1020,39 @@
           <section class="card selector-section">
             <div class="section-heading">
               <div>
-                <h2>Селекторы серверов</h2>
+                <h2>Текущие маршруты</h2>
                 <p class="muted">
-                  Выберите сервер для каждой группы. Списки сайтов используют
-                  выбранную группу.
+                  Текущее состояние групп. Серверы секций настраиваются в
+                  секциях, общие группы — в селекторах.
                 </p>
               </div>
-              <a class="button-link" href="#groups">Управлять селекторами</a>
+              <a class="button-link" href="#sections">Открыть секции</a>
             </div>
-            {#if !config.model.groups.length}<p>
-                Сначала добавьте серверы и создайте селектор.
-              </p>{/if}
             {#if engineError}<p class="error">{engineError}</p>{/if}
-            {#each config.model.groups as g}<SelectorPanel
-                group={g}
-                nodes={config.model.endpoints}
-                live={engine?.groups?.find((x: any) => x.id === g.id)}
-                health={nodeHealth}
-                {busy}
-                onDraft={(id, node) => run(() => switchNode(id, node))}
-                onLive={(id, node) => run(() => selectLive(id, node))}
-                onProbe={probeLive}
-              />{/each}
+            {#each config.model.groups as g}{@const live = engine?.groups?.find(
+                (x: any) => x.id === g.id,
+              )}{@const bound = (config.policy.sections || []).filter(
+                (s) => s.outbound === g.id,
+              )}
+              <div class="route-summary">
+                <div>
+                  <strong>{bound[0]?.name || g.id}</strong>
+                  <p class="muted small">
+                    {g.type === "urltest" ? "Автоматически" : "Вручную"} · {live?.selected
+                      ? labelFor(live.selected)
+                      : "Нет подтверждённого выбора"}
+                  </p>
+                </div>
+                <a
+                  class="button-link"
+                  href={bound.length ? "#sections" : "#groups"}
+                  >{bound.length ? "К секции" : "К группе"}</a
+                >
+              </div>
+            {/each}
+            {#if !config.model.groups.length}<p class="muted">
+                Создайте секцию или общую группу серверов.
+              </p>{/if}
           </section>
           <div class="grid stats">
             <section class="card">
@@ -1235,7 +1280,19 @@
             </form>
           </section>
           <section class="card">
-            <h2>Серверы</h2>
+            <div class="section-heading">
+              <h2>Серверы</h2>
+              <button
+                disabled={busy ||
+                  !system?.runtime_connected ||
+                  !eligibleProbeNodes().length}
+                onclick={() => run(probeAllNodes)}>Проверить все узлы</button
+              >
+            </div>
+            <p class="muted small">
+              Проверяем включённые серверы активной конфигурации. Новые серверы
+              сначала нужно применить.
+            </p>
             <div class="proxy-grid">
               {#each [...config.model.endpoints, ...config.model.wireguard.map( (x) => ({ ID: x.id, Name: x.name, Protocol: x.protocol, Enabled: x.enabled, Server: (x.address || []).join(", "), Port: x.listen_port }) )] as ep}<div
                   class="row proxy-tile"
@@ -1246,7 +1303,11 @@
                     <span class="muted small"
                       >{ep.Enabled === false ? "Отключён" : "Включён"}</span
                     >
-                    {#if nodeChecks[ep.ID]}<p class="small" role="status">
+                    {#if nodeChecks[ep.ID]}<p
+                        class="small latency"
+                        data-tone={latencyTone(nodeChecks[ep.ID])}
+                        role="status"
+                      >
                         {nodeChecks[ep.ID].pending
                           ? "Проверяем узел…"
                           : nodeChecks[ep.ID].error ||
@@ -1853,10 +1914,11 @@
             <h2>Селекторы и автоматический выбор</h2>
             <p class="muted">
               Одна группа может обслуживать несколько списков сайтов. Выбирайте
-              сервер здесь, а списки привязывайте к группе.
+              сервер здесь, а списки привязывайте к группе. Группы, используемые
+              секциями, доступны в разделе «Секции».
             </p>
             {#if engineError}<p class="error">{engineError}</p>{/if}
-            {#each config.model.groups as g}<SelectorPanel
+            {#each config.model.groups.filter((g) => !(config?.policy.sections || []).some((s) => s.outbound === g.id)) as g}<SelectorPanel
                 group={g}
                 nodes={config.model.endpoints}
                 live={engine?.groups?.find((x: any) => x.id === g.id)}
@@ -1898,7 +1960,7 @@
                     pattern={"[a-z][a-z0-9-]{0,63}"}
                   /></label
                 ><label
-                  >Тип<select bind:value={group.type}
+                  >Тип<select aria-label="Тип группы" bind:value={group.type}
                     ><option value="selector">Ручной выбор</option><option
                       value="urltest">Автоматический (urltest)</option
                     ><option value="fallback">Резервирование (fallback)</option
@@ -1923,7 +1985,20 @@
                           >{labelFor(x)}</option
                         >{/each}</select
                     ></label
-                  >{:else}<label
+                  >{:else}
+                  {#if group.type === "urltest"}<label
+                      >Цель URLTest<select
+                        aria-label="Цель URLTest"
+                        bind:value={group.test_target}
+                      >
+                        {#if group.test_target === ""}<option value=""
+                            >Сохранить текущую цель оператора</option
+                          >{/if}
+                        {#each testTargets as target}<option value={target.id}
+                            >{target.name} · {target.url}</option
+                          >{/each}
+                      </select></label
+                    >{/if}<label
                     >Интервал проверки<input
                       bind:value={group.interval}
                     /></label
@@ -2487,6 +2562,7 @@
                 })}>Скачать резервную копию</button
             >
             <form
+              class="backup-restore-form"
               onsubmit={(e) => {
                 e.preventDefault();
                 run(readRestore);

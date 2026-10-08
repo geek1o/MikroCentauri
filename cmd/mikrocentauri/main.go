@@ -16,6 +16,11 @@ import (
 
 func main() {
 	if err := run(); err != nil {
+		// RouterOS may show only stdout in container logs. App startup errors are
+		// already sanitized; make the reason visible without printing inputs.
+		if len(os.Args) > 1 && os.Args[1] == "app-run" {
+			fmt.Fprintln(os.Stdout, "MikroCentauri startup failed:", err)
+		}
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
