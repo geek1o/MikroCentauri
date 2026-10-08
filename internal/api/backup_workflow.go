@@ -162,6 +162,14 @@ func (s *Server) backupPost(w http.ResponseWriter, r *http.Request, raw []byte, 
 			reject(w, 400, "invalid_preferences")
 			return true
 		}
+		if p.Sky == nil {
+			previous, err := s.preferences()
+			if err != nil {
+				reject(w, 503, "preferences_unavailable")
+				return true
+			}
+			p.Sky = previous.Sky
+		}
 		if s.savePreferences(p) != nil {
 			reject(w, 503, "preferences_persistence_failed")
 			return true

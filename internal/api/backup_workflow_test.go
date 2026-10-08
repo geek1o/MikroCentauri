@@ -109,7 +109,7 @@ func TestRestoreDraftIsReviewedBeforeApplyAndRecoversSettings(t *testing.T) {
 func TestRestoreSettingsRequireExactCommittedDraft(t *testing.T) {
 	rt := &fakeRuntime{m: fixture(t), v: RuntimeView{Revision: 7, Ready: true}}
 	s, _, _ := setup(t, rt)
-	p := Preferences{"en", "light", "UTC"}
+	p := Preferences{Language: "en", Theme: "light", TimeZone: "UTC"}
 	if e := s.saveDraftWithRestore(rt.m, &RestoreSettings{Preferences: &p}); e != nil {
 		t.Fatal(e)
 	}
@@ -134,7 +134,7 @@ func TestRestoreSettingsRequireExactCommittedDraft(t *testing.T) {
 }
 func TestPreferencesStrictPersistenceAndBackup(t *testing.T) {
 	s, _, _ := setup(t, nil)
-	p := Preferences{"en", "dark", "America/New_York"}
+	p := Preferences{Language: "en", Theme: "dark", TimeZone: "America/New_York"}
 	if w := backupRequest(s, "/api/v1/preferences", p); w.Code != 200 {
 		t.Fatal(w.Body.String())
 	}
@@ -150,7 +150,7 @@ func TestPreferencesStrictPersistenceAndBackup(t *testing.T) {
 	if json.Unmarshal(w.Body.Bytes(), &exported) != nil || exported.Preferences == nil || *exported.Preferences != p {
 		t.Fatal(w.Body.String())
 	}
-	for _, invalid := range []Preferences{{"zz", "dark", "UTC"}, {"en", "custom", "UTC"}, {"en", "light", "Local"}, {"en", "light", "../../etc/shadow"}} {
+	for _, invalid := range []Preferences{{Language: "zz", Theme: "dark", TimeZone: "UTC"}, {Language: "en", Theme: "custom", TimeZone: "UTC"}, {Language: "en", Theme: "light", TimeZone: "Local"}, {Language: "en", Theme: "light", TimeZone: "../../etc/shadow"}} {
 		if w := backupRequest(s, "/api/v1/preferences", invalid); w.Code != 400 {
 			t.Fatal("invalid preference accepted", invalid)
 		}
@@ -170,7 +170,7 @@ func TestRestoreMetadataAndPreferencesReplayAfterPartialSettingsWrite(t *testing
 	s.opts.Subscriptions = registry
 	backup := Export(rt.m)
 	backup.Subscriptions = []SubscriptionMetadata{{ID: "provider", Include: "restored"}}
-	pref := Preferences{"en", "dark", "UTC"}
+	pref := Preferences{Language: "en", Theme: "dark", TimeZone: "UTC"}
 	backup.Preferences = &pref
 	if w := backupRequest(s, "/api/v1/backup/restore-draft", backup); w.Code != 200 {
 		t.Fatal(w.Body.String())
@@ -228,7 +228,7 @@ func TestRestoreAPIUsesNormalPlanApplyAndRejectsChangedMetadata(t *testing.T) {
 	s.opts.Subscriptions = registry
 	backup := Export(rt.m)
 	backup.Subscriptions = []SubscriptionMetadata{{ID: "provider", Include: "restored"}}
-	p := Preferences{"en", "dark", "UTC"}
+	p := Preferences{Language: "en", Theme: "dark", TimeZone: "UTC"}
 	backup.Preferences = &p
 	backup.DNS.SelectedDomains = []string{"selected.example.test"}
 	w := call(s, "POST", "/api/v1/backup/restore-draft", token, backup)

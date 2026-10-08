@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import SkyScene from "./SkyScene.svelte";
+  import { defaultSky, type SkyPreferences } from "./sky";
   import Sections from "./Sections.svelte";
   import SelectorPanel from "./SelectorPanel.svelte";
   import IPv6Notice from "./IPv6Notice.svelte";
@@ -130,7 +132,17 @@
         (listCategory === "all" || x.kind === listCategory),
     ),
   );
-  let pref = $state({ language: "ru", theme: "system", time_zone: "UTC" }),
+  let pref = $state<{
+      language: string;
+      theme: string;
+      time_zone: string;
+      sky: SkyPreferences;
+    }>({
+      language: "ru",
+      theme: "system",
+      time_zone: "UTC",
+      sky: defaultSky(),
+    }),
     uris = $state("");
   let schedule = $state<any>(),
     scheduleEnabled = $state(false),
@@ -301,6 +313,7 @@
       : 60;
     logs = await api("logs");
     pref = await api("preferences");
+    pref.sky ??= defaultSky();
     document.documentElement.dataset.theme = pref.theme;
     syncDNS();
   }
@@ -698,7 +711,20 @@
     }
     restorePreview = await api("backup/restore-preview", restore);
   }
+  $effect(() => {
+    document.documentElement.dataset.theme = pref.theme;
+  });
   onMount(() => {
+    api("appearance")
+      .then((appearance) => {
+        if (!logged) {
+          pref.theme = appearance.theme;
+          pref.sky = appearance.sky;
+        }
+      })
+      .catch(() => {
+        /* Login remains available when appearance cannot be loaded. */
+      });
     page = pages.some((p) => p[0] === location.hash.slice(1))
       ? location.hash.slice(1)
       : "dashboard";
@@ -730,12 +756,11 @@
       : ""}MikroCentauri</title
   ></svelte:head
 >
+<SkyScene settings={pref.sky} enabled={logged || pref.sky.login} />
 {#if !logged}
   <main class="login">
     <section class="login-card">
-      <div class="brand-mark">✦</div>
-      <p class="eyebrow">MIKROCENTAURI</p>
-      <h1>Ваш маршрут.<br />Ваши правила.</h1>
+      <h1>MikroCentauri</h1>
       <p class="muted">Управление выборочной маршрутизацией RouterOS.</p>
       <form
         onsubmit={(e) => {
@@ -756,12 +781,33 @@
           >{busy ? "Вход…" : "Войти"}</button
         >
       </form>
-      <p class="muted small">Защищённое соединение · Сессия на 30 минут</p>
       {#if error}<p role="alert" class="error">{error}</p>{/if}
     </section>
     <aside class="login-art" aria-hidden="true">
-      <div class="orbit"><span>✦</span></div>
-      <p>SELECTIVE ROUTING<br />ROUTEROS NATIVE</p>
+      <svg class="celestial-mark" viewBox="0 0 400 400" fill="none">
+        <circle
+          cx="200"
+          cy="200"
+          r="140"
+          stroke="currentColor"
+          stroke-opacity=".14"
+        />
+        <ellipse
+          cx="200"
+          cy="200"
+          rx="178"
+          ry="70"
+          transform="rotate(-35 200 200)"
+          stroke="currentColor"
+          stroke-opacity=".32"
+        />
+        <path
+          d="M200 144L210 190L256 200L210 210L200 256L190 210L144 200L190 190Z"
+          fill="currentColor"
+        />
+        <circle cx="84" cy="267" r="5" fill="currentColor" />
+        <circle cx="320" cy="100" r="3" fill="currentColor" />
+      </svg>
     </aside>
   </main>
 {:else}
@@ -2354,6 +2400,83 @@
                     placeholder="Europe/Moscow"
                   /></label
                 >
+              </div>
+              <div class="sky-settings">
+                <div class="sky-controls">
+                  <h3>Звёздное небо</h3>
+                  <p class="muted small">
+                    Изменения видны сразу. Сохраните настройки, чтобы
+                    использовать их после входа и перезапуска.
+                  </p>
+                  <label
+                    >Звёздный фон<select bind:value={pref.sky.mode}>
+                      <option value="none">Без фона</option><option
+                        value="stars">Звёзды</option
+                      ><option value="constellations">Звёзды и созвездия</option
+                      >
+                    </select></label
+                  >
+                  <label
+                    >Плотность звёзд · {pref.sky.density}%<input
+                      aria-label="Плотность звёзд"
+                      type="range"
+                      min="10"
+                      max="100"
+                      bind:value={pref.sky.density}
+                      disabled={pref.sky.mode === "none"}
+                    /></label
+                  >
+                  <label
+                    >Яркость фона · {pref.sky.brightness}%<input
+                      aria-label="Яркость фона"
+                      type="range"
+                      min="10"
+                      max="100"
+                      bind:value={pref.sky.brightness}
+                      disabled={pref.sky.mode === "none"}
+                    /></label
+                  >
+                  <label
+                    >Масштаб звёзд · {pref.sky.scale}%<input
+                      aria-label="Масштаб звёзд"
+                      type="range"
+                      min="70"
+                      max="160"
+                      bind:value={pref.sky.scale}
+                      disabled={pref.sky.mode === "none"}
+                    /></label
+                  >
+                  <label class="check"
+                    ><input
+                      type="checkbox"
+                      bind:checked={pref.sky.motion}
+                    />Движение звёзд</label
+                  >
+                  <label class="check"
+                    ><input
+                      type="checkbox"
+                      bind:checked={pref.sky.login}
+                    />Звёзды на экране входа</label
+                  >
+                  <p class="muted small">
+                    При системной настройке уменьшения движения анимация
+                    отключается.
+                  </p>
+                  <button
+                    type="button"
+                    onclick={() => {
+                      pref.sky = defaultSky();
+                    }}>Сбросить оформление неба</button
+                  >
+                </div>
+                <div
+                  class="sky-sample"
+                  role="img"
+                  aria-label="Предпросмотр звёздного фона"
+                >
+                  <SkyScene settings={pref.sky} preview />
+                  <span>Небо MikroCentauri</span>
+                </div>
               </div>
               <button disabled={busy}>Сохранить настройки</button>
             </form>

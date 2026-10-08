@@ -7,11 +7,27 @@ on server rows. Draft selection and live selection are visibly distinct.
 
 ## Visual and interaction principles
 
-The console uses neutral surfaces, restrained amber accents, small corner radii
-and aligned data rows. The star is a brand mark, rather than a repeated status
-icon. Gradients, glowing surfaces and decorative dashboard artwork are excluded.
+The interface uses a midnight-blue sky, original SVG constellations and layered
+reading surfaces. [Proton 2025](https://github.com/ChesterGoodiny/luci-theme-proton2025)
+was reviewed as an appearance reference; its assets and code are not dependencies.
 Light, dark and system themes share semantic status colors and keyboard focus
-outlines; no external fonts, graphics or animated background are required.
+outlines. Controls and server rows remain opaque for readability.
+
+System settings provide stars, constellations or a plain background, star density,
+brightness, scale, optional motion and a separate login-background switch. Changes
+preview immediately; Save persists them in private server preferences and safe
+backups. Legacy preferences and backups remain valid. Older clients that omit
+sky settings preserve the saved sky when updating preferences.
+
+The public, read-only `/api/v1/appearance` endpoint exposes only theme and bounded
+sky settings so the login screen can use saved appearance without browser storage.
+It retains TLS, origin and client restrictions; it exposes no account, routing,
+subscription or timezone data. Preference writes require authentication.
+
+The decorative sky has no input handlers, external assets or canvas loop. Its
+star count is bounded to 200, generated deterministically. Optional motion uses
+one slow CSS animation; `prefers-reduced-motion` disables it. The constellation
+artwork is illustrative, not an astronomical chart.
 
 Server rows expose protocol, address, current selection, measured latency and
 measurement time. Search and ordering help navigate larger subscriptions.
@@ -37,7 +53,7 @@ were reviewed for workflow/source coverage. Implementation and styling are origi
 
 ## Engine boundary
 
-The browser talks only to authenticated MikroCentauri endpoints. The private
+Administrative browser actions use authenticated MikroCentauri endpoints. The private
 [sing-box Clash API](https://sing-box.sagernet.org/configuration/experimental/clash-api/)
 listens on loopback with a secret. The browser cannot choose its URL, secret,
 latency target, configuration or arbitrary API method. Only active manual-group

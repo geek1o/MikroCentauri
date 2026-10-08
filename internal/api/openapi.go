@@ -17,6 +17,7 @@ import (
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
 	reads := map[string]map[string]any{
+		"appearance":             schema(reflect.TypeFor[Appearance]()),
 		"engine":                 schema(reflect.TypeFor[EngineState]()),
 		"traffic-lists/catalog":  schema(reflect.TypeFor[[]trafficlists.CatalogEntry]()),
 		"traffic-lists":          schema(reflect.TypeFor[[]trafficlists.View]()),
@@ -148,6 +149,7 @@ func OpenAPI() map[string]any {
 		}
 		entry["post"] = op
 	}
+	paths["/api/v1/appearance"].(map[string]any)["get"].(map[string]any)["security"] = []any{}
 	return map[string]any{"openapi": "3.1.0", "info": map[string]any{"title": "MikroCentauri API", "version": "0.1.0", "description": "TLS, exact origin, client CIDR policy and expiring opaque bearer sessions. No cookies. Draft writes do not apply network changes; only one-use reviewed plans can apply. Safe restores require matching local credentials."}, "paths": paths, "components": map[string]any{"securitySchemes": map[string]any{"session": map[string]any{"type": "http", "scheme": "bearer"}}, "schemas": map[string]any{"CoreModel": schema(reflect.TypeFor[coreconfig.Model]())}}}
 }
 func operation(method, path string, responses map[string]any) map[string]any {

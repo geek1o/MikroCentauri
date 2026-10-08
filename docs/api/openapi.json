@@ -622,6 +622,237 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/appearance": {
+      "get": {
+        "operationId": "get_appearance",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "sky": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "brightness": {
+                          "type": "integer"
+                        },
+                        "density": {
+                          "type": "integer"
+                        },
+                        "login": {
+                          "type": "boolean"
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "motion": {
+                          "type": "boolean"
+                        },
+                        "scale": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "density",
+                        "brightness",
+                        "scale",
+                        "motion",
+                        "login"
+                      ],
+                      "type": "object"
+                    },
+                    "theme": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "theme",
+                    "sky"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": []
+      }
+    },
     "/api/v1/auth/login": {
       "post": {
         "operationId": "post_auth_login",
@@ -1289,6 +1520,38 @@
                       "properties": {
                         "language": {
                           "type": "string"
+                        },
+                        "sky": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "brightness": {
+                              "type": "integer"
+                            },
+                            "density": {
+                              "type": "integer"
+                            },
+                            "login": {
+                              "type": "boolean"
+                            },
+                            "mode": {
+                              "type": "string"
+                            },
+                            "motion": {
+                              "type": "boolean"
+                            },
+                            "scale": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "density",
+                            "brightness",
+                            "scale",
+                            "motion",
+                            "login"
+                          ],
+                          "type": "object"
                         },
                         "theme": {
                           "type": "string"
@@ -2068,6 +2331,38 @@
                       "language": {
                         "type": "string"
                       },
+                      "sky": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "brightness": {
+                            "type": "integer"
+                          },
+                          "density": {
+                            "type": "integer"
+                          },
+                          "login": {
+                            "type": "boolean"
+                          },
+                          "mode": {
+                            "type": "string"
+                          },
+                          "motion": {
+                            "type": "boolean"
+                          },
+                          "scale": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "mode",
+                          "density",
+                          "brightness",
+                          "scale",
+                          "motion",
+                          "login"
+                        ],
+                        "type": "object"
+                      },
                       "theme": {
                         "type": "string"
                       },
@@ -2984,6 +3279,38 @@
                       "properties": {
                         "language": {
                           "type": "string"
+                        },
+                        "sky": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "brightness": {
+                              "type": "integer"
+                            },
+                            "density": {
+                              "type": "integer"
+                            },
+                            "login": {
+                              "type": "boolean"
+                            },
+                            "mode": {
+                              "type": "string"
+                            },
+                            "motion": {
+                              "type": "boolean"
+                            },
+                            "scale": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "density",
+                            "brightness",
+                            "scale",
+                            "motion",
+                            "login"
+                          ],
+                          "type": "object"
                         },
                         "theme": {
                           "type": "string"
@@ -3454,6 +3781,38 @@
                       "language": {
                         "type": "string"
                       },
+                      "sky": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "brightness": {
+                            "type": "integer"
+                          },
+                          "density": {
+                            "type": "integer"
+                          },
+                          "login": {
+                            "type": "boolean"
+                          },
+                          "mode": {
+                            "type": "string"
+                          },
+                          "motion": {
+                            "type": "boolean"
+                          },
+                          "scale": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "mode",
+                          "density",
+                          "brightness",
+                          "scale",
+                          "motion",
+                          "login"
+                        ],
+                        "type": "object"
+                      },
                       "theme": {
                         "type": "string"
                       },
@@ -4370,6 +4729,38 @@
                       "properties": {
                         "language": {
                           "type": "string"
+                        },
+                        "sky": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "brightness": {
+                              "type": "integer"
+                            },
+                            "density": {
+                              "type": "integer"
+                            },
+                            "login": {
+                              "type": "boolean"
+                            },
+                            "mode": {
+                              "type": "string"
+                            },
+                            "motion": {
+                              "type": "boolean"
+                            },
+                            "scale": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "density",
+                            "brightness",
+                            "scale",
+                            "motion",
+                            "login"
+                          ],
+                          "type": "object"
                         },
                         "theme": {
                           "type": "string"
@@ -11958,6 +12349,38 @@
                     "language": {
                       "type": "string"
                     },
+                    "sky": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "brightness": {
+                          "type": "integer"
+                        },
+                        "density": {
+                          "type": "integer"
+                        },
+                        "login": {
+                          "type": "boolean"
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "motion": {
+                          "type": "boolean"
+                        },
+                        "scale": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "density",
+                        "brightness",
+                        "scale",
+                        "motion",
+                        "login"
+                      ],
+                      "type": "object"
+                    },
                     "theme": {
                       "type": "string"
                     },
@@ -12165,6 +12588,38 @@
                   "language": {
                     "type": "string"
                   },
+                  "sky": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "brightness": {
+                        "type": "integer"
+                      },
+                      "density": {
+                        "type": "integer"
+                      },
+                      "login": {
+                        "type": "boolean"
+                      },
+                      "mode": {
+                        "type": "string"
+                      },
+                      "motion": {
+                        "type": "boolean"
+                      },
+                      "scale": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "density",
+                      "brightness",
+                      "scale",
+                      "motion",
+                      "login"
+                    ],
+                    "type": "object"
+                  },
                   "theme": {
                     "type": "string"
                   },
@@ -12192,6 +12647,38 @@
                   "properties": {
                     "language": {
                       "type": "string"
+                    },
+                    "sky": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "brightness": {
+                          "type": "integer"
+                        },
+                        "density": {
+                          "type": "integer"
+                        },
+                        "login": {
+                          "type": "boolean"
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "motion": {
+                          "type": "boolean"
+                        },
+                        "scale": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "mode",
+                        "density",
+                        "brightness",
+                        "scale",
+                        "motion",
+                        "login"
+                      ],
+                      "type": "object"
                     },
                     "theme": {
                       "type": "string"

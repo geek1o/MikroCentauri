@@ -214,6 +214,19 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reply(w, 200, map[string]bool{"live": true})
 		return
 	}
+	// Only presentation settings are public, so the login page can use them
+	// without retaining authentication or operator settings in browser storage.
+	if r.URL.Path == "/api/v1/appearance" && r.Method == "GET" {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		p, e := s.preferences()
+		if e != nil {
+			reject(w, 503, "preferences_unavailable")
+			return
+		}
+		reply(w, 200, p.Appearance())
+		return
+	}
 	if r.URL.Path == "/api/v1/auth/login" && r.Method == "POST" {
 		raw, e := readBody(w, r, 2048)
 		var input struct {

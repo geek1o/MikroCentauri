@@ -349,11 +349,6 @@ footer {
   padding: 70px 16%;
   align-self: center;
 }
-.brand-mark {
-  color: var(--accent);
-  font-size: 48px;
-  margin-bottom: 32px;
-}
 .login-card h1 {
   line-height: 1.14;
   margin: 18px 0;
@@ -373,19 +368,6 @@ footer {
   color: #84b8bb;
   position: relative;
   overflow: hidden;
-}
-.orbit {
-  border: 1px solid #3a646c;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-}
-.login-art p {
-  letter-spacing: 4px;
-  text-align: center;
-  font-size: 11px;
-  line-height: 2;
-  margin-top: 90px;
 }
 summary {
   cursor: pointer;
@@ -835,43 +817,43 @@ fieldset {
   }
 }
 
-/* Console surfaces: neutral hierarchy, compact controls and tabular server selection. */
+/* Celestial palette with opaque reading surfaces and compact server selection. */
 :root {
-  --bg: #f4f3ef;
+  --bg: #edf2f8;
   --card: #fff;
-  --ink: #22282d;
-  --muted: #59616a;
-  --line: #d9dcd9;
-  --accent: #80531f;
-  --sidebar: #23272b;
-  --tint: #eeeee9;
-  --tint-ink: #30363c;
-  --link-ink: #80531f;
+  --ink: #192b42;
+  --muted: #50617a;
+  --line: #ced9e7;
+  --accent: #205bc1;
+  --sidebar: #101d32;
+  --tint: #e4edf9;
+  --tint-ink: #243b5b;
+  --link-ink: #205bc1;
 }
 :root[data-theme="dark"] {
-  --bg: #191c1f;
-  --card: #22262a;
-  --ink: #edf0f2;
-  --muted: #b0b6bd;
-  --line: #3d444a;
-  --accent: #95682c;
-  --sidebar: #202427;
-  --tint: #30363b;
-  --tint-ink: #e5e8eb;
-  --link-ink: #e0ba7c;
+  --bg: #091323;
+  --card: #142238;
+  --ink: #eef4ff;
+  --muted: #b2c3dc;
+  --line: #334760;
+  --accent: #326bd1;
+  --sidebar: #0e1b2e;
+  --tint: #203550;
+  --tint-ink: #e8f1ff;
+  --link-ink: #a2c8ff;
 }
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] {
-    --bg: #191c1f;
-    --card: #22262a;
-    --ink: #edf0f2;
-    --muted: #b0b6bd;
-    --line: #3d444a;
-    --accent: #95682c;
-    --sidebar: #202427;
-    --tint: #30363b;
-    --tint-ink: #e5e8eb;
-    --link-ink: #e0ba7c;
+    --bg: #091323;
+    --card: #142238;
+    --ink: #eef4ff;
+    --muted: #b2c3dc;
+    --line: #334760;
+    --accent: #326bd1;
+    --sidebar: #0e1b2e;
+    --tint: #203550;
+    --tint-ink: #e8f1ff;
+    --link-ink: #a2c8ff;
   }
 }
 body {
@@ -1178,7 +1160,7 @@ textarea::placeholder {
   padding: 10px;
 }
 
-/* The console uses shared alignment and dividers instead of nested tiles. */
+/* Shared alignment and dividers keep dense routing data readable. */
 :root {
   color: var(--ink);
 }
@@ -1236,7 +1218,7 @@ nav a.active {
   box-shadow: inset 2px 0 0 #d9b77e;
 }
 nav a:hover {
-  background: #30363b;
+  background: #203550;
 }
 nav a span {
   display: none;
@@ -1482,16 +1464,6 @@ a:focus-visible {
 .login-art {
   background: var(--sidebar);
 }
-.orbit {
-  width: 170px;
-  height: 170px;
-  border-color: #565c62;
-  box-shadow: none;
-}
-.orbit span {
-  font-size: 54px;
-  color: #d9b77e;
-}
 .login-card h1 {
   font-size: 32px;
 }
@@ -1615,5 +1587,180 @@ button.primary:hover {
   .measurement-time {
     grid-column: 1 / 3;
     grid-row: 4;
+  }
+}
+
+/* Original vector sky stays behind all interaction and reading surfaces. */
+.sky-scene {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  color: #799bc7;
+}
+.sky-scene svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.shell,
+.login {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+.sidebar {
+  background: var(--sidebar);
+  border-right: 1px solid #334760;
+}
+.card,
+.server-grid,
+.catalog-card,
+.stats,
+.draftbar {
+  border-radius: 12px;
+}
+.card {
+  box-shadow: 0 8px 30px #0310260a;
+  background: var(--card);
+}
+button,
+.button-link,
+input,
+select,
+textarea {
+  border-radius: 8px;
+}
+nav a {
+  border-radius: 8px;
+}
+nav a.active {
+  background: #284b7b;
+  color: #f2f7ff;
+}
+nav a span {
+  display: inline-flex;
+  width: 18px;
+  justify-content: center;
+}
+.hero {
+  position: relative;
+  padding: 24px 0;
+}
+.login {
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: auto;
+  align-items: center;
+}
+.login-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 44px;
+  box-shadow: 0 24px 90px #020a1938;
+}
+.login-card h1 {
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -1.2px;
+}
+.login-art {
+  background: transparent;
+  color: var(--link-ink);
+  border: 0;
+}
+.celestial-mark {
+  width: min(100%, 400px);
+  height: auto;
+}
+.sky-settings {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr);
+  gap: 32px;
+  margin: 24px 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.sky-controls {
+  display: grid;
+  gap: 12px;
+}
+.sky-controls h3,
+.sky-controls p {
+  margin: 0;
+}
+.sky-controls label {
+  gap: 8px;
+}
+.sky-controls input[type="range"] {
+  width: 100%;
+  padding: 0;
+  min-height: 28px;
+  accent-color: var(--accent);
+}
+.sky-controls .check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sky-controls input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  accent-color: var(--accent);
+}
+.sky-sample {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #334760;
+  border-radius: 16px;
+  min-height: 280px;
+  background: #091323;
+  color: #b9d0ef;
+}
+.sky-sample .sky-preview {
+  position: absolute;
+  color: #b9d0ef;
+}
+.sky-sample > span {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #c5d7ee;
+}
+.sky-motion .sky-drift {
+  transform-origin: center;
+  animation: sky-drift 48s ease-in-out infinite alternate;
+}
+@keyframes sky-drift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(8px, -6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky-motion .sky-drift {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  .sky-settings {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .login {
+    padding: 22px;
+  }
+  .login-card {
+    padding: 28px;
+    width: 100%;
+  }
+  .sidebar {
+    border-right: 0;
   }
 }
