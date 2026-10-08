@@ -21,19 +21,23 @@ import (
 	"mikrocentauri.local/core/internal/coreactivation"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/subscriptions"
+	"mikrocentauri.local/core/internal/trafficlists"
 	"mikrocentauri.local/core/internal/webui"
 )
 
 type Options struct {
-	Directory     string
-	Auth          *Auth
-	Model         coreconfig.Model
-	Runtime       Runtime
-	Router        *RouterResources
-	Subscriptions *SubscriptionResources
-	Validate      func(context.Context, coreconfig.Model) error
-	Origin        string
-	Clients       []netip.Prefix
+	SimulatedSubscriptions bool
+	SimulatedRuntime       bool
+	TrafficLists           *trafficlists.Manager
+	Directory              string
+	Auth                   *Auth
+	Model                  coreconfig.Model
+	Runtime                Runtime
+	Router                 *RouterResources
+	Subscriptions          *SubscriptionResources
+	Validate               func(context.Context, coreconfig.Model) error
+	Origin                 string
+	Clients                []netip.Prefix
 }
 type draft struct {
 	Version      int              `json:"version"`
@@ -81,6 +85,12 @@ func New(o Options) (*Server, error) {
 	dir, e := PrivateDirectory(o.Directory)
 	if e != nil {
 		return nil, e
+	}
+	if o.TrafficLists == nil {
+		o.TrafficLists, e = trafficlists.New(filepath.Join(dir, "traffic-lists"), subscriptions.Policy{})
+		if e != nil {
+			return nil, e
+		}
 	}
 	m, e := o.Model.Clone()
 	if e != nil {
@@ -311,8 +321,17 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.URL.Path {
+	case "/api/v1/traffic-lists/catalog":
+		reply(w, 200, trafficlists.Catalog())
+	case "/api/v1/traffic-lists":
+		views, err := s.opts.TrafficLists.Views()
+		if err != nil {
+			reject(w, 503, "list_state_invalid")
+			return
+		}
+		reply(w, 200, views)
 	case "/api/v1/system":
-		reply(w, 200, map[string]any{"api_version": "v1", "core_schema": 2, "runtime_connected": s.opts.Runtime != nil, "status": v, "ipv6_fakeip": false})
+		reply(w, 200, map[string]any{"api_version": "v1", "core_schema": 2, "runtime_connected": s.opts.Runtime != nil, "status": v, "ipv6_fakeip": false, "runtime_simulated": s.opts.SimulatedRuntime, "subscriptions_simulated": s.opts.SimulatedSubscriptions})
 	case "/api/v1/config":
 		reply(w, 200, map[string]any{"revision": v.Revision, "model": m.Preview(), "policy": policyPreview(m)})
 	case "/api/v1/proxies":
@@ -361,7 +380,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		reject(w, 400, "invalid_request")
 		return
 	}
-	if s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
+	if s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {

@@ -274,3 +274,31 @@ func TestSubscriptionImportContinuesExactCommittedDraft(t *testing.T) {
 		t.Fatal("postcommit subscription import failed", imported.Code, imported.Body.String())
 	}
 }
+
+func TestSubscriptionImportCreatesSelectorAtomically(t *testing.T) {
+	registry, _, node := workflowRegistry(t)
+	s, _, _ := setup(t, nil)
+	s.opts.Subscriptions = registry
+	in := SubscriptionImportRequest{ID: "provider", NodeIDs: []string{node.ID}, SelectorID: "subscription-selector"}
+	w := workflowCall(s, "/api/v1/subscriptions/import", in)
+	if w.Code != 200 || s.draft == nil {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	found := false
+	for _, g := range s.draft.Model.Groups {
+		if g.ID == in.SelectorID {
+			found = g.Type == "selector" && g.Selected == node.ID && len(g.Members) == 1 && g.Members[0] == node.ID
+		}
+	}
+	if !found {
+		t.Fatal("import did not create the requested selector")
+	}
+	before, _ := json.Marshal(s.draft)
+	in.DraftRevision = s.draft.Sequence
+	in.SelectorID = "invalid selector"
+	w = workflowCall(s, "/api/v1/subscriptions/import", in)
+	after, _ := json.Marshal(s.draft)
+	if w.Code != 400 || string(before) != string(after) {
+		t.Fatal("invalid selector partially changed the draft", w.Code)
+	}
+}

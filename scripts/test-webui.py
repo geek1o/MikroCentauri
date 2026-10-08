@@ -32,22 +32,24 @@ def main():
     arch = {'x86_64':'amd64','aarch64':'arm64'}.get(platform.machine(),platform.machine())
     sb = ROOT/f'.cache/sing-box-1.14.2-{platform.system().lower()}-{arch}/sing-box'
     sb = Path(os.environ.get('SING_BOX_BINARY', str(sb)))
-    proc = subprocess.Popen([str(binary), '-sing-box', str(sb)], cwd=ROOT, text=True, stdout=subprocess.PIPE)
-    try:
-        selector = selectors.DefaultSelector()
-        selector.register(proc.stdout, selectors.EVENT_READ)
-        if not selector.select(timeout=30):
-            raise RuntimeError('HTTPS fixture startup timeout')
-        data = json.loads(proc.stdout.readline())
-        env = dict(tool_env, WEB_UI_URL=data['url'])
-        cmd = [node,str(cwd/'node_modules/playwright/cli.js'),'test']
-        if args.project: cmd += ['--project', args.project]
-        elif not args.all_browsers: cmd += ['--project','chromium','--project','webkit']
-        if args.headed: cmd += ['--headed']
-        subprocess.run(cmd, cwd=cwd, env=env, check=True)
-    finally:
-        proc.terminate()
-        try: proc.wait(timeout=10)
-        except subprocess.TimeoutExpired: proc.kill(); proc.wait()
+    projects = [args.project] if args.project else ['chromium', 'webkit'] + (['firefox'] if args.all_browsers else [])
+    # Each browser gets fresh private state and its own authentication budget.
+    for project in projects:
+        proc = subprocess.Popen([str(binary), '-sing-box', str(sb)], cwd=ROOT, text=True, stdout=subprocess.PIPE)
+        try:
+            selector = selectors.DefaultSelector()
+            selector.register(proc.stdout, selectors.EVENT_READ)
+            if not selector.select(timeout=30):
+                raise RuntimeError('HTTPS fixture startup timeout')
+            data = json.loads(proc.stdout.readline())
+            env = dict(tool_env, WEB_UI_URL=data['url'], WEB_UI_LIST_URL=data.get('list_url',''))
+            cmd = [node, str(cwd/'node_modules/playwright/cli.js'), 'test', '--project', project]
+            if args.headed: cmd += ['--headed']
+            subprocess.run(cmd, cwd=cwd, env=env, check=True)
+        finally:
+            selector.close()
+            proc.terminate()
+            try: proc.wait(timeout=10)
+            except subprocess.TimeoutExpired: proc.kill(); proc.wait()
 
 if __name__ == '__main__': main()

@@ -15,21 +15,31 @@ import (
 )
 
 type Endpoint struct {
-	Enabled        bool   `json:"enabled"`
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Protocol       string `json:"protocol"`
-	Server         string `json:"server"`
-	Port           uint16 `json:"port"`
-	UUID           string `json:"uuid,omitempty"`
-	Password       string `json:"password,omitempty"`
-	Method         string `json:"method,omitempty"`
-	TLS            bool   `json:"tls"`
-	SNI            string `json:"sni,omitempty"`
-	RealityKey     string `json:"reality_key,omitempty"`
-	RealityShortID string `json:"reality_short_id,omitempty"`
-	Fingerprint    string `json:"fingerprint,omitempty"`
-	Flow           string `json:"flow,omitempty"`
+	Transport         string   `json:"transport,omitempty"`
+	TransportHost     string   `json:"transport_host,omitempty"`
+	TransportPath     string   `json:"transport_path,omitempty"`
+	ServiceName       string   `json:"service_name,omitempty"`
+	ALPN              []string `json:"alpn,omitempty"`
+	Obfs              string   `json:"obfs,omitempty"`
+	ObfsPassword      string   `json:"obfs_password,omitempty"`
+	CongestionControl string   `json:"congestion_control,omitempty"`
+	UDPRelayMode      string   `json:"udp_relay_mode,omitempty"`
+	AlterID           int      `json:"alter_id,omitempty"`
+	Enabled           bool     `json:"enabled"`
+	ID                string   `json:"id"`
+	Name              string   `json:"name"`
+	Protocol          string   `json:"protocol"`
+	Server            string   `json:"server"`
+	Port              uint16   `json:"port"`
+	UUID              string   `json:"uuid,omitempty"`
+	Password          string   `json:"password,omitempty"`
+	Method            string   `json:"method,omitempty"`
+	TLS               bool     `json:"tls"`
+	SNI               string   `json:"sni,omitempty"`
+	RealityKey        string   `json:"reality_key,omitempty"`
+	RealityShortID    string   `json:"reality_short_id,omitempty"`
+	Fingerprint       string   `json:"fingerprint,omitempty"`
+	Flow              string   `json:"flow,omitempty"`
 }
 
 type Preview struct {
@@ -39,8 +49,11 @@ type Preview struct {
 }
 
 func (e Endpoint) Preview() Preview {
-	transport := "tcp"
-	if e.Protocol == "hysteria2" {
+	transport := e.Transport
+	if transport == "" {
+		transport = "tcp"
+	}
+	if e.Protocol == "hysteria2" || e.Protocol == "tuic" {
 		transport = "quic"
 	}
 	return Preview{e.ID, e.Name, e.Protocol, e.Server, transport, e.SNI, e.Fingerprint, e.Port, e.TLS, e.RealityKey != "", e.Enabled}
@@ -48,7 +61,7 @@ func (e Endpoint) Preview() Preview {
 func failure() (Endpoint, error) {
 	return Endpoint{}, errors.New("invalid or unsupported endpoint URI")
 }
-func ParseURI(raw string) (Endpoint, error) {
+func parseBasicURI(raw string) (Endpoint, error) {
 	if len(raw) > 16384 || strings.ContainsAny(raw, "\r\n\x00") {
 		return failure()
 	}
@@ -172,7 +185,7 @@ func ParseURI(raw string) (Endpoint, error) {
 	return e, nil
 }
 
-var ssMethods = map[string]bool{"aes-128-gcm": true, "aes-192-gcm": true, "aes-256-gcm": true, "chacha20-ietf-poly1305": true, "xchacha20-ietf-poly1305": true}
+var ssMethods = map[string]bool{"2022-blake3-aes-128-gcm": true, "2022-blake3-aes-256-gcm": true, "2022-blake3-chacha20-poly1305": true, "aes-128-gcm": true, "aes-192-gcm": true, "aes-256-gcm": true, "chacha20-ietf-poly1305": true, "xchacha20-ietf-poly1305": true}
 
 func decode64(s string) ([]byte, error) {
 	for _, enc := range []*base64.Encoding{base64.RawURLEncoding, base64.URLEncoding, base64.RawStdEncoding, base64.StdEncoding} {
@@ -203,7 +216,7 @@ func validHost(s string) bool {
 }
 func (e Endpoint) Outbound(tag string) map[string]any {
 	m := map[string]any{"type": e.Protocol, "tag": tag, "server": e.Server, "server_port": e.Port}
-	if e.Protocol == "vless" {
+	if e.Protocol == "vless" || e.Protocol == "vmess" || e.Protocol == "tuic" {
 		m["uuid"] = e.UUID
 		if e.Flow != "" {
 			m["flow"] = e.Flow
@@ -211,12 +224,43 @@ func (e Endpoint) Outbound(tag string) map[string]any {
 	} else {
 		m["password"] = e.Password
 	}
+	if e.Protocol == "vmess" {
+		m["security"] = e.Method
+		if e.AlterID != 0 {
+			m["alter_id"] = e.AlterID
+		}
+	}
+	if e.Protocol == "tuic" {
+		m["password"] = e.Password
+		if e.CongestionControl != "" {
+			m["congestion_control"] = e.CongestionControl
+		}
+		if e.UDPRelayMode != "" {
+			m["udp_relay_mode"] = e.UDPRelayMode
+		}
+	}
+	if e.Obfs != "" {
+		m["obfs"] = map[string]any{"type": e.Obfs, "password": e.ObfsPassword}
+	}
+	if e.Transport == "ws" {
+		t := map[string]any{"type": "ws", "path": e.TransportPath}
+		if e.TransportHost != "" {
+			t["headers"] = map[string]string{"Host": e.TransportHost}
+		}
+		m["transport"] = t
+	}
+	if e.Transport == "grpc" {
+		m["transport"] = map[string]any{"type": "grpc", "service_name": e.ServiceName}
+	}
 	if e.Protocol == "ss" {
 		m["type"] = "shadowsocks"
 		m["method"] = e.Method
 	}
 	if e.TLS {
 		t := map[string]any{"enabled": true}
+		if len(e.ALPN) > 0 {
+			t["alpn"] = e.ALPN
+		}
 		if e.SNI != "" {
 			t["server_name"] = e.SNI
 		}
@@ -266,7 +310,7 @@ func (e Endpoint) Validate() error {
 			return errors.New("invalid endpoint")
 		}
 		raw = "ss://" + url.UserPassword(e.Method, e.Password).String() + "@" + host
-	case "trojan", "hysteria2":
+	case "trojan", "hysteria2", "tuic":
 		if !e.TLS {
 			return errors.New("invalid endpoint")
 		}
@@ -274,13 +318,48 @@ func (e Endpoint) Validate() error {
 			q.Set("sni", e.SNI)
 		}
 		raw = e.Protocol + "://" + url.User(e.Password).String() + "@" + host
+		if e.Protocol == "tuic" {
+			raw = "tuic://" + url.UserPassword(e.UUID, e.Password).String() + "@" + host
+			if e.CongestionControl != "" {
+				q.Set("congestion_control", e.CongestionControl)
+			}
+			if e.UDPRelayMode != "" {
+				q.Set("udp_relay_mode", e.UDPRelayMode)
+			}
+		}
+		if e.Protocol == "trojan" && e.Fingerprint != "" {
+			q.Set("fp", e.Fingerprint)
+		}
+		if e.Obfs != "" {
+			q.Set("obfs", e.Obfs)
+			q.Set("obfs-password", e.ObfsPassword)
+		}
+	case "vmess":
+		raw = vmessURI(e)
 	default:
 		return errors.New("invalid endpoint")
 	}
-	if len(q) > 0 {
-		raw += "?" + q.Encode()
+	if e.Protocol != "vmess" {
+		if len(e.ALPN) > 0 {
+			q.Set("alpn", strings.Join(e.ALPN, ","))
+		}
+		if e.Transport != "" {
+			q.Set("type", e.Transport)
+			if e.Transport == "ws" {
+				q.Set("host", e.TransportHost)
+				q.Set("path", e.TransportPath)
+			}
+			if e.Transport == "grpc" {
+				q.Set("serviceName", e.ServiceName)
+			}
+		}
+		if len(q) > 0 {
+			raw += "?" + q.Encode()
+		}
 	}
-	raw += "#" + url.PathEscape(e.Name)
+	if e.Protocol != "vmess" {
+		raw += "#" + url.PathEscape(e.Name)
+	}
 	rebuilt, err := ParseURI(raw)
 	if err != nil {
 		return errors.New("invalid endpoint")

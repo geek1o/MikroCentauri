@@ -39,3 +39,39 @@ Phase-2 native tests and private controller journal setup are described in
 `internal/dnsgate` enforces it on UDP/TCP DNS responses. `PublishAlias` preserves
 sing-box's allocator; standalone `Publish` is a protocol fixture, not an injection
 API into the engine. The RouterOS mapping backend and dynamic gateway stay lab-only.
+
+## Interactive browser preview
+
+`python3 scripts/test-webui.py` uses a disposable HTTPS API with a simulated
+RouterOS/runtime, a deterministic one-node subscription fixture, and a local
+TLS domain-list source. Chromium and WebKit cover import, list assignment,
+selector changes, configuration planning and responsive theme contrast. This
+is a browser contract, not proof of traffic forwarding through RouterOS.
+
+For manual testing, build `./tests/e2e/webui/fixture` and start it with
+`-real-subscriptions -state <private-directory> -listen 127.0.0.1:<port>`
+and `-sing-box <pinned-validator>`. This mode downloads actual subscription
+sources using the production TLS/DNS-pinning policy and persists private state.
+RouterOS and apply remain simulated and are labelled in the interface. Do not
+use the default deterministic provider mode to evaluate a real subscription.
+The loopback preview uses a self-signed certificate and a disposable lab password;
+it must not be exposed to a network.
+
+## Domain lists and subscription imports
+
+The site-list catalog references `itdoginfo/allow-domains`; custom sources are
+HTTPS text files with one domain per line. Downloads are validated, deduplicated,
+and persisted privately before being expanded into draft domain-suffix rules.
+Each list has an outbound selector. Refresh preserves its assigned route.
+Applying still requires a reviewed configuration plan. Refresh is manual; there
+is no scheduled site-list updater. Bounds are 4096 domains and 64 cached sources.
+
+Subscription sources accept text/Base64 URI lists. Supported profiles include
+SS, Trojan, VLESS, VMess, Hysteria2 and TUIC, with the supported TLS/Reality and
+WS/gRPC options checked against the pinned engine. Clash YAML and engine JSON
+are not URI lists. Mixed URI lists retain supported endpoints and report the
+line, protocol and safe rejection reason for skipped entries. XHTTP, custom
+gRPC authority and disabled TLS verification are rejected. Failed refreshes
+retain the last valid cache. Import can atomically create or extend a selector.
+Source URLs, credentials and rejected raw lines are never included in public
+resource projections or rejection reports.

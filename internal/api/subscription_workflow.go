@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"mikrocentauri.local/core/internal/config"
+	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
 	"mikrocentauri.local/core/internal/subscriptions"
 )
@@ -24,6 +25,7 @@ type SubscriptionDeleteRequest struct {
 	ID string `json:"id"`
 }
 type SubscriptionImportRequest struct {
+	SelectorID    string   `json:"selector_id,omitempty"`
 	ID            string   `json:"id"`
 	NodeIDs       []string `json:"node_ids"`
 	DraftRevision uint64   `json:"draft_revision"`
@@ -222,6 +224,42 @@ func (s *Server) subscriptionWorkflow(w http.ResponseWriter, r *http.Request, ra
 		if !replaced {
 			node.Enabled = true
 			m.Endpoints = append(m.Endpoints, node)
+		}
+	}
+	if in.SelectorID != "" {
+		members := []string{}
+		enabled := map[string]bool{}
+		for _, node := range m.Endpoints {
+			enabled[node.ID] = node.Enabled
+		}
+		for _, node := range nodes {
+			if enabled[node.ID] {
+				members = append(members, node.ID)
+			}
+		}
+		if len(members) == 0 {
+			reject(w, 400, "invalid_subscription_selection")
+			return true
+		}
+		found := false
+		for i, g := range m.Groups {
+			if g.ID == in.SelectorID {
+				known := map[string]bool{}
+				for _, id := range g.Members {
+					known[id] = true
+				}
+				for _, id := range members {
+					if !known[id] {
+						g.Members = append(g.Members, id)
+					}
+				}
+				m.Groups[i] = g
+				found = true
+				break
+			}
+		}
+		if !found {
+			m.Groups = append(m.Groups, coreconfig.Group{ID: in.SelectorID, Type: "selector", Members: members, Selected: members[0]})
 		}
 	}
 	if m.Validate() != nil || s.validate(r.Context(), baseRevision, m) != nil {

@@ -88,6 +88,8 @@ type Spec struct {
 	Exclude string `json:"exclude,omitempty"`
 }
 type State struct {
+	SourceCount   int                  `json:"source_count,omitempty"`
+	Issues        []ImportIssue        `json:"issues,omitempty"`
 	ID            string               `json:"id"`
 	LastAttempt   time.Time            `json:"last_attempt"`
 	LastSuccess   time.Time            `json:"last_success"`
@@ -296,9 +298,21 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 	if err != nil {
 		return fail("subscription download failed")
 	}
-	nodes, err := m.parser.Parse(b)
-	if err != nil {
-		return fail("subscription validation failed")
+	var nodes []endpoints.Endpoint
+	var issues []ImportIssue
+	sourceCount := 0
+	if parser, ok := m.parser.(ReportingParser); ok {
+		report, parseErr := parser.ParseReport(b)
+		nodes, issues, sourceCount = report.Nodes, report.Issues, report.SourceCount
+		if parseErr != nil {
+			return fail("subscription validation failed")
+		}
+	} else {
+		nodes, err = m.parser.Parse(b)
+		if err != nil {
+			return fail("subscription validation failed")
+		}
+		sourceCount = len(nodes)
 	}
 	if len(nodes) == 0 || len(nodes) > 4096 {
 		return fail("subscription node count invalid")
@@ -321,6 +335,8 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 		return fail("subscription selection is empty")
 	}
 	s.Nodes = filtered
+	s.SourceCount = sourceCount
+	s.Issues = issues
 	s.ImportedCount = len(filtered)
 	s.LastSuccess = s.LastAttempt
 	s.Failure = ""
@@ -440,6 +456,12 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 		return nil, errors.New("subscription body invalid")
 	}
 	return b, nil
+}
+
+// Download shares the HTTPS, DNS-pinning and response-size policy with other
+// operator-selected text sources. It does not parse or persist a subscription.
+func (m *Manager) Download(ctx context.Context, raw string) ([]byte, error) {
+	return m.download(ctx, raw)
 }
 
 func (m *Manager) lock() (func(), error) {

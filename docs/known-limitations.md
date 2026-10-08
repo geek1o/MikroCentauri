@@ -27,3 +27,17 @@ release manifest and current release report. Image construction alone does not
 prove registry upload, catalog hosting, source-distribution completeness or
 native runtime qualification. Historical reports retain their original scope;
 the Phase 7 completion report supersedes earlier open hardening observations.
+
+### Site-list scope
+
+Downloaded lists expand into domain-suffix policy rules. SOCKS requests and
+already admitted native DNS names can match those suffixes. Native DNS admission
+still uses a finite reviewed namespace: list import admits the literal domain
+roots, not every possible subdomain. Add required subdomains explicitly. This
+catalog does not provide IP-subnet lists or guarantee coverage of alternate DNS,
+IPv6, or voice endpoints addressed directly by IP. The catalog UI does not imply
+complete Podkop/Forkop packet-path equivalence.
+
+The upstream broad Block list contains a top-level suffix (`.ua`) outside the
+current domain model. It is excluded from the ready catalog; parsing does not
+silently discard this rule. Service lists and GeoBlock are supported.

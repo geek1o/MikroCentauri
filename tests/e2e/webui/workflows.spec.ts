@@ -22,7 +22,7 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
     await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
     return result.json();
   };
-  for(const name of ['Начальная настройка','Прокси','Подписки','Группы','Правила','Устройства','DNS','Диагностика','Система','Обзор']) {
+  for(const name of ['Начальная настройка','Прокси','Подписки','Списки сайтов','Селекторы','Правила','Устройства','DNS','Диагностика','Система','Обзор']) {
     await navigate(name);
     expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});
   }
@@ -64,7 +64,7 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   expect((await deleted).ok()).toBe(true);
   await expect(spare).toHaveCount(0);
 
-  await navigate('Группы');
+  await navigate('Селекторы');
   await page.getByLabel('ID группы',{exact:true}).fill(prefix+'-group');
   await page.getByRole('group',{name:'Участники группы'}).getByLabel(prefix+' proxy',{exact:true}).check();
   await mutate('Сохранить группу','config/draft/policy');
@@ -124,7 +124,10 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   await mutate('Сохранить расписание','subscriptions/schedule');
 
   await navigate('Диагностика');
-  expect((await mutate('Проверить sing-box','diagnostics/run')).success).toBe(true);
+  const coreCard=page.locator('.diagnostic-card').filter({has:page.getByRole('heading',{name:'Конфигурация движка',exact:true})});
+  const coreResponse=page.waitForResponse(r=>r.url().endsWith('/diagnostics/run'));
+  await coreCard.getByRole('button',{name:'Проверить',exact:true}).click();
+  expect((await (await coreResponse).json()).success).toBe(true);
   const diagDownload=page.waitForEvent('download');
   await page.getByRole('button',{name:'Скачать диагностику'}).click();
   expect((await diagDownload).suggestedFilename()).toBe('mikrocentauri-diagnostics.tar.gz');
@@ -206,5 +209,66 @@ test('IPv6 settings never claim packet isolation when disabled or unavailable', 
       await expect(notice).not.toContainText('Default routes обнаружено:');
     }
     await page.unroute('**/api/v1/routeros/network');
+  }
+});
+
+test('downloaded domain lists, visible selectors and readable system themes', async ({page}, info)=>{
+  test.setTimeout(120_000);
+  await page.goto('/');
+  await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');
+  await page.getByRole('button',{name:'Войти',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+  await expect(page.getByRole('note').filter({hasText:'Тестовый стенд'})).toBeVisible();
+  const navigate=async(name:string)=>{await page.getByRole('navigation').getByRole('link',{name,exact:true}).click();await expect(page.getByRole('heading',{name,level:1,exact:true})).toBeVisible()};
+  await navigate('Списки сайтов');
+  await expect(page.locator('.list-card')).toHaveCount(11);
+  await page.getByLabel('Найти список').fill('youtube');
+  await expect(page.locator('.list-card')).toHaveCount(1);
+  await page.getByLabel('Найти список').fill('');
+  await page.getByLabel('Маршрут для выбранных списков').selectOption('proxy');
+  const listName=info.project.name+' HTTPS browser list';
+  await page.getByLabel('Название списка',{exact:true}).fill(listName);
+  await page.getByLabel('URL списка',{exact:true}).fill(process.env.WEB_UI_LIST_URL!);
+  const response=page.waitForResponse(r=>r.url().endsWith('/traffic-lists/import'));
+  await page.getByRole('button',{name:'Скачать и добавить свой список',exact:true}).click();
+  expect((await response).status()).toBe(200);
+  await expect(page.getByText(listName,{exact:true})).toBeVisible();
+  await expect(page.getByLabel('URL списка',{exact:true})).toHaveValue('');
+  await expect(page.locator('.row').filter({hasText:listName})).toContainText('2 доменов');
+  await page.screenshot({path: '../../../.cache/webui/lists-'+info.project.name+'.png',fullPage:true});
+  await navigate('Подписки');
+  await page.getByLabel('ID подписки',{exact:true}).fill('selector-test');
+  await page.getByLabel('HTTPS URL',{exact:true}).fill('https://provider.example/selector-test');
+  await page.getByRole('button',{name:'Сохранить подписку',exact:true}).click();
+  await expect(page.getByLabel('Subscription node · ss',{exact:true})).toBeVisible();
+  await page.getByLabel('Subscription node · ss',{exact:true}).check();
+  const imported=page.waitForResponse(r=>r.url().endsWith('/subscriptions/import'));
+  await page.getByRole('button',{name:'Импортировать выбранные',exact:true}).click();
+  expect((await imported).status()).toBe(200);
+  await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+  await navigate('Селекторы');
+  const selector=page.getByRole('combobox',{name:'Сервер для proxy',exact:true});
+  expect(await selector.locator('option').count()).toBeGreaterThan(1);
+  const values=await selector.locator('option').evaluateAll(options=>options.map(x=>(x as HTMLOptionElement).value));
+  const chosen=values.find(x=>x!==''&&x!==values[0])!;
+  const selected=page.waitForResponse(r=>r.url().endsWith('/config/draft/policy'));
+  await selector.selectOption(chosen);expect((await selected).status()).toBe(200);
+  await expect(selector).toHaveValue(chosen);
+  for(const width of [1280,390]){
+    await page.setViewportSize({width,height:900});
+    for(const theme of ['light','dark','system']){
+      await page.emulateMedia({colorScheme:theme==='light'?'light':'dark'});
+      await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+      const contrast=await page.evaluate(()=>{
+        const rgb=(value:string)=>value.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});
+        const lum=(v:number[])=>v[0]*.2126+v[1]*.7152+v[2]*.0722;
+        const box=document.querySelector('.draftbar')!,text=box.querySelector('strong')!;
+        const a=lum(rgb(getComputedStyle(box).backgroundColor)),b=lum(rgb(getComputedStyle(text).color));
+        return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+      });
+      await page.screenshot({path: '../../../.cache/webui/selectors-'+info.project.name+'-'+width+'-'+theme+'.png',fullPage:true});
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+    }
   }
 });

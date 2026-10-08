@@ -49,6 +49,21 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "alpn": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                },
+                "alter_id": {
+                  "type": "integer"
+                },
+                "congestion_control": {
+                  "type": "string"
+                },
                 "enabled": {
                   "type": "boolean"
                 },
@@ -65,6 +80,12 @@
                   "type": "string"
                 },
                 "name": {
+                  "type": "string"
+                },
+                "obfs": {
+                  "type": "string"
+                },
+                "obfs_password": {
                   "type": "string"
                 },
                 "password": {
@@ -85,11 +106,26 @@
                 "server": {
                   "type": "string"
                 },
+                "service_name": {
+                  "type": "string"
+                },
                 "sni": {
                   "type": "string"
                 },
                 "tls": {
                   "type": "boolean"
+                },
+                "transport": {
+                  "type": "string"
+                },
+                "transport_host": {
+                  "type": "string"
+                },
+                "transport_path": {
+                  "type": "string"
+                },
+                "udp_relay_mode": {
+                  "type": "string"
                 },
                 "uuid": {
                   "type": "string"
@@ -13649,6 +13685,32 @@
                       "imported_count": {
                         "type": "integer"
                       },
+                      "issues": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "line": {
+                              "type": "integer"
+                            },
+                            "protocol": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "line",
+                            "protocol",
+                            "code"
+                          ],
+                          "type": "object"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
                       "last_attempt": {
                         "format": "date-time",
                         "type": "string"
@@ -13720,9 +13782,14 @@
                       },
                       "offset": {
                         "type": "integer"
+                      },
+                      "source_count": {
+                        "type": "integer"
                       }
                     },
                     "required": [
+                      "source_count",
+                      "issues",
                       "node_count",
                       "offset",
                       "has_more",
@@ -14458,6 +14525,9 @@
                     "minItems": 1,
                     "type": "array",
                     "uniqueItems": true
+                  },
+                  "selector_id": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -14750,6 +14820,32 @@
                     "imported_count": {
                       "type": "integer"
                     },
+                    "issues": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "line": {
+                            "type": "integer"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "line",
+                          "protocol",
+                          "code"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
                     "last_attempt": {
                       "format": "date-time",
                       "type": "string"
@@ -14821,9 +14917,14 @@
                     },
                     "offset": {
                       "type": "integer"
+                    },
+                    "source_count": {
+                      "type": "integer"
                     }
                   },
                   "required": [
+                    "source_count",
+                    "issues",
                     "node_count",
                     "offset",
                     "has_more",
@@ -15080,6 +15181,32 @@
                     "imported_count": {
                       "type": "integer"
                     },
+                    "issues": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "line": {
+                            "type": "integer"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "line",
+                          "protocol",
+                          "code"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
                     "last_attempt": {
                       "format": "date-time",
                       "type": "string"
@@ -15151,9 +15278,14 @@
                     },
                     "offset": {
                       "type": "integer"
+                    },
+                    "source_count": {
+                      "type": "integer"
                     }
                   },
                   "required": [
+                    "source_count",
+                    "issues",
                     "node_count",
                     "offset",
                     "has_more",
@@ -15379,6 +15511,32 @@
                             "imported_count": {
                               "type": "integer"
                             },
+                            "issues": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "line": {
+                                    "type": "integer"
+                                  },
+                                  "protocol": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "line",
+                                  "protocol",
+                                  "code"
+                                ],
+                                "type": "object"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
                             "last_attempt": {
                               "format": "date-time",
                               "type": "string"
@@ -15450,9 +15608,14 @@
                             },
                             "offset": {
                               "type": "integer"
+                            },
+                            "source_count": {
+                              "type": "integer"
                             }
                           },
                           "required": [
+                            "source_count",
+                            "issues",
                             "node_count",
                             "offset",
                             "has_more",
@@ -15988,6 +16151,9 @@
                     "runtime_connected": {
                       "type": "boolean"
                     },
+                    "runtime_simulated": {
+                      "type": "boolean"
+                    },
                     "status": {
                       "additionalProperties": false,
                       "properties": {
@@ -16007,6 +16173,9 @@
                         "pending"
                       ],
                       "type": "object"
+                    },
+                    "subscriptions_simulated": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
@@ -16014,7 +16183,9 @@
                     "core_schema",
                     "ipv6_fakeip",
                     "runtime_connected",
-                    "status"
+                    "runtime_simulated",
+                    "status",
+                    "subscriptions_simulated"
                   ],
                   "type": "object"
                 }
@@ -16475,6 +16646,728 @@
                     "revision",
                     "ready",
                     "pending"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/traffic-lists": {
+      "get": {
+        "operationId": "get_traffic-lists",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "domain_count": {
+                        "type": "integer"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "sample": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": [
+                          "array",
+                          "null"
+                        ]
+                      },
+                      "sha256": {
+                        "type": "string"
+                      },
+                      "updated_at": {
+                        "format": "date-time",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "domain_count",
+                      "sha256",
+                      "updated_at",
+                      "sample"
+                    ],
+                    "type": "object"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/traffic-lists/catalog": {
+      "get": {
+        "operationId": "get_traffic-lists_catalog",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "description": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "description",
+                      "url"
+                    ],
+                    "type": "object"
+                  },
+                  "type": [
+                    "array",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/traffic-lists/import": {
+      "post": {
+        "operationId": "post_traffic-lists_import",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "custom": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "url"
+                    ],
+                    "type": "object"
+                  },
+                  "draft_revision": {
+                    "type": "integer"
+                  },
+                  "ids": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": [
+                      "array",
+                      "null"
+                    ]
+                  },
+                  "outbound": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "draft_revision",
+                  "ids",
+                  "outbound"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_revision": {
+                      "type": "integer"
+                    },
+                    "domain_count": {
+                      "type": "integer"
+                    },
+                    "draft_revision": {
+                      "type": "integer"
+                    },
+                    "imported": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "draft_revision",
+                    "base_revision",
+                    "imported",
+                    "domain_count"
                   ],
                   "type": "object"
                 }

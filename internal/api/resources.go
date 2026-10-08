@@ -62,15 +62,17 @@ type SubscriptionManager interface {
 	Refresh(context.Context, subscriptions.Spec) (subscriptions.State, error)
 }
 type SubscriptionView struct {
-	NodeCount     int                 `json:"node_count"`
-	Offset        int                 `json:"offset"`
-	HasMore       bool                `json:"has_more"`
-	ID            string              `json:"id"`
-	LastAttempt   time.Time           `json:"last_attempt"`
-	LastSuccess   time.Time           `json:"last_success"`
-	Failed        bool                `json:"failed"`
-	ImportedCount int                 `json:"imported_count"`
-	Nodes         []endpoints.Preview `json:"nodes"`
+	SourceCount   int                         `json:"source_count"`
+	Issues        []subscriptions.ImportIssue `json:"issues"`
+	NodeCount     int                         `json:"node_count"`
+	Offset        int                         `json:"offset"`
+	HasMore       bool                        `json:"has_more"`
+	ID            string                      `json:"id"`
+	LastAttempt   time.Time                   `json:"last_attempt"`
+	LastSuccess   time.Time                   `json:"last_success"`
+	Failed        bool                        `json:"failed"`
+	ImportedCount int                         `json:"imported_count"`
+	Nodes         []endpoints.Preview         `json:"nodes"`
 }
 type SubscriptionResources struct {
 	lock           *os.File
@@ -184,7 +186,10 @@ func subscriptionPreview(state subscriptions.State) SubscriptionView {
 	return subscriptionPage(state, 0, 128)
 }
 func subscriptionPage(state subscriptions.State, offset, limit int) SubscriptionView {
-	v := SubscriptionView{ID: state.ID, LastAttempt: state.LastAttempt, LastSuccess: state.LastSuccess, Failed: state.Failure != "", ImportedCount: state.ImportedCount, Nodes: []endpoints.Preview{}, NodeCount: len(state.Nodes), Offset: offset}
+	v := SubscriptionView{SourceCount: state.SourceCount, Issues: append([]subscriptions.ImportIssue{}, state.Issues...), ID: state.ID, LastAttempt: state.LastAttempt, LastSuccess: state.LastSuccess, Failed: state.Failure != "", ImportedCount: state.ImportedCount, Nodes: []endpoints.Preview{}, NodeCount: len(state.Nodes), Offset: offset}
+	if offset >= len(state.Nodes) {
+		return v
+	}
 	end := min(offset+limit, len(state.Nodes))
 	v.HasMore = end < len(state.Nodes)
 	for _, node := range state.Nodes[offset:end] {

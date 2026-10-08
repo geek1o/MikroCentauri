@@ -22,7 +22,8 @@
     ["setup", "Начальная настройка", "◇"],
     ["proxies", "Прокси", "↗"],
     ["subscriptions", "Подписки", "↻"],
-    ["groups", "Группы", "◎"],
+    ["lists", "Списки сайтов", "▤"],
+    ["groups", "Селекторы", "◎"],
     ["rules", "Правила", "≡"],
     ["devices", "Устройства", "▣"],
     ["dns", "DNS", "⌁"],
@@ -44,16 +45,98 @@
     subscriptions = $state<any[]>([]),
     logs = $state<any[]>([]),
     plan = $state<any>();
+  let catalog = $state<any[]>([]),
+    listSnapshots = $state<any[]>([]);
+  let selectedLists = $state<string[]>([]),
+    listSearch = $state(""),
+    listOutbound = $state("");
+  let customList = $state({ name: "", url: "" });
+  let importSelector = $state("proxy");
+  let nodeSearch = $state(""),
+    diagnosticDetails = $state<Record<string, any>>({});
+  const diagnosticCards = [
+    {
+      id: "routeros",
+      title: "Связь с MikroTik",
+      description: "Доступность API и сведения о роутере.",
+      hint: "Проверьте адрес RouterOS, сертификат и учётную запись.",
+      page: "setup",
+    },
+    {
+      id: "core",
+      title: "Конфигурация движка",
+      description: "Проверка конфигурации настоящим sing-box.",
+      hint: "Проверьте серверы, участников селекторов и правила.",
+      page: "groups",
+    },
+    {
+      id: "subscription",
+      title: "Подписки",
+      description: "Загрузка всех настроенных подписок и подсчёт серверов.",
+      hint: "Проверьте URL, формат ответа и фильтры серверов.",
+      page: "subscriptions",
+    },
+    {
+      id: "direct",
+      title: "Интернет напрямую",
+      description: "Доступность контрольного адреса без прокси.",
+      hint: "Проверьте основной маршрут и подключение к интернету.",
+      page: "setup",
+    },
+    {
+      id: "proxy",
+      title: "Соединение через прокси",
+      description: "Контрольный запрос через настроенный прокси.",
+      hint: "Выберите работающий сервер и проверьте параметры подключения.",
+      page: "groups",
+    },
+    {
+      id: "dns",
+      title: "Разрешение доменов",
+      description: "Ответ настроенного DNS-шлюза для выбранного домена.",
+      hint: "Проверьте DNS и список допущенных доменов.",
+      page: "dns",
+    },
+    {
+      id: "routing",
+      title: "Применённые маршруты",
+      description: "Соответствие маршрутов утверждённому сетевому профилю.",
+      hint: "Проверьте профиль RouterOS и права контейнера.",
+      page: "rules",
+    },
+    {
+      id: "watchdog",
+      title: "Защита при сбое",
+      description: "Соответствие защитных правил и наблюдателя профилю.",
+      hint: "Проверьте защитные правила RouterOS. Эта проверка не имитирует отказ.",
+      page: "setup",
+    },
+  ];
+  let visibleCatalog = $derived(
+    catalog.filter((x) =>
+      (x.name + " " + x.description)
+        .toLowerCase()
+        .includes(listSearch.toLowerCase()),
+    ),
+  );
   let pref = $state({ language: "ru", theme: "system", time_zone: "UTC" }),
     uris = $state("");
   let schedule = $state<any>(),
     scheduleEnabled = $state(false),
     scheduleMinutes = $state(60),
     resourceErrors = $state<Record<string, string>>({});
-  let sub = $state({ id: "", url: "", include: "", exclude: "" }),
+  let sub = $state({ id: "main", url: "", include: "", exclude: "" }),
     selectedNodes = $state<string[]>([]),
     provider = $state<any>(),
     offset = $state(0);
+  let visibleNodes = $derived(
+    (provider?.nodes || []).filter((x: any) =>
+      (x.Name + " " + x.Server + " " + x.Protocol)
+        .toLowerCase()
+        .includes(nodeSearch.toLowerCase()),
+    ),
+  );
+
   let group = $state({
       id: "",
       type: "selector",
@@ -184,7 +267,17 @@
   async function load() {
     current = await api<Config>("config");
     config = (await optional("config/draft")) || copy(current);
+    if (config) {
+      config.model.groups ||= [];
+      config.model.endpoints ||= [];
+      config.policy.rules ||= [];
+      config.policy.dns.selected_domains ||= [];
+    }
     system = await api("system");
+    catalog = (await optional("traffic-lists/catalog")) || [];
+    listSnapshots = (await optional("traffic-lists")) || [];
+    if (!outbounds.includes(listOutbound))
+      listOutbound = config?.model.groups[0]?.id || "direct";
     info = await optional("system/info");
     router = await optional("routeros");
     network = await optional("routeros/network");
@@ -282,6 +375,38 @@
       tolerance: g.tolerance || 50,
     };
   }
+  async function switchNode(id: string, selected: string) {
+    await savePolicy((c) => {
+      const g = c.model.groups.find((x) => x.id === id);
+      if (g) g.selected = selected;
+    });
+    notice =
+      "Сервер выбран в черновике. Проверьте и примените изменения в верхней панели.";
+  }
+  async function importLists(
+    ids = selectedLists,
+    custom = false,
+    outbound = listOutbound,
+  ) {
+    const source = custom
+      ? {
+          id: "custom-" + Date.now(),
+          name: customList.name,
+          url: customList.url,
+        }
+      : undefined;
+    const result = await api("traffic-lists/import", {
+      draft_revision: revision,
+      ids: custom ? [] : ids,
+      outbound,
+      ...(source ? { custom: source } : {}),
+    });
+    selectedLists = [];
+    customList = { name: "", url: "" };
+    plan = undefined;
+    await load();
+    notice = `Добавлено списков: ${result.imported}. Маршрут — ${labelFor(outbound)}. Проверьте и примените черновик.`;
+  }
   async function saveGroup() {
     if (!groupMembers.length) throw new APIError("empty_group", 400);
     const g: Group = {
@@ -289,7 +414,10 @@
       type: group.type,
       members: [...groupMembers],
     };
-    if (g.type === "selector" && group.selected) g.selected = group.selected;
+    if (g.type === "selector")
+      g.selected = groupMembers.includes(group.selected)
+        ? group.selected
+        : groupMembers[0];
     if (g.type !== "selector") {
       g.interval = group.interval;
       g.tolerance = Number(group.tolerance);
@@ -430,6 +558,7 @@
     notice = "Прокси удалён из черновика.";
   }
   async function inspect(id: string, start = 0) {
+    nodeSearch = "";
     provider = await api("subscriptions/inspect", {
       id,
       offset: start,
@@ -440,30 +569,54 @@
   }
   async function diagnose(kind: string) {
     checks[kind] = "Проверка…";
+    diagnosticDetails[kind] = { state: "running" };
     try {
       if (kind === "routeros") {
         router = await api("routeros");
         network = await api("routeros/network");
-        checks[kind] = "REST API отвечает; данные получены";
+        checks[kind] = system?.runtime_simulated
+          ? "Данные RouterOS симулируются на этом стенде"
+          : "MikroTik отвечает; данные получены";
+        diagnosticDetails[kind] = {
+          state: system?.runtime_simulated ? "unavailable" : "passed",
+        };
       } else if (kind === "subscription") {
         if (!subscriptions.length)
           throw new APIError("subscription_absent", 400);
-        await api("subscriptions/refresh", { id: subscriptions[0].id });
+        let total = 0,
+          failed = 0;
+        for (const source of subscriptions) {
+          const result = await api("subscriptions/refresh", { id: source.id });
+          total += result.node_count || 0;
+          if (result.failed) failed++;
+        }
         await load();
-        checks[kind] = "Подписка обновлена";
+        checks[kind] = failed
+          ? `Не обновлено подписок: ${failed}. Последние удачные данные сохранены.`
+          : `Подписки обновлены. Найдено серверов: ${total}.`;
+        diagnosticDetails[kind] = { state: failed ? "failed" : "passed" };
       } else {
         const result = await api("diagnostics/run", { kind });
+        diagnosticDetails[kind] = {
+          state: result.success ? "passed" : "failed",
+          ...result,
+        };
         checks[kind] =
           (result.success ? "Проверка пройдена" : "Проверка не пройдена") +
-          " · " +
-          result.code +
           " · " +
           result.latency_ms +
           " мс";
       }
     } catch (e) {
       checks[kind] = errorMessage(e);
-      throw e;
+      diagnosticDetails[kind] = {
+        state:
+          e instanceof APIError && e.code === "adapter_not_connected"
+            ? "unavailable"
+            : "failed",
+      };
+      if (!(e instanceof APIError && e.code === "adapter_not_connected"))
+        throw e;
     }
   }
   async function readRestore() {
@@ -545,9 +698,12 @@
           >{/each}
       </nav>
       <div class="side-bottom">
-        <span class:good={ready} class="dot"></span>{ready
-          ? "Обработка активна"
-          : "Требует внимания"}<button
+        <span class:good={ready && !system?.runtime_simulated} class="dot"
+        ></span>{system?.runtime_simulated
+          ? "Режим стенда"
+          : ready
+            ? "Обработка активна"
+            : "Требует внимания"}<button
           class="text"
           onclick={logout}
           disabled={busy}>Выйти</button
@@ -564,6 +720,14 @@
         </div>
         <button onclick={() => run(load)} disabled={busy}>↻ Обновить</button>
       </header>
+      {#if system?.runtime_simulated}<div class="preview-banner" role="note">
+          <strong>Тестовый стенд</strong>
+          <span
+            >RouterOS и применение маршрутов симулируются. {system.subscriptions_simulated
+              ? "Подписки возвращают тестовые данные."
+              : "Подписки скачиваются настоящим загрузчиком."}</span
+          >
+        </div>{/if}
       {#if error}<div class="error" role="alert">
           {error}
         </div>{/if}{#if notice}<div class="success" role="status">
@@ -580,12 +744,15 @@
           <div>
             <strong
               >{draftChanged
-                ? "Черновик готов к проверке"
+                ? "Есть неприменённые изменения"
                 : "Рабочая конфигурация"}</strong
             >
             <p>
-              Активная ревизия {current?.revision || 0} · Черновик {revision ||
-                "не создан"}
+              {draftChanged
+                ? "Изменения ещё не влияют на трафик. Проверьте план, затем примените его."
+                : "Изменений для применения нет."}
+              <span class="revision-note">Ревизия {current?.revision || 0}</span
+              >
             </p>
           </div>
           <button onclick={() => run(prepare)} disabled={busy || !draftChanged}
@@ -673,31 +840,94 @@
             <div>
               <p class="eyebrow">СОСТОЯНИЕ ПРИЛОЖЕНИЯ</p>
               <h2>
-                {ready ? "Маршруты под контролем" : "Проверьте готовность"}
+                {system?.runtime_simulated
+                  ? "Настройте свой маршрут"
+                  : ready
+                    ? "Маршруты под контролем"
+                    : "Начните с настройки подключения"}
               </h2>
               <p>
-                {ready
-                  ? "DNS, процесс и текущий маршрут подтвердили готовность."
-                  : "Панель доступна. Сетевой runtime пока не подтвердил готовность."}
+                {system?.runtime_simulated
+                  ? "Добавьте серверы, выберите списки сайтов и назначьте им селектор."
+                  : ready
+                    ? "DNS, процесс и текущий маршрут подтвердили готовность."
+                    : "Панель доступна. Сетевой runtime пока не подтвердил готовность."}
               </p>
             </div>
             <span class="hero-star" aria-hidden="true">✦</span>
           </div>
+          <div class="workflow-steps" aria-label="Настройка маршрутизации">
+            {#each [["subscriptions", "1", "Добавить серверы", "Загрузите подписку или вставьте ссылки."], ["lists", "2", "Выбрать сайты", "Готовые списки и собственный URL."], ["groups", "3", "Выбрать маршрут", "Ручной селектор или автоматический выбор."]] as step}
+              <a href={"#" + step[0]}
+                ><span class="step-number">{step[1]}</span><strong
+                  >{step[2]}</strong
+                >
+                <p>{step[3]}</p></a
+              >
+            {/each}
+          </div>
+          <section class="card selector-section">
+            <div class="section-heading">
+              <div>
+                <h2>Селекторы серверов</h2>
+                <p class="muted">
+                  Выберите сервер для каждой группы. Списки сайтов используют
+                  выбранную группу.
+                </p>
+              </div>
+              <a class="button-link" href="#groups">Управлять селекторами</a>
+            </div>
+            {#if !config.model.groups.length}<p>
+                Сначала добавьте серверы и создайте селектор.
+              </p>{/if}
+            {#each config.model.groups as g}<div class="selector-row">
+                <div>
+                  <strong>{g.id}</strong>
+                  <p class="muted">
+                    {g.members.length} серверов · {g.type === "selector"
+                      ? "Ручной выбор"
+                      : g.type === "urltest"
+                        ? "Автоматический выбор"
+                        : "Резервирование"}
+                  </p>
+                </div>
+                {#if g.type === "selector"}<label
+                    >Сервер для {g.id}<select
+                      aria-label={"Сервер для " + g.id}
+                      value={g.selected || g.members[0]}
+                      disabled={busy}
+                      onchange={(e) =>
+                        run(() => switchNode(g.id, e.currentTarget.value))}
+                      >{#each g.members as id}<option value={id}
+                          >{labelFor(id)}</option
+                        >{/each}</select
+                    ></label
+                  >{:else}<span>Выбор выполняет движок</span>{/if}
+              </div>{/each}
+          </section>
           <div class="grid stats">
             <section class="card">
               <p class="muted">sing-box / runtime</p>
               <h2>
-                {ready
-                  ? "Готов"
-                  : system?.runtime_connected
-                    ? "Не готов"
-                    : "Не подключён"}
+                {system?.runtime_simulated
+                  ? "Симуляция"
+                  : ready
+                    ? "Готов"
+                    : system?.runtime_connected
+                      ? "Не готов"
+                      : "Не подключён"}
               </h2>
               <p>Ревизия {system?.status?.revision || 0}</p>
             </section>
             <section class="card">
               <p class="muted">RouterOS</p>
-              <h2>{router ? "Подключён" : "Нет данных"}</h2>
+              <h2>
+                {system?.runtime_simulated
+                  ? "Симуляция"
+                  : router
+                    ? "Подключён"
+                    : "Нет данных"}
+              </h2>
               <p>
                 {router?.capabilities?.version ||
                   resourceErrors["routeros"] ||
@@ -803,7 +1033,8 @@
                 )
                   .map((x: any) => x.gateway)
                   .join(", ") || "нет данных"}. FastTrack: {network?.fasttrack_enabled ??
-                  "не определён"} подтверждённых включённых правил; статус {network?.fasttrack_unknown ?? "не определён"} правил не определён.
+                  "не определён"} подтверждённых включённых правил; статус {network?.fasttrack_unknown ??
+                  "не определён"} правил не определён.
               </p>
               <p>
                 {network
@@ -996,17 +1227,35 @@
             </section>{/if}
         {:else if page === "subscriptions"}
           <section class="card">
-            <h2>Добавить или изменить подписку</h2>
+            <h2>Загрузить серверы из подписки</h2>
+            <p class="muted">
+              Подписка — источник серверов. Списки сайтов выбираются отдельно на
+              странице «Списки сайтов». Поддерживается текст или Base64 со
+              ссылками SS, Trojan, VLESS, VMess, Hysteria2 и TUIC. YAML Clash и
+              JSON-конфигурации движков не являются списками ссылок.
+            </p>
             <form
               onsubmit={(e) => {
                 e.preventDefault();
                 run(async () => {
                   const value = copy(sub);
-                  sub.url = "";
                   await api("subscriptions", value);
+                  sub.url = "";
+                  let result;
+                  let refreshError;
+                  try {
+                    result = await api("subscriptions/refresh", {
+                      id: value.id,
+                    });
+                  } catch (e) {
+                    refreshError = e;
+                  }
                   await load();
-                  notice =
-                    "Подписка сохранена. Обновите её, затем выберите узлы.";
+                  await inspect(value.id);
+                  if (refreshError) throw refreshError;
+                  notice = result.failed
+                    ? "Подписка сохранена, но загрузка не удалась. Проверьте формат ответа и фильтры."
+                    : `Подписка загружена. Найдено серверов: ${result.node_count}. Выберите нужные или импортируйте все.`;
                 });
               }}
             >
@@ -1131,14 +1380,86 @@
               </div>{/each}
           </section>
           {#if provider}<section class="card">
-              <h2>Узлы {provider.id}</h2>
-              {#each provider.nodes as n}<label class="check"
+              <div class="section-heading">
+                <div>
+                  <h2>Серверы подписки {provider.id}</h2>
+                  <p>
+                    Доступно: {provider.node_count}{provider.source_count
+                      ? " из " + provider.source_count
+                      : ""}. Выбрано на этой странице: {selectedNodes.length}.
+                  </p>
+                </div>
+                <button
+                  disabled={busy}
+                  onclick={() =>
+                    (selectedNodes = visibleNodes.map((n: any) => n.ID))}
+                  >Выбрать все показанные</button
+                >
+              </div>
+              <label
+                >Поиск серверов<input
+                  type="search"
+                  bind:value={nodeSearch}
+                  placeholder="Название, страна, протокол или адрес"
+                /></label
+              >
+              {#if provider.issues?.length}<div class="preview-banner">
+                  <div>
+                    <strong
+                      >Не импортировано записей: {provider.issues
+                        .length}</strong
+                    >
+                    <p>
+                      Поддерживаемые серверы показаны ниже. Отключение проверки
+                      TLS и несовместимые параметры не заменяются другими
+                      настройками.
+                    </p>
+                    <details>
+                      <summary>Причины пропуска</summary
+                      >{#each provider.issues as issue}<p>
+                          Строка {issue.line} · {issue.protocol}: {(
+                            {
+                              unsupported_transport:
+                                "транспорт не поддерживается движком",
+                              unsupported_grpc_authority:
+                                "нестандартный gRPC authority не поддерживается",
+                              insecure_tls_refused:
+                                "запрошено отключение проверки сертификата",
+                              invalid_or_unsupported_endpoint:
+                                "неподдерживаемые параметры или некорректная ссылка",
+                            } as Record<string, string>
+                          )[issue.code] || "запись не поддерживается"}
+                        </p>{/each}
+                    </details>
+                  </div>
+                </div>{/if}
+              {#if provider.failed}<div class="error">
+                  Последнее обновление не удалось. Показан последний успешно
+                  загруженный список.
+                </div>{/if}
+              {#if !provider.nodes.length}<p>
+                  Серверов нет. Загрузите подписку или проверьте её формат и
+                  фильтры.
+                </p>{/if}
+              {#each visibleNodes as n}<label class="check"
                   ><input
                     type="checkbox"
                     bind:group={selectedNodes}
                     value={n.ID}
                   />{n.Name || n.Server} · {n.Protocol}</label
                 >{/each}
+              <label
+                >Селектор для импортируемых серверов<input
+                  bind:value={importSelector}
+                  pattern={"[a-z][a-z0-9-]{0,63}"}
+                  placeholder="proxy"
+                  maxlength="64"
+                /></label
+              >
+              <p class="muted">
+                Серверы добавятся в выбранный селектор. Если его ещё нет, он
+                будет создан с ручным выбором.
+              </p>
               <div class="actions">
                 <button
                   disabled={busy || offset === 0}
@@ -1157,27 +1478,235 @@
                       await api("subscriptions/import", {
                         id: provider.id,
                         node_ids: selectedNodes,
+                        selector_id: importSelector,
                         draft_revision: revision,
                       });
                       plan = undefined;
                       await load();
-                      notice = "Выбранные узлы добавлены в черновик.";
+                      notice = `Серверы добавлены в селектор ${importSelector}. Выберите активный сервер на странице «Селекторы», затем примените черновик.`;
                     })}>Импортировать выбранные</button
                 >
               </div>
             </section>{/if}
+        {:else if page === "lists"}
+          <section class="card">
+            <div class="section-heading">
+              <div>
+                <h2>Что отправлять через прокси</h2>
+                <p class="muted">
+                  Выберите готовые списки, назначьте маршрут и добавьте их в
+                  черновик.
+                </p>
+              </div>
+              <a class="button-link" href="#groups">Настроить селекторы</a>
+            </div>
+            <div class="grid">
+              <label
+                >Маршрут для выбранных списков<select bind:value={listOutbound}
+                  >{#each outbounds as id}<option value={id}
+                      >{labelFor(id)}</option
+                    >{/each}</select
+                ></label
+              ><label
+                >Найти список<input
+                  type="search"
+                  bind:value={listSearch}
+                  placeholder="YouTube, Discord, Google AI…"
+                /></label
+              >
+            </div>
+            {#if resourceErrors["traffic-lists/catalog"]}<p class="error">
+                {resourceErrors["traffic-lists/catalog"]}
+              </p>{/if}
+            <div class="list-catalog">
+              {#each visibleCatalog as item}<label
+                  class="list-card"
+                  class:selected={selectedLists.includes(item.id)}
+                >
+                  <input
+                    type="checkbox"
+                    bind:group={selectedLists}
+                    value={item.id}
+                    disabled={busy}
+                  />
+                  <span
+                    ><strong>{item.name}</strong><span class="list-description"
+                      >{item.description}</span
+                    ><span class="list-state"
+                      >{config.policy.rules.some(
+                        (r) => r.id === "list-" + item.id,
+                      )
+                        ? "Добавлен в конфигурацию"
+                        : "Готовый список"}</span
+                    ></span
+                  >
+                </label>{/each}
+            </div>
+            <div class="actions">
+              <button
+                class="primary"
+                disabled={busy || !selectedLists.length}
+                onclick={() => run(() => importLists())}
+                >Добавить выбранные списки ({selectedLists.length})</button
+              >
+            </div>
+            <p class="muted small">
+              Источник: <a
+                href="https://github.com/itdoginfo/allow-domains"
+                target="_blank"
+                rel="noreferrer">itdoginfo/allow-domains</a
+              >. Скачивается текстовый список доменов; содержимое проверяется и
+              сохраняется перед применением.
+            </p>
+          </section>
+          <section class="card">
+            <h2>Подключённые списки</h2>
+            {#if !listSnapshots.length}<p class="muted">
+                Списки пока не загружены. Выберите сервисы выше или добавьте
+                свой URL.
+              </p>{/if}
+            {#each listSnapshots as list}{@const savedRule =
+                config.policy.rules.find((r) => r.id === "list-" + list.id)}
+              <div class="row">
+                <div>
+                  <strong>{list.name}</strong>
+                  <p>
+                    {list.domain_count} доменов · Обновлён {date(
+                      list.updated_at,
+                    )}
+                  </p>
+                  <p class="muted">
+                    {savedRule
+                      ? "Маршрут: " + labelFor(savedRule.outbound)
+                      : "Снимок сохранён; правило не включено"}
+                  </p>
+                  <details>
+                    <summary>Примеры доменов и контрольная сумма</summary>
+                    <p>{list.sample.join(", ")}</p>
+                    <code class="hash">{list.sha256}</code>
+                  </details>
+                </div>
+                <div class="actions">
+                  {#if savedRule}<label
+                      >Маршрут для {list.name}<select
+                        value={savedRule.outbound}
+                        disabled={busy}
+                        onchange={(e) => {
+                          const outbound = e.currentTarget.value;
+                          run(() =>
+                            savePolicy((c) => {
+                              const rule = c.policy.rules.find(
+                                (r) => r.id === savedRule.id,
+                              );
+                              if (rule) rule.outbound = outbound;
+                            }),
+                          );
+                        }}
+                        >{#each outbounds as id}<option value={id}
+                            >{labelFor(id)}</option
+                          >{/each}</select
+                      ></label
+                    >{/if}
+                  <button
+                    disabled={busy}
+                    onclick={() =>
+                      run(() =>
+                        importLists(
+                          [list.id],
+                          false,
+                          savedRule?.outbound || listOutbound,
+                        ),
+                      )}>Обновить список в черновике</button
+                  >{#if savedRule}<button
+                      disabled={busy}
+                      onclick={() =>
+                        run(() =>
+                          savePolicy((c) => {
+                            c.policy.rules = c.policy.rules.filter(
+                              (r) => r.id !== "list-" + list.id,
+                            );
+                          }),
+                        )}>Удалить правило списка</button
+                    >{/if}
+                </div>
+              </div>{/each}
+          </section>
+          <section class="card">
+            <h2>Свой список по URL</h2>
+            <p class="muted">
+              HTTPS-файл: по одному домену на строку, комментарии начинаются с #
+              или //. URL хранится приватно.
+            </p>
+            <form
+              onsubmit={(e) => {
+                e.preventDefault();
+                run(() => importLists([], true));
+              }}
+            >
+              <div class="grid">
+                <label
+                  >Название списка<input
+                    bind:value={customList.name}
+                    required
+                    maxlength="128"
+                    placeholder="Мои сервисы"
+                  /></label
+                ><label
+                  >URL списка<input
+                    type="password"
+                    bind:value={customList.url}
+                    required
+                    autocomplete="new-password"
+                    placeholder="https://…/domains.txt"
+                  /></label
+                >
+              </div>
+              <button disabled={busy}>Скачать и добавить свой список</button>
+            </form>
+          </section>
+          <section class="card scope-note">
+            <h2>Покрытие доменов</h2>
+            <p>
+              Правила списков учитывают домены и поддомены. В режиме SOCKS они
+              применяются к переданным именам. В нативном режиме DNS допускает
+              только конечный набор имён: при импорте добавляются сами домены
+              списка. Произвольные поддомены автоматически не допускаются; их
+              нужно добавить в DNS отдельно. IP-подсети, альтернативный DNS и
+              IPv6 не входят в покрытие этого каталога.
+            </p>
+            <a href="#dns">Проверить DNS-допуск</a>
+          </section>
         {:else if page === "groups"}
           <section class="card">
-            <h2>Группы маршрутов</h2>
+            <h2>Селекторы и автоматический выбор</h2>
+            <p class="muted">
+              Одна группа может обслуживать несколько списков сайтов. Выбирайте
+              сервер здесь, а списки привязывайте к группе.
+            </p>
             {#each config.model.groups as g}<div class="row">
                 <div>
                   <strong>{g.id}</strong>
                   <p>
-                    {g.type} · {g.members.length} узлов · Выбор: {g.selected ||
-                      "автоматический"}
+                    {g.type === "selector"
+                      ? "Ручной выбор"
+                      : g.type === "urltest"
+                        ? "Автоматический выбор"
+                        : "Резервирование"} · {g.members.length} серверов
                   </p>
                 </div>
                 <div class="actions">
+                  {#if g.type === "selector"}<label class="inline-selector"
+                      >Сервер для {g.id}<select
+                        aria-label={"Сервер для " + g.id}
+                        value={g.selected || g.members[0]}
+                        disabled={busy}
+                        onchange={(e) =>
+                          run(() => switchNode(g.id, e.currentTarget.value))}
+                        >{#each g.members as id}<option value={id}
+                            >{labelFor(id)}</option
+                          >{/each}</select
+                      ></label
+                    >{/if}
                   <button onclick={() => editGroup(g)}>Изменить группу</button
                   ><button
                     class="danger"
@@ -1231,8 +1760,8 @@
                 {#if group.type === "selector"}<label
                     >Выбранный узел<select bind:value={group.selected}
                       ><option value="">Первый участник</option
-                      >{#each outbounds.filter((x) => x !== group.id) as x}<option
-                          value={x}>{labelFor(x)}</option
+                      >{#each groupMembers as x}<option value={x}
+                          >{labelFor(x)}</option
                         >{/each}</select
                     ></label
                   >{:else}<label
@@ -1553,23 +2082,70 @@
           </section>
         {:else if page === "diagnostics"}
           <section class="card">
-            <h2>Проверки</h2>
-            <p>
-              Проверки используют настроенные источники и фиксированные цели
-              оператора; произвольные адреса не принимаются.
-            </p>
+            <div class="section-heading">
+              <div>
+                <h2>Что сейчас работает</h2>
+                <p class="muted">
+                  Проверяйте по шагам: конфигурация, подписки, соединение,
+                  маршруты.
+                </p>
+              </div>
+              <button
+                disabled={busy}
+                onclick={() =>
+                  run(async () => {
+                    for (const check of diagnosticCards) {
+                      try {
+                        await diagnose(check.id);
+                      } catch {
+                        /* Individual results remain visible. */
+                      }
+                    }
+                  })}>Проверить всё</button
+              >
+            </div>
             <div class="diagnostic-grid">
-              {#each [["routeros", "Проверить RouterOS API"], ["dns", "Состояние DNS"], ["direct", "Состояние DIRECT egress"], ["proxy", "Состояние выбранного прокси"], ["subscription", "Проверить подписку"], ["core", "Проверить sing-box"], ["routing", "Состояние маршрутизации"], ["watchdog", "Состояние fail-open watchdog"]] as check}<div
+              {#each diagnosticCards as check}<article
+                  class="diagnostic-card"
+                  class:passed={diagnosticDetails[check.id]?.state === "passed"}
+                  class:failed={diagnosticDetails[check.id]?.state === "failed"}
                 >
+                  <div class="section-heading">
+                    <h3>{check.title}</h3>
+                    <span class="status-pill"
+                      >{(
+                        {
+                          passed: "Работает",
+                          failed: "Ошибка",
+                          running: "Проверка…",
+                          unavailable: "Нет данных",
+                        } as Record<string, string>
+                      )[diagnosticDetails[check.id]?.state] ||
+                        "Не проверено"}</span
+                    >
+                  </div>
+                  <p class="muted">{check.description}</p>
+                  <p class="check-result" role="status">
+                    {checks[check.id] ||
+                      "Запустите проверку, чтобы получить результат."}
+                  </p>
+                  {#if ["failed", "unavailable"].includes(diagnosticDetails[check.id]?.state)}<p
+                      class="check-hint"
+                    >
+                      {check.hint}
+                    </p>
+                    <a href={"#" + check.page}>Открыть настройки →</a>{/if}
                   <button
                     disabled={busy}
-                    onclick={() => run(() => diagnose(check[0]))}
-                    >{check[1]}</button
+                    onclick={() => run(() => diagnose(check.id))}
+                    >Проверить</button
                   >
-                  <p class="muted small">
-                    {checks[check[0]] || "Не проверено"}
-                  </p>
-                </div>{/each}
+                  {#if diagnosticDetails[check.id]?.scope}<details>
+                      <summary>Технические сведения</summary>
+                      <p>{diagnosticDetails[check.id].scope}</p>
+                      <code>{diagnosticDetails[check.id].code}</code>
+                    </details>{/if}
+                </article>{/each}
             </div>
             <button
               onclick={() =>
@@ -1725,7 +2301,9 @@
       {/if}
       <footer>
         MikroCentauri · RouterOS native · Изменения активируются после просмотра
-        плана · <a href="/licenses.txt" target="_blank" rel="noopener">Лицензии</a>
+        плана · <a href="/licenses.txt" target="_blank" rel="noopener"
+          >Лицензии</a
+        >
       </footer>
     </main>
   </div>
