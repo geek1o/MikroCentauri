@@ -3,6 +3,7 @@ package coreconfig
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"mikrocentauri.local/core/internal/rulesets"
 	"path/filepath"
 	"strings"
@@ -13,9 +14,11 @@ type object = map[string]any
 // Options are private process listeners. External DNS publication belongs to
 // dnsgate and traffic activation belongs to the RouterOS activation controller.
 type Options struct {
-	RuleSets  []rulesets.Artifact
-	DNSPort   uint16
-	MixedPort uint16
+	ControlPort   uint16
+	ControlSecret string
+	RuleSets      []rulesets.Artifact
+	DNSPort       uint16
+	MixedPort     uint16
 	// CachePath is a trusted runtime mapping; callers must enforce private
 	// directory and file ownership. Application models cannot provide it.
 	CachePath string
@@ -29,6 +32,7 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	if e := m.Validate(); e != nil {
 		return nil, e
 	}
+	m = m.withSectionRules()
 	if o.DNSPort == 0 || o.MixedPort == 0 || o.DNSPort == o.MixedPort {
 		return nil, errors.New("invalid private listener ports")
 	}
@@ -38,6 +42,12 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 			return nil, errors.New("invalid trusted cache mapping")
 		}
 		cachePath = o.CachePath
+	}
+	if o.ControlPort != 0 && (o.ControlPort == o.DNSPort || o.ControlPort == o.MixedPort || len(o.ControlSecret) < 32 || len(o.ControlSecret) > 256 || strings.ContainsAny(o.ControlSecret, "\x00\r\n")) {
+		return nil, errors.New("invalid private controller")
+	}
+	if o.ControlPort == 0 && o.ControlSecret != "" {
+		return nil, errors.New("controller port required")
 	}
 	out := []object{{"type": "direct", "tag": "direct", "domain_resolver": "bootstrap"}}
 	for _, ep := range m.Endpoints {
@@ -102,6 +112,9 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 		in = append(in, object{"type": "tun", "tag": "gateway-in", "interface_name": "mc-tun", "address": []string{"172.31.255.1/30"}, "mtu": 1500, "auto_route": false, "stack": "gvisor"})
 	}
 	result := object{"log": object{"level": "warn"}, "dns": object{"servers": servers, "rules": dnsRules, "final": "bootstrap"}, "inbounds": in, "outbounds": out, "route": object{"rules": route, "final": m.DefaultOutbound, "default_domain_resolver": "bootstrap"}, "experimental": object{"cache_file": object{"enabled": true, "path": cachePath, "store_fakeip": m.Mode != "socksify"}}}
+	if o.ControlPort != 0 {
+		result["experimental"].(object)["clash_api"] = object{"external_controller": fmt.Sprintf("127.0.0.1:%d", o.ControlPort), "secret": o.ControlSecret, "access_control_allow_origin": []string{"http://127.0.0.1"}}
+	}
 	modern := []object{}
 	for _, ep := range m.WireGuard {
 		if ep.Enabled {

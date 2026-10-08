@@ -16,6 +16,7 @@ type DNSPolicy struct {
 	Suffixes    []string `json:"selected_suffixes"`
 }
 type PolicyPreview struct {
+	Sections        []coreconfig.Section      `json:"sections,omitempty"`
 	Rules           []coreconfig.Rule         `json:"rules"`
 	Services        []coreconfig.Service      `json:"services"`
 	SourceDirect    []string                  `json:"source_direct"`
@@ -28,7 +29,7 @@ type PolicyPreview struct {
 // policyPreview makes submitted rules/source/DNS/service changes reviewable;
 // remote artifact URLs, credentials and local cache/artifact paths stay private.
 func policyPreview(m coreconfig.Model) PolicyPreview {
-	p := PolicyPreview{Rules: m.Rules, Services: m.Services, SourceDirect: m.SourceDirect, SourceProxy: m.SourceProxy, DefaultOutbound: m.DefaultOutbound, DNS: DNSPolicy{m.DNS.Bootstrap, m.DNS.FakeIPRange, m.DNS.SelectedDomains, m.DNS.SelectedSuffixes}, RuleSets: []RuleSetReference{}}
+	p := PolicyPreview{Sections: m.Sections, Rules: m.Rules, Services: m.Services, SourceDirect: m.SourceDirect, SourceProxy: m.SourceProxy, DefaultOutbound: m.DefaultOutbound, DNS: DNSPolicy{m.DNS.Bootstrap, m.DNS.FakeIPRange, m.DNS.SelectedDomains, m.DNS.SelectedSuffixes}, RuleSets: []RuleSetReference{}}
 	for _, s := range m.RuleSets {
 		p.RuleSets = append(p.RuleSets, RuleSetReference{s.ID, s.Format})
 	}
@@ -49,6 +50,7 @@ func planChanges(before, after coreconfig.Model, restore *RestoreSettings) []str
 	add("wireguard", before.WireGuard, after.WireGuard)
 	add("groups", before.Groups, after.Groups)
 	add("rules", before.Rules, after.Rules)
+	add("sections", before.Sections, after.Sections)
 	add("services", before.Services, after.Services)
 	add("source_direct", before.SourceDirect, after.SourceDirect)
 	add("source_proxy", before.SourceProxy, after.SourceProxy)

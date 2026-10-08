@@ -4,6 +4,7 @@ import (
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/platform/routeros"
 	"mikrocentauri.local/core/internal/subscriptions"
+	"mikrocentauri.local/core/internal/trafficlists"
 	"reflect"
 	"sort"
 	"strings"
@@ -16,7 +17,11 @@ import (
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
 	reads := map[string]map[string]any{
-		"system":                 objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema()}),
+		"appearance":             schema(reflect.TypeFor[Appearance]()),
+		"engine":                 schema(reflect.TypeFor[EngineState]()),
+		"traffic-lists/catalog":  schema(reflect.TypeFor[[]trafficlists.CatalogEntry]()),
+		"traffic-lists":          schema(reflect.TypeFor[[]trafficlists.View]()),
+		"system":                 objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema(), "engine_connected": boolSchema(), "runtime_simulated": boolSchema(), "subscriptions_simulated": boolSchema()}),
 		"routeros":               schema(reflect.TypeFor[RouterSnapshot]()),
 		"routeros/network":       schema(reflect.TypeFor[routeros.Network]()),
 		"system/info":            schema(reflect.TypeFor[SystemInfo]()),
@@ -52,7 +57,11 @@ func OpenAPI() map[string]any {
 	responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
 	paths["/api/v1/diagnostics/bundle"] = map[string]any{"get": operation("get", "diagnostics/bundle", responses)}
 	objects := map[string]map[string]any{
+		"sections/save":          schema(reflect.TypeFor[SectionsRequest]()),
+		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListRequest]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
+		"engine/select":          schema(reflect.TypeFor[EngineSelectRequest]()),
+		"engine/delay":           schema(reflect.TypeFor[EngineDelayRequest]()),
 		"auth/login":             objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
 		"auth/logout":            {"type": "object", "additionalProperties": false},
 		"system/recover":         {"type": "object", "additionalProperties": false},
@@ -76,7 +85,11 @@ func OpenAPI() map[string]any {
 	}
 	revisionResponse := objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema()})
 	resultSchemas := map[string]map[string]any{
+		"sections/save":          schema(reflect.TypeFor[DraftPolicyResult]()),
+		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListResult]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),
+		"engine/select":          schema(reflect.TypeFor[EngineState]()),
+		"engine/delay":           schema(reflect.TypeFor[EngineDelayResult]()),
 		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
 		"auth/login":             objectSchema(map[string]any{"access_token": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}, "token_type": map[string]any{"const": "Bearer"}, "expires_in": map[string]any{"const": 1800}}),
 		"auth/logout":            objectSchema(map[string]any{"logged_out": boolSchema()}),
@@ -136,6 +149,7 @@ func OpenAPI() map[string]any {
 		}
 		entry["post"] = op
 	}
+	paths["/api/v1/appearance"].(map[string]any)["get"].(map[string]any)["security"] = []any{}
 	return map[string]any{"openapi": "3.1.0", "info": map[string]any{"title": "MikroCentauri API", "version": "0.1.0", "description": "TLS, exact origin, client CIDR policy and expiring opaque bearer sessions. No cookies. Draft writes do not apply network changes; only one-use reviewed plans can apply. Safe restores require matching local credentials."}, "paths": paths, "components": map[string]any{"securitySchemes": map[string]any{"session": map[string]any{"type": "http", "scheme": "bearer"}}, "schemas": map[string]any{"CoreModel": schema(reflect.TypeFor[coreconfig.Model]())}}}
 }
 func operation(method, path string, responses map[string]any) map[string]any {

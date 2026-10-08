@@ -30,7 +30,26 @@ export interface Rule {
   network?: string;
   outbound: string;
 }
+export interface SectionList {
+  id: string;
+  name: string;
+  sha256: string;
+  domains?: string[];
+  prefixes?: string[];
+}
+export interface Section {
+  id: string;
+  name: string;
+  enabled: boolean;
+  outbound: string;
+  domains?: string[];
+  destination_cidrs?: string[];
+  source_cidrs?: string[];
+  lists?: SectionList[];
+  all_traffic?: boolean;
+}
 export interface Policy {
+  sections?: Section[];
   rules: Rule[];
   services: any[];
   source_direct: string[];

@@ -14,6 +14,7 @@ const SafeBackupSchema = 2
 // paths. A restore reuses matching private credentials; allocator journals and
 // the engine-owned cache are neither exported nor replaced.
 type SafeExport struct {
+	Sections        []coreconfig.Section      `json:"sections,omitempty"`
 	Schema          int                       `json:"schema"`
 	Format          string                    `json:"format"`
 	Model           coreconfig.ModelPreview   `json:"model"`
@@ -31,7 +32,7 @@ type SafeExport struct {
 func Export(m coreconfig.Model) SafeExport {
 	dns := m.DNS
 	dns.CachePath = ""
-	return SafeExport{Schema: SafeBackupSchema, Format: "mikrocentauri-safe", Model: m.Preview(), Rules: m.Rules, Services: m.Services, DNS: dns, SourceDirect: m.SourceDirect, SourceProxy: m.SourceProxy, DefaultOutbound: m.DefaultOutbound, RuleSets: policyPreview(m).RuleSets}
+	return SafeExport{Sections: m.Sections, Schema: SafeBackupSchema, Format: "mikrocentauri-safe", Model: m.Preview(), Rules: m.Rules, Services: m.Services, DNS: dns, SourceDirect: m.SourceDirect, SourceProxy: m.SourceProxy, DefaultOutbound: m.DefaultOutbound, RuleSets: policyPreview(m).RuleSets}
 }
 
 // migrateBackup accepts the historical schema, discarding its local cache path.
@@ -97,6 +98,7 @@ func Restore(s SafeExport, current coreconfig.Model) (coreconfig.Model, error) {
 			m.RuleSets = append(m.RuleSets, spec)
 		}
 	}
+	m.Sections = s.Sections
 	m.Rules = s.Rules
 	m.Services = s.Services
 	cachePath := m.DNS.CachePath

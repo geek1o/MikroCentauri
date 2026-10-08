@@ -22,7 +22,7 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
     await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
     return result.json();
   };
-  for(const name of ['Начальная настройка','Прокси','Подписки','Группы','Правила','Устройства','DNS','Диагностика','Система','Обзор']) {
+  for(const name of ['Начальная настройка','Прокси','Подписки','Списки сайтов','Селекторы','Правила','Устройства','DNS','Диагностика','Система','Обзор']) {
     await navigate(name);
     expect(await page.evaluate(()=>({local:localStorage.length,session:sessionStorage.length}))).toEqual({local:0,session:0});
   }
@@ -64,7 +64,7 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   expect((await deleted).ok()).toBe(true);
   await expect(spare).toHaveCount(0);
 
-  await navigate('Группы');
+  await navigate('Селекторы');
   await page.getByLabel('ID группы',{exact:true}).fill(prefix+'-group');
   await page.getByRole('group',{name:'Участники группы'}).getByLabel(prefix+' proxy',{exact:true}).check();
   await mutate('Сохранить группу','config/draft/policy');
@@ -124,7 +124,10 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   await mutate('Сохранить расписание','subscriptions/schedule');
 
   await navigate('Диагностика');
-  expect((await mutate('Проверить sing-box','diagnostics/run')).success).toBe(true);
+  const coreCard=page.locator('.diagnostic-card').filter({has:page.getByRole('heading',{name:'Конфигурация движка',exact:true})});
+  const coreResponse=page.waitForResponse(r=>r.url().endsWith('/diagnostics/run'));
+  await coreCard.getByRole('button',{name:'Проверить',exact:true}).click();
+  expect((await (await coreResponse).json()).success).toBe(true);
   const diagDownload=page.waitForEvent('download');
   await page.getByRole('button',{name:'Скачать диагностику'}).click();
   expect((await diagDownload).suggestedFilename()).toBe('mikrocentauri-diagnostics.tar.gz');
@@ -207,4 +210,135 @@ test('IPv6 settings never claim packet isolation when disabled or unavailable', 
     }
     await page.unroute('**/api/v1/routeros/network');
   }
+});
+
+test('downloaded domain lists, visible selectors and readable system themes', async ({page}, info)=>{
+  test.setTimeout(120_000);
+  await page.goto('/');
+  await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');
+  await page.getByRole('button',{name:'Войти',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+  await expect(page.getByRole('note').filter({hasText:'Тестовый стенд'})).toBeVisible();
+  const navigate=async(name:string)=>{await page.getByRole('navigation').getByRole('link',{name,exact:true}).click();await expect(page.getByRole('heading',{name,level:1,exact:true})).toBeVisible()};
+  await navigate('Списки сайтов');
+  await expect(page.locator('.list-card')).toHaveCount(27);
+  await page.getByRole('button',{name:'CDN и IP-сети 11',exact:true}).click();
+  await expect(page.locator('.list-card')).toHaveCount(11);
+  await page.getByRole('button',{name:'Домены 16',exact:true}).click();
+  await expect(page.locator('.list-card')).toHaveCount(16);
+  await page.getByRole('button',{name:'Все списки 27',exact:true}).click();
+  await page.getByLabel('Найти список').fill('youtube');
+  await expect(page.locator('.list-card')).toHaveCount(1);
+  await page.getByLabel('Найти список').fill('');
+  await page.getByLabel('Маршрут для выбранных списков').selectOption('proxy');
+  const listName=info.project.name+' HTTPS browser list';
+  await page.getByLabel('Название списка',{exact:true}).fill(listName);
+  await page.getByLabel('URL списка',{exact:true}).fill(process.env.WEB_UI_LIST_URL!);
+  const response=page.waitForResponse(r=>r.url().endsWith('/traffic-lists/import'));
+  await page.getByRole('button',{name:'Скачать и добавить свой список',exact:true}).click();
+  expect((await response).status()).toBe(200);
+  await expect(page.getByText(listName,{exact:true})).toBeVisible();
+  await expect(page.getByLabel('URL списка',{exact:true})).toHaveValue('');
+  await expect(page.locator('.row').filter({hasText:listName})).toContainText('2 доменов');
+  await page.screenshot({path: '../../../.cache/webui/lists-'+info.project.name+'.png',fullPage:true});
+  await navigate('Подписки');
+  await page.getByLabel('ID подписки',{exact:true}).fill('selector-test');
+  await page.getByLabel('HTTPS URL',{exact:true}).fill('https://provider.example/selector-test');
+  await page.getByRole('button',{name:'Сохранить подписку',exact:true}).click();
+  await expect(page.getByLabel('Subscription node · ss',{exact:true})).toBeVisible();
+  await page.getByLabel('Subscription node · ss',{exact:true}).check();
+  const imported=page.waitForResponse(r=>r.url().endsWith('/subscriptions/import'));
+  await page.getByRole('button',{name:'Импортировать выбранные',exact:true}).click();
+  expect((await imported).status()).toBe(200);
+  await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+  await navigate('Селекторы');
+  await page.getByRole('region',{name:'Селектор proxy',exact:true}).getByText('Выбор сервера в черновике',{exact:true}).click();
+  const selector=page.getByRole('combobox',{name:'Сервер для proxy',exact:true});
+  expect(await selector.locator('option').count()).toBeGreaterThan(1);
+  const values=await selector.locator('option').evaluateAll(options=>options.map(x=>(x as HTMLOptionElement).value));
+  const chosen=values.find(x=>x!==''&&x!==values[0])!;
+  const selected=page.waitForResponse(r=>r.url().endsWith('/config/draft/policy'));
+  await selector.selectOption(chosen);expect((await selected).status()).toBe(200);
+  await expect(selector).toHaveValue(chosen);
+  for(const width of [1280,390]){
+    await page.setViewportSize({width,height:900});
+    for(const theme of ['light','dark','system']){
+      await page.emulateMedia({colorScheme:theme==='light'?'light':'dark'});
+      await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+      const contrast=await page.evaluate(()=>{
+        const rgb=(value:string)=>value.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4});
+        const lum=(v:number[])=>v[0]*.2126+v[1]*.7152+v[2]*.0722;
+        const box=document.querySelector('.draftbar')!,text=box.querySelector('strong')!;
+        const a=lum(rgb(getComputedStyle(box).backgroundColor)),b=lum(rgb(getComputedStyle(text).color));
+        return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+      });
+      await page.screenshot({path: '../../../.cache/webui/selectors-'+info.project.name+'-'+width+'-'+theme+'.png',fullPage:true});
+      expect(contrast).toBeGreaterThanOrEqual(4.5);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+    }
+  }
+});
+
+test('server cards switch the real running sing-box selector without a policy revision', async({page,request},info)=>{
+ test.skip(process.env.WEB_UI_LIVE_ENGINE!=='1','requires a real engine fixture');test.setTimeout(120_000);
+ await page.goto('/');const login=page.waitForResponse(r=>r.url().endsWith('/auth/login'));
+ await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');await page.getByRole('button',{name:'Войти',exact:true}).click();const token=(await (await login).json()).access_token;const headers={Authorization:'Bearer '+token};
+ await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+ const active=await (await request.get('/api/v1/config',{headers})).json();
+ const draft=await (await request.get('/api/v1/config/draft',{headers})).json();
+ const members=active.model.endpoints.filter((n:any)=>n.Enabled!==false).slice(0,2).map((n:any)=>n.ID);expect(members.length).toBe(2);
+ const group='live-cards';const groups=active.model.groups.filter((g:any)=>g.id!==group).concat({id:group,type:'selector',members,selected:members[0]});
+ const saved=await request.post('/api/v1/config/draft/policy',{headers,data:{draft_revision:draft.draft_revision||0,mode:active.model.mode,groups,policy:active.policy}});expect(saved.ok(),await saved.text()).toBe(true);
+ const planResponse=await request.post('/api/v1/config/plan',{headers,data:{draft_revision:(await saved.json()).draft_revision}});expect(planResponse.ok(),await planResponse.text()).toBe(true);const plan=await planResponse.json();
+ const applied=await request.post('/api/v1/config/apply',{headers,data:{plan_id:plan.plan_id}});expect(applied.ok(),await applied.text()).toBe(true);
+ await page.getByRole('button',{name:'↻ Обновить',exact:true}).click();await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+ await page.getByRole('navigation').getByRole('link',{name:'Селекторы',exact:true}).click();
+ const panel=page.getByRole('region',{name:'Селектор '+group,exact:true});await expect(panel.getByText('В движке',{exact:true})).toBeVisible();
+ const before=await (await request.get('/api/v1/config',{headers})).json();
+ const response=page.waitForResponse(r=>r.url().endsWith('/engine/select'));await panel.getByRole('button',{name:'Подключить',exact:true}).click();const switched=await response;expect(switched.ok(),await switched.text()).toBe(true);
+ const state=await switched.json();expect(state.groups.find((g:any)=>g.id===group).selected).toBe(members[1]);
+ await expect(panel.getByRole('button',{name:'✓ Сейчас выбран',exact:true})).toHaveAttribute('aria-pressed','true');
+ expect((await (await request.get('/api/v1/config',{headers})).json()).revision).toBe(before.revision);
+ const card=panel.locator('.server-card').nth(1);const delayed=page.waitForResponse(r=>r.url().endsWith('/engine/delay'));await card.locator('.probe-server').click();expect((await delayed).ok()).toBe(true);await expect(card.locator('.latency')).toHaveText('Нет ответа');
+ await page.screenshot({path:'../../../.cache/webui/live-selectors-'+info.project.name+'.png',fullPage:true});
+});
+
+test('sections own routes, snapshots and selectors through the reviewed draft workflow',async({page,request},info)=>{
+ test.setTimeout(120_000);
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');const login=page.waitForResponse(r=>r.url().endsWith('/auth/login'));
+ await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');await page.getByRole('button',{name:'Войти',exact:true}).click();
+ const token=(await (await login).json()).access_token,headers={Authorization:'Bearer '+token};
+ await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+ const active=await(await request.get('/api/v1/config',{headers})).json();
+ const initialDraft=await(await request.get('/api/v1/config/draft',{headers})).json();
+ const listImport=await request.post('/api/v1/traffic-lists/import',{headers,data:{draft_revision:initialDraft.draft_revision||0,outbound:'direct',custom:{id:'e2e-sections',name:'Section list',url:process.env.WEB_UI_LIST_URL}}});expect(listImport.ok(),await listImport.text()).toBe(true);
+ await page.getByRole('button',{name:'↻ Обновить',exact:true}).click();await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+
+ const navigate=async()=>{await page.getByRole('navigation').getByRole('link',{name:'Секции',exact:true}).click();await expect(page.getByRole('heading',{name:'Секции',level:1,exact:true})).toBeVisible();};
+ const save=async(button:string,scope:any=page)=>{const response=page.waitForResponse(r=>r.url().endsWith('/sections/save')&&r.request().method()==='POST');await scope.getByRole('button',{name:button,exact:true}).click();const result=await response;expect(result.ok(),await result.text()).toBe(true);await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();return result.json();};
+ await navigate();await page.getByRole('button',{name:'Добавить секцию',exact:true}).click();
+ await page.getByLabel('Название',{exact:true}).fill('Видео');
+ await page.getByLabel('Собственный селектор серверов для секции').check();
+ await expect(page.getByRole('group',{name:'Серверы секции'}).getByRole('checkbox')).not.toHaveCount(0);
+ const listName='Section list';
+ await page.getByLabel('Поиск списков').fill(listName);await page.locator('.section-source').filter({hasText:listName}).getByRole('checkbox').check();
+ await page.getByText('Свои домены и IP-подсети',{exact:true}).click();await page.getByLabel('Домены и поддомены',{exact:true}).fill('video.example.test');await page.getByLabel('IP-подсети назначения',{exact:true}).fill('203.0.113.0/24');
+ const saved=await save('Сохранить секцию');expect(saved.policy.sections[0].lists).toHaveLength(1);expect(saved.policy.sections[0].lists[0].domains).toHaveLength(2);expect(saved.policy.sections[0].outbound).toMatch(/^sel-s-/);
+ const ownGroup=saved.policy.sections[0].outbound;
+ expect((await(await request.get('/api/v1/config',{headers})).json()).revision).toBe(active.revision);
+ const video=page.getByRole('region',{name:'Секция Видео',exact:true});await expect(video.getByRole('region',{name:'Селектор '+ownGroup,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Добавить секцию',exact:true}).click();await page.getByLabel('Название',{exact:true}).fill('Исключение');await page.getByLabel('Маршрут секции',{exact:true}).selectOption('direct');await page.getByText('Свои домены и IP-подсети',{exact:true}).click();await page.getByLabel('Домены и поддомены',{exact:true}).fill('video.example.test');await save('Сохранить секцию');
+ const exception=page.getByRole('region',{name:'Секция Исключение',exact:true});await expect(exception).toContainText('Пересечение с «Видео»');await save('Поднять Исключение',exception);await expect(video).toContainText('Пересечение с «Исключение»');
+ await video.getByText('Действия с секцией',{exact:true}).click();await video.getByRole('button',{name:'Копировать',exact:true}).click();await page.getByLabel('Название',{exact:true}).fill('Резерв');await save('Сохранить секцию');
+ const reserve=page.getByRole('region',{name:'Секция Резерв',exact:true});await reserve.getByText('Действия с секцией',{exact:true}).click();await save('Отключить',reserve);await expect(reserve).toContainText('Отключена');await expect(reserve.getByRole('region',{name:'Селектор '+ownGroup})).toHaveCount(0);
+ const planResponse=page.waitForResponse(r=>r.url().endsWith('/config/plan'));await page.getByRole('button',{name:'Проверить и показать план',exact:true}).click();const result=await planResponse;expect(result.ok(),await result.text()).toBe(true);expect((await result.json()).changed_sections).toContain('sections');
+ const applied=page.waitForResponse(r=>r.url().endsWith('/config/apply'));await page.getByRole('button',{name:'Применить подтверждённый план',exact:true}).click();expect((await applied).ok()).toBe(true);await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+ const actual=await(await request.get('/api/v1/config',{headers})).json();expect(actual.policy.sections).toHaveLength(3);
+ if(process.env.WEB_UI_LIVE_ENGINE==='1'){await expect(video.getByText('В движке',{exact:true})).toBeVisible();}
+ const backup=await(await request.get('/api/v1/backup',{headers})).json();expect(backup.sections).toHaveLength(3);expect(JSON.stringify(backup)).not.toContain(process.env.WEB_UI_LIST_URL!);
+ if(await reserve.locator('.section-maintenance').getAttribute('open')===null)await reserve.getByText('Действия с секцией',{exact:true}).click();await save('Удалить из черновика',reserve);await expect(reserve).toHaveCount(0);
+ expect((await(await request.get('/api/v1/config',{headers})).json()).policy.sections).toHaveLength(3);
+ for(const width of [1280,390]){await page.setViewportSize({width,height:900});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'../../../.cache/webui/sections-'+info.project.name+'-'+width+'.png',fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
+ expect(errors).toEqual([]);
 });

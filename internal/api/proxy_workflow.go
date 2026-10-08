@@ -42,6 +42,9 @@ func replaceEndpointReferences(m *coreconfig.Model, old, next string) {
 		}
 		replace(&m.Groups[i].Selected)
 	}
+	for i := range m.Sections {
+		replace(&m.Sections[i].Outbound)
+	}
 	for i := range m.Rules {
 		replace(&m.Rules[i].Outbound)
 	}

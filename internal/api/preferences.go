@@ -13,14 +13,52 @@ import (
 
 // Preferences deliberately admits no arbitrary strings or secret-bearing URLs.
 // Scheduler cadence is an operator setting, never changed by a backup restore.
-type Preferences struct {
-	Language string `json:"language"`
-	Theme    string `json:"theme"`
-	TimeZone string `json:"time_zone"`
+type SkyPreferences struct {
+	Mode       string `json:"mode"`
+	Density    int    `json:"density"`
+	Brightness int    `json:"brightness"`
+	Scale      int    `json:"scale"`
+	Motion     bool   `json:"motion"`
+	Login      bool   `json:"login"`
 }
 
-func defaultPreferences() Preferences { return Preferences{"ru", "system", "UTC"} }
+func defaultSky() SkyPreferences {
+	return SkyPreferences{Mode: "constellations", Density: 65, Brightness: 65, Scale: 100, Motion: false, Login: true}
+}
+func (p SkyPreferences) Validate() error {
+	if (p.Mode != "none" && p.Mode != "stars" && p.Mode != "constellations") || p.Density < 10 || p.Density > 100 || p.Brightness < 10 || p.Brightness > 100 || p.Scale < 70 || p.Scale > 160 {
+		return errors.New("invalid sky preferences")
+	}
+	return nil
+}
+
+type Appearance struct {
+	Theme string         `json:"theme"`
+	Sky   SkyPreferences `json:"sky"`
+}
+
+func (p Preferences) Appearance() Appearance {
+	sky := defaultSky()
+	if p.Sky != nil {
+		sky = *p.Sky
+	}
+	return Appearance{Theme: p.Theme, Sky: sky}
+}
+
+type Preferences struct {
+	Sky      *SkyPreferences `json:"sky,omitempty"`
+	Language string          `json:"language"`
+	Theme    string          `json:"theme"`
+	TimeZone string          `json:"time_zone"`
+}
+
+func defaultPreferences() Preferences {
+	return Preferences{Language: "ru", Theme: "system", TimeZone: "UTC"}
+}
 func (p Preferences) Validate() error {
+	if p.Sky != nil && p.Sky.Validate() != nil {
+		return errors.New("invalid sky preferences")
+	}
 	if p.Language != "ru" && p.Language != "en" {
 		return errors.New("invalid language")
 	}

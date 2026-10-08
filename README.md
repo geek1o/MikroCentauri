@@ -20,8 +20,15 @@ reviewed routing changes, and readiness checks before publishing DNS aliases.
 
 ## What it does
 
-- Imports supported proxy configurations and manages subscriptions, selectors,
-  endpoint tests, and ordered policies.
+- Imports supported proxy configurations and manages subscriptions with explicit
+  compatibility reports instead of silently dropping unsupported servers.
+- Offers downloadable domain and IPv4/CDN catalogs, custom lists and ordered
+  [traffic sections](docs/product/sections.md), each with its own list snapshots,
+  device scope and route.
+- Reads live sing-box selector state, switches manual groups and measures HTTPS
+  delay through individual outbounds. Draft routing changes require reviewed apply.
+- Provides a stellar interface with configurable vector sky, constellations,
+  reduced-motion support and saved login appearance.
 - Serves an embedded web UI and authenticated HTTPS API.
 - Reserves persistent IPv4 DNS aliases and publishes them only after current
   runtime and RouterOS mapping verification.

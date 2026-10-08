@@ -1,16 +1,22 @@
 // Disposable HTTPS fixture for browser contracts. Runtime and subscription
-// transport are simulated; the production API, auth, drafts and pinned sing-box
-// validator are real. This executable is never a router/release acceptance test.
+// transport are simulated by default; -real-subscriptions enables the production
+// downloader. The API, auth, drafts and pinned sing-box validator are real. This executable is never a router/release acceptance test.
 package main
 
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"mikrocentauri.local/core/internal/config"
+	"mikrocentauri.local/core/internal/trafficlists"
+	"net"
+	"net/http"
 	"net/http/httptest"
+	"net/netip"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -28,6 +34,7 @@ import (
 )
 
 type runtime struct {
+	engine            *previewEngine
 	model             coreconfig.Model
 	revision          uint64
 	binary, directory string
@@ -72,6 +79,25 @@ func (r *runtime) Apply(ctx context.Context, revision uint64, m coreconfig.Model
 	if err := r.Validate(ctx, revision, m); err != nil {
 		return err
 	}
+	raw, err := json.Marshal(struct {
+		Model    coreconfig.Model `json:"model"`
+		Revision uint64           `json:"revision"`
+	}{m, r.revision + 1})
+	if err != nil {
+		return err
+	}
+	if r.engine != nil {
+		if err := r.engine.Start(ctx, m); err != nil {
+			r.engine.Start(context.Background(), r.model)
+			return err
+		}
+	}
+	if err = config.WriteAtomic(filepath.Join(r.directory, "runtime-model.json"), raw); err != nil {
+		if r.engine != nil {
+			r.engine.Start(context.Background(), r.model)
+		}
+		return err
+	}
 	r.model = m
 	r.revision++
 	return nil
@@ -108,12 +134,31 @@ func (p *providers) Refresh(_ context.Context, spec subscriptions.Spec) (subscri
 	return s, nil
 }
 func main() {
+	seedCache := flag.Bool("seed-cached-subscriptions", false, "seed an empty manual preview from its existing private subscription cache")
+	liveEngine := flag.Bool("live-engine", false, "run a real loopback SOCKS sing-box engine; RouterOS remains simulated")
 	binary := flag.String("sing-box", "", "pinned real validator")
+	realSubscriptions := flag.Bool("real-subscriptions", false, "use the production HTTPS subscription downloader")
+	stateDirectory := flag.String("state", "", "persistent private manual-preview state directory")
+	listen := flag.String("listen", "127.0.0.1:0", "loopback-only HTTPS listener")
 	flag.Parse()
+	host, _, listenErr := net.SplitHostPort(*listen)
+	addr, addrErr := netip.ParseAddr(host)
+	if listenErr != nil || addrErr != nil || !addr.IsLoopback() {
+		panic("fixture listener must use a loopback IP")
+	}
 	if *binary == "" {
 		panic("sing-box required")
 	}
-	dir, err := os.MkdirTemp("", "mikrocentauri-webui-")
+	dir := *stateDirectory
+	var err error
+	if dir == "" {
+		dir, err = os.MkdirTemp("", "mikrocentauri-webui-")
+	} else {
+		dir, err = filepath.Abs(dir)
+		if err == nil {
+			err = os.MkdirAll(dir, 0700)
+		}
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -121,9 +166,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer os.RemoveAll(dir)
-	if err = api.InitializeAuth(dir, []byte("BrowserFixturePassword-2026")); err != nil {
-		panic(err)
+	if *stateDirectory == "" {
+		defer os.RemoveAll(dir)
+	}
+	if _, err = os.Stat(filepath.Join(dir, "auth.json")); os.IsNotExist(err) {
+		if err = api.InitializeAuth(dir, []byte("BrowserFixturePassword-2026")); err != nil {
+			panic(err)
+		}
 	}
 	auth, err := api.OpenAuth(dir)
 	if err != nil {
@@ -136,17 +185,105 @@ func main() {
 	}
 	node.Enabled = true
 	m := coreconfig.Model{SchemaVersion: 2, Instance: "webui-fixture", Mode: "socksify", Endpoints: []endpoints.Endpoint{node}, Groups: []coreconfig.Group{{ID: "proxy", Type: "selector", Members: []string{node.ID}, Selected: node.ID}}, Rules: []coreconfig.Rule{}, DefaultOutbound: "direct", DNS: coreconfig.DNS{Bootstrap: "1.1.1.1", FakeIPRange: "198.18.0.0/15", CachePath: "/data/webui-fixture/cache.db"}}
+	if *realSubscriptions {
+		m = coreconfig.Model{SchemaVersion: 2, Instance: "manual-preview", Mode: "hybrid", Endpoints: []endpoints.Endpoint{}, Groups: []coreconfig.Group{}, Rules: []coreconfig.Rule{}, DefaultOutbound: "direct", DNS: coreconfig.DNS{Bootstrap: "1.1.1.1", FakeIPRange: "198.18.0.0/15", CachePath: "/data/manual-preview/cache.db"}}
+	}
 	rt := &runtime{model: m, revision: 7, binary: *binary, directory: dir}
+	if data, e := os.ReadFile(filepath.Join(dir, "runtime-model.json")); e == nil {
+		var saved struct {
+			Model    coreconfig.Model `json:"model"`
+			Revision uint64           `json:"revision"`
+		}
+		if json.Unmarshal(data, &saved) != nil || saved.Model.Validate() != nil || saved.Revision < 7 {
+			panic("invalid saved preview model")
+		}
+		rt.model, rt.revision = saved.Model, saved.Revision
+	}
+	var engine api.EngineControl
+	if *liveEngine {
+		child := &previewEngine{binary: *binary, dir: dir}
+		if err := child.Start(context.Background(), rt.model); err != nil {
+			panic(err)
+		}
+		defer child.Close()
+		rt.engine = child
+		engine = child
+	}
 	providerNode, _ := endpoints.ParseURI("ss://YWVzLTEyOC1nY206c3ViLWZpeHR1cmU@192.0.2.21:8443#Subscription%20node")
 	providerNode.Enabled = true
-	subs, err := api.NewSubscriptionResources(filepath.Join(dir, "subscriptions"), &providers{node: providerNode, states: map[string]subscriptions.State{}})
+	var provider api.SubscriptionManager = &providers{node: providerNode, states: map[string]subscriptions.State{}}
+	if *realSubscriptions {
+		provider, err = subscriptions.New(filepath.Join(dir, "provider-cache"), subscriptions.Policy{})
+		if err != nil {
+			panic(err)
+		}
+	}
+	subs, err := api.NewSubscriptionResources(filepath.Join(dir, "subscriptions"), provider)
 	if err != nil {
 		panic(err)
 	}
 	defer subs.Close()
+	if *seedCache && *realSubscriptions && *liveEngine && len(rt.model.Endpoints) == 0 && len(rt.model.Groups) == 0 {
+		if _, err := os.Stat(filepath.Join(dir, "draft.json")); os.IsNotExist(err) {
+			views, err := subs.List()
+			if err != nil {
+				panic("private subscription cache unavailable")
+			}
+			next, err := rt.model.Clone()
+			if err != nil {
+				panic(err)
+			}
+			seen := map[string]bool{}
+			members := []string{}
+			for _, v := range views {
+				state, err := provider.Load(v.ID)
+				if err != nil {
+					continue
+				}
+				for _, n := range state.Nodes {
+					if !seen[n.ID] {
+						seen[n.ID] = true
+						n.Enabled = true
+						next.Endpoints = append(next.Endpoints, n)
+						members = append(members, n.ID)
+					}
+				}
+			}
+			if len(members) > 0 {
+				next.Groups = append(next.Groups, coreconfig.Group{ID: "proxy", Type: "selector", Members: members, Selected: members[0]})
+				if err := rt.Apply(context.Background(), rt.revision, next); err != nil {
+					panic("preview cache seeding failed")
+				}
+			}
+		}
+	}
+
 	server := httptest.NewUnstartedServer(nil)
+	server.Listener.Close()
+	server.Listener, err = net.Listen("tcp", *listen)
+	if err != nil {
+		panic(err)
+	}
 	origin := "https://" + server.Listener.Addr().String()
-	app, err := api.New(api.Options{Directory: dir, Auth: auth, Model: m, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin})
+	var listManager *trafficlists.Manager
+	listURL := ""
+	if !*realSubscriptions {
+		source := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, "# test fixture\nservice.example.test\nvideo.example.test\n")
+		}))
+		defer source.Close()
+		roots, _ := x509.SystemCertPool()
+		if roots == nil {
+			roots = x509.NewCertPool()
+		}
+		roots.AddCert(source.Certificate())
+		listManager, err = trafficlists.New(filepath.Join(dir, "traffic-lists"), subscriptions.Policy{RootCAs: roots, AllowedCIDRs: []netip.Prefix{netip.MustParsePrefix("127.0.0.1/32")}})
+		if err != nil {
+			panic(err)
+		}
+		listURL = source.URL
+	}
+	app, err := api.New(api.Options{Engine: engine, TrafficLists: listManager, SimulatedRuntime: true, SimulatedSubscriptions: !*realSubscriptions, Directory: dir, Auth: auth, Model: rt.model, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin})
 	if err != nil {
 		panic(err)
 	}
@@ -154,7 +291,7 @@ func main() {
 	server.TLS = &tls.Config{MinVersion: tls.VersionTLS13}
 	server.StartTLS()
 	defer server.Close()
-	data, _ := json.Marshal(map[string]string{"url": origin, "fixture": "simulated-runtime-real-api-real-singbox-validator"})
+	data, _ := json.Marshal(map[string]string{"url": origin, "list_url": listURL, "fixture": "simulated-runtime-real-api-real-singbox-validator"})
 	fmt.Println(string(data))
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

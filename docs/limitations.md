@@ -26,5 +26,11 @@ capacity remain unqualified.
   browser/device combinations are unqualified.
 - Native WireGuard provisioning, anti-DPI components, packet mangling, complete
   encrypted credential backup and durable audit event storage are not included.
-- Community service lists, reference-project code/assets and logos are not
-  bundled. Optional feeds require separate provenance and trust review.
+- Community service-list contents and reference-project assets are not bundled.
+  Catalogs download third-party feeds on demand; custom feed URLs stay in private
+  state. Feed availability and correctness require independent review.
+- Unsupported provider formats or protocols produce compatibility reports.
+  Successful import does not prove connectivity or provider-specific transport
+  support. Endpoint delay tests measure HTTPS requests, not ICMP.
+- Sections can match domain suffixes inside sing-box, but do not expand the finite
+  native FakeIP admission boundary or prove interception of arbitrary CDN ranges.

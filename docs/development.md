@@ -29,3 +29,14 @@ images before relying on previous native results.
 Binary distribution requires exact license notices and complete corresponding
 source/build material for applicable components. A checksum inventory or SBOM
 alone does not satisfy those obligations. See [third-party notices](../THIRD_PARTY_NOTICES.md).
+
+## Interface and browser verification
+
+`python3 scripts/build-webui.py --check` reproduces the embedded bundle and runs
+frontend checks. `python3 scripts/test-webui.py --install-browsers --live-engine`
+exercises the HTTPS UI with Chromium and WebKit and a real local sing-box.
+Each specification starts with fresh private fixture state. RouterOS activation
+in this browser fixture is simulated; this is not native packet qualification.
+
+See [interface behavior](product/centauri-interface.md) and
+[traffic sections](product/sections.md) for configuration and runtime boundaries.

@@ -225,7 +225,11 @@ func apiCommand(action string, args []string) error {
 			owner.Close(c)
 		}()
 	}
-	handler, e := api.New(api.Options{Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
+	var engine api.EngineControl
+	if owner != nil && profile.ControlPort != 0 {
+		engine = owner
+	}
+	handler, e := api.New(api.Options{Engine: engine, Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
 	if e != nil {
 		return e
 	}

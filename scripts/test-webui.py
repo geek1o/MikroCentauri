@@ -16,6 +16,8 @@ def main():
     p.add_argument('--install-browsers', action='store_true')
     p.add_argument('--project', choices=['chromium', 'firefox', 'webkit'])
     p.add_argument('--all-browsers', action='store_true', help='also run the optional Firefox project')
+    p.add_argument('--live-engine', action='store_true', help='also exercise a real local sing-box controller')
+    p.add_argument('--grep', help='run browser scenarios matching a regular expression')
     p.add_argument('--headed', action='store_true',help='run the disposable test browser with a window')
     p.add_argument('--node', default=os.environ.get('WEB_UI_NODE','node'), help='Node executable for browser tooling')
     args = p.parse_args()
@@ -32,22 +34,26 @@ def main():
     arch = {'x86_64':'amd64','aarch64':'arm64'}.get(platform.machine(),platform.machine())
     sb = ROOT/f'.cache/sing-box-1.14.2-{platform.system().lower()}-{arch}/sing-box'
     sb = Path(os.environ.get('SING_BOX_BINARY', str(sb)))
-    proc = subprocess.Popen([str(binary), '-sing-box', str(sb)], cwd=ROOT, text=True, stdout=subprocess.PIPE)
-    try:
-        selector = selectors.DefaultSelector()
-        selector.register(proc.stdout, selectors.EVENT_READ)
-        if not selector.select(timeout=30):
-            raise RuntimeError('HTTPS fixture startup timeout')
-        data = json.loads(proc.stdout.readline())
-        env = dict(tool_env, WEB_UI_URL=data['url'])
-        cmd = [node,str(cwd/'node_modules/playwright/cli.js'),'test']
-        if args.project: cmd += ['--project', args.project]
-        elif not args.all_browsers: cmd += ['--project','chromium','--project','webkit']
-        if args.headed: cmd += ['--headed']
-        subprocess.run(cmd, cwd=cwd, env=env, check=True)
-    finally:
-        proc.terminate()
-        try: proc.wait(timeout=10)
-        except subprocess.TimeoutExpired: proc.kill(); proc.wait()
+    projects = [args.project] if args.project else ['chromium', 'webkit'] + (['firefox'] if args.all_browsers else [])
+    # Each specification gets fresh private state and its own authentication budget.
+    suites = [None] if args.grep else sorted(cwd.glob("*.spec.ts"))
+    for project, suite in [(project, suite) for project in projects for suite in suites]:
+        proc = subprocess.Popen([str(binary), '-sing-box', str(sb)] + (['-live-engine'] if args.live_engine else []), cwd=ROOT, text=True, stdout=subprocess.PIPE)
+        try:
+            selector = selectors.DefaultSelector()
+            selector.register(proc.stdout, selectors.EVENT_READ)
+            if not selector.select(timeout=30):
+                raise RuntimeError('HTTPS fixture startup timeout')
+            data = json.loads(proc.stdout.readline())
+            env = dict(tool_env, WEB_UI_URL=data['url'], WEB_UI_LIST_URL=data.get('list_url',''), WEB_UI_LIVE_ENGINE='1' if args.live_engine else '0')
+            cmd = [node, str(cwd/'node_modules/playwright/cli.js'), 'test'] + ([suite.name] if suite else []) + ['--project', project]
+            if args.headed: cmd += ['--headed']
+            if args.grep: cmd += ['--grep', args.grep]
+            subprocess.run(cmd, cwd=cwd, env=env, check=True)
+        finally:
+            selector.close()
+            proc.terminate()
+            try: proc.wait(timeout=10)
+            except subprocess.TimeoutExpired: proc.kill(); proc.wait()
 
 if __name__ == '__main__': main()
