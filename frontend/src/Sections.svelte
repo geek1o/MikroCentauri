@@ -188,7 +188,7 @@
 <section class="card">
   <div class="section-heading">
     <div>
-      <p class="eyebrow">Маршруты вашего созвездия</p>
+      <p class="eyebrow">ПОЛИТИКА МАРШРУТИЗАЦИИ</p>
       <h2>Секции</h2>
       <p class="muted">
         Выберите сайты, назначьте маршрут. Для разных задач можно использовать
@@ -216,8 +216,7 @@
       раньше секций.
     </p>{/if}
   {#if !sections.length && !editing}<div class="section-empty">
-      <span aria-hidden="true">✦</span>
-      <h3>Соберите первый маршрут</h3>
+      <h3>Создайте первую секцию</h3>
       <p>Начните с готового сценария и выберите свой сервер.</p>
       <div class="actions">
         <button disabled={busy} onclick={() => begin(undefined, "youtube")}
@@ -491,7 +490,7 @@
     background: var(--tint);
     color: var(--ink);
     padding: 0.8rem 1rem;
-    border-radius: 8px;
+    border-radius: 3px;
     font-size: 0.875rem;
   }
   .own-selector {
@@ -514,17 +513,14 @@
     gap: 1rem;
   }
   .section-empty {
-    text-align: center;
-    padding: 2rem 1rem;
-    background: var(--tint);
-    border-radius: 16px;
+    text-align: left;
+    padding: 1rem 0;
+    background: none;
+    border-radius: 3px;
   }
-  .section-empty > span {
-    font-size: 2.5rem;
-    color: var(--accent);
-  }
+
   .section-empty .actions {
-    justify-content: center;
+    justify-content: flex-start;
   }
   .section-catalog {
     display: grid;
@@ -539,7 +535,7 @@
     align-items: center;
     gap: 0.7rem;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: 3px;
     padding: 0.8rem;
     margin: 0;
     cursor: pointer;
@@ -569,12 +565,20 @@
   }
   .section-facts > span,
   .section-tags > span {
-    padding: 0.3rem 0.6rem;
-    background: var(--tint);
-    border: 1px solid var(--line);
-    border-radius: 9px;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 3px;
     font-size: 0.85rem;
     overflow-wrap: anywhere;
+  }
+  .section-tags > span {
+    border-bottom: 1px dotted var(--line);
+    margin-right: 0.5rem;
+  }
+  .section-facts > span {
+    color: var(--muted);
+    margin-right: 1rem;
   }
   .section-maintenance {
     margin-top: 1rem;

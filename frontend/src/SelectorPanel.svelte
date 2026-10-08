@@ -24,7 +24,7 @@
     onEdit?: () => void;
   } = $props();
   let search = $state("");
- let order=$state("list");
+  let order = $state("list");
   const label = (id: string) =>
     id === "direct"
       ? "DIRECT"
@@ -32,9 +32,16 @@
         nodes.find((x) => x.ID === id)?.Server ||
         id;
   let members = $derived(
-    group.members.filter((id) =>
-      label(id).toLowerCase().includes(search.toLowerCase()),
-    ).sort((a,b)=>order==='name'?label(a).localeCompare(label(b),'ru'):order==='latency'?((health[a]?.success?health[a].latency_ms:Infinity)-(health[b]?.success?health[b].latency_ms:Infinity)):0),
+    group.members
+      .filter((id) => label(id).toLowerCase().includes(search.toLowerCase()))
+      .sort((a, b) =>
+        order === "name"
+          ? label(a).localeCompare(label(b), "ru")
+          : order === "latency"
+            ? (health[a]?.success ? health[a].latency_ms : Infinity) -
+              (health[b]?.success ? health[b].latency_ms : Infinity)
+            : 0,
+      ),
   );
   let checking = $derived(members.some((id) => health[id]?.checking));
   async function probeAll() {
@@ -58,13 +65,13 @@
     <div>
       <span class="eyebrow"
         >{group.type === "selector"
-          ? "РУЧНОЙ ВЫБОР"
-          : "АВТОМАТИЧЕСКИЙ ВЫБОР"}</span
+          ? "Ручной выбор"
+          : "Автоматический выбор"}</span
       >
       <h3>{title || group.id}</h3>
       <p class="muted">
-        Серверов: {group.members.length} {#if live?.selected}· Сейчас: <strong
-            >{label(live.selected)}</strong
+        Серверов: {group.members.length}
+        {#if live?.selected}· Сейчас: <strong>{label(live.selected)}</strong
           >{/if}
       </p>
     </div>
@@ -79,10 +86,23 @@
         bind:value={search}
         placeholder="Название сервера…"
       /></label
-    ><label class="server-order">Порядок<select aria-label={"Порядок серверов в "+group.id} bind:value={order}><option value="list">Из подписки</option><option value="latency">По задержке</option><option value="name">По названию</option></select></label><button disabled={busy || !live || checking} onclick={probeAll}
+    ><label class="server-order"
+      >Порядок<select
+        aria-label={"Порядок серверов в " + group.id}
+        bind:value={order}
+        ><option value="list">Из подписки</option><option value="latency"
+          >По задержке</option
+        ><option value="name">По названию</option></select
+      ></label
+    ><button disabled={busy || !live || checking} onclick={probeAll}
       >Проверить серверы</button
     >{#if onEdit}<button class="text" onclick={onEdit}>Изменить группу</button
       >{/if}
+  </div>
+  <div class="server-columns" aria-hidden="true">
+    <span>Сервер</span><span>Протокол / адрес</span><span>HTTPS</span><span
+      >Действия</span
+    >
   </div>
   <div class="server-grid">
     {#each members as id}{@const node = nodes.find(
@@ -96,8 +116,7 @@
         class:failed={status?.success === false}
       >
         <div class="server-card-top">
-          <span class="node-orbit" aria-hidden="true">{active ? "✦" : "◉"}</span
-          ><span
+          <span
             class="latency"
             class:healthy={status?.success === true}
             class:unhealthy={status?.success === false}

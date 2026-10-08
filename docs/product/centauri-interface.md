@@ -3,21 +3,26 @@
 The primary workflow is subscription → selector → site lists → reviewed apply.
 An existing selector also supports a separate immediate action: change the
 running engine's selected member. Its state is read back from sing-box and shown
-on server cards. Draft selection and live selection are visibly distinct.
+on server rows. Draft selection and live selection are visibly distinct.
 
 ## Visual and interaction principles
 
-A celestial palette uses midnight surfaces, indigo accents, a warm star mark and
-subtle orbital geometry. Standard text/action labels remain literal. Light,
-dark and system themes share semantic color tokens and keyboard focus outlines;
-no external fonts, graphics or animated background are required.
+The console uses neutral surfaces, restrained amber accents, small corner radii
+and aligned data rows. The star is a brand mark, rather than a repeated status
+icon. Gradients, glowing surfaces and decorative dashboard artwork are excluded.
+Light, dark and system themes share semantic status colors and keyboard focus
+outlines; no external fonts, graphics or animated background are required.
 
-Server cards expose protocol, address, current selection, measured latency and
+Server rows expose protocol, address, current selection, measured latency and
 measurement time. Search and ordering help navigate larger subscriptions.
 Tests measure an HTTPS request through an individual outbound, not ICMP.
 Failures display “Нет ответа”; there are no invented successful measurements.
 Up to three UI checks run concurrently. Selection is independent of pending
 network checks. Existing connections are not interrupted by selector changes.
+
+Onboarding steps appear only before servers are configured. Working dashboards
+prioritize selectors and current state. Server rows retain distinct live/draft
+actions and collapse into a compact stacked layout on narrow screens.
 
 The catalog separates domain lists from CDN/IP networks, shows selection counts,
 and keeps the import action visible while scrolling. Technical and destructive

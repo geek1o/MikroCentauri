@@ -931,10 +931,10 @@
               <p class="eyebrow">СОСТОЯНИЕ ПРИЛОЖЕНИЯ</p>
               <h2>
                 {system?.runtime_simulated
-                  ? "Настройте свой маршрут"
+                  ? "Конфигурация стенда"
                   : ready
-                    ? "Маршруты под контролем"
-                    : "Начните с настройки подключения"}
+                    ? "Маршрутизация активна"
+                    : "Подключение не настроено"}
               </h2>
               <p>
                 {system?.runtime_simulated
@@ -944,18 +944,19 @@
                     : "Панель доступна. Сетевой runtime пока не подтвердил готовность."}
               </p>
             </div>
-            <span class="hero-star" aria-hidden="true">✦</span>
           </div>
-          <div class="workflow-steps" aria-label="Настройка маршрутизации">
-            {#each [["subscriptions", "1", "Добавить серверы", "Загрузите подписку или вставьте ссылки."], ["lists", "2", "Выбрать сайты", "Готовые списки и собственный URL."], ["groups", "3", "Выбрать маршрут", "Ручной селектор или автоматический выбор."]] as step}
-              <a href={"#" + step[0]}
-                ><span class="step-number">{step[1]}</span><strong
-                  >{step[2]}</strong
+          {#if !config.model.endpoints.length && !config.model.wireguard.length}
+            <div class="workflow-steps" aria-label="Настройка маршрутизации">
+              {#each [["subscriptions", "1", "Добавить серверы", "Загрузите подписку или вставьте ссылки."], ["lists", "2", "Выбрать сайты", "Готовые списки и собственный URL."], ["groups", "3", "Выбрать маршрут", "Ручной селектор или автоматический выбор."]] as step}
+                <a href={"#" + step[0]}
+                  ><span class="step-number">{step[1]}</span><strong
+                    >{step[2]}</strong
+                  >
+                  <p>{step[3]}</p></a
                 >
-                <p>{step[3]}</p></a
-              >
-            {/each}
-          </div>
+              {/each}
+            </div>
+          {/if}
           <section class="card selector-section">
             <div class="section-heading">
               <div>
