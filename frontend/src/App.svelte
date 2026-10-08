@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import centauriLogo from "./assets/centauri.svg";
   import SkyScene from "./SkyScene.svelte";
   import { defaultSky, type SkyPreferences } from "./sky";
   import Sections from "./Sections.svelte";
@@ -750,7 +751,7 @@
 </script>
 
 <svelte:head
-  ><title
+  ><link rel="icon" href={centauriLogo} type="image/svg+xml" /><title
     >{logged
       ? pages.find((x) => x[0] === page)?.[1] + " · "
       : ""}MikroCentauri</title
@@ -784,36 +785,15 @@
       {#if error}<p role="alert" class="error">{error}</p>{/if}
     </section>
     <aside class="login-art" aria-hidden="true">
-      <svg class="celestial-mark" viewBox="0 0 400 400" fill="none">
-        <circle
-          cx="200"
-          cy="200"
-          r="140"
-          stroke="currentColor"
-          stroke-opacity=".14"
-        />
-        <ellipse
-          cx="200"
-          cy="200"
-          rx="178"
-          ry="70"
-          transform="rotate(-35 200 200)"
-          stroke="currentColor"
-          stroke-opacity=".32"
-        />
-        <path
-          d="M200 144L210 190L256 200L210 210L200 256L190 210L144 200L190 190Z"
-          fill="currentColor"
-        />
-        <circle cx="84" cy="267" r="5" fill="currentColor" />
-        <circle cx="320" cy="100" r="3" fill="currentColor" />
-      </svg>
+      <img class="celestial-mark" src={centauriLogo} alt="" />
     </aside>
   </main>
 {:else}
   <div class="shell">
     <aside class="sidebar">
-      <a href="#dashboard" class="brand"><span>✦</span> MikroCentauri</a>
+      <a href="#dashboard" class="brand"
+        ><img class="brand-icon" src={centauriLogo} alt="" /> MikroCentauri</a
+      >
       <p class="eyebrow">УПРАВЛЕНИЕ СЕТЬЮ</p>
       <nav aria-label="Основная навигация">
         {#each pages as p}<a
@@ -1255,59 +1235,64 @@
             </form>
           </section>
           <section class="card">
-            <h2>Узлы черновика</h2>
-            {#each [...config.model.endpoints, ...config.model.wireguard.map( (x) => ({ ID: x.id, Name: x.name, Protocol: x.protocol, Enabled: x.enabled, Server: (x.address || []).join(", "), Port: x.listen_port }) )] as ep}<div
-                class="row"
-              >
-                <div>
-                  <strong>{ep.Name || ep.ID.slice(0, 12)}</strong>
-                  <p>{ep.Protocol || "wireguard"} · {ep.Server}:{ep.Port}</p>
-                  <span class="muted small"
-                    >{ep.Enabled === false ? "Отключён" : "Включён"}</span
-                  >
-                  {#if nodeChecks[ep.ID]}<p class="small" role="status">
-                      {nodeChecks[ep.ID].pending
-                        ? "Проверяем узел…"
-                        : nodeChecks[ep.ID].error ||
-                          (nodeChecks[ep.ID].success
-                            ? "Доступен"
-                            : "Проверка не пройдена") +
+            <h2>Серверы</h2>
+            <div class="proxy-grid">
+              {#each [...config.model.endpoints, ...config.model.wireguard.map( (x) => ({ ID: x.id, Name: x.name, Protocol: x.protocol, Enabled: x.enabled, Server: (x.address || []).join(", "), Port: x.listen_port }) )] as ep}<div
+                  class="row proxy-tile"
+                >
+                  <div>
+                    <strong>{ep.Name || ep.ID.slice(0, 12)}</strong>
+                    <p>{ep.Protocol || "wireguard"} · {ep.Server}:{ep.Port}</p>
+                    <span class="muted small"
+                      >{ep.Enabled === false ? "Отключён" : "Включён"}</span
+                    >
+                    {#if nodeChecks[ep.ID]}<p class="small" role="status">
+                        {nodeChecks[ep.ID].pending
+                          ? "Проверяем узел…"
+                          : nodeChecks[ep.ID].error ||
+                            (nodeChecks[ep.ID].success
+                              ? "Доступен"
+                              : "Проверка не пройдена") +
+                              " · " +
+                              nodeChecks[ep.ID].latency_ms +
+                              " мс · " +
+                              nodeChecks[ep.ID].code}
+                      </p>
+                      {#if nodeChecks[ep.ID].checked_at}<span
+                          class="muted small"
+                          title={date(nodeChecks[ep.ID].checked_at) +
                             " · " +
-                            nodeChecks[ep.ID].latency_ms +
-                            " мс · " +
-                            nodeChecks[ep.ID].code}
-                    </p>
-                    {#if nodeChecks[ep.ID].checked_at}<p class="muted small">
-                        {date(nodeChecks[ep.ID].checked_at)} · Разовая задержка HTTP,
-                        без времени запуска проверки. {nodeChecks[ep.ID].scope}
-                      </p>{/if}{:else}<p class="small muted">
-                      Индивидуальная задержка не измерена
-                    </p>{/if}
-                </div>
-                <div class="actions">
-                  <button
-                    disabled={busy ||
-                      !system?.runtime_connected ||
-                      !activeNode(ep.ID)}
-                    onclick={() => run(() => probeNode(ep.ID))}
-                    >Проверить узел</button
-                  >
-                  <button
-                    onclick={() =>
-                      (proxyEdit = {
-                        id: ep.ID,
-                        name: ep.Name || "",
-                        enabled: ep.Enabled !== false,
-                        uri: "",
-                      })}>Изменить</button
-                  ><button
-                    class="danger"
-                    disabled={busy}
-                    onclick={() => run(() => removeProxy(ep.ID))}
-                    >Удалить</button
-                  >
-                </div>
-              </div>{/each}
+                            nodeChecks[ep.ID].scope}
+                          >Проверено {new Date(
+                            nodeChecks[ep.ID].checked_at,
+                          ).toLocaleTimeString("ru-RU")}</span
+                        >{/if}{:else}<p class="small muted">Не проверен</p>{/if}
+                  </div>
+                  <div class="actions">
+                    <button
+                      disabled={busy ||
+                        !system?.runtime_connected ||
+                        !activeNode(ep.ID)}
+                      onclick={() => run(() => probeNode(ep.ID))}
+                      >Проверить узел</button
+                    >
+                    <button
+                      onclick={() =>
+                        (proxyEdit = {
+                          id: ep.ID,
+                          name: ep.Name || "",
+                          enabled: ep.Enabled !== false,
+                          uri: "",
+                        })}>Изменить</button
+                    ><button
+                      class="danger"
+                      disabled={busy}
+                      onclick={() => run(() => removeProxy(ep.ID))}
+                      >Удалить</button
+                    >
+                  </div>
+                </div>{/each}
+            </div>
             <p class="muted small">
               Проверка доступна для включённых узлов активной конфигурации. Она
               измеряет отдельный путь до заданной оператором цели; общая

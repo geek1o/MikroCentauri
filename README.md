@@ -27,6 +27,8 @@ reviewed routing changes, and readiness checks before publishing DNS aliases.
   device scope and route.
 - Reads live sing-box selector state, switches manual groups and measures HTTPS
   delay through individual outbounds. Draft routing changes require reviewed apply.
+- Supports automatic latency-based server choice with periodic sing-box URLTest
+  and configurable probe interval and switching tolerance.
 - Provides a stellar interface with configurable vector sky, constellations,
   reduced-motion support and saved login appearance.
 - Serves an embedded web UI and authenticated HTTPS API.

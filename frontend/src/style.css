@@ -1764,3 +1764,135 @@ nav a span {
     border-right: 0;
   }
 }
+
+/* Compact outbound tiles; measurement timestamps stay in latency tooltips. */
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+}
+.brand {
+  gap: 7px;
+}
+.selector-toolbar {
+  align-items: flex-end;
+}
+.server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 10px;
+  border: 0;
+  overflow: visible;
+  border-radius: 0;
+}
+.server-card,
+.server-card.active,
+.server-card:last-child,
+.server-card.active:last-child {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 22px 20px 32px;
+  gap: 5px 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  align-items: center;
+}
+.server-card.active {
+  border-color: var(--link-ink);
+  box-shadow: inset 3px 0 0 var(--link-ink);
+}
+.server-card h4 {
+  grid-column: 1;
+  grid-row: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.server-card-top {
+  grid-column: 2;
+  grid-row: 1;
+}
+.server-card .latency {
+  font-size: 11px;
+  white-space: nowrap;
+}
+.server-meta {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.server-card-actions {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  gap: 6px;
+}
+.server-card .choose-server {
+  flex: 1;
+  height: 30px;
+  padding: 4px 8px;
+}
+.server-card .probe-server {
+  height: 30px;
+  padding: 4px 10px;
+}
+.auto-policy {
+  background: var(--tint);
+  border-left: 3px solid var(--link-ink);
+  padding: 10px 12px;
+  color: var(--tint-ink);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.proxy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 10px;
+}
+.proxy-tile.row {
+  margin: 0;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  background: var(--tint);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  min-width: 0;
+}
+.proxy-tile strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.proxy-tile p {
+  margin: 4px 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.proxy-tile .actions {
+  margin-top: auto;
+  gap: 5px;
+}
+.proxy-tile button {
+  font-size: 11px;
+  padding: 6px 8px;
+}
+@media (max-width: 760px) {
+  .server-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  .proxy-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}

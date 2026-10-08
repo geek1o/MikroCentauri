@@ -79,6 +79,12 @@
       >{live ? "В движке" : "В черновике"}</span
     >
   </div>
+  {#if group.type === "urltest"}<p class="auto-policy" role="status">
+      Автоматически · проверка каждые {group.interval || "3m"} · допуск {group.tolerance ||
+        50} мс. Во время использования недоступные серверы исключаются при проверке.
+      Режим работает в sing-box даже при закрытой панели.
+      {#if live?.type !== "urltest"}Изменение режима ещё не применено.{/if}
+    </p>{/if}
   <div class="selector-toolbar">
     <label class="server-search"
       >Поиск серверов<input
@@ -96,13 +102,8 @@
       ></label
     ><button disabled={busy || !live || checking} onclick={probeAll}
       >Проверить серверы</button
-    >{#if onEdit}<button class="text" onclick={onEdit}>Изменить группу</button
+    >{#if onEdit}<button class="text" onclick={onEdit}>Настроить выбор</button
       >{/if}
-  </div>
-  <div class="server-columns" aria-hidden="true">
-    <span>Сервер</span><span>Протокол / адрес</span><span>HTTPS</span><span
-      >Действия</span
-    >
   </div>
   <div class="server-grid">
     {#each members as id}{@const node = nodes.find(
@@ -117,6 +118,10 @@
       >
         <div class="server-card-top">
           <span
+            title={status?.checked_at
+              ? "Измерено " +
+                new Date(status.checked_at).toLocaleTimeString("ru-RU")
+              : "Задержка HTTPS-запроса"}
             class="latency"
             class:healthy={status?.success === true}
             class:unhealthy={status?.success === false}
@@ -141,13 +146,17 @@
             disabled={busy || group.type !== "selector"}
             onclick={() =>
               canLive ? onLive(group.id, id) : onDraft(group.id, id)}
-            >{active
-              ? "✓ Сейчас выбран"
-              : canLive
-                ? "Подключить"
-                : (group.selected || group.members[0]) === id
-                  ? "✓ Выбран в черновике"
-                  : "В черновик"}</button
+            >{group.type === "urltest"
+              ? active
+                ? "✓ Автовыбор"
+                : "Резерв"
+              : active
+                ? "✓ Сейчас выбран"
+                : canLive
+                  ? "Подключить"
+                  : (group.selected || group.members[0]) === id
+                    ? "✓ Выбран в черновике"
+                    : "В черновик"}</button
           ><button
             class="probe-server"
             aria-label={"Проверить сервер " + label(id)}
@@ -159,9 +168,6 @@
             onclick={() => onProbe(id)}>↻</button
           >
         </div>
-        {#if status?.checked_at}<p class="measurement-time">
-            Измерено {new Date(status.checked_at).toLocaleTimeString("ru-RU")}
-          </p>{/if}
       </article>{/each}
   </div>
   {#if !members.length}<p class="empty-state">
@@ -171,8 +177,10 @@
       Примените группу и подключите API движка, чтобы переключать серверы сразу.
       Выбор в черновике требует применения плана.
     </p>{:else}<p class="muted small">
-      Переключение действует сразу для новых соединений. Задержка — время
-      HTTPS-проверки через сервер, а не ICMP ping.
+      {group.type === "urltest"
+        ? "Движок автоматически выбирает сервер для новых соединений."
+        : "Переключение действует сразу для новых соединений."} Задержка — время HTTPS-проверки
+      через сервер, а не ICMP ping.
     </p>{/if}
   {#if group.type === "selector"}<details class="advanced-selector">
       <summary>Выбор сервера в черновике</summary><label

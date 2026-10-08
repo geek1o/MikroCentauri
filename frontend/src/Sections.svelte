@@ -44,6 +44,8 @@
   let selected = $state<string[]>([]);
   let ownSelector = $state(false),
     selectorType = $state("selector"),
+    selectorInterval = $state("1m"),
+    selectorTolerance = $state(50),
     selectorMembers = $state<string[]>([]);
   let targets = $derived([
     { id: "direct", name: "Напрямую · исключение" },
@@ -93,11 +95,18 @@
     search = "";
     kind = "all";
     validation = "";
-    ownSelector = false;
-    selectorType = "selector";
-    selectorMembers = config.model.endpoints
-      .filter((e) => e.Enabled !== false)
-      .map((e) => e.ID);
+    const managed = config.model.groups.find(
+      (g) => g.id === "sel-" + editing?.id && g.id === editing?.outbound,
+    );
+    ownSelector = !!managed;
+    selectorType = managed?.type || "selector";
+    selectorInterval = managed?.interval || "1m";
+    selectorTolerance = managed?.tolerance || 50;
+    selectorMembers = managed
+      ? copy(managed.members)
+      : config.model.endpoints
+          .filter((e) => e.Enabled !== false)
+          .map((e) => e.ID);
   }
   async function save() {
     if (!editing) return;
@@ -146,23 +155,31 @@
         return;
       }
       const id = "sel-" + value.id;
-      if (config.model.groups.some((g) => g.id === id)) {
+      const existing = config.model.groups.find((g) => g.id === id);
+      if (existing && editing.outbound !== id) {
         validation =
           "Этот селектор уже существует. Выберите его в поле маршрута.";
         return;
       }
       value.outbound = id;
-      groups = [
-        ...copy(config.model.groups),
-        {
-          id,
-          type: selectorType,
-          members: copy(selectorMembers),
-          ...(selectorType === "selector"
-            ? { selected: selectorMembers[0] }
-            : { interval: "3m", tolerance: 50 }),
-        },
-      ];
+      const preferred =
+        existing?.selected ||
+        engine?.groups?.find((g: any) => g.id === id)?.selected;
+      const replacement: Group = {
+        id,
+        type: selectorType,
+        members: copy(selectorMembers),
+        ...(selectorType === "selector"
+          ? {
+              selected: selectorMembers.includes(preferred || "")
+                ? preferred
+                : selectorMembers[0],
+            }
+          : { interval: selectorInterval, tolerance: selectorTolerance }),
+      };
+      groups = existing
+        ? config.model.groups.map((g) => (g.id === id ? replacement : copy(g)))
+        : [...copy(config.model.groups), replacement];
     }
     if (await onSave(next, undefined, groups)) editing = undefined;
   }
@@ -264,6 +281,35 @@
           ><option value="urltest">Автоматически · по задержке</option></select
         ></label
       >
+      {#if selectorType === "urltest"}<div class="section-grid">
+          <label
+            >Период проверки<select
+              aria-label="Период проверки"
+              bind:value={selectorInterval}
+            >
+              <option value="30s">30 секунд</option><option value="1m"
+                >1 минута</option
+              ><option value="3m">3 минуты</option><option value="5m"
+                >5 минут</option
+              ><option value="10m">10 минут</option>
+            </select></label
+          >
+          <label
+            >Переключать при выигрыше<select
+              aria-label="Переключать при выигрыше"
+              bind:value={selectorTolerance}
+            >
+              <option value={1}>1 мс · минимальная задержка</option><option
+                value={50}>50 мс · меньше переключений</option
+              ><option value={100}>100 мс · стабильный выбор</option>
+            </select></label
+          >
+        </div>
+        <p class="muted small">
+          sing-box периодически проверяет HTTPS через серверы и выбирает
+          доступный с меньшей задержкой. После отказа переключение происходит
+          при следующей проверке. Режим включится после применения плана.
+        </p>{/if}
       <fieldset>
         <legend>Серверы секции</legend>
         <div class="section-catalog">
@@ -446,6 +492,7 @@
         {onDraft}
         {onLive}
         {onProbe}
+        onEdit={() => begin(section)}
       />{/if}
     <details class="section-maintenance">
       <summary>Действия с секцией</summary>
