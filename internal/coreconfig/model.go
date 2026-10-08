@@ -28,6 +28,7 @@ type Model struct {
 	Mode            string               `json:"mode"`
 	Endpoints       []endpoints.Endpoint `json:"endpoints"`
 	Groups          []Group              `json:"groups"`
+	Sections        []Section            `json:"sections,omitempty"`
 	Rules           []Rule               `json:"rules"`
 	SourceDirect    []string             `json:"source_direct,omitempty"`
 	SourceProxy     []SourcePolicy       `json:"source_proxy,omitempty"`
@@ -151,6 +152,10 @@ func uniqueJSON(b []byte) error {
 	return nil
 }
 func (m Model) Validate() error {
+	if err := m.validateSections(); err != nil {
+		return err
+	}
+	m.Rules = append(append([]Rule{}, m.Rules...), m.SectionRules()...)
 	if m.SchemaVersion != 2 || !idPattern.MatchString(m.Instance) {
 		return errors.New("invalid core schema or instance")
 	}

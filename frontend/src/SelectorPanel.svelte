@@ -10,8 +10,10 @@
     onLive,
     onProbe,
     onEdit,
+    title,
   }: {
     group: Group;
+    title?: string;
     nodes: Endpoint[];
     live?: any;
     health?: Record<string, any>;
@@ -59,9 +61,9 @@
           ? "РУЧНОЙ ВЫБОР"
           : "АВТОМАТИЧЕСКИЙ ВЫБОР"}</span
       >
-      <h3>{group.id}</h3>
+      <h3>{title || group.id}</h3>
       <p class="muted">
-        {group.members.length} серверов {#if live?.selected}· Сейчас: <strong
+        Серверов: {group.members.length} {#if live?.selected}· Сейчас: <strong
             >{label(live.selected)}</strong
           >{/if}
       </p>

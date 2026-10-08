@@ -100,3 +100,6 @@ namespace. The selected route affects traffic that actually enters the engine;
 RouterOS interception of public destination networks requires separate native
 acceptance. Network sources reject local/reserved prefixes, IPv6, noncanonical
 CIDRs and over-limit data rather than dropping records silently.
+
+Traffic sections: see [workflow and precedence](product/sections.md) and
+[acceptance coverage](reports/sections-acceptance-2026-10-08.md).

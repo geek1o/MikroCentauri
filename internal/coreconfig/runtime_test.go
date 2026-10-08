@@ -168,6 +168,36 @@ func TestPinnedMixedRuntimeRoutes(t *testing.T) {
 	if connections.Load() != 1 {
 		t.Fatal("local compiled rule-set did not route DIRECT")
 	}
+
+	// Exercise first-class section order and OR targets through actual sockets.
+	// Domain does not match this literal IP request: the independent CIDR branch
+	// must still bypass the Shadowsocks endpoint for the scoped local client.
+	m.RuleSets = nil
+	m.Rules = nil
+	m.Sections = []Section{{ID: "local", Name: "Local exception", Enabled: true, Outbound: "direct", Domains: []string{"unrelated.example"}, DestinationCIDRs: []string{"127.0.0.1/32"}, SourceCIDRs: []string{"127.0.0.1/32"}}, {ID: "proxy", Name: "Proxy", Enabled: true, Outbound: "manual", DestinationCIDRs: []string{"127.0.0.1/32"}}}
+	checkSections := func(wantConnections int64) {
+		t.Helper()
+		stopClient()
+		generated, err := GenerateWithOptions(m, Options{DNSPort: dnsPort, MixedPort: mixedPort, CachePath: filepath.Join(dir, "private-cache.db")})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = os.WriteFile(clientPath, generated, 0600); err != nil {
+			t.Fatal(err)
+		}
+		stopClient = runPinned(t, binary, clientPath, mixedPort)
+		request(proxied.URL, "proxy-target")
+		if connections.Load() != wantConnections {
+			t.Fatalf("section route used %d proxy connections; want %d", connections.Load(), wantConnections)
+		}
+	}
+	checkSections(1)
+	m.Sections[0], m.Sections[1] = m.Sections[1], m.Sections[0]
+	checkSections(2)
+	m.Sections[0].Enabled = false
+	checkSections(2)
+	m.Sections[1].SourceCIDRs = []string{"192.168.2.0/24"}
+	checkSections(3)
 }
 func freePort(t *testing.T) uint16 {
 	t.Helper()

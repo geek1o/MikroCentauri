@@ -56,6 +56,7 @@ func OpenAPI() map[string]any {
 	responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
 	paths["/api/v1/diagnostics/bundle"] = map[string]any{"get": operation("get", "diagnostics/bundle", responses)}
 	objects := map[string]map[string]any{
+		"sections/save":          schema(reflect.TypeFor[SectionsRequest]()),
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListRequest]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
 		"engine/select":          schema(reflect.TypeFor[EngineSelectRequest]()),
@@ -83,6 +84,7 @@ func OpenAPI() map[string]any {
 	}
 	revisionResponse := objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema()})
 	resultSchemas := map[string]map[string]any{
+		"sections/save":          schema(reflect.TypeFor[DraftPolicyResult]()),
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListResult]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),
 		"engine/select":          schema(reflect.TypeFor[EngineState]()),

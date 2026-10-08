@@ -392,7 +392,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		reject(w, 400, "invalid_request")
 		return
 	}
-	if s.enginePost(w, r, raw, id) || s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
+	if s.sectionsPost(w, r, raw, id) || s.enginePost(w, r, raw, id) || s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {

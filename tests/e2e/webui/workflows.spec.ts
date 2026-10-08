@@ -302,3 +302,43 @@ test('server cards switch the real running sing-box selector without a policy re
  const card=panel.locator('.server-card').nth(1);const delayed=page.waitForResponse(r=>r.url().endsWith('/engine/delay'));await card.locator('.probe-server').click();expect((await delayed).ok()).toBe(true);await expect(card.locator('.latency')).toHaveText('Нет ответа');
  await page.screenshot({path:'../../../.cache/webui/live-selectors-'+info.project.name+'.png',fullPage:true});
 });
+
+test('sections own routes, snapshots and selectors through the reviewed draft workflow',async({page,request},info)=>{
+ test.setTimeout(120_000);
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('/');const login=page.waitForResponse(r=>r.url().endsWith('/auth/login'));
+ await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');await page.getByRole('button',{name:'Войти',exact:true}).click();
+ const token=(await (await login).json()).access_token,headers={Authorization:'Bearer '+token};
+ await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+ const active=await(await request.get('/api/v1/config',{headers})).json();
+ const initialDraft=await(await request.get('/api/v1/config/draft',{headers})).json();
+ const listImport=await request.post('/api/v1/traffic-lists/import',{headers,data:{draft_revision:initialDraft.draft_revision||0,outbound:'direct',custom:{id:'e2e-sections',name:'Section list',url:process.env.WEB_UI_LIST_URL}}});expect(listImport.ok(),await listImport.text()).toBe(true);
+ await page.getByRole('button',{name:'↻ Обновить',exact:true}).click();await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+
+ const navigate=async()=>{await page.getByRole('navigation').getByRole('link',{name:'Секции',exact:true}).click();await expect(page.getByRole('heading',{name:'Секции',level:1,exact:true})).toBeVisible();};
+ const save=async(button:string,scope:any=page)=>{const response=page.waitForResponse(r=>r.url().endsWith('/sections/save')&&r.request().method()==='POST');await scope.getByRole('button',{name:button,exact:true}).click();const result=await response;expect(result.ok(),await result.text()).toBe(true);await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();return result.json();};
+ await navigate();await page.getByRole('button',{name:'Добавить секцию',exact:true}).click();
+ await page.getByLabel('Название',{exact:true}).fill('Видео');
+ await page.getByLabel('Собственный селектор серверов для секции').check();
+ await expect(page.getByRole('group',{name:'Серверы секции'}).getByRole('checkbox')).not.toHaveCount(0);
+ const listName='Section list';
+ await page.getByLabel('Поиск списков').fill(listName);await page.locator('.section-source').filter({hasText:listName}).getByRole('checkbox').check();
+ await page.getByText('Свои домены и IP-подсети',{exact:true}).click();await page.getByLabel('Домены и поддомены',{exact:true}).fill('video.example.test');await page.getByLabel('IP-подсети назначения',{exact:true}).fill('203.0.113.0/24');
+ const saved=await save('Сохранить секцию');expect(saved.policy.sections[0].lists).toHaveLength(1);expect(saved.policy.sections[0].lists[0].domains).toHaveLength(2);expect(saved.policy.sections[0].outbound).toMatch(/^sel-s-/);
+ const ownGroup=saved.policy.sections[0].outbound;
+ expect((await(await request.get('/api/v1/config',{headers})).json()).revision).toBe(active.revision);
+ const video=page.getByRole('region',{name:'Секция Видео',exact:true});await expect(video.getByRole('region',{name:'Селектор '+ownGroup,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Добавить секцию',exact:true}).click();await page.getByLabel('Название',{exact:true}).fill('Исключение');await page.getByLabel('Маршрут секции',{exact:true}).selectOption('direct');await page.getByText('Свои домены и IP-подсети',{exact:true}).click();await page.getByLabel('Домены и поддомены',{exact:true}).fill('video.example.test');await save('Сохранить секцию');
+ const exception=page.getByRole('region',{name:'Секция Исключение',exact:true});await expect(exception).toContainText('Пересечение с «Видео»');await save('Поднять Исключение',exception);await expect(video).toContainText('Пересечение с «Исключение»');
+ await video.getByText('Действия с секцией',{exact:true}).click();await video.getByRole('button',{name:'Копировать',exact:true}).click();await page.getByLabel('Название',{exact:true}).fill('Резерв');await save('Сохранить секцию');
+ const reserve=page.getByRole('region',{name:'Секция Резерв',exact:true});await reserve.getByText('Действия с секцией',{exact:true}).click();await save('Отключить',reserve);await expect(reserve).toContainText('Отключена');await expect(reserve.getByRole('region',{name:'Селектор '+ownGroup})).toHaveCount(0);
+ const planResponse=page.waitForResponse(r=>r.url().endsWith('/config/plan'));await page.getByRole('button',{name:'Проверить и показать план',exact:true}).click();const result=await planResponse;expect(result.ok(),await result.text()).toBe(true);expect((await result.json()).changed_sections).toContain('sections');
+ const applied=page.waitForResponse(r=>r.url().endsWith('/config/apply'));await page.getByRole('button',{name:'Применить подтверждённый план',exact:true}).click();expect((await applied).ok()).toBe(true);await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+ const actual=await(await request.get('/api/v1/config',{headers})).json();expect(actual.policy.sections).toHaveLength(3);
+ if(process.env.WEB_UI_LIVE_ENGINE==='1'){await expect(video.getByText('В движке',{exact:true})).toBeVisible();}
+ const backup=await(await request.get('/api/v1/backup',{headers})).json();expect(backup.sections).toHaveLength(3);expect(JSON.stringify(backup)).not.toContain(process.env.WEB_UI_LIST_URL!);
+ if(await reserve.locator('.section-maintenance').getAttribute('open')===null)await reserve.getByText('Действия с секцией',{exact:true}).click();await save('Удалить из черновика',reserve);await expect(reserve).toHaveCount(0);
+ expect((await(await request.get('/api/v1/config',{headers})).json()).policy.sections).toHaveLength(3);
+ for(const width of [1280,390]){await page.setViewportSize({width,height:900});await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:'../../../.cache/webui/sections-'+info.project.name+'-'+width+'.png',fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);}
+ expect(errors).toEqual([]);
+});

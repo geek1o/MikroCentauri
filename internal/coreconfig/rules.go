@@ -13,7 +13,7 @@ func (r Rule) IsEnabled() bool { return r.Enabled == nil || *r.Enabled }
 // Lower priorities run first. Equal priorities retain declared order.
 func (m Model) OrderedRules() []Rule {
 	r := []Rule{}
-	for _, v := range m.Rules {
+	for _, v := range append(append([]Rule{}, m.Rules...), m.SectionRules()...) {
 		if v.IsEnabled() {
 			r = append(r, v)
 		}

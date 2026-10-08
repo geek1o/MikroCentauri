@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"reflect"
 	"sort"
 
 	"mikrocentauri.local/core/internal/coreconfig"
@@ -81,6 +82,11 @@ func mergePolicy(m coreconfig.Model, in DraftPolicyRequest) (coreconfig.Model, e
 		}
 		seen[ref.ID] = true
 		m.RuleSets = append(m.RuleSets, original)
+	}
+	// Sections have their own snapshot-aware workflow. Older policy clients may
+	// omit them; editing unrelated rules must never silently delete sections.
+	if in.Policy.Sections != nil && !reflect.DeepEqual(in.Policy.Sections, m.Sections) {
+		return m, errors.New("sections require their dedicated workflow")
 	}
 	m.Rules = in.Policy.Rules
 	m.Services = in.Policy.Services

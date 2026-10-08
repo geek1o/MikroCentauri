@@ -1,4 +1,4 @@
-function range(value: string): [number, number] | undefined {
+export function range(value: string): [number, number] | undefined {
   const [address, bitsText] = value.split("/");
   const parts = address.split(".");
   const bits = bitsText === undefined ? 32 : Number(bitsText);

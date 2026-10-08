@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import Sections from "./Sections.svelte";
   import SelectorPanel from "./SelectorPanel.svelte";
   import IPv6Notice from "./IPv6Notice.svelte";
   import {
@@ -23,6 +24,7 @@
     ["setup", "Начальная настройка", "◇"],
     ["proxies", "Прокси", "↗"],
     ["subscriptions", "Подписки", "↻"],
+    ["sections", "Секции", "✦"],
     ["lists", "Списки сайтов", "▤"],
     ["groups", "Селекторы", "◎"],
     ["rules", "Правила", "≡"],
@@ -397,9 +399,17 @@
       engine = await api("engine");
       engineError = "";
       for (const [id, latency] of Object.entries(engine.latency || {})) {
-        const checkedAt=engine.latency_checked_at?.[id] || engine.checked_at;
-        if (!nodeHealth[id]?.checking && (!nodeHealth[id]?.checked_at || Date.parse(checkedAt)>Date.parse(nodeHealth[id].checked_at)))
-          nodeHealth[id] = {success:true,latency_ms:latency,checked_at:checkedAt};
+        const checkedAt = engine.latency_checked_at?.[id] || engine.checked_at;
+        if (
+          !nodeHealth[id]?.checking &&
+          (!nodeHealth[id]?.checked_at ||
+            Date.parse(checkedAt) > Date.parse(nodeHealth[id].checked_at))
+        )
+          nodeHealth[id] = {
+            success: true,
+            latency_ms: latency,
+            checked_at: checkedAt,
+          };
       }
     } catch (e) {
       engine = undefined;
@@ -699,7 +709,11 @@
     };
     window.addEventListener("hashchange", change);
     const poll = setInterval(() => {
-      if (logged && (page === "dashboard" || page === "groups") && !busy)
+      if (
+        logged &&
+        (page === "dashboard" || page === "groups" || page === "sections") &&
+        !busy
+      )
         refreshEngine();
     }, 3000);
     return () => {
@@ -1551,6 +1565,36 @@
                 >
               </div>
             </section>{/if}
+        {:else if page === "sections"}
+          <Sections
+            {config}
+            {catalog}
+            snapshots={listSnapshots}
+            {engine}
+            health={nodeHealth}
+            {busy}
+            onSave={async (sections, refreshID, groups) => {
+              let saved = false;
+              await run(async () => {
+                await api("sections/save", {
+                  draft_revision: revision,
+                  sections,
+                  refresh_id: refreshID || "",
+                  ...(groups ? { groups } : {}),
+                });
+                plan = undefined;
+                await load();
+                notice =
+                  "Секции сохранены в черновик. Проверьте план перед применением.";
+                saved = true;
+              });
+              return saved;
+            }}
+            onDraft={(id, node) => run(() => switchNode(id, node))}
+            onLive={(id, node) => run(() => selectLive(id, node))}
+            onProbe={probeLive}
+            onLists={() => navigate("lists")}
+          />
         {:else if page === "lists"}
           <section class="card">
             <div class="section-heading">

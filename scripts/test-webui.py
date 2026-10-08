@@ -17,6 +17,7 @@ def main():
     p.add_argument('--project', choices=['chromium', 'firefox', 'webkit'])
     p.add_argument('--all-browsers', action='store_true', help='also run the optional Firefox project')
     p.add_argument('--live-engine', action='store_true', help='also exercise a real local sing-box controller')
+    p.add_argument('--grep', help='run browser scenarios matching a regular expression')
     p.add_argument('--headed', action='store_true',help='run the disposable test browser with a window')
     p.add_argument('--node', default=os.environ.get('WEB_UI_NODE','node'), help='Node executable for browser tooling')
     args = p.parse_args()
@@ -46,6 +47,7 @@ def main():
             env = dict(tool_env, WEB_UI_URL=data['url'], WEB_UI_LIST_URL=data.get('list_url',''), WEB_UI_LIVE_ENGINE='1' if args.live_engine else '0')
             cmd = [node, str(cwd/'node_modules/playwright/cli.js'), 'test', '--project', project]
             if args.headed: cmd += ['--headed']
+            if args.grep: cmd += ['--grep', args.grep]
             subprocess.run(cmd, cwd=cwd, env=env, check=True)
         finally:
             selector.close()

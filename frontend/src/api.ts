@@ -67,6 +67,8 @@ export function copy<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 export const errors: Record<string, string> = {
+  invalid_section:
+    "Проверьте название, маршрут и условия секции. Для всего трафика нужны IP-адреса устройств. Лимит секции — 4096 записей.",
   engine_not_connected:
     "API sing-box не подключён. Можно подготовить выбор сервера в черновике.",
   engine_unavailable: "Нет связи с sing-box. Текущий сервер не подтверждён.",

@@ -54,3 +54,8 @@ group member. This changes new connections without a policy apply; existing
 connections continue on their original outbound. HTTPS delay checks are actual
 requests through endpoints, not ICMP ping or continuous availability guarantees.
 The local preview runs a real SOCKS engine while RouterOS remains simulated.
+
+Sections retain finite literal DNS admission and require review/apply for policy
+changes. Their domain/CDN matches classify traffic entering sing-box; native
+interception is not implied. Global device policies and advanced negative-priority
+rules can precede sections. See [sections](product/sections.md).

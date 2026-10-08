@@ -32,6 +32,7 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	if e := m.Validate(); e != nil {
 		return nil, e
 	}
+	m = m.withSectionRules()
 	if o.DNSPort == 0 || o.MixedPort == 0 || o.DNSPort == o.MixedPort {
 		return nil, errors.New("invalid private listener ports")
 	}

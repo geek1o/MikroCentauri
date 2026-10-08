@@ -35,6 +35,7 @@ func GenerateForNamespace(m Model, s namespace.Snapshot, o Options) ([]byte, err
 	if e != nil {
 		return nil, e
 	}
+	m = m.withSectionRules()
 	pool, _ := netip.ParsePrefix(m.DNS.FakeIPRange)
 	if uint64(len(s.Known)) >= uint64(1)<<uint(32-pool.Bits()) {
 		return nil, errors.New("namespace exceeds allocator prefix capacity")
