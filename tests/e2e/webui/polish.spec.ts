@@ -42,8 +42,9 @@ test('overview, proxy checks, backup spacing and navigation logo remain usable',
  }
  // Render the same optical mark at several sizes to compare navigation legibility.
  const svg=readFileSync('../../../frontend/src/assets/centauri-navigation.svg','utf8');
- await page.setViewportSize({width:680,height:200});
- await page.goto('about:blank');
- await page.setContent(`<html><body style="background:#101b2d;color:#e5edf8;font:16px system-ui"><div style="display:flex;align-items:center;gap:48px;padding:48px">${[32,40,48,56].map(n=>`<div>${svg.replace('<svg','<svg width="'+n+'" height="'+n+'"')}<p>${n} px</p></div>`).join('')}</div></body></html>`);
- await page.screenshot({path:'../../../.cache/webui/navigation-logo-sizes-'+info.project.name+'.png',caret:'initial'});
+ const board=await page.context().newPage();
+ await board.setViewportSize({width:680,height:200});
+ await board.setContent(`<html><body style="background:#101b2d;color:#e5edf8;font:16px system-ui"><div style="display:flex;align-items:center;gap:48px;padding:48px">${[32,40,48,56].map(n=>`<div>${svg.replace('<svg','<svg width="'+n+'" height="'+n+'"')}<p>${n} px</p></div>`).join('')}</div></body></html>`);
+ await board.screenshot({path:'../../../.cache/webui/navigation-logo-sizes-'+info.project.name+'.png',caret:'initial'});
+ await board.close();
 });
