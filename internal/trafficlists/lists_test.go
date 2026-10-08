@@ -98,3 +98,30 @@ func TestSnapshotSourceBoundAndDigestValidation(t *testing.T) {
 		t.Fatal("invalid digest accepted")
 	}
 }
+
+func TestNetworkListsAndPrivatePersistence(t *testing.T) {
+	prefixes, e := ParseNetworks([]byte("# public networks\n8.8.8.0/24\n1.1.1.0/24\n8.8.8.0/24\n"))
+	if e != nil || len(prefixes) != 2 {
+		t.Fatal(prefixes, e)
+	}
+	for _, body := range []string{"10.0.0.0/8", "0.0.0.0/0", "198.18.0.0/15", "2001:4860::/32", "8.8.8.1/24", "domain.example"} {
+		if _, e := ParseNetworks([]byte(body)); e == nil {
+			t.Fatal("unsafe or unsupported network accepted", body)
+		}
+	}
+	dir, _ := filepath.EvalSymlinks(t.TempDir())
+	m := &Manager{directory: dir, downloader: &testDownloader{body: []byte("1.1.1.0/24\n8.8.8.0/24")}}
+	spec := Spec{ID: "cdn", Name: "CDN", Kind: "networks", URL: "https://example.org/networks"}
+	snapshot, e := m.Refresh(context.Background(), spec)
+	if e != nil || len(snapshot.Prefixes) != 2 || len(snapshot.Domains) != 0 {
+		t.Fatal(snapshot, e)
+	}
+	loaded, e := m.Load("cdn")
+	if e != nil || len(loaded.Prefixes) != 2 {
+		t.Fatal(loaded, e)
+	}
+	views, e := m.Views()
+	if e != nil || views[0].Kind != "networks" || views[0].PrefixCount != 2 || views[0].DomainCount != 0 {
+		t.Fatal(views, e)
+	}
+}

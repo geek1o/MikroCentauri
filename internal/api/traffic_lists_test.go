@@ -107,3 +107,29 @@ func TestListDownloadDoesNotBlockHealthAndRejectsConcurrentDraft(t *testing.T) {
 	}
 
 }
+
+func TestNetworkSnapshotCreatesDestinationPolicyWithoutDNSAdmission(t *testing.T) {
+	s, _, _ := setup(t, nil)
+	m, e := s.model()
+	if e != nil {
+		t.Fatal(e)
+	}
+	before := strings.Join(m.DNS.SelectedDomains, ",")
+	snapshot := trafficlists.Snapshot{Spec: trafficlists.Spec{ID: "cdn-ip", Name: "CDN", Kind: "networks"}, Prefixes: []string{"1.1.1.0/24", "8.8.8.0/24"}}
+	result, e := installListSnapshots(m, "proxy", []trafficlists.Snapshot{snapshot})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if strings.Join(result.DNS.SelectedDomains, ",") != before {
+		t.Fatal("network import polluted DNS namespace")
+	}
+	found := false
+	for _, r := range result.Rules {
+		if r.ID == "list-cdn-ip" {
+			found = len(r.DestinationCIDRs) == 2 && len(r.Suffixes) == 0 && r.Outbound == "proxy"
+		}
+	}
+	if !found {
+		t.Fatal("network list did not create destination policy")
+	}
+}

@@ -221,7 +221,12 @@ test('downloaded domain lists, visible selectors and readable system themes', as
   await expect(page.getByRole('note').filter({hasText:'Тестовый стенд'})).toBeVisible();
   const navigate=async(name:string)=>{await page.getByRole('navigation').getByRole('link',{name,exact:true}).click();await expect(page.getByRole('heading',{name,level:1,exact:true})).toBeVisible()};
   await navigate('Списки сайтов');
+  await expect(page.locator('.list-card')).toHaveCount(27);
+  await page.getByRole('button',{name:'CDN и IP-сети 11',exact:true}).click();
   await expect(page.locator('.list-card')).toHaveCount(11);
+  await page.getByRole('button',{name:'Домены 16',exact:true}).click();
+  await expect(page.locator('.list-card')).toHaveCount(16);
+  await page.getByRole('button',{name:'Все списки 27',exact:true}).click();
   await page.getByLabel('Найти список').fill('youtube');
   await expect(page.locator('.list-card')).toHaveCount(1);
   await page.getByLabel('Найти список').fill('');
@@ -247,6 +252,7 @@ test('downloaded domain lists, visible selectors and readable system themes', as
   expect((await imported).status()).toBe(200);
   await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
   await navigate('Селекторы');
+  await page.getByRole('region',{name:'Селектор proxy',exact:true}).getByText('Выбор сервера в черновике',{exact:true}).click();
   const selector=page.getByRole('combobox',{name:'Сервер для proxy',exact:true});
   expect(await selector.locator('option').count()).toBeGreaterThan(1);
   const values=await selector.locator('option').evaluateAll(options=>options.map(x=>(x as HTMLOptionElement).value));
@@ -271,4 +277,28 @@ test('downloaded domain lists, visible selectors and readable system themes', as
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
     }
   }
+});
+
+test('server cards switch the real running sing-box selector without a policy revision', async({page,request},info)=>{
+ test.skip(process.env.WEB_UI_LIVE_ENGINE!=='1','requires a real engine fixture');test.setTimeout(120_000);
+ await page.goto('/');const login=page.waitForResponse(r=>r.url().endsWith('/auth/login'));
+ await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');await page.getByRole('button',{name:'Войти',exact:true}).click();const token=(await (await login).json()).access_token;const headers={Authorization:'Bearer '+token};
+ await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+ const active=await (await request.get('/api/v1/config',{headers})).json();
+ const draft=await (await request.get('/api/v1/config/draft',{headers})).json();
+ const members=active.model.endpoints.filter((n:any)=>n.Enabled!==false).slice(0,2).map((n:any)=>n.ID);expect(members.length).toBe(2);
+ const group='live-cards';const groups=active.model.groups.filter((g:any)=>g.id!==group).concat({id:group,type:'selector',members,selected:members[0]});
+ const saved=await request.post('/api/v1/config/draft/policy',{headers,data:{draft_revision:draft.draft_revision||0,mode:active.model.mode,groups,policy:active.policy}});expect(saved.ok(),await saved.text()).toBe(true);
+ const planResponse=await request.post('/api/v1/config/plan',{headers,data:{draft_revision:(await saved.json()).draft_revision}});expect(planResponse.ok(),await planResponse.text()).toBe(true);const plan=await planResponse.json();
+ const applied=await request.post('/api/v1/config/apply',{headers,data:{plan_id:plan.plan_id}});expect(applied.ok(),await applied.text()).toBe(true);
+ await page.getByRole('button',{name:'↻ Обновить',exact:true}).click();await expect(page.getByRole('button',{name:'↻ Обновить',exact:true})).toBeEnabled();
+ await page.getByRole('navigation').getByRole('link',{name:'Селекторы',exact:true}).click();
+ const panel=page.getByRole('region',{name:'Селектор '+group,exact:true});await expect(panel.getByText('В движке',{exact:true})).toBeVisible();
+ const before=await (await request.get('/api/v1/config',{headers})).json();
+ const response=page.waitForResponse(r=>r.url().endsWith('/engine/select'));await panel.getByRole('button',{name:'Подключить',exact:true}).click();const switched=await response;expect(switched.ok(),await switched.text()).toBe(true);
+ const state=await switched.json();expect(state.groups.find((g:any)=>g.id===group).selected).toBe(members[1]);
+ await expect(panel.getByRole('button',{name:'✓ Сейчас выбран',exact:true})).toHaveAttribute('aria-pressed','true');
+ expect((await (await request.get('/api/v1/config',{headers})).json()).revision).toBe(before.revision);
+ const card=panel.locator('.server-card').nth(1);const delayed=page.waitForResponse(r=>r.url().endsWith('/engine/delay'));await card.locator('.probe-server').click();expect((await delayed).ok()).toBe(true);await expect(card.locator('.latency')).toHaveText('Нет ответа');
+ await page.screenshot({path:'../../../.cache/webui/live-selectors-'+info.project.name+'.png',fullPage:true});
 });

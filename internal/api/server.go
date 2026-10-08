@@ -26,6 +26,7 @@ import (
 )
 
 type Options struct {
+	Engine                 EngineControl
 	SimulatedSubscriptions bool
 	SimulatedRuntime       bool
 	TrafficLists           *trafficlists.Manager
@@ -321,6 +322,17 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.URL.Path {
+	case "/api/v1/engine":
+		if s.opts.Engine == nil {
+			reject(w, 501, "engine_not_connected")
+			return
+		}
+		state, err := s.engineState(r.Context())
+		if err != nil {
+			reject(w, 503, "engine_unavailable")
+			return
+		}
+		reply(w, 200, state)
 	case "/api/v1/traffic-lists/catalog":
 		reply(w, 200, trafficlists.Catalog())
 	case "/api/v1/traffic-lists":
@@ -331,7 +343,7 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		}
 		reply(w, 200, views)
 	case "/api/v1/system":
-		reply(w, 200, map[string]any{"api_version": "v1", "core_schema": 2, "runtime_connected": s.opts.Runtime != nil, "status": v, "ipv6_fakeip": false, "runtime_simulated": s.opts.SimulatedRuntime, "subscriptions_simulated": s.opts.SimulatedSubscriptions})
+		reply(w, 200, map[string]any{"api_version": "v1", "core_schema": 2, "runtime_connected": s.opts.Runtime != nil, "status": v, "ipv6_fakeip": false, "engine_connected": s.opts.Engine != nil, "runtime_simulated": s.opts.SimulatedRuntime, "subscriptions_simulated": s.opts.SimulatedSubscriptions})
 	case "/api/v1/config":
 		reply(w, 200, map[string]any{"revision": v.Revision, "model": m.Preview(), "policy": policyPreview(m)})
 	case "/api/v1/proxies":
@@ -380,7 +392,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		reject(w, 400, "invalid_request")
 		return
 	}
-	if s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
+	if s.enginePost(w, r, raw, id) || s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {

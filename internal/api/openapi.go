@@ -17,9 +17,10 @@ import (
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
 	reads := map[string]map[string]any{
+		"engine":                 schema(reflect.TypeFor[EngineState]()),
 		"traffic-lists/catalog":  schema(reflect.TypeFor[[]trafficlists.CatalogEntry]()),
 		"traffic-lists":          schema(reflect.TypeFor[[]trafficlists.View]()),
-		"system":                 objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema(), "runtime_simulated": boolSchema(), "subscriptions_simulated": boolSchema()}),
+		"system":                 objectSchema(map[string]any{"api_version": stringSchema(), "core_schema": integerSchema(), "runtime_connected": boolSchema(), "status": schema(reflect.TypeFor[RuntimeView]()), "ipv6_fakeip": boolSchema(), "engine_connected": boolSchema(), "runtime_simulated": boolSchema(), "subscriptions_simulated": boolSchema()}),
 		"routeros":               schema(reflect.TypeFor[RouterSnapshot]()),
 		"routeros/network":       schema(reflect.TypeFor[routeros.Network]()),
 		"system/info":            schema(reflect.TypeFor[SystemInfo]()),
@@ -57,6 +58,8 @@ func OpenAPI() map[string]any {
 	objects := map[string]map[string]any{
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListRequest]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
+		"engine/select":          schema(reflect.TypeFor[EngineSelectRequest]()),
+		"engine/delay":           schema(reflect.TypeFor[EngineDelayRequest]()),
 		"auth/login":             objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
 		"auth/logout":            {"type": "object", "additionalProperties": false},
 		"system/recover":         {"type": "object", "additionalProperties": false},
@@ -82,6 +85,8 @@ func OpenAPI() map[string]any {
 	resultSchemas := map[string]map[string]any{
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListResult]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),
+		"engine/select":          schema(reflect.TypeFor[EngineState]()),
+		"engine/delay":           schema(reflect.TypeFor[EngineDelayResult]()),
 		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
 		"auth/login":             objectSchema(map[string]any{"access_token": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}, "token_type": map[string]any{"const": "Bearer"}, "expires_in": map[string]any{"const": 1800}}),
 		"auth/logout":            objectSchema(map[string]any{"logged_out": boolSchema()}),

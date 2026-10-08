@@ -33,11 +33,24 @@ the Phase 7 completion report supersedes earlier open hardening observations.
 Downloaded lists expand into domain-suffix policy rules. SOCKS requests and
 already admitted native DNS names can match those suffixes. Native DNS admission
 still uses a finite reviewed namespace: list import admits the literal domain
-roots, not every possible subdomain. Add required subdomains explicitly. This
-catalog does not provide IP-subnet lists or guarantee coverage of alternate DNS,
-IPv6, or voice endpoints addressed directly by IP. The catalog UI does not imply
+roots, not every possible subdomain. Add required subdomains explicitly. Domain snapshots do not cover IP-only destinations. Separate IPv4 snapshots
+create CIDR policy rules; their RouterOS interception requires native acceptance.
+Alternate DNS and IPv6 remain outside this catalog coverage. The catalog UI does not imply
 complete Podkop/Forkop packet-path equivalence.
 
 The upstream broad Block list contains a top-level suffix (`.ua`) outside the
 current domain model. It is excluded from the ready catalog; parsing does not
 silently discard this rule. Service lists and GeoBlock are supported.
+
+### IPv4 catalog and live selectors
+
+CDN/service IPv4 snapshots now produce destination-CIDR rules. Their native
+RouterOS interception is not established by host-side SOCKS tests. The current
+catalog contains 27 verified text sources; it does not import every binary SRS,
+adblock dataset, country list or top-level suffix supported by Forkop.
+
+An enabled loopback Clash API permits immediate selection of a committed manual
+group member. This changes new connections without a policy apply; existing
+connections continue on their original outbound. HTTPS delay checks are actual
+requests through endpoints, not ICMP ping or continuous availability guarantees.
+The local preview runs a real SOCKS engine while RouterOS remains simulated.

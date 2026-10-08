@@ -60,11 +60,11 @@ it must not be exposed to a network.
 ## Domain lists and subscription imports
 
 The site-list catalog references `itdoginfo/allow-domains`; custom sources are
-HTTPS text files with one domain per line. Downloads are validated, deduplicated,
+HTTPS text files with one domain or canonical public IPv4 prefix per line. Downloads are validated, deduplicated,
 and persisted privately before being expanded into draft domain-suffix rules.
 Each list has an outbound selector. Refresh preserves its assigned route.
 Applying still requires a reviewed configuration plan. Refresh is manual; there
-is no scheduled site-list updater. Bounds are 4096 domains and 64 cached sources.
+is no scheduled site-list updater. Bounds are 4096 domains/prefixes per source and 64 cached sources.
 
 Subscription sources accept text/Base64 URI lists. Supported profiles include
 SS, Trojan, VLESS, VMess, Hysteria2 and TUIC, with the supported TLS/Reality and
@@ -75,3 +75,28 @@ gRPC authority and disabled TLS verification are rejected. Failed refreshes
 retain the last valid cache. Import can atomically create or extend a selector.
 Source URLs, credentials and rejected raw lines are never included in public
 resource projections or rejection reports.
+
+## Live selector bridge
+
+The operator-only native profile may set `control_port` (for example 9090) and
+`control_secret` (32–256 characters). The port must be distinct from private DNS
+and mixed-inbound ports. Generated Clash API configuration binds only
+`127.0.0.1`; neither profile fields nor its secret are exposed through the web API.
+Omitting these fields leaves the controller disabled. The production runtime
+and API server wire the controller when the operator enables it.
+
+`python3 scripts/test-webui.py --live-engine` adds a real local sing-box process
+to each disposable browser fixture. It proves live server-card selection without
+a policy revision and displays actual failed measurements for unreachable test
+nodes. This fixture removes the TUN inbound and does not steer RouterOS traffic.
+For a manual preview use `-real-subscriptions -live-engine` with a private
+persistent state directory. `-seed-cached-subscriptions` can populate an empty
+preview from its saved subscription cache; it preserves existing models/drafts.
+
+The catalog now includes 16 domain lists and 11 public IPv4 lists: Cloudflare,
+CloudFront, Hetzner, OVH, DigitalOcean, and network lists for supported services.
+Network snapshots create destination-CIDR rules and never add CIDRs to the DNS
+namespace. The selected route affects traffic that actually enters the engine;
+RouterOS interception of public destination networks requires separate native
+acceptance. Network sources reject local/reserved prefixes, IPv6, noncanonical
+CIDRs and over-limit data rather than dropping records silently.

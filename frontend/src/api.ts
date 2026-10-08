@@ -67,6 +67,19 @@ export function copy<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 export const errors: Record<string, string> = {
+  engine_not_connected:
+    "API sing-box не подключён. Можно подготовить выбор сервера в черновике.",
+  engine_unavailable: "Нет связи с sing-box. Текущий сервер не подтверждён.",
+  engine_switch_failed:
+    "Движок не подтвердил переключение. Обновите состояние и повторите.",
+  stale_engine_revision:
+    "Конфигурация движка изменилась. Обновите панель и повторите выбор.",
+  invalid_selector_member: "Сервер отсутствует в действующем ручном селекторе.",
+  invalid_network_list:
+    "Нужен список канонических публичных IPv4-подсетей. IPv6 и локальные сети не поддерживаются.",
+  empty_network_list: "В источнике нет IPv4-подсетей.",
+  list_network_limit:
+    "Список превышает лимит 4096 подсетей. Данные не обрезаются.",
   invalid_model:
     "Правка нарушает связи модели. Проверьте участников групп, правила и наличие включённого узла.",
   empty_group: "Выберите хотя бы одного участника группы.",

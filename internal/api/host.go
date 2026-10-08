@@ -340,3 +340,18 @@ func (h *Host) Inspect(ctx context.Context, probe func(context.Context) error) e
 	defer done()
 	return probe(c)
 }
+
+// Control serializes a narrow trusted selector operation with activation. It
+// requires a live committed engine and never changes topology or the model.
+// A withdrawn readiness signal must not prevent selecting a working server.
+func (h *Host) Control(ctx context.Context, operation func(context.Context) error) error {
+	h.op.Lock()
+	defer h.op.Unlock()
+	v := h.View()
+	if h.closed.Load() || !h.o.Core.Status().Process.Live || v.Pending {
+		return errors.New("engine not ready")
+	}
+	c, done := h.bounded(ctx)
+	defer done()
+	return operation(c)
+}

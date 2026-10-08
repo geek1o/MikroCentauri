@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import SelectorPanel from "./SelectorPanel.svelte";
   import IPv6Notice from "./IPv6Notice.svelte";
   import {
     api,
@@ -45,6 +46,12 @@
     subscriptions = $state<any[]>([]),
     logs = $state<any[]>([]),
     plan = $state<any>();
+  let engine = $state<any>();
+  let engineError = $state("");
+  let nodeHealth = $state<Record<string, any>>({});
+  let listCategory = $state("all");
+  let customKind = $state("domains");
+  let enginePolling = false;
   let catalog = $state<any[]>([]),
     listSnapshots = $state<any[]>([]);
   let selectedLists = $state<string[]>([]),
@@ -113,10 +120,12 @@
     },
   ];
   let visibleCatalog = $derived(
-    catalog.filter((x) =>
-      (x.name + " " + x.description)
-        .toLowerCase()
-        .includes(listSearch.toLowerCase()),
+    catalog.filter(
+      (x) =>
+        (x.name + " " + x.description)
+          .toLowerCase()
+          .includes(listSearch.toLowerCase()) &&
+        (listCategory === "all" || x.kind === listCategory),
     ),
   );
   let pref = $state({ language: "ru", theme: "system", time_zone: "UTC" }),
@@ -274,6 +283,7 @@
       config.policy.dns.selected_domains ||= [];
     }
     system = await api("system");
+    await refreshEngine();
     catalog = (await optional("traffic-lists/catalog")) || [];
     listSnapshots = (await optional("traffic-lists")) || [];
     if (!outbounds.includes(listOutbound))
@@ -375,6 +385,54 @@
       tolerance: g.tolerance || 50,
     };
   }
+  async function refreshEngine() {
+    if (!system?.engine_connected) {
+      engine = undefined;
+      engineError = "";
+      return;
+    }
+    if (enginePolling) return;
+    enginePolling = true;
+    try {
+      engine = await api("engine");
+      engineError = "";
+      for (const [id, latency] of Object.entries(engine.latency || {})) {
+        const checkedAt=engine.latency_checked_at?.[id] || engine.checked_at;
+        if (!nodeHealth[id]?.checking && (!nodeHealth[id]?.checked_at || Date.parse(checkedAt)>Date.parse(nodeHealth[id].checked_at)))
+          nodeHealth[id] = {success:true,latency_ms:latency,checked_at:checkedAt};
+      }
+    } catch (e) {
+      engine = undefined;
+      engineError = errorMessage(e);
+    } finally {
+      enginePolling = false;
+    }
+  }
+  async function selectLive(group: string, node: string) {
+    engine = await api("engine/select", {
+      group,
+      node,
+      revision: engine.revision,
+    });
+    notice =
+      "Сервер переключён в движке. Новые соединения используют выбранный маршрут.";
+  }
+  async function probeLive(node: string) {
+    if (nodeHealth[node]?.checking || !engine) return;
+    nodeHealth[node] = { checking: true };
+    try {
+      nodeHealth[node] = await api("engine/delay", {
+        node,
+        revision: engine.revision,
+      });
+    } catch (e) {
+      nodeHealth[node] = {
+        success: false,
+        checked_at: new Date().toISOString(),
+      };
+      error = errorMessage(e);
+    }
+  }
   async function switchNode(id: string, selected: string) {
     await savePolicy((c) => {
       const g = c.model.groups.find((x) => x.id === id);
@@ -392,6 +450,7 @@
       ? {
           id: "custom-" + Date.now(),
           name: customList.name,
+          kind: customKind,
           url: customList.url,
         }
       : undefined;
@@ -639,7 +698,14 @@
         : "dashboard";
     };
     window.addEventListener("hashchange", change);
-    return () => window.removeEventListener("hashchange", change);
+    const poll = setInterval(() => {
+      if (logged && (page === "dashboard" || page === "groups") && !busy)
+        refreshEngine();
+    }, 3000);
+    return () => {
+      clearInterval(poll);
+      window.removeEventListener("hashchange", change);
+    };
   });
 </script>
 
@@ -718,14 +784,24 @@
           </p>
           <h1>{pages.find((x) => x[0] === page)?.[1] || "Обзор"}</h1>
         </div>
-        <button onclick={() => run(load)} disabled={busy}>↻ Обновить</button>
+        <div class="header-actions">
+          <span class="connection-pill" class:connected={!!engine}
+            >{engine
+              ? "sing-box подключён"
+              : system?.engine_connected
+                ? "Нет связи с движком"
+                : "Движок не подключён"}</span
+          ><button onclick={() => run(load)} disabled={busy}>↻ Обновить</button>
+        </div>
       </header>
       {#if system?.runtime_simulated}<div class="preview-banner" role="note">
           <strong>Тестовый стенд</strong>
           <span
             >RouterOS и применение маршрутов симулируются. {system.subscriptions_simulated
               ? "Подписки возвращают тестовые данные."
-              : "Подписки скачиваются настоящим загрузчиком."}</span
+              : "Подписки скачиваются настоящим загрузчиком."}{system.engine_connected
+              ? " sing-box работает; переключения и задержки настоящие."
+              : ""}</span
           >
         </div>{/if}
       {#if error}<div class="error" role="alert">
@@ -880,30 +956,17 @@
             {#if !config.model.groups.length}<p>
                 Сначала добавьте серверы и создайте селектор.
               </p>{/if}
-            {#each config.model.groups as g}<div class="selector-row">
-                <div>
-                  <strong>{g.id}</strong>
-                  <p class="muted">
-                    {g.members.length} серверов · {g.type === "selector"
-                      ? "Ручной выбор"
-                      : g.type === "urltest"
-                        ? "Автоматический выбор"
-                        : "Резервирование"}
-                  </p>
-                </div>
-                {#if g.type === "selector"}<label
-                    >Сервер для {g.id}<select
-                      aria-label={"Сервер для " + g.id}
-                      value={g.selected || g.members[0]}
-                      disabled={busy}
-                      onchange={(e) =>
-                        run(() => switchNode(g.id, e.currentTarget.value))}
-                      >{#each g.members as id}<option value={id}
-                          >{labelFor(id)}</option
-                        >{/each}</select
-                    ></label
-                  >{:else}<span>Выбор выполняет движок</span>{/if}
-              </div>{/each}
+            {#if engineError}<p class="error">{engineError}</p>{/if}
+            {#each config.model.groups as g}<SelectorPanel
+                group={g}
+                nodes={config.model.endpoints}
+                live={engine?.groups?.find((x: any) => x.id === g.id)}
+                health={nodeHealth}
+                {busy}
+                onDraft={(id, node) => run(() => switchNode(id, node))}
+                onLive={(id, node) => run(() => selectLive(id, node))}
+                onProbe={probeLive}
+              />{/each}
           </section>
           <div class="grid stats">
             <section class="card">
@@ -1518,6 +1581,34 @@
             {#if resourceErrors["traffic-lists/catalog"]}<p class="error">
                 {resourceErrors["traffic-lists/catalog"]}
               </p>{/if}
+            <div class="catalog-tabs" role="group" aria-label="Тип списков">
+              {#each [["all", "Все списки"], ["domains", "Домены"], ["networks", "CDN и IP-сети"]] as tab}<button
+                  aria-pressed={listCategory === tab[0]}
+                  class:chosen={listCategory === tab[0]}
+                  onclick={() => (listCategory = tab[0])}
+                  >{tab[1]}
+                  <span
+                    >{catalog.filter(
+                      (x) => tab[0] === "all" || x.kind === tab[0],
+                    ).length}</span
+                  ></button
+                >{/each}
+            </div>
+            <div class="catalog-selection">
+              <span class="muted small"
+                >Выбрано: {selectedLists.length} · Маршрут: {labelFor(
+                  listOutbound,
+                )}</span
+              ><button
+                class="primary"
+                disabled={busy || !selectedLists.length}
+                onclick={() => run(() => importLists())}
+                >Добавить выбранные списки ({selectedLists.length})</button
+              >{#if selectedLists.length}<button
+                  class="text"
+                  onclick={() => (selectedLists = [])}>Снять выбор</button
+                >{/if}
+            </div>
             <div class="list-catalog">
               {#each visibleCatalog as item}<label
                   class="list-card"
@@ -1537,26 +1628,21 @@
                         (r) => r.id === "list-" + item.id,
                       )
                         ? "Добавлен в конфигурацию"
-                        : "Готовый список"}</span
+                        : item.kind === "networks"
+                          ? "IPv4-подсети"
+                          : "Домены"}</span
                     ></span
                   >
                 </label>{/each}
             </div>
-            <div class="actions">
-              <button
-                class="primary"
-                disabled={busy || !selectedLists.length}
-                onclick={() => run(() => importLists())}
-                >Добавить выбранные списки ({selectedLists.length})</button
-              >
-            </div>
+
             <p class="muted small">
               Источник: <a
                 href="https://github.com/itdoginfo/allow-domains"
                 target="_blank"
                 rel="noreferrer">itdoginfo/allow-domains</a
-              >. Скачивается текстовый список доменов; содержимое проверяется и
-              сохраняется перед применением.
+              >. Скачивается текстовый список доменов или IPv4-подсетей;
+              содержимое проверяется и сохраняется перед применением.
             </p>
           </section>
           <section class="card">
@@ -1571,7 +1657,9 @@
                 <div>
                   <strong>{list.name}</strong>
                   <p>
-                    {list.domain_count} доменов · Обновлён {date(
+                    {list.kind === "networks"
+                      ? list.prefix_count + " подсетей"
+                      : list.domain_count + " доменов"} · Обновлён {date(
                       list.updated_at,
                     )}
                   </p>
@@ -1634,8 +1722,8 @@
           <section class="card">
             <h2>Свой список по URL</h2>
             <p class="muted">
-              HTTPS-файл: по одному домену на строку, комментарии начинаются с #
-              или //. URL хранится приватно.
+              HTTPS-файл: по одному домену или IPv4-префиксу на строку,
+              комментарии начинаются с # или //. URL хранится приватно.
             </p>
             <form
               onsubmit={(e) => {
@@ -1645,6 +1733,12 @@
             >
               <div class="grid">
                 <label
+                  >Тип списка<select bind:value={customKind}
+                    ><option value="domains">Домены</option><option
+                      value="networks">IPv4-подсети</option
+                    ></select
+                  ></label
+                ><label
                   >Название списка<input
                     bind:value={customList.name}
                     required
@@ -1671,8 +1765,10 @@
               применяются к переданным именам. В нативном режиме DNS допускает
               только конечный набор имён: при импорте добавляются сами домены
               списка. Произвольные поддомены автоматически не допускаются; их
-              нужно добавить в DNS отдельно. IP-подсети, альтернативный DNS и
-              IPv6 не входят в покрытие этого каталога.
+              нужно добавить в DNS отдельно. IP-списки задают маршруты для
+              трафика, который проходит через движок. Перехват этих подсетей
+              RouterOS требует отдельной проверки. Альтернативный DNS и IPv6
+              этим каталогом не изолируются.
             </p>
             <a href="#dns">Проверить DNS-допуск</a>
           </section>
@@ -1683,45 +1779,32 @@
               Одна группа может обслуживать несколько списков сайтов. Выбирайте
               сервер здесь, а списки привязывайте к группе.
             </p>
-            {#each config.model.groups as g}<div class="row">
-                <div>
-                  <strong>{g.id}</strong>
-                  <p>
-                    {g.type === "selector"
-                      ? "Ручной выбор"
-                      : g.type === "urltest"
-                        ? "Автоматический выбор"
-                        : "Резервирование"} · {g.members.length} серверов
-                  </p>
-                </div>
-                <div class="actions">
-                  {#if g.type === "selector"}<label class="inline-selector"
-                      >Сервер для {g.id}<select
-                        aria-label={"Сервер для " + g.id}
-                        value={g.selected || g.members[0]}
-                        disabled={busy}
-                        onchange={(e) =>
-                          run(() => switchNode(g.id, e.currentTarget.value))}
-                        >{#each g.members as id}<option value={id}
-                            >{labelFor(id)}</option
-                          >{/each}</select
-                      ></label
-                    >{/if}
-                  <button onclick={() => editGroup(g)}>Изменить группу</button
-                  ><button
-                    class="danger"
-                    disabled={busy}
-                    onclick={() =>
-                      run(() =>
-                        savePolicy((c) => {
-                          c.model.groups = c.model.groups.filter(
-                            (x) => x.id !== g.id,
-                          );
-                        }),
-                      )}>Удалить группу</button
-                  >
-                </div>
-              </div>{/each}
+            {#if engineError}<p class="error">{engineError}</p>{/if}
+            {#each config.model.groups as g}<SelectorPanel
+                group={g}
+                nodes={config.model.endpoints}
+                live={engine?.groups?.find((x: any) => x.id === g.id)}
+                health={nodeHealth}
+                {busy}
+                onDraft={(id, node) => run(() => switchNode(id, node))}
+                onLive={(id, node) => run(() => selectLive(id, node))}
+                onProbe={probeLive}
+                onEdit={() => editGroup(g)}
+              />
+              <details class="group-maintenance">
+                <summary>Дополнительные действия с {g.id}</summary><button
+                  class="danger"
+                  disabled={busy}
+                  onclick={() =>
+                    run(() =>
+                      savePolicy((c) => {
+                        c.model.groups = c.model.groups.filter(
+                          (x) => x.id !== g.id,
+                        );
+                      }),
+                    )}>Удалить группу</button
+                >
+              </details>{/each}
           </section>
           <section class="card">
             <h2>{editingGroup ? "Изменить группу" : "Новая группа"}</h2>

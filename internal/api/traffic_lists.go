@@ -58,7 +58,7 @@ func (s *Server) trafficListsPost(w http.ResponseWriter, r *http.Request, raw []
 		found := false
 		for _, entry := range trafficlists.Catalog() {
 			if entry.ID == id {
-				specs = append(specs, trafficlists.Spec{ID: id, Name: entry.Name, URL: entry.URL})
+				specs = append(specs, trafficlists.Spec{ID: id, Name: entry.Name, URL: entry.URL, Kind: entry.Kind})
 				found = true
 				break
 			}
@@ -104,7 +104,7 @@ func (s *Server) trafficListsPost(w http.ResponseWriter, r *http.Request, raw []
 	}()
 	if fetchErr != nil {
 		code := fetchErr.Error()
-		if !strings.HasPrefix(code, "list_") && code != "empty_domain_list" && code != "invalid_domain_list" {
+		if !strings.HasPrefix(code, "list_") && code != "empty_domain_list" && code != "invalid_domain_list" && code != "invalid_network_list" && code != "empty_network_list" {
 			code = "list_download_failed"
 		}
 		reject(w, 422, code)
@@ -139,7 +139,7 @@ func installListSnapshots(m coreconfig.Model, outbound string, snapshots []traff
 		selected[d] = true
 	}
 	for _, snapshot := range snapshots {
-		rule := coreconfig.Rule{ID: "list-" + snapshot.Spec.ID, Name: snapshot.Spec.Name, Suffixes: append([]string{}, snapshot.Domains...), Outbound: outbound, Priority: 100}
+		rule := coreconfig.Rule{ID: "list-" + snapshot.Spec.ID, Name: snapshot.Spec.Name, Suffixes: append([]string{}, snapshot.Domains...), DestinationCIDRs: append([]string{}, snapshot.Prefixes...), Outbound: outbound, Priority: 100}
 		replaced := false
 		for i, old := range m.Rules {
 			if old.ID == rule.ID {

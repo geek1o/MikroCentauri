@@ -36,6 +36,8 @@ import (
 // API drafts edit policy. The pinned profile is intentionally narrower than the
 // eventual release device matrix.
 type Profile struct {
+	ControlPort        uint16                `json:"control_port,omitempty"`
+	ControlSecret      string                `json:"control_secret,omitempty"`
 	Schema             int                   `json:"schema"`
 	Directory          string                `json:"directory"`
 	DNSListen          string                `json:"dns_listen"`
@@ -131,6 +133,9 @@ func privateAddress(s string) (netip.Addr, int, error) {
 var ifacePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,14}$`)
 
 func (p Profile) Validate(m coreconfig.Model) error {
+	if (p.ControlPort == 0 && p.ControlSecret != "") || (p.ControlPort != 0 && (p.ControlPort == 5354 || p.ControlPort == 2080 || len(p.ControlSecret) < 32 || len(p.ControlSecret) > 256 || strings.ContainsAny(p.ControlSecret, "\x00\r\n"))) {
+		return errors.New("invalid private engine control profile")
+	}
 	if !ifacePattern.MatchString(p.IngressInterface) || !ifacePattern.MatchString(p.LANInterface) || p.IngressInterface == "mc-tun" || p.Table < 1 || p.Table >= 253 || p.RulePriority < 1 || p.RulePriority >= 32766 || p.LocalRulePriority < 0 || p.LocalRulePriority >= p.RulePriority {
 		return errors.New("invalid kernel topology")
 	}
@@ -277,7 +282,7 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 			return a, nil
 		}
 	}
-	t, e := coreactivation.NewTransition(coreactivation.TransitionOptions{Directory: filepath.Join(dir, "transitions"), Store: store, Model: m, ResolveRuleSets: resolve, Activation: coreactivation.Options{Ledger: ledger, Engine: alloc, Barrier: barrier, Prefix: prefix, Capacity: p.Capacity, Ports: coreconfig.Options{DNSPort: 5354, MixedPort: 2080}, RealDNSAddress: p.RealDNSAddress, Timeout: 25 * time.Second}, Process: supervisor.Options{Binary: binary, Directory: filepath.Join(dir, "process"), ReadyTimeout: 25 * time.Second, StopTimeout: 2 * time.Second}})
+	t, e := coreactivation.NewTransition(coreactivation.TransitionOptions{Directory: filepath.Join(dir, "transitions"), Store: store, Model: m, ResolveRuleSets: resolve, Activation: coreactivation.Options{Ledger: ledger, Engine: alloc, Barrier: barrier, Prefix: prefix, Capacity: p.Capacity, Ports: coreconfig.Options{DNSPort: 5354, MixedPort: 2080, ControlPort: p.ControlPort, ControlSecret: p.ControlSecret}, RealDNSAddress: p.RealDNSAddress, Timeout: 25 * time.Second}, Process: supervisor.Options{Binary: binary, Directory: filepath.Join(dir, "process"), ReadyTimeout: 25 * time.Second, StopTimeout: 2 * time.Second}})
 	if e != nil {
 		store.Close()
 		ledger.Close()

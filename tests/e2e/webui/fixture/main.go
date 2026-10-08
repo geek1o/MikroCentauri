@@ -34,6 +34,7 @@ import (
 )
 
 type runtime struct {
+	engine            *previewEngine
 	model             coreconfig.Model
 	revision          uint64
 	binary, directory string
@@ -85,7 +86,16 @@ func (r *runtime) Apply(ctx context.Context, revision uint64, m coreconfig.Model
 	if err != nil {
 		return err
 	}
+	if r.engine != nil {
+		if err := r.engine.Start(ctx, m); err != nil {
+			r.engine.Start(context.Background(), r.model)
+			return err
+		}
+	}
 	if err = config.WriteAtomic(filepath.Join(r.directory, "runtime-model.json"), raw); err != nil {
+		if r.engine != nil {
+			r.engine.Start(context.Background(), r.model)
+		}
 		return err
 	}
 	r.model = m
@@ -124,6 +134,8 @@ func (p *providers) Refresh(_ context.Context, spec subscriptions.Spec) (subscri
 	return s, nil
 }
 func main() {
+	seedCache := flag.Bool("seed-cached-subscriptions", false, "seed an empty manual preview from its existing private subscription cache")
+	liveEngine := flag.Bool("live-engine", false, "run a real loopback SOCKS sing-box engine; RouterOS remains simulated")
 	binary := flag.String("sing-box", "", "pinned real validator")
 	realSubscriptions := flag.Bool("real-subscriptions", false, "use the production HTTPS subscription downloader")
 	stateDirectory := flag.String("state", "", "persistent private manual-preview state directory")
@@ -187,6 +199,16 @@ func main() {
 		}
 		rt.model, rt.revision = saved.Model, saved.Revision
 	}
+	var engine api.EngineControl
+	if *liveEngine {
+		child := &previewEngine{binary: *binary, dir: dir}
+		if err := child.Start(context.Background(), rt.model); err != nil {
+			panic(err)
+		}
+		defer child.Close()
+		rt.engine = child
+		engine = child
+	}
 	providerNode, _ := endpoints.ParseURI("ss://YWVzLTEyOC1nY206c3ViLWZpeHR1cmU@192.0.2.21:8443#Subscription%20node")
 	providerNode.Enabled = true
 	var provider api.SubscriptionManager = &providers{node: providerNode, states: map[string]subscriptions.State{}}
@@ -201,6 +223,41 @@ func main() {
 		panic(err)
 	}
 	defer subs.Close()
+	if *seedCache && *realSubscriptions && *liveEngine && len(rt.model.Endpoints) == 0 && len(rt.model.Groups) == 0 {
+		if _, err := os.Stat(filepath.Join(dir, "draft.json")); os.IsNotExist(err) {
+			views, err := subs.List()
+			if err != nil {
+				panic("private subscription cache unavailable")
+			}
+			next, err := rt.model.Clone()
+			if err != nil {
+				panic(err)
+			}
+			seen := map[string]bool{}
+			members := []string{}
+			for _, v := range views {
+				state, err := provider.Load(v.ID)
+				if err != nil {
+					continue
+				}
+				for _, n := range state.Nodes {
+					if !seen[n.ID] {
+						seen[n.ID] = true
+						n.Enabled = true
+						next.Endpoints = append(next.Endpoints, n)
+						members = append(members, n.ID)
+					}
+				}
+			}
+			if len(members) > 0 {
+				next.Groups = append(next.Groups, coreconfig.Group{ID: "proxy", Type: "selector", Members: members, Selected: members[0]})
+				if err := rt.Apply(context.Background(), rt.revision, next); err != nil {
+					panic("preview cache seeding failed")
+				}
+			}
+		}
+	}
+
 	server := httptest.NewUnstartedServer(nil)
 	server.Listener.Close()
 	server.Listener, err = net.Listen("tcp", *listen)
@@ -226,7 +283,7 @@ func main() {
 		}
 		listURL = source.URL
 	}
-	app, err := api.New(api.Options{TrafficLists: listManager, SimulatedRuntime: true, SimulatedSubscriptions: !*realSubscriptions, Directory: dir, Auth: auth, Model: rt.model, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin})
+	app, err := api.New(api.Options{Engine: engine, TrafficLists: listManager, SimulatedRuntime: true, SimulatedSubscriptions: !*realSubscriptions, Directory: dir, Auth: auth, Model: rt.model, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin})
 	if err != nil {
 		panic(err)
 	}

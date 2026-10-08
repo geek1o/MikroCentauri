@@ -202,3 +202,29 @@ func TestChangedPreparedModelCannotGrantInitialHostReadiness(t *testing.T) {
 		t.Fatal("stale plan granted readiness")
 	}
 }
+
+func TestControlCanRecoverSelectionWithoutPublishingReadiness(t *testing.T) {
+	h, o, _ := newTestHost(t)
+	defer h.Close(context.Background())
+	o.mu.Lock()
+	o.s.Process.Live = true
+	o.mu.Unlock()
+	calls := 0
+	operation := func(context.Context) error { calls++; return nil }
+	if h.Control(context.Background(), operation) != nil || calls != 1 || h.View().Ready {
+		t.Fatal("selection could not recover an unready live engine or published readiness")
+	}
+	o.mu.Lock()
+	o.s.Namespace.Pending = &namespace.Pending{}
+	o.mu.Unlock()
+	if h.Control(context.Background(), operation) == nil || calls != 1 {
+		t.Fatal("selection entered a pending transition")
+	}
+	o.mu.Lock()
+	o.s.Namespace.Pending = nil
+	o.s.Process.Live = false
+	o.mu.Unlock()
+	if h.Control(context.Background(), operation) == nil || calls != 1 {
+		t.Fatal("selection accepted a stopped engine")
+	}
+}
