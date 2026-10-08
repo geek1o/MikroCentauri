@@ -31,3 +31,21 @@ It published amd64/arm64 artifacts and anonymously accessible corresponding
 sources, image and catalog. The immutable image index was
 sha256:2240674cb66bd5170f7c7eb36b1fa2d899a8c2e9f4d2d14f8561d52743448c52.
 The changes described above require their own subsequent build.
+
+## Published build
+
+The complete update was published from main commit
+3c359b4c45773522b33e133c90642e24ed30f6af. Both build and publish succeeded:
+https://github.com/geek1o/MikroCentauri/actions/runs/37746561810
+
+Release:
+https://github.com/geek1o/MikroCentauri/releases/tag/build-3c359b4c45773522b33e133c90642e24ed30f6af
+
+The live catalog and app manifest were retrieved and matched the published
+immutable image index:
+sha256:ed85cbe098918a5b1bac37f01a4f05a2bd3ada080d5b007bc48f4baddd23da7a
+
+The publication receipt confirms anonymous image/source access. The release
+includes amd64/arm64 import archives, OCI transport, corresponding sources,
+checksums, SBOM and provenance. Local browser acceptance passed all 14 scenarios
+in Chromium and WebKit; the real engine recovery test passed with the race detector.
