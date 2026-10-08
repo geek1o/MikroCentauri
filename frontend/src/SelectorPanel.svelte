@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { testTargetLabel } from "./test-targets";
+  import { latencyTone } from "./latency";
   import type { Group, Endpoint } from "./types";
   let {
     group,
@@ -83,6 +85,9 @@
       Автоматически · проверка каждые {group.interval || "3m"} · допуск {group.tolerance ||
         50} мс. Во время использования недоступные серверы исключаются при проверке.
       Режим работает в sing-box даже при закрытой панели.
+      <span class="test-target"
+        >Цель URLTest: {testTargetLabel(group.test_target)}</span
+      >
       {#if live?.type !== "urltest"}Изменение режима ещё не применено.{/if}
     </p>{/if}
   <div class="selector-toolbar">
@@ -105,6 +110,10 @@
     >{#if onEdit}<button class="text" onclick={onEdit}>Настроить выбор</button
       >{/if}
   </div>
+  <p class="latency-legend">
+    Задержка HTTPS: зелёный &lt; 150 мс · жёлтый 150–399 мс · красный ≥ 400 мс
+    или нет ответа.
+  </p>
   <div class="server-grid">
     {#each members as id}{@const node = nodes.find(
         (n) => n.ID === id,
@@ -123,6 +132,7 @@
                 new Date(status.checked_at).toLocaleTimeString("ru-RU")
               : "Задержка HTTPS-запроса"}
             class="latency"
+            data-tone={latencyTone(status)}
             class:healthy={status?.success === true}
             class:unhealthy={status?.success === false}
             >{status?.checking

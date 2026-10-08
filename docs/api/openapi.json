@@ -169,6 +169,9 @@
                 "selected": {
                   "type": "string"
                 },
+                "test_target": {
+                  "type": "string"
+                },
                 "tolerance": {
                   "type": "integer"
                 },
@@ -1421,6 +1424,9 @@
                               "selected": {
                                 "type": "string"
                               },
+                              "test_target": {
+                                "type": "string"
+                              },
                               "tolerance": {
                                 "type": "integer"
                               },
@@ -2231,6 +2237,9 @@
                             "selected": {
                               "type": "string"
                             },
+                            "test_target": {
+                              "type": "string"
+                            },
                             "tolerance": {
                               "type": "integer"
                             },
@@ -2820,6 +2829,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -3681,6 +3693,9 @@
                             "selected": {
                               "type": "string"
                             },
+                            "test_target": {
+                              "type": "string"
+                            },
                             "tolerance": {
                               "type": "integer"
                             },
@@ -4270,6 +4285,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -5086,6 +5104,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -6067,6 +6088,9 @@
                               "selected": {
                                 "type": "string"
                               },
+                              "test_target": {
+                                "type": "string"
+                              },
                               "tolerance": {
                                 "type": "integer"
                               },
@@ -6962,6 +6986,9 @@
                         "selected": {
                           "type": "string"
                         },
+                        "test_target": {
+                          "type": "string"
+                        },
                         "tolerance": {
                           "type": "integer"
                         },
@@ -7458,6 +7485,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -8239,6 +8269,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -9481,6 +9514,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -11290,6 +11326,9 @@
                         ]
                       },
                       "selected": {
+                        "type": "string"
+                      },
+                      "test_target": {
                         "type": "string"
                       },
                       "tolerance": {
@@ -13312,6 +13351,9 @@
                               "selected": {
                                 "type": "string"
                               },
+                              "test_target": {
+                                "type": "string"
+                              },
                               "tolerance": {
                                 "type": "integer"
                               },
@@ -14584,6 +14626,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {
@@ -16318,6 +16363,9 @@
                         "selected": {
                           "type": "string"
                         },
+                        "test_target": {
+                          "type": "string"
+                        },
                         "tolerance": {
                           "type": "integer"
                         },
@@ -16552,6 +16600,9 @@
                                 ]
                               },
                               "selected": {
+                                "type": "string"
+                              },
+                              "test_target": {
                                 "type": "string"
                               },
                               "tolerance": {

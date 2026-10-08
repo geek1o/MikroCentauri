@@ -12,6 +12,7 @@ export interface Group {
   type: string;
   members: string[];
   selected?: string;
+  test_target?: string;
   interval?: string;
   tolerance?: number;
 }

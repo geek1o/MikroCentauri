@@ -37,6 +37,14 @@ func (m Model) Preview() ModelPreview {
 	}
 	for _, g := range m.Groups {
 		g.Members = append([]string(nil), g.Members...)
+		if g.TestTarget == "" && g.Type == "urltest" {
+			for _, target := range []string{"google", "cloudflare", "apple", "mozilla"} {
+				if g.TestURL() == TestTargetURL(target) {
+					g.TestTarget = target
+					break
+				}
+			}
+		}
 		g.URL = ""
 		p.Groups = append(p.Groups, g)
 	}

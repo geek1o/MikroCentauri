@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { testTargets } from "./test-targets";
   import SelectorPanel from "./SelectorPanel.svelte";
   import type { Config, Section, Group } from "./types";
   import { copy, split } from "./api";
@@ -44,6 +45,7 @@
   let selected = $state<string[]>([]);
   let ownSelector = $state(false),
     selectorType = $state("selector"),
+    selectorTarget = $state("google"),
     selectorInterval = $state("1m"),
     selectorTolerance = $state(50),
     selectorMembers = $state<string[]>([]);
@@ -100,6 +102,7 @@
     );
     ownSelector = !!managed;
     selectorType = managed?.type || "selector";
+    selectorTarget = managed ? managed.test_target || "" : "google";
     selectorInterval = managed?.interval || "1m";
     selectorTolerance = managed?.tolerance || 50;
     selectorMembers = managed
@@ -175,7 +178,11 @@
                 ? preferred
                 : selectorMembers[0],
             }
-          : { interval: selectorInterval, tolerance: selectorTolerance }),
+          : {
+              test_target: selectorTarget,
+              interval: selectorInterval,
+              tolerance: selectorTolerance,
+            }),
       };
       groups = existing
         ? config.model.groups.map((g) => (g.id === id ? replacement : copy(g)))
@@ -281,7 +288,21 @@
           ><option value="urltest">Автоматически · по задержке</option></select
         ></label
       >
-      {#if selectorType === "urltest"}<div class="section-grid">
+      {#if selectorType === "urltest"}
+        <label
+          >Цель URLTest<select
+            aria-label="Цель URLTest"
+            bind:value={selectorTarget}
+          >
+            {#if selectorTarget === ""}<option value=""
+                >Сохранить текущую цель оператора</option
+              >{/if}
+            {#each testTargets as target}<option value={target.id}
+                >{target.name} · {target.url}</option
+              >{/each}
+          </select></label
+        >
+        <div class="section-grid">
           <label
             >Период проверки<select
               aria-label="Период проверки"

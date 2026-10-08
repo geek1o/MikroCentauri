@@ -36,13 +36,14 @@ type Model struct {
 	DNS             DNS                  `json:"dns"`
 }
 type Group struct {
-	ID        string   `json:"id"`
-	Type      string   `json:"type"`
-	Members   []string `json:"members"`
-	Selected  string   `json:"selected,omitempty"`
-	URL       string   `json:"url,omitempty"`
-	Interval  string   `json:"interval,omitempty"`
-	Tolerance int      `json:"tolerance,omitempty"`
+	ID         string   `json:"id"`
+	Type       string   `json:"type"`
+	Members    []string `json:"members"`
+	Selected   string   `json:"selected,omitempty"`
+	URL        string   `json:"url,omitempty"`
+	TestTarget string   `json:"test_target,omitempty"`
+	Interval   string   `json:"interval,omitempty"`
+	Tolerance  int      `json:"tolerance,omitempty"`
 }
 type SourcePolicy struct {
 	CIDRs    []string `json:"cidrs"`
@@ -253,6 +254,9 @@ func (m Model) Validate() error {
 			if e != nil || d < time.Second || d > 24*time.Hour {
 				return errors.New("invalid group interval")
 			}
+		}
+		if g.TestTarget != "" && TestTargetURL(g.TestTarget) == "" {
+			return errors.New("unknown URLTest target")
 		}
 		if g.URL != "" {
 			u, e := url.Parse(g.URL)
