@@ -1,15 +1,21 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"mikrocentauri.local/core/internal/api"
 	"mikrocentauri.local/core/internal/coreconfig"
@@ -132,5 +138,151 @@ func TestBootstrapRejectsUnsafeInputsWithoutCreatingState(t *testing.T) {
 				t.Fatal("partial configuration committed", err)
 			}
 		})
+	}
+}
+
+func TestDirectHTTPSAppDoesNotDependOnCloudWebPlaceholders(t *testing.T) {
+	for _, tc := range []struct{ name, access, port, expected string }{
+		{"x86 private address", "192.168.88.1", "8443", "192.168.88.1"},
+		{"missing web address", "", "8443", "172.18.0.20"},
+		{"unresolved web placeholder", "[accessIP]", "8443", "172.18.0.20"},
+		{"Cloud hostname", "router.sn.mynetname.net", "8443", "172.18.0.20"},
+		{"explicit custom TCP mapping", "192.168.88.1", "9443", "192.168.88.1"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			host, port, err := directAppAccess("172.18.0.20", tc.access, tc.port)
+			if err != nil || host != tc.expected || port != tc.port {
+				t.Fatal(host, port, err)
+			}
+			data, secret := bootstrapFixture(t)
+			t.Setenv("MC_DIRECT_HTTPS", "1")
+			t.Setenv("MC_CONTAINER_IP", "172.18.0.20")
+			t.Setenv("MC_ACCESS_IP", tc.access)
+			t.Setenv("MC_ACCESS_PORT", "[accessPort]")
+			t.Setenv("MC_DIRECT_ACCESS_PORT", tc.port)
+			if err := bootstrapRouterOSApp(data, secret); err != nil {
+				t.Fatal(err)
+			}
+			settings, err := loadAppSettings(filepath.Join(data, "bootstrap/app.json"))
+			if err != nil || settings.PublicOrigin != "https://"+host+":"+port {
+				t.Fatal(settings.PublicOrigin, err)
+			}
+			t.Setenv("MC_CONTAINER_IP", "invalid")
+			os.Remove(secret)
+			if err := bootstrapRouterOSApp(data, secret); err != nil {
+				t.Fatal("existing state replaced", err)
+			}
+		})
+	}
+	for _, tc := range []struct{ container, access, port string }{
+		{"8.8.8.8", "192.168.88.1", "8443"},
+		{"172.18.0.20", "8.8.8.8", "8443"},
+		{"172.18.0.20", "192.168.88.1", "[accessPort]"},
+	} {
+		if _, _, err := directAppAccess(tc.container, tc.access, tc.port); err == nil {
+			t.Fatal("unsafe direct origin accepted")
+		}
+	}
+}
+
+func TestLegacyManifestBootstrapsWithoutCloudAccessPort(t *testing.T) {
+	data, secret := bootstrapFixture(t)
+	t.Setenv("MC_DIRECT_HTTPS", "")
+	t.Setenv("MC_DIRECT_ACCESS_PORT", "")
+	t.Setenv("MC_ACCESS_IP", "192.168.88.1")
+	t.Setenv("MC_CONTAINER_IP", "172.18.0.20")
+	t.Setenv("MC_ACCESS_PORT", "")
+	if err := bootstrapRouterOSApp(data, secret); err != nil {
+		t.Fatal(err)
+	}
+	settings, err := loadAppSettings(filepath.Join(data, "bootstrap/app.json"))
+	if err != nil || settings.PublicOrigin != "https://192.168.88.1:8443" {
+		t.Fatal(settings.PublicOrigin, err)
+	}
+}
+
+func TestDirectBootstrapAppProcess(t *testing.T) {
+	if path := os.Getenv("MIKROCENTAURI_TEST_DIRECT_BOOTSTRAP"); path != "" {
+		settings, err := loadAppSettings(path)
+		if err == nil {
+			err = initializeAppAuth(filepath.Join(settings.DataDirectory, "api"), settings.PasswordFile)
+		}
+		if err == nil {
+			err = apiCommand("api-serve", appServeArgs(settings))
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestDirectBootstrapStartsTLSWithoutCloudAndPreservesRestart(t *testing.T) {
+	data, secret := bootstrapFixture(t)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, port, _ := net.SplitHostPort(listener.Addr().String())
+	listener.Close()
+	t.Setenv("MC_DIRECT_HTTPS", "1")
+	t.Setenv("MC_DIRECT_ACCESS_PORT", port)
+	t.Setenv("MC_ACCESS_IP", "127.0.0.1")
+	t.Setenv("MC_CONTAINER_IP", "172.18.0.20")
+	t.Setenv("MC_ACCESS_PORT", "") // RouterOS without a Cloud/web mapping.
+	if err := bootstrapRouterOSApp(data, secret); err != nil {
+		t.Fatal(err)
+	}
+	settingsPath := filepath.Join(data, "bootstrap/app.json")
+	settings, err := loadAppSettings(settingsPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Relocate only the listener for this host test of bootstrap output and API
+	// serve argv. Full app-run /data validation is exercised by container acceptance.
+	settings.Listen = net.JoinHostPort("127.0.0.1", port)
+	settingsBytes, _ := json.Marshal(settings)
+	if err := os.WriteFile(settingsPath, settingsBytes, 0600); err != nil {
+		t.Fatal(err)
+	}
+	var authBefore []byte
+	for restart := 0; restart < 2; restart++ {
+		command := exec.Command(os.Args[0], "-test.run", "^TestDirectBootstrapAppProcess$")
+		command.Env = append(os.Environ(), "MIKROCENTAURI_TEST_DIRECT_BOOTSTRAP="+settingsPath)
+		var output bytes.Buffer
+		command.Stdout, command.Stderr = &output, &output
+		if err := command.Start(); err != nil {
+			t.Fatal(err)
+		}
+		done := make(chan error, 1)
+		go func() { done <- command.Wait() }()
+		deadline := time.Now().Add(15 * time.Second)
+		for appHealth(context.Background(), settings) != nil {
+			if time.Now().After(deadline) {
+				command.Process.Kill()
+				<-done
+				t.Fatal("direct bootstrap did not become live", output.String())
+			}
+			time.Sleep(50 * time.Millisecond)
+		}
+		auth, err := os.ReadFile(filepath.Join(data, "api/auth.json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if restart == 0 {
+			authBefore = auth
+		} else if !bytes.Equal(authBefore, auth) {
+			t.Fatal("restart replaced authentication")
+		}
+		command.Process.Signal(os.Interrupt)
+		select {
+		case err := <-done:
+			if err != nil {
+				t.Fatal(err, output.String())
+			}
+		case <-time.After(10 * time.Second):
+			command.Process.Kill()
+			<-done
+			t.Fatal("startup child did not stop")
+		}
 	}
 }

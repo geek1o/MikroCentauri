@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -268,7 +269,7 @@ func appCommand(action string, args []string) (result error) {
 		return errors.New("unsupported app command or arguments")
 	}
 	if action == "app-run" && os.Getenv("MC_APP_BOOTSTRAP") == "1" && *settings == "/data/bootstrap/app.json" {
-		if e := bootstrapApp("/data", os.Getenv("MC_CONTAINER_IP"), os.Getenv("MC_ACCESS_IP"), os.Getenv("MC_ACCESS_PORT"), "/run/secrets/admin_password"); e != nil {
+		if e := bootstrapRouterOSApp("/data", "/run/secrets/admin_password"); e != nil {
 			return e
 		}
 	}
@@ -296,6 +297,9 @@ func appCommand(action string, args []string) (result error) {
 	}
 	if e := initializeAppAuth(filepath.Join(s.DataDirectory, "api"), s.PasswordFile); e != nil {
 		return e
+	}
+	if s.PublicOrigin != "" {
+		fmt.Fprintln(os.Stdout, "MikroCentauri management URL:", s.PublicOrigin)
 	}
 	// Existing api-serve owns SIGTERM/SIGINT, child shutdown, subscription owner,
 	// kernel preflight, native recovery and TLS. No shell or secondary daemon.
