@@ -3,7 +3,7 @@
 The primary workflow is subscription → selector → site lists → reviewed apply.
 An existing selector also supports a separate immediate action: change the
 running engine's selected member. Its state is read back from sing-box and shown
-on server rows. Draft selection and live selection are visibly distinct.
+on server tiles. Draft selection and live selection are visibly distinct.
 
 ## Visual and interaction principles
 
@@ -11,7 +11,7 @@ The interface uses a midnight-blue sky, original SVG constellations and layered
 reading surfaces. [Proton 2025](https://github.com/ChesterGoodiny/luci-theme-proton2025)
 was reviewed as an appearance reference; its assets and code are not dependencies.
 Light, dark and system themes share semantic status colors and keyboard focus
-outlines. Controls and server rows remain opaque for readability.
+outlines. Controls and server tiles remain opaque for readability.
 
 System settings provide stars, constellations or a plain background, star density,
 brightness, scale, optional motion and a separate login-background switch. Changes
@@ -29,15 +29,16 @@ star count is bounded to 200, generated deterministically. Optional motion uses
 one slow CSS animation; `prefers-reduced-motion` disables it. The constellation
 artwork is illustrative, not an astronomical chart.
 
-Server rows expose protocol, address, current selection, measured latency and
-measurement time. Search and ordering help navigate larger subscriptions.
+Compact server tiles expose protocol, address, current selection and measured
+latency; measurement time stays in the latency tooltip so checks never change
+tile height. The shared SVG orbital logo appears on login, navigation and favicon. Search and ordering help navigate larger subscriptions.
 Tests measure an HTTPS request through an individual outbound, not ICMP.
 Failures display “Нет ответа”; there are no invented successful measurements.
 Up to three UI checks run concurrently. Selection is independent of pending
 network checks. Existing connections are not interrupted by selector changes.
 
 Onboarding steps appear only before servers are configured. Working dashboards
-prioritize selectors and current state. Server rows retain distinct live/draft
+prioritize selectors and current state. Server tiles retain distinct live/draft
 actions and collapse into a compact stacked layout on narrow screens.
 
 The catalog separates domain lists from CDN/IP networks, shows selection counts,
@@ -65,3 +66,23 @@ The native runtime serializes selection against policy transitions. A live
 engine may be selected while readiness is withdrawn, allowing recovery from a
 bad server; selection never publishes readiness or releases the traffic gate.
 The normal health owner must independently prove readiness again.
+
+## Automatic server choice
+
+Section-owned groups can be edited through Configure selection and changed
+between manual and automatic modes without adding a duplicate group or replacing
+section lists. Automatic groups use sing-box URLTest with a selectable interval
+and latency tolerance. Settings are saved to a reviewed draft; they take effect
+only after plan/apply. Other sections sharing the group are identified in the UI.
+
+URLTest performs initial probes and starts its periodic ticker when the group
+first carries traffic. It continues independently of the browser while active;
+its default idle timeout suspends checks after 30 minutes without traffic. A
+failed probe removes that member's history, so the next selection uses a healthy
+member. Tolerance prevents switches for insignificant delay differences. The
+[engine policy](https://sing-box.sagernet.org/configuration/outbound/urltest/)
+preserves existing inbound connections; a change directs new connections.
+
+A process integration test with generated URLTest policy and controlled HTTPS
+transports proves fastest-member selection, failure recovery and return after
+restoration. It does not prove native RouterOS interception or external providers.
