@@ -50,8 +50,10 @@ allow rule. After destination NAT, the request is forwarded to the container;
 opening port 8443 in the router's input chain does not authorize that path.
 
 Place the allow rule before the forward deny. Restrict it to the management LAN
-interface and existing management source address-list, the App's internal bridge,
-the exact container destination IP, TCP port 8443 and destination-NAT connections.
+interface and existing management source address-list, the exact container
+destination IP, TCP port 8443 and destination-NAT connections. Avoid binding this
+rule to the App-owned internal bridge object: editing or restarting the App can
+recreate that bridge with a different RouterOS ID, leaving such a rule invalid.
 Keep established/related return traffic allowed by the existing policy. Review
 the address again if the App is recreated with a different container IP.
 Do not disable the firewall or add a general container-network allow rule.
@@ -59,3 +61,18 @@ Do not disable the firewall or add a general container-network allow rule.
 Check the App and container health, destination-NAT and forward-drop counters
 before changing anything. A successful correction should permit the HTML, JS/CSS
 assets and `/api/v1/health/live` over HTTPS without restarting the container.
+
+## Changing the login password
+
+The RouterOS App secret supplies the initial login password. After initialization,
+MikroCentauri uses its protected authentication database; changing the App secret
+does not rotate that existing credential. An environment or App metadata edit may
+also recreate the App network, independently of authentication.
+
+Use an explicit credential-rotation procedure that preserves the configuration.
+With operator approval, an isolated private staging directory can use the shipped
+`api-auth-init` command to derive a new authentication record from a private copy
+of the current mounted App secret. Replace only the authentication record
+atomically, retain mode 0600, restart the application to reload it, verify the new
+login and old-password rejection, and remove the staging material. Never clear
+the state volume or remove subscriptions to change a password.

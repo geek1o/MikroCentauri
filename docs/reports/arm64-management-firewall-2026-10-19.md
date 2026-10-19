@@ -39,3 +39,28 @@ certificate-verified client succeeded after firewall admission.
 This establishes management-plane operation on the observed ARM64/7.23.8 device.
 It does not qualify native selective-routing packets, forwarding privileges,
 alpha/beta releases, image upgrades or reboot persistence of the complete product.
+
+## Follow-up: App edit recreated the internal bridge
+
+An App-secret edit recreated the internal bridge under a new RouterOS object ID.
+The first scoped management rule retained its old out-interface object reference
+and became invalid (`internal not ready`). App liveness itself remained good.
+The rule was replaced with the same management-LAN, source-address-list, exact
+container IP, TCP port, connection-state and destination-NAT restrictions, while
+omitting the ephemeral out-interface binding. It remains scoped to this service
+and excludes WAN access. HTTPS liveness recovered without a restart.
+
+The changed App secret differed from the persistent authentication record; the
+initial protected bootstrap password still matched it. Only lengths and match
+results were inspected, with no credential values in logs or artifacts. After
+explicit operator approval, the shipped native authentication initializer derived
+a new credential in a private staging directory from a private copy of the mounted
+App secret. The credential was installed by atomic rename at mode 0600 and only
+the container was restarted. The old credential backup and temporary password
+copy were removed after verification.
+
+The new password returned 200 on login; the initial password returned 401. An
+authenticated configuration request returned 200 and the persisted configuration
+model checksum matched its baseline. TLS identity was verified against the
+independently retrieved App certificate. The temporary verification session was
+logged out. No router restart, state reset or subscription deletion was needed.
