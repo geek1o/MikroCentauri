@@ -17249,6 +17249,1601 @@
         ]
       }
     },
+    "/api/v1/setup/preflight": {
+      "get": {
+        "operationId": "get_setup_preflight",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "automatic_install_available": {
+                      "type": "boolean"
+                    },
+                    "checks": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "passed",
+                          "message"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "array",
+                        "null"
+                      ]
+                    },
+                    "routing_ready": {
+                      "type": "boolean"
+                    },
+                    "runtime_connected": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "checks",
+                    "runtime_connected",
+                    "routing_ready",
+                    "automatic_install_available"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup/router": {
+      "get": {
+        "operationId": "get_setup_router",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_url": {
+                      "type": "string"
+                    },
+                    "certificate_sha256": {
+                      "type": "string"
+                    },
+                    "configured": {
+                      "type": "boolean"
+                    },
+                    "editable": {
+                      "type": "boolean"
+                    },
+                    "has_password": {
+                      "type": "boolean"
+                    },
+                    "native_connected": {
+                      "type": "boolean"
+                    },
+                    "username": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "configured",
+                    "editable",
+                    "base_url",
+                    "username",
+                    "has_password",
+                    "certificate_sha256",
+                    "native_connected"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Redacted resource"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup/router/save": {
+      "post": {
+        "operationId": "post_setup_router_save",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "base_url": {
+                    "type": "string"
+                  },
+                  "certificate_pem": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "base_url",
+                  "username",
+                  "password",
+                  "certificate_pem"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "network": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "addresses": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "type": "string"
+                              },
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "interface": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "address",
+                              "interface",
+                              "disabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "available": {
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "type": "object"
+                        },
+                        "default_routes": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "disabled_known": {
+                                "type": "boolean"
+                              },
+                              "gateway": {
+                                "type": "string"
+                              },
+                              "table": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "disabled_known",
+                              "gateway",
+                              "table",
+                              "disabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "devices": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "type": "string"
+                              },
+                              "hostname": {
+                                "type": "string"
+                              },
+                              "mac": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "hostname",
+                              "address",
+                              "mac",
+                              "status"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "disk_free": {
+                          "type": "integer"
+                        },
+                        "disk_total": {
+                          "type": "integer"
+                        },
+                        "dns_remote_requests": {
+                          "type": "boolean"
+                        },
+                        "dns_servers": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "fasttrack_enabled": {
+                          "type": "integer"
+                        },
+                        "fasttrack_rules": {
+                          "type": "integer"
+                        },
+                        "fasttrack_unknown": {
+                          "type": "integer"
+                        },
+                        "ipv6": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "default_routes": {
+                              "type": "integer"
+                            },
+                            "enabled_addresses": {
+                              "type": "integer"
+                            },
+                            "forwarding": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ]
+                            },
+                            "state": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "forwarding",
+                            "enabled_addresses",
+                            "default_routes"
+                          ],
+                          "type": "object"
+                        },
+                        "memory_free": {
+                          "type": "integer"
+                        },
+                        "memory_total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "fasttrack_unknown",
+                        "ipv6",
+                        "available",
+                        "addresses",
+                        "default_routes",
+                        "devices",
+                        "dns_servers",
+                        "dns_remote_requests",
+                        "fasttrack_rules",
+                        "fasttrack_enabled",
+                        "memory_total",
+                        "memory_free",
+                        "disk_total",
+                        "disk_free"
+                      ],
+                      "type": "object"
+                    },
+                    "router": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "capabilities": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "architecture": {
+                              "type": "string"
+                            },
+                            "board": {
+                              "type": "string"
+                            },
+                            "interfaces": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "disabled": {
+                                    "type": "boolean"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "running": {
+                                    "type": "boolean"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "type",
+                                  "disabled",
+                                  "running"
+                                ],
+                                "type": "object"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "packages": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "disabled": {
+                                    "type": "boolean"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "version": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "version",
+                                  "disabled"
+                                ],
+                                "type": "object"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "platform": {
+                              "type": "string"
+                            },
+                            "resources": {
+                              "additionalProperties": {
+                                "type": "boolean"
+                              },
+                              "type": "object"
+                            },
+                            "version": {
+                              "type": "string"
+                            },
+                            "version_support_reason": {
+                              "type": "string"
+                            },
+                            "version_supported": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "architecture",
+                            "board",
+                            "platform",
+                            "packages",
+                            "resources",
+                            "interfaces",
+                            "version_supported",
+                            "version_support_reason"
+                          ],
+                          "type": "object"
+                        },
+                        "owned_counts": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        },
+                        "owned_disabled": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "capabilities",
+                        "owned_counts",
+                        "owned_disabled"
+                      ],
+                      "type": "object"
+                    },
+                    "saved": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "base_url": {
+                          "type": "string"
+                        },
+                        "certificate_sha256": {
+                          "type": "string"
+                        },
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "editable": {
+                          "type": "boolean"
+                        },
+                        "has_password": {
+                          "type": "boolean"
+                        },
+                        "native_connected": {
+                          "type": "boolean"
+                        },
+                        "username": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "configured",
+                        "editable",
+                        "base_url",
+                        "username",
+                        "has_password",
+                        "certificate_sha256",
+                        "native_connected"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "saved",
+                    "status",
+                    "router",
+                    "network"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/setup/router/test": {
+      "post": {
+        "operationId": "post_setup_router_test",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "base_url": {
+                    "type": "string"
+                  },
+                  "certificate_pem": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "base_url",
+                  "username",
+                  "password",
+                  "certificate_pem"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "network": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "addresses": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "type": "string"
+                              },
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "interface": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "address",
+                              "interface",
+                              "disabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "available": {
+                          "additionalProperties": {
+                            "type": "boolean"
+                          },
+                          "type": "object"
+                        },
+                        "default_routes": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "disabled": {
+                                "type": "boolean"
+                              },
+                              "disabled_known": {
+                                "type": "boolean"
+                              },
+                              "gateway": {
+                                "type": "string"
+                              },
+                              "table": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "disabled_known",
+                              "gateway",
+                              "table",
+                              "disabled"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "devices": {
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "address": {
+                                "type": "string"
+                              },
+                              "hostname": {
+                                "type": "string"
+                              },
+                              "mac": {
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "hostname",
+                              "address",
+                              "mac",
+                              "status"
+                            ],
+                            "type": "object"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "disk_free": {
+                          "type": "integer"
+                        },
+                        "disk_total": {
+                          "type": "integer"
+                        },
+                        "dns_remote_requests": {
+                          "type": "boolean"
+                        },
+                        "dns_servers": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "array",
+                            "null"
+                          ]
+                        },
+                        "fasttrack_enabled": {
+                          "type": "integer"
+                        },
+                        "fasttrack_rules": {
+                          "type": "integer"
+                        },
+                        "fasttrack_unknown": {
+                          "type": "integer"
+                        },
+                        "ipv6": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "default_routes": {
+                              "type": "integer"
+                            },
+                            "enabled_addresses": {
+                              "type": "integer"
+                            },
+                            "forwarding": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ]
+                            },
+                            "state": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "state",
+                            "forwarding",
+                            "enabled_addresses",
+                            "default_routes"
+                          ],
+                          "type": "object"
+                        },
+                        "memory_free": {
+                          "type": "integer"
+                        },
+                        "memory_total": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "fasttrack_unknown",
+                        "ipv6",
+                        "available",
+                        "addresses",
+                        "default_routes",
+                        "devices",
+                        "dns_servers",
+                        "dns_remote_requests",
+                        "fasttrack_rules",
+                        "fasttrack_enabled",
+                        "memory_total",
+                        "memory_free",
+                        "disk_total",
+                        "disk_free"
+                      ],
+                      "type": "object"
+                    },
+                    "router": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "capabilities": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "architecture": {
+                              "type": "string"
+                            },
+                            "board": {
+                              "type": "string"
+                            },
+                            "interfaces": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "disabled": {
+                                    "type": "boolean"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "running": {
+                                    "type": "boolean"
+                                  },
+                                  "type": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "type",
+                                  "disabled",
+                                  "running"
+                                ],
+                                "type": "object"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "packages": {
+                              "items": {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "disabled": {
+                                    "type": "boolean"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "version": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "version",
+                                  "disabled"
+                                ],
+                                "type": "object"
+                              },
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "platform": {
+                              "type": "string"
+                            },
+                            "resources": {
+                              "additionalProperties": {
+                                "type": "boolean"
+                              },
+                              "type": "object"
+                            },
+                            "version": {
+                              "type": "string"
+                            },
+                            "version_support_reason": {
+                              "type": "string"
+                            },
+                            "version_supported": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "architecture",
+                            "board",
+                            "platform",
+                            "packages",
+                            "resources",
+                            "interfaces",
+                            "version_supported",
+                            "version_support_reason"
+                          ],
+                          "type": "object"
+                        },
+                        "owned_counts": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        },
+                        "owned_disabled": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "capabilities",
+                        "owned_counts",
+                        "owned_disabled"
+                      ],
+                      "type": "object"
+                    },
+                    "saved": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "base_url": {
+                          "type": "string"
+                        },
+                        "certificate_sha256": {
+                          "type": "string"
+                        },
+                        "configured": {
+                          "type": "boolean"
+                        },
+                        "editable": {
+                          "type": "boolean"
+                        },
+                        "has_password": {
+                          "type": "boolean"
+                        },
+                        "native_connected": {
+                          "type": "boolean"
+                        },
+                        "username": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "configured",
+                        "editable",
+                        "base_url",
+                        "username",
+                        "has_password",
+                        "certificate_sha256",
+                        "native_connected"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "saved",
+                    "status",
+                    "router",
+                    "network"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
     "/api/v1/subscriptions": {
       "get": {
         "operationId": "get_subscriptions",

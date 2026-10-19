@@ -17,6 +17,8 @@ import (
 func OpenAPI() map[string]any {
 	paths := map[string]any{}
 	reads := map[string]map[string]any{
+		"setup/router":           schema(reflect.TypeFor[RouterSetupStatus]()),
+		"setup/preflight":        schema(reflect.TypeFor[SetupPreflight]()),
 		"appearance":             schema(reflect.TypeFor[Appearance]()),
 		"engine":                 schema(reflect.TypeFor[EngineState]()),
 		"traffic-lists/catalog":  schema(reflect.TypeFor[[]trafficlists.CatalogEntry]()),
@@ -57,6 +59,8 @@ func OpenAPI() map[string]any {
 	responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
 	paths["/api/v1/diagnostics/bundle"] = map[string]any{"get": operation("get", "diagnostics/bundle", responses)}
 	objects := map[string]map[string]any{
+		"setup/router/test":      schema(reflect.TypeFor[RouterSetupInput]()),
+		"setup/router/save":      schema(reflect.TypeFor[RouterSetupInput]()),
 		"sections/save":          schema(reflect.TypeFor[SectionsRequest]()),
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListRequest]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
@@ -85,6 +89,8 @@ func OpenAPI() map[string]any {
 	}
 	revisionResponse := objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema()})
 	resultSchemas := map[string]map[string]any{
+		"setup/router/test":      schema(reflect.TypeFor[RouterSetupResult]()),
+		"setup/router/save":      schema(reflect.TypeFor[RouterSetupResult]()),
 		"sections/save":          schema(reflect.TypeFor[DraftPolicyResult]()),
 		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListResult]()),
 		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),

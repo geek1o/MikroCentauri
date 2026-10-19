@@ -405,3 +405,20 @@ func testAppAPILifecycle(t *testing.T, publicOrigin string) {
 		}
 	}
 }
+
+func TestReadOnlyRouterConnectionDoesNotRequireNativeProfile(t *testing.T) {
+	s := baseAppSettings()
+	s.RouterConfig = "/data/bootstrap/router.json"
+	if _, e := loadAppSettings(appSettingsFixture(t, s)); e != nil {
+		t.Fatal("read-only setup coupled to native profile", e)
+	}
+	args := strings.Join(appServeArgs(s), " ")
+	if !strings.Contains(args, "-router-config /data/bootstrap/router.json") || strings.Contains(args, "-runtime-profile") {
+		t.Fatal("read-only connection not passed independently")
+	}
+	s.RuntimeProfile = "/data/bootstrap/runtime.json"
+	s.RouterConfig = ""
+	if _, e := loadAppSettings(appSettingsFixture(t, s)); e == nil {
+		t.Fatal("native profile without router accepted")
+	}
+}

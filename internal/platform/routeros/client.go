@@ -235,3 +235,6 @@ func (c *Client) ApplyLab(ctx context.Context, p ChangePlan) error {
 	}
 	return nil
 }
+
+// CloseIdleConnections releases a retired read-only setup client's transport.
+func (c *Client) CloseIdleConnections() { c.http.CloseIdleConnections() }
