@@ -7,6 +7,7 @@
   import SkyScene from "./SkyScene.svelte";
   import { defaultSky, type SkyPreferences } from "./sky";
   import Sections from "./Sections.svelte";
+  import RouterSetup from "./RouterSetup.svelte";
   import SelectorPanel from "./SelectorPanel.svelte";
   import IPv6Notice from "./IPv6Notice.svelte";
   import {
@@ -1160,19 +1161,8 @@
                   network?.disk_total,
                 )} всего.
               </p>
-            {:else if wizard === 1}<h3>Проверка доступа</h3>
-              <p>
-                {router
-                  ? "Авторизованный REST API отвечает."
-                  : "Доступ к RouterOS не настроен. Завершите настройку подключения при установке приложения."}
-              </p>
-              <button
-                onclick={() =>
-                  run(async () => {
-                    await diagnose("routeros");
-                  })}
-                disabled={busy}>Проверить RouterOS API</button
-              >
+            {:else if wizard === 1}<h3>Подключение к RouterOS</h3>
+              <RouterSetup onConnected={load} />
             {:else if wizard === 2}<h3>Обнаруженная сеть</h3>
               <p>
                 LAN: {(network?.addresses || [])
@@ -1249,8 +1239,9 @@
             <div class="actions">
               <button disabled={wizard === 0} onclick={() => wizard--}
                 >Назад</button
-              ><button disabled={wizard === 5} onclick={() => wizard++}
-                >Далее</button
+              ><button
+                disabled={wizard === 5 || (wizard === 1 && !router)}
+                onclick={() => wizard++}>Далее</button
               >
             </div>
           </section>

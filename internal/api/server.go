@@ -26,6 +26,8 @@ import (
 )
 
 type Options struct {
+	DefaultRouterURL       string
+	SetupProbe             func(context.Context, RouterSetupInput) (RouterClient, error)
 	Engine                 EngineControl
 	SimulatedSubscriptions bool
 	SimulatedRuntime       bool
@@ -63,15 +65,16 @@ type Event struct {
 	ConfigRevision uint64    `json:"config_revision"`
 }
 type Server struct {
-	poisoned bool
-	mu       sync.Mutex
-	opts     Options
-	dir      string
-	draft    *draft
-	plan     *plan
-	events   []Event
-	slots    chan struct{}
-	now      func() time.Time
+	routerSetup *RouterSetupInput
+	poisoned    bool
+	mu          sync.Mutex
+	opts        Options
+	dir         string
+	draft       *draft
+	plan        *plan
+	events      []Event
+	slots       chan struct{}
+	now         func() time.Time
 }
 
 func New(o Options) (*Server, error) {
@@ -128,6 +131,9 @@ func New(o Options) (*Server, error) {
 		return nil, e
 	}
 	if e := s.recoverRestoreSettings(); e != nil {
+		return nil, e
+	}
+	if e := s.loadRouterSetup(); e != nil {
 		return nil, e
 	}
 	return s, nil
@@ -270,6 +276,9 @@ func (s *Server) get(w http.ResponseWriter, r *http.Request) {
 		reject(w, 503, "restore_settings_pending")
 		return
 	}
+	if s.setupGet(w, r) {
+		return
+	}
 	if s.backupGet(w, r) {
 		return
 	}
@@ -405,7 +414,7 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 		reject(w, 400, "invalid_request")
 		return
 	}
-	if s.sectionsPost(w, r, raw, id) || s.enginePost(w, r, raw, id) || s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
+	if s.setupPost(w, r, raw, id) || s.sectionsPost(w, r, raw, id) || s.enginePost(w, r, raw, id) || s.trafficListsPost(w, r, raw, id) || s.backupPost(w, r, raw, id) || s.subscriptionWorkflow(w, r, raw, id) || s.policyWorkflow(w, r, raw, id) || s.diagnosticsPost(w, r, raw, id) || s.schedulePost(w, r, raw, id) || s.nodeProbePost(w, r, raw, id) {
 		return
 	}
 	switch r.URL.Path {

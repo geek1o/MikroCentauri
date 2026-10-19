@@ -134,6 +134,7 @@ func (p *providers) Refresh(_ context.Context, spec subscriptions.Spec) (subscri
 	return s, nil
 }
 func main() {
+	setupOnly := flag.Bool("setup-only", false, "exercise first-start read-only connection setup with a fake RouterOS transport")
 	seedCache := flag.Bool("seed-cached-subscriptions", false, "seed an empty manual preview from its existing private subscription cache")
 	liveEngine := flag.Bool("live-engine", false, "run a real loopback SOCKS sing-box engine; RouterOS remains simulated")
 	binary := flag.String("sing-box", "", "pinned real validator")
@@ -283,7 +284,20 @@ func main() {
 		}
 		listURL = source.URL
 	}
-	app, err := api.New(api.Options{Engine: engine, TrafficLists: listManager, SimulatedRuntime: true, SimulatedSubscriptions: !*realSubscriptions, Directory: dir, Auth: auth, Model: rt.model, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin})
+	options := api.Options{Engine: engine, TrafficLists: listManager, SimulatedRuntime: true, SimulatedSubscriptions: !*realSubscriptions, Directory: dir, Auth: auth, Model: rt.model, Runtime: rt, Router: &api.RouterResources{Client: routerFixture{}, Instance: m.Instance}, Subscriptions: subs, Origin: origin}
+	if *setupOnly {
+		options.Runtime = nil
+		options.Engine = nil
+		options.Router = nil
+		options.DefaultRouterURL = "https://192.168.88.1/rest"
+		options.SetupProbe = func(_ context.Context, in api.RouterSetupInput) (api.RouterClient, error) {
+			if in.Username != "fixture-reader" || in.Password != "FixtureRouterPassword-2026" {
+				return nil, errors.New("RouterOS request failed (HTTP 401; body redacted)")
+			}
+			return routerFixture{}, nil
+		}
+	}
+	app, err := api.New(options)
 	if err != nil {
 		panic(err)
 	}

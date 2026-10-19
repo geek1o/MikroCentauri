@@ -2028,3 +2028,26 @@ nav a span {
   margin-top: 6px;
   overflow-wrap: anywhere;
 }
+
+.router-setup .actions {
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.certificate-settings,
+.router-preparation {
+  margin: 18px 0;
+}
+.certificate-fingerprint {
+  overflow-wrap: anywhere;
+}
+.setup-router-result,
+.setup-installation-status {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.router-preparation li,
+.setup-installation-status li {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}

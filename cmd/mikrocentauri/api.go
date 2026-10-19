@@ -229,7 +229,7 @@ func apiCommand(action string, args []string) error {
 	if owner != nil && profile.ControlPort != 0 {
 		engine = owner
 	}
-	handler, e := api.New(api.Options{Engine: engine, Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
+	handler, e := api.New(api.Options{DefaultRouterURL: defaultRouterSetupURL(), Engine: engine, Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
 	if e != nil {
 		return e
 	}
@@ -270,4 +270,12 @@ func apiCommand(action string, args []string) error {
 		defer cancel()
 		return srv.Shutdown(shutdown)
 	}
+}
+
+func defaultRouterSetupURL() string {
+	ip, e := netip.ParseAddr(os.Getenv("MC_ROUTER_IP"))
+	if e != nil || !ip.Is4() || !ip.IsPrivate() {
+		return ""
+	}
+	return "https://" + ip.String() + "/rest"
 }

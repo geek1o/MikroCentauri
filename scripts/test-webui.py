@@ -38,7 +38,7 @@ def main():
     # Each specification gets fresh private state and its own authentication budget.
     suites = sorted(cwd.glob("*.spec.ts"))
     for project, suite in [(project, suite) for project in projects for suite in suites]:
-        proc = subprocess.Popen([str(binary), '-sing-box', str(sb)] + (['-live-engine'] if args.live_engine else []), cwd=ROOT, text=True, stdout=subprocess.PIPE)
+        proc = subprocess.Popen([str(binary), '-sing-box', str(sb)] + (['-live-engine'] if args.live_engine else []) + (['-setup-only'] if suite.name == 'setup.spec.ts' else []), cwd=ROOT, text=True, stdout=subprocess.PIPE)
         try:
             selector = selectors.DefaultSelector()
             selector.register(proc.stdout, selectors.EVENT_READ)

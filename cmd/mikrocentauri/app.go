@@ -71,8 +71,8 @@ func loadAppSettings(path string) (appSettings, error) {
 			return s, errors.New("invalid optional app input path")
 		}
 	}
-	if (s.RouterConfig == "") != (s.RuntimeProfile == "") {
-		return s, errors.New("app native startup requires both router_config and runtime_profile")
+	if s.RuntimeProfile != "" && s.RouterConfig == "" {
+		return s, errors.New("app native startup requires router_config with runtime_profile")
 	}
 	host, port, e := net.SplitHostPort(s.Listen)
 	addr, err := netip.ParseAddr(host)
@@ -204,8 +204,11 @@ func appServeArgs(s appSettings) []string {
 	if s.PublicOrigin != "" {
 		args = append(args, "-public-origin", s.PublicOrigin)
 	}
+	if s.RouterConfig != "" {
+		args = append(args, "-router-config", s.RouterConfig)
+	}
 	if s.RuntimeProfile != "" {
-		args = append(args, "-runtime-profile", s.RuntimeProfile, "-router-config", s.RouterConfig)
+		args = append(args, "-runtime-profile", s.RuntimeProfile)
 	}
 	return args
 }

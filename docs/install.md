@@ -51,6 +51,15 @@ Standard older manifests are supported without Cloud access placeholders. Keep
 the state volume when updating. See [direct HTTPS](direct-https.md) for the
 setting, custom port mappings and startup troubleshooting.
 
+## Connect RouterOS from the web interface
+
+Open Initial setup → RouterOS connection. Supply the private HTTPS REST URL,
+service-account credentials and public certificate trust, verify the connection,
+and save it. Read-only discovery no longer requires a preprovisioned native
+routing profile. See [connection setup](setup.md) for RouterOS service/account
+preparation, certificate verification, protected persistence and routing readiness.
+Saving a connection does not activate forwarding.
+
 ## Prepare protected inputs
 
 Mount the persistent `state` volume at `/data`. Use `0700` directories and
