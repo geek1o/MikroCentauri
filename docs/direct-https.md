@@ -41,3 +41,21 @@ management startup does not activate forwarding.
 
 References: [RouterOS Apps](https://manual.mikrotik.com/docs/containers/apps/),
 [IP Cloud](https://help.mikrotik.com/docs/spaces/ROS/pages/97779929/Cloud).
+
+## Access through a restrictive firewall
+
+The App's `api-secure` TCP mapping creates destination NAT to its internal IP.
+A router with a default-deny forward policy also needs an explicit management
+allow rule. After destination NAT, the request is forwarded to the container;
+opening port 8443 in the router's input chain does not authorize that path.
+
+Place the allow rule before the forward deny. Restrict it to the management LAN
+interface and existing management source address-list, the App's internal bridge,
+the exact container destination IP, TCP port 8443 and destination-NAT connections.
+Keep established/related return traffic allowed by the existing policy. Review
+the address again if the App is recreated with a different container IP.
+Do not disable the firewall or add a general container-network allow rule.
+
+Check the App and container health, destination-NAT and forward-drop counters
+before changing anything. A successful correction should permit the HTML, JS/CSS
+assets and `/api/v1/health/live` over HTTPS without restarting the container.
