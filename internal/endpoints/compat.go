@@ -30,11 +30,19 @@ func ParseURI(raw string) (Endpoint, error) {
 	if err != nil {
 		return failure()
 	}
-	allowed := map[string]bool{"security": true, "sni": true, "type": true, "encryption": true, "pbk": true, "sid": true, "fp": true, "flow": true, "spx": true, "alpn": true, "host": true, "path": true, "serviceName": true, "headerType": true, "mode": true, "obfs": true, "obfs-password": true, "insecure": true, "allowInsecure": true, "support-x25519mlkem768": true}
+	allowed := map[string]bool{"security": true, "sni": true, "type": true, "encryption": true, "pbk": true, "sid": true, "fp": true, "flow": true, "spx": true, "alpn": true, "host": true, "path": true, "serviceName": true, "authority": true, "headerType": true, "mode": true, "obfs": true, "obfs-password": true, "insecure": true, "allowInsecure": true, "support-x25519mlkem768": true}
 	for k, v := range q {
 		if !allowed[k] || len(v) != 1 {
 			return failure()
 		}
+	}
+	// Exporters commonly include an empty gRPC authority. It is a no-op, while
+	// a nonempty override is still outside the supported transport contract.
+	if q.Has("authority") {
+		if q.Get("type") != "grpc" || q.Get("authority") != "" {
+			return failure()
+		}
+		q.Del("authority")
 	}
 	for _, key := range []string{"insecure", "allowInsecure"} {
 		if q.Has(key) && q.Get(key) != "0" && q.Get(key) != "false" {

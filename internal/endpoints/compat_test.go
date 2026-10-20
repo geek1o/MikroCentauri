@@ -65,3 +65,32 @@ func TestCompatibilityOutboundsValidateWithPinnedEngine(t *testing.T) {
 		}
 	}
 }
+
+func TestEmptyGRPCAuthorityDoesNotDiscardValidNode(t *testing.T) {
+	for _, scheme := range []string{"trojan://fixture-password", "vless://bf000d23-0752-40b4-affe-68f7707a9661"} {
+		raw := scheme + "@203.0.113.10:443?security=tls&type=grpc&serviceName=proxy&alpn=h2&fp=chrome"
+		normal, e := ParseURI(raw)
+		if e != nil {
+			t.Fatal(e)
+		}
+		empty, e := ParseURI(raw + "&authority=")
+		if e != nil {
+			t.Fatal("empty authority rejected", e)
+		}
+		if normal.ID != empty.ID || empty.Transport != "grpc" || empty.ServiceName != "proxy" || !empty.TLS || empty.Fingerprint != "chrome" {
+			t.Fatal("no-op authority changed endpoint semantics")
+		}
+		if e = empty.Validate(); e != nil {
+			t.Fatal("normalized endpoint invalid", e)
+		}
+		if _, e = ParseURI(raw + "&authority=override.example"); e == nil {
+			t.Fatal("nonempty authority silently discarded")
+		}
+		if _, e = ParseURI(raw + "&authority=&authority="); e == nil {
+			t.Fatal("duplicate authorities accepted")
+		}
+	}
+	if _, e := ParseURI("trojan://fixture-password@example.com:443?type=tcp&authority="); e == nil {
+		t.Fatal("authority accepted outside gRPC")
+	}
+}
