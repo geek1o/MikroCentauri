@@ -94,6 +94,7 @@ type State struct {
 	LastAttempt   time.Time            `json:"last_attempt"`
 	LastSuccess   time.Time            `json:"last_success"`
 	Failure       string               `json:"failure,omitempty"`
+	FailureCode   string               `json:"failure_code,omitempty"`
 	ImportedCount int                  `json:"imported_count"`
 	Nodes         []endpoints.Endpoint `json:"nodes"`
 }
@@ -271,6 +272,7 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 		return s, err
 	}
 	s.LastAttempt = time.Now().UTC()
+	s.FailureCode = ""
 	fail := func(reason string) (State, error) {
 		s.Failure = reason
 		if e := m.save(s); e != nil {
@@ -296,6 +298,7 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 	}
 	b, err := m.download(ctx, spec.URL)
 	if err != nil {
+		s.FailureCode = downloadFailureCode(err)
 		return fail("subscription download failed")
 	}
 	var nodes []endpoints.Endpoint
@@ -395,7 +398,7 @@ func validURL(raw string) (*url.URL, error) {
 func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 	u, err := validURL(raw)
 	if err != nil {
-		return nil, err
+		return nil, downloadFailure("invalid_url")
 	}
 	ctx, cancel := context.WithTimeout(ctx, m.policy.Timeout)
 	defer cancel()
@@ -408,11 +411,14 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 		}
 		ips, err := net.DefaultResolver.LookupNetIP(ctx, "ip", host)
 		if err != nil || len(ips) == 0 {
-			return nil, errors.New("destination unavailable")
+			if ctx.Err() != nil {
+				return nil, downloadFailure("timeout")
+			}
+			return nil, downloadFailure("dns_failed")
 		}
 		for _, ip := range ips {
 			if !m.allowed(ip) {
-				return nil, errors.New("destination refused")
+				return nil, downloadFailure("destination_refused")
 			}
 		}
 		var conn net.Conn
@@ -422,20 +428,23 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 				return conn, nil
 			}
 		}
-		return nil, errors.New("destination unavailable")
+		if downloadFailureCode(err) == "timeout" {
+			return nil, downloadFailure("timeout")
+		}
+		return nil, downloadFailure("connect_failed")
 	}
 	client := &http.Client{Transport: transport, CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		// Source URLs can contain subscription credentials in their path or query.
 		req.Header.Del("Referer")
 		if len(via) > m.policy.MaxRedirects {
-			return errors.New("redirect limit")
+			return downloadFailure("redirect_refused")
 		}
 		_, err := validURL(req.URL.String())
 		if err != nil {
-			return err
+			return downloadFailure("redirect_refused")
 		}
 		if len(via) > 0 && via[len(via)-1].URL.Scheme == "https" && req.URL.Scheme != "https" {
-			return errors.New("TLS downgrade refused")
+			return downloadFailure("redirect_refused")
 		}
 		return nil
 	}}
@@ -445,15 +454,18 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.New("subscription request failed")
+		return nil, downloadFailure(downloadFailureCode(err))
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		return nil, errors.New("subscription HTTP failure")
+		return nil, downloadFailure("http_error")
 	}
 	b, err := io.ReadAll(io.LimitReader(resp.Body, m.policy.MaxBytes+1))
 	if err != nil || int64(len(b)) > m.policy.MaxBytes {
-		return nil, errors.New("subscription body invalid")
+		if downloadFailureCode(err) == "timeout" {
+			return nil, downloadFailure("timeout")
+		}
+		return nil, downloadFailure("body_invalid")
 	}
 	return b, nil
 }
