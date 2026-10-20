@@ -67,3 +67,40 @@ a successful DIRECT response cannot satisfy a different expected proxy IP.
 The legacy controlled JSON response (`{"remote_ip":"..."}`) remains the default.
 The native platform qualification and profile-provisioning gates are unchanged.
 A probe report does not authorize traffic steering or qualify ARM64 RouterOS.
+
+## Literal destination with a verified DNS certificate name
+
+Some networks reach a named HTTPS service while its alternative literal-IP
+endpoint is unavailable. Resolve the intended service using the reviewed
+bootstrap resolver, review the returned public address, and test that address
+with its original TLS and HTTP name:
+
+```sh
+mc-node-check -direct-only \
+  -url https://<reviewed-ipv4>/cdn-cgi/trace \
+  -tls-server-name www.cloudflare.com -status 200 \
+  -response-format cloudflare_trace -timeout 8s
+```
+
+Use the same URL/name options for an isolated draft-node check. The request still
+dials the literal address, including through the proxy; it does not resolve the
+TLS name. Certificate-chain and hostname verification remain enabled. The HTTP
+Host uses the reviewed name, with a nondefault port when needed. A wrong name,
+redirect or malformed trace fails. The optional name is accepted only for a
+literal HTTPS URL. This option neither chooses arbitrary SNI automatically nor
+asserts that any address belongs to Cloudflare; the operator must verify the
+address/name pair. Addresses may change and require renewed review.
+
+An operator profile uses `canary_server_name` for the same behavior while
+retaining its literal `canary_url`. `canary_peer_ip` continues to support one
+expected egress address. For a reviewed failover group, supply
+`canary_peer_ips` instead, with 1..32 distinct observed proxy addresses, and
+leave `canary_peer_ip` empty. Single and set forms are mutually exclusive.
+**Exclude direct egress from the set.** An address outside the reviewed set
+fails readiness; discovering or changing a group member does not automatically
+expand that authority. Actual native ARM64 forwarding and failover still need
+separate packet-path acceptance. This is not qualified by isolated node checks.
+
+The direct and isolated-node diagnostics use the profile's response format and
+TLS name as well. Successful diagnostics report reachability, whereas native
+readiness additionally checks the reviewed egress identity.

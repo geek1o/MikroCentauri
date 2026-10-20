@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/ecdh"
 	"crypto/rand"
-	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
@@ -40,6 +39,7 @@ type Canary struct {
 	ExpectedEgressIP netip.Addr
 	MaxBytes         int64
 	ResponseFormat   string
+	ServerName       string
 }
 type Observation struct {
 	coreconfig.Health
@@ -208,6 +208,11 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	if canary.ResponseFormat == health.CanaryCloudflareTrace && u.Scheme != "https" {
 		return fail("public trace requires verified HTTPS")
 	}
+	tlsConfig, canaryHost, err := health.CanaryTLS(canary.URL, canary.ServerName)
+	if err != nil {
+		return fail("invalid canary TLS profile")
+	}
+	tlsConfig.RootCAs = p.opts.TLSRoots
 	if canary.ExpectedStatus == 0 {
 		canary.ExpectedStatus = 204
 	}
@@ -307,7 +312,7 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 		}
 	}
 	proxyURL := &url.URL{Scheme: "http", Host: address, User: url.UserPassword("health", password)}
-	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: p.opts.TLSRoots}, DisableKeepAlives: true, MaxResponseHeaderBytes: 16 << 10}
+	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: tlsConfig, DisableKeepAlives: true, MaxResponseHeaderBytes: 16 << 10}
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("canary redirect refused") }}
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -315,6 +320,9 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 		return fail("canary request invalid")
 	}
 	request.Header.Set("Cache-Control", "no-store")
+	if canaryHost != "" {
+		request.Host = canaryHost
+	}
 	start := time.Now()
 	response, err := client.Do(request)
 	if err != nil {

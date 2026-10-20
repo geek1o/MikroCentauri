@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -84,6 +83,7 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	direct := fs.Bool("direct-only", false, "observe a verified direct HTTPS egress without reading a draft")
 	status := fs.Int("status", 204, "expected HTTP status")
 	format := fs.String("response-format", "", "optional remote_ip_json or cloudflare_trace peer response")
+	serverName := fs.String("tls-server-name", "", "verified TLS/HTTP name for a literal HTTPS destination; no DNS lookup")
 	draft := fs.String("draft", "", "absolute private API draft path")
 	nodeID := fs.String("node", "", "check one endpoint ID from the private draft")
 	dir := fs.String("state", "", "dedicated private temporary probe directory")
@@ -98,17 +98,24 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if e != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || *parallel < 1 || *parallel > 4 || *timeout <= 0 || *timeout > 30*time.Second || fs.NArg() != 0 || (!*direct && *dir == "") || *status < 200 || *status > 299 || (*format != "" && *format != health.CanaryRemoteIPJSON && *format != health.CanaryCloudflareTrace) {
 		return errors.New("invalid isolated probe options")
 	}
+	tlsConfig, canaryHost, e := health.CanaryTLS(*target, *serverName)
+	if e != nil {
+		return e
+	}
 	if *direct {
 		if *format == "" {
 			return errors.New("direct observation requires a peer response format")
 		}
 		started := time.Now()
-		transport := &http.Transport{Proxy: nil, DisableKeepAlives: true, TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12}, MaxResponseHeaderBytes: 16 << 10}
+		transport := &http.Transport{Proxy: nil, DisableKeepAlives: true, TLSClientConfig: tlsConfig, MaxResponseHeaderBytes: 16 << 10}
 		defer transport.CloseIdleConnections()
 		client := &http.Client{Transport: transport, Timeout: *timeout, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("redirect refused") }}
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, *target, nil)
 		if err != nil {
 			return errors.New("direct probe request invalid")
+		}
+		if canaryHost != "" {
+			req.Host = canaryHost
 		}
 		response, err := client.Do(req)
 		if err != nil {
@@ -162,7 +169,7 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		}
 		wg.Go(func() {
 			defer func() { <-sem }()
-			v, err := p.Probe(ctx, ep, grouphealth.Canary{URL: *target, ExpectedStatus: *status, ResponseFormat: *format})
+			v, err := p.Probe(ctx, ep, grouphealth.Canary{URL: *target, ExpectedStatus: *status, ResponseFormat: *format, ServerName: *serverName})
 			r.Results[i] = result{ID: ep.ID, Protocol: ep.Protocol, Success: err == nil, LatencyMS: v.Latency.Milliseconds(), Failure: v.Failure, EgressIP: v.EgressIP, FailureDetail: v.FailureDetail}
 		})
 	}

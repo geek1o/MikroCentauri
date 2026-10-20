@@ -44,7 +44,8 @@ type Options struct {
 	Canary            health.HTTPProbeConfig
 	// IndependentCanary permits a dedicated literal-IP echo target whose route
 	// is independent of the user's Active domain set. Actual egress must still
-	// match Canary.ExpectedPeerIP; removing its proxy rule fails the probe.
+	// match Canary.ExpectedPeerIP or the reviewed ExpectedPeerIPs set; removing
+	// its proxy rule fails the probe when direct egress is absent from that set.
 	IndependentCanary bool
 	Runner            Runner
 	ReadForwarding    func() ([]byte, error)
