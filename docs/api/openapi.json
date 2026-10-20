@@ -18858,6 +18858,9 @@
                       "failed": {
                         "type": "boolean"
                       },
+                      "failure_code": {
+                        "type": "string"
+                      },
                       "has_more": {
                         "type": "boolean"
                       },
@@ -19993,6 +19996,9 @@
                     "failed": {
                       "type": "boolean"
                     },
+                    "failure_code": {
+                      "type": "string"
+                    },
                     "has_more": {
                       "type": "boolean"
                     },
@@ -20354,6 +20360,9 @@
                     "failed": {
                       "type": "boolean"
                     },
+                    "failure_code": {
+                      "type": "string"
+                    },
                     "has_more": {
                       "type": "boolean"
                     },
@@ -20683,6 +20692,9 @@
                           "properties": {
                             "failed": {
                               "type": "boolean"
+                            },
+                            "failure_code": {
+                              "type": "string"
                             },
                             "has_more": {
                               "type": "boolean"

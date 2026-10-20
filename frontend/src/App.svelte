@@ -1,5 +1,6 @@
 <script lang="ts">
   import { testTargets } from "./test-targets";
+  import { subscriptionFailure } from "./subscription-failure";
   import { onMount } from "svelte";
   import { latencyTone } from "./latency";
   import navigationLogo from "./assets/centauri-navigation.svg";
@@ -1507,6 +1508,9 @@
                       ? "Обновление не удалось"
                       : "Ошибок обновления нет"}
                   </p>
+                  {#if s.failed}<p class="small">
+                      {subscriptionFailure(s.failure_code)}
+                    </p>{/if}
                   <p class="muted small">
                     Последний успех: {s.last_success &&
                     !s.last_success.startsWith("0001")
@@ -1595,10 +1599,14 @@
                   </div>
                 </div>{/if}
               {#if provider.failed}<div class="error">
-                  Последнее обновление не удалось. Показан последний успешно
-                  загруженный список.
+                  <p>{subscriptionFailure(provider.failure_code)}</p>
+                  <p>
+                    {provider.node_count > 0
+                      ? "Показан последний успешно загруженный список."
+                      : "Сохранённого списка пока нет. Черновик конфигурации не изменён."}
+                  </p>
                 </div>{/if}
-              {#if !provider.nodes.length}<p>
+              {#if !provider.nodes.length && !provider.failed}<p>
                   Серверов нет. Загрузите подписку или проверьте её формат и
                   фильтры.
                 </p>{/if}

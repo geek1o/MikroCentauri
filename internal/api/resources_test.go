@@ -34,6 +34,16 @@ func resourceDir(t *testing.T) string {
 	os.Chmod(p, 0700)
 	return p
 }
+
+func TestSubscriptionFailureProjectionOmitsUnknownPrivateText(t *testing.T) {
+	for _, code := range []string{"timeout", "private-provider-url-token"} {
+		v := subscriptionPreview(subscriptions.State{ID: "fixture", Failure: "private-download-error", FailureCode: code})
+		raw, _ := json.Marshal(v)
+		if strings.Contains(string(raw), "private-") || (code == "timeout" && v.FailureCode != "timeout") {
+			t.Fatal("unredacted subscription failure projection")
+		}
+	}
+}
 func TestRealRouterOSTLSReadOnlyResourceProjection(t *testing.T) {
 	var reads atomic.Int32
 	var mutations atomic.Int32

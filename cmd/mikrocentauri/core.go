@@ -166,7 +166,8 @@ func printSubscriptionStatus(s subscriptions.State) error {
 		LastAttempt time.Time           `json:"last_attempt"`
 		LastSuccess time.Time           `json:"last_success"`
 		Failure     string              `json:"failure,omitempty"`
+		FailureCode string              `json:"failure_code,omitempty"`
 		Count       int                 `json:"count"`
 		Nodes       []endpoints.Preview `json:"nodes"`
-	}{s.ID, s.LastAttempt, s.LastSuccess, s.Failure, len(previews), previews})
+	}{s.ID, s.LastAttempt, s.LastSuccess, s.Failure, subscriptions.SafeFailureCode(s.FailureCode), len(previews), previews})
 }

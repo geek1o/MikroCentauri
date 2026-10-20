@@ -1,6 +1,30 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('subscription timeout explains direct fetching and an empty saved cache', async ({page},info) => {
+  const provider={id:'network-source',failed:true,failure_code:'timeout',node_count:0,nodes:[],source_count:0,issues:[],imported_count:0,offset:0,has_more:false};
+  await page.route('**/api/v1/subscriptions',async route=>{
+    if(route.request().method()==='GET') await route.fulfill({json:[provider]});
+    else await route.continue();
+  });
+  await page.route('**/api/v1/subscriptions/inspect',route=>route.fulfill({json:provider}));
+  await page.goto('/');
+  await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');
+  await page.getByRole('button',{name:'Войти',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
+  await page.getByRole('navigation').getByRole('link',{name:'Подписки',exact:true}).click();
+  const source=page.locator('.row').filter({has:page.getByText('network-source',{exact:true})});
+  await expect(source).toContainText('Контейнер загружает подписку напрямую');
+  await source.getByRole('button',{name:'Выбрать узлы'}).click();
+  await expect(page.getByText('Сохранённого списка пока нет.',{exact:false})).toBeVisible();
+  await expect(page.getByText('Показан последний успешно загруженный список.',{exact:true})).toHaveCount(0);
+  for(const width of [1280,390]){
+    await page.setViewportSize({width,height:900});
+    await page.screenshot({path:'../../../.cache/webui/subscription-failure-'+info.project.name+'-'+width+'.png',fullPage:true});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+});
+
 test('administrative workflow over real HTTPS API and pinned validator', async ({ page, request }, info) => {
   test.setTimeout(120_000);
   const prefix = info.project.name;

@@ -71,6 +71,7 @@ type SubscriptionView struct {
 	LastAttempt   time.Time                   `json:"last_attempt"`
 	LastSuccess   time.Time                   `json:"last_success"`
 	Failed        bool                        `json:"failed"`
+	FailureCode   string                      `json:"failure_code,omitempty"`
 	ImportedCount int                         `json:"imported_count"`
 	Nodes         []endpoints.Preview         `json:"nodes"`
 }
@@ -187,6 +188,9 @@ func subscriptionPreview(state subscriptions.State) SubscriptionView {
 }
 func subscriptionPage(state subscriptions.State, offset, limit int) SubscriptionView {
 	v := SubscriptionView{SourceCount: state.SourceCount, Issues: append([]subscriptions.ImportIssue{}, state.Issues...), ID: state.ID, LastAttempt: state.LastAttempt, LastSuccess: state.LastSuccess, Failed: state.Failure != "", ImportedCount: state.ImportedCount, Nodes: []endpoints.Preview{}, NodeCount: len(state.Nodes), Offset: offset}
+	if v.Failed {
+		v.FailureCode = subscriptions.SafeFailureCode(state.FailureCode)
+	}
 	if offset >= len(state.Nodes) {
 		return v
 	}
