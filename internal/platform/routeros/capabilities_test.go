@@ -199,3 +199,15 @@ func TestCapabilitiesNativeCHRBoardDescription(t *testing.T) {
 		t.Fatal(caps, err)
 	}
 }
+
+func TestCapabilitiesPinnedARM64DoesNotClaimReadiness(t *testing.T) {
+	fixture := capabilityFixture()
+	fixture["system/resource"] = `{"version":"7.23.8 (long-term)","architecture-name":"arm64","board-name":"hAP ax^2","platform":"MikroTik"}`
+	c := capabilityClient(t, func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(fixture[strings.TrimPrefix(r.URL.Path, "/rest/")]))
+	})
+	caps, err := c.Capabilities(context.Background())
+	if err != nil || !caps.VersionSupported || !strings.Contains(caps.VersionSupportReason, "does not prove") {
+		t.Fatalf("invalid ARM64 preflight: %+v %v", caps, err)
+	}
+}
