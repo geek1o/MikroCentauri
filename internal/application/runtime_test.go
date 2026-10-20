@@ -26,6 +26,22 @@ func testModel(t *testing.T) coreconfig.Model {
 func testProfile() Profile {
 	return Profile{Schema: 1, Directory: "/data/native", DNSListen: "172.30.0.2:5353", ReadinessListen: "172.30.0.2:9099", ObserverClient: "192.168.88.1", IngressInterface: "eth0", Table: 202, RulePriority: 1000, LocalRulePriority: 200, LANCIDR: "192.168.88.0/24", LANInterface: "bridge-lan", MappingChain: "mc-api-native-backup", MappingPlaceBefore: "*7", Capacity: 256, RealDNSAddress: "10.77.0.20:53", CanaryURL: "http://10.77.0.20:8080/ip", CanaryPeerIP: "10.77.0.1", Watchdog: routeros.WatchdogSpec{Instance: "api-native", Host: "172.30.0.2", Port: 9099, Interval: 2 * time.Second, Timeout: time.Second, SuccessThreshold: 3, LANLeaseCIDR: "192.168.88.0/24", Targets: []routeros.Object{{Path: "ip/route", Fields: map[string]string{"comment": "mikrocentauri:api-native:route:fakeip", "disabled": "true", "dst-address": "198.19.0.0/16", "gateway": "172.30.0.2", "routing-table": "main"}}}}}
 }
+
+func TestProfileAcceptsPinnedTLSAndReviewedFailoverPeers(t *testing.T) {
+	p := testProfile()
+	p.CanaryURL = "https://192.0.2.4/cdn-cgi/trace"
+	p.CanaryServerName = "example.com"
+	p.CanaryFormat = "cloudflare_trace"
+	p.CanaryPeerIP = ""
+	p.CanaryPeerIPs = []string{"203.0.113.9", "198.51.100.8"}
+	if err := p.Validate(testModel(t)); err != nil {
+		t.Fatal(err)
+	}
+	p.CanaryURL = "https://example.com/cdn-cgi/trace"
+	if p.Validate(testModel(t)) == nil {
+		t.Fatal("named unpinned canary accepted")
+	}
+}
 func TestProfileRejectsInvalidListenerAndTopologyInputs(t *testing.T) {
 	m := testModel(t)
 	if e := testProfile().Validate(m); e != nil {

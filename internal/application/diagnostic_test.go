@@ -2,6 +2,8 @@ package application
 
 import (
 	"context"
+	"crypto/x509"
+	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/singbox"
 	"net/http"
 	"net/http/httptest"
@@ -58,6 +60,44 @@ func TestSingBoxVersionObservedBoundedAndRedacted(t *testing.T) {
 			valid := strings.HasPrefix(output, "sing-box version "+singbox.Version+"\n")
 			if (e == nil) != valid || valid && v != singbox.Version || !valid && v != "" || e != nil && strings.Contains(e.Error(), "private-") {
 				t.Fatal(v, e)
+			}
+		})
+	}
+}
+
+func TestDiagnosticCanaryUsesProfileFormatAndTLSName(t *testing.T) {
+	for _, mode := range []string{"valid", "duplicate peer", "legacy JSON", "redirect"} {
+		t.Run(mode, func(t *testing.T) {
+			server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.TLS.ServerName != "example.com" || !strings.HasPrefix(r.Host, "example.com:") {
+					t.Error("TLS or HTTP name lost")
+				}
+				switch mode {
+				case "duplicate peer":
+					w.Write([]byte("ip=203.0.113.9\nip=203.0.113.9\n"))
+				case "legacy JSON":
+					w.Write([]byte(`{"remote_ip":"203.0.113.9"}`))
+				case "redirect":
+					http.Redirect(w, r, "https://example.com/private-secret", 302)
+				default:
+					w.Write([]byte("ip=203.0.113.9\n"))
+				}
+			}))
+			defer server.Close()
+			profile := Profile{CanaryURL: server.URL, CanaryServerName: "example.com", CanaryFormat: health.CanaryCloudflareTrace}
+			tlsConfig, _, err := health.CanaryTLS(profile.CanaryURL, profile.CanaryServerName)
+			if err != nil {
+				t.Fatal(err)
+			}
+			roots := x509.NewCertPool()
+			roots.AddCert(server.Certificate())
+			tlsConfig.RootCAs = roots
+			transport := &http.Transport{TLSClientConfig: tlsConfig, DisableKeepAlives: true}
+			defer transport.CloseIdleConnections()
+			client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+			err = canaryProfileRequest(context.Background(), client, profile)
+			if (err == nil) != (mode == "valid") || err != nil && strings.Contains(err.Error(), "private-secret") {
+				t.Fatal("diagnostic format failure", err)
 			}
 		})
 	}

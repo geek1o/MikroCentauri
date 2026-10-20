@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -178,6 +179,10 @@ func TestPinnedPublicTraceThroughIsolatedEndpoint(t *testing.T) {
 		t.Skip("set SING_BOX_BINARY for native proxy probes")
 	}
 	canary := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.TLS.ServerName != "example.com" || !strings.HasPrefix(r.Host, "example.com:") {
+			w.WriteHeader(400)
+			return
+		}
 		io.WriteString(w, "fl=fixture\nip=203.0.113.9\ncolo=TEST\n")
 	}))
 	defer canary.Close()
@@ -193,7 +198,7 @@ func TestPinnedPublicTraceThroughIsolatedEndpoint(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	cfg := Canary{URL: canary.URL, ExpectedStatus: 200, ResponseFormat: health.CanaryCloudflareTrace, ExpectedEgressIP: netip.MustParseAddr("203.0.113.9")}
+	cfg := Canary{URL: canary.URL, ServerName: "example.com", ExpectedStatus: 200, ResponseFormat: health.CanaryCloudflareTrace, ExpectedEgressIP: netip.MustParseAddr("203.0.113.9")}
 	seen, e := p.Probe(context.Background(), endpoint, cfg)
 	if e != nil || !seen.Available || seen.EgressIP != "203.0.113.9" {
 		t.Fatal("verified trace failed", e)
@@ -202,5 +207,9 @@ func TestPinnedPublicTraceThroughIsolatedEndpoint(t *testing.T) {
 	seen, e = p.Probe(context.Background(), endpoint, cfg)
 	if e == nil || seen.Available || seen.EgressIP != "" {
 		t.Fatal("wrong egress accepted or stale success retained")
+	}
+	cfg.ServerName = "wrong.example"
+	if seen, e = p.Probe(context.Background(), endpoint, cfg); e == nil || seen.Available {
+		t.Fatal("wrong TLS name accepted")
 	}
 }

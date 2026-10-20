@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"strconv"
 	"time"
@@ -18,20 +19,24 @@ import (
 type Checker interface{ Check(context.Context) error }
 
 // HTTPProbeConfig describes a controlled canary. ExpectedPeerIP checks the IP
-// observed by that canary, so a successful DIRECT fallback cannot pass the probe.
+// observed by that canary. A reviewed peer set supports proxy failover; never
+// include the direct egress address in that set.
 // Plain HTTP is intended for isolated labs; use HTTPS and a trusted canary outside them.
 type HTTPProbeConfig struct {
-	SOCKSAddress   string
-	URL            string
-	ExpectedPeerIP string
-	ResponseFormat string
-	ExpectedStatus int
-	Timeout        time.Duration
+	SOCKSAddress    string
+	URL             string
+	ExpectedPeerIP  string
+	ExpectedPeerIPs []string
+	ServerName      string
+	ResponseFormat  string
+	ExpectedStatus  int
+	Timeout         time.Duration
 }
 
 type HTTPProbe struct {
 	config HTTPProbeConfig
 	client *http.Client
+	host   string
 }
 
 func NewHTTPProbe(c HTTPProbeConfig) (*HTTPProbe, error) {
@@ -48,8 +53,29 @@ func NewHTTPProbe(c HTTPProbeConfig) (*HTTPProbe, error) {
 	if _, _, err := net.SplitHostPort(c.SOCKSAddress); err != nil {
 		return nil, errors.New("invalid SOCKS address")
 	}
-	if net.ParseIP(c.ExpectedPeerIP) == nil {
-		return nil, errors.New("invalid expected canary peer IP")
+	if c.ExpectedPeerIP != "" && len(c.ExpectedPeerIPs) != 0 {
+		return nil, errors.New("use one expected canary peer or a reviewed peer set")
+	}
+	peers := append([]string(nil), c.ExpectedPeerIPs...)
+	if c.ExpectedPeerIP != "" {
+		peers = append(peers, c.ExpectedPeerIP)
+	}
+	if len(peers) < 1 || len(peers) > 32 {
+		return nil, errors.New("expected canary peers must contain 1..32 addresses")
+	}
+	seen := map[netip.Addr]bool{}
+	for i, raw := range peers {
+		ip, err := netip.ParseAddr(raw)
+		if err != nil || ip.Zone() != "" || (!ip.IsGlobalUnicast() && !(ip.IsLoopback() && c.ResponseFormat != CanaryCloudflareTrace)) || seen[ip.Unmap()] {
+			return nil, errors.New("invalid or duplicate expected canary peer IP")
+		}
+		seen[ip.Unmap()] = true
+		peers[i] = ip.Unmap().String()
+	}
+	c.ExpectedPeerIPs = peers
+	tlsConfig, host, err := CanaryTLS(c.URL, c.ServerName)
+	if err != nil {
+		return nil, err
 	}
 	if c.Timeout == 0 {
 		c.Timeout = 2 * time.Second
@@ -64,12 +90,14 @@ func NewHTTPProbe(c HTTPProbeConfig) (*HTTPProbe, error) {
 		return nil, errors.New("invalid expected HTTP status")
 	}
 	transport := &http.Transport{
+		TLSClientConfig:        tlsConfig,
+		MaxResponseHeaderBytes: 16 << 10,
 		DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
 			return dialSOCKS(ctx, c.SOCKSAddress, address)
 		},
 		DisableKeepAlives: true, // Every sample must establish a fresh proxy path.
 	}
-	return &HTTPProbe{config: c, client: &http.Client{Transport: transport, Timeout: c.Timeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}, nil
+	return &HTTPProbe{config: c, host: host, client: &http.Client{Transport: transport, Timeout: c.Timeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}, nil
 }
 
 func (p *HTTPProbe) Check(ctx context.Context) error {
@@ -78,6 +106,9 @@ func (p *HTTPProbe) Check(ctx context.Context) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.config.URL, nil)
 	if err != nil {
 		return errors.New("canary request invalid")
+	}
+	if p.host != "" {
+		req.Host = p.host
 	}
 	resp, err := p.client.Do(req)
 	if err != nil {
@@ -98,10 +129,12 @@ func (p *HTTPProbe) Check(ctx context.Context) error {
 	if err != nil {
 		return errors.New("canary response invalid")
 	}
-	if !net.ParseIP(actual.String()).Equal(net.ParseIP(p.config.ExpectedPeerIP)) {
-		return errors.New("canary egress mismatch")
+	for _, peer := range p.config.ExpectedPeerIPs {
+		if actual.String() == peer {
+			return nil
+		}
 	}
-	return nil
+	return errors.New("canary egress mismatch")
 }
 
 // dialSOCKS uses domain requests, leaving DNS resolution to the selected proxy.

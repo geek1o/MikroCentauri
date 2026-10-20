@@ -3,14 +3,13 @@ package application
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"io"
+	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/realdns"
 	"mikrocentauri.local/core/internal/singbox"
 	"net"
 	"net/http"
-	"net/netip"
 	"os/exec"
 	"strings"
 	"time"
@@ -44,7 +43,7 @@ func (r *Runtime) Diagnose(ctx context.Context, kind string) error {
 			}
 			return nil
 		case "direct":
-			return directCanary(ctx, r.Profile.CanaryURL)
+			return directProfileCanary(ctx, r.Profile)
 		case "proxy", "routing", "watchdog":
 			probe := r.diagnosticProbes[kind]
 			if probe == nil {
@@ -57,17 +56,34 @@ func (r *Runtime) Diagnose(ctx context.Context, kind string) error {
 	})
 }
 func directCanary(ctx context.Context, target string) error {
+	return directProfileCanary(ctx, Profile{CanaryURL: target})
+}
+func directProfileCanary(ctx context.Context, p Profile) error {
 	// Target is the already validated literal-IP operator profile. No environment
 	// proxy, redirects, resolver, API parameters or connection reuse is involved.
-	transport := &http.Transport{Proxy: nil, DialContext: (&net.Dialer{Timeout: 3 * time.Second}).DialContext, DisableKeepAlives: true}
+	tlsConfig, _, e := health.CanaryTLS(p.CanaryURL, p.CanaryServerName)
+	if e != nil {
+		return e
+	}
+	transport := &http.Transport{Proxy: nil, TLSClientConfig: tlsConfig, MaxResponseHeaderBytes: 16 << 10, DialContext: (&net.Dialer{Timeout: 3 * time.Second}).DialContext, DisableKeepAlives: true}
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, Timeout: 3 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-	return canaryRequest(ctx, client, target)
+	return canaryProfileRequest(ctx, client, p)
 }
 func canaryRequest(ctx context.Context, client *http.Client, target string) error {
-	req, e := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
+	return canaryProfileRequest(ctx, client, Profile{CanaryURL: target})
+}
+func canaryProfileRequest(ctx context.Context, client *http.Client, p Profile) error {
+	_, host, e := health.CanaryTLS(p.CanaryURL, p.CanaryServerName)
+	if e != nil {
+		return e
+	}
+	req, e := http.NewRequestWithContext(ctx, http.MethodGet, p.CanaryURL, nil)
 	if e != nil {
 		return errors.New("invalid direct canary")
+	}
+	if host != "" {
+		req.Host = host
 	}
 	response, e := client.Do(req)
 	if e != nil {
@@ -78,14 +94,8 @@ func canaryRequest(ctx context.Context, client *http.Client, target string) erro
 	if e != nil || len(body) > 4096 || response.StatusCode != 200 {
 		return errors.New("direct canary response invalid")
 	}
-	var peer struct {
-		RemoteIP string `json:"remote_ip"`
-	}
-	if json.Unmarshal(body, &peer) != nil {
-		return errors.New("direct canary response invalid")
-	}
-	ip, e := netip.ParseAddr(peer.RemoteIP)
-	if e != nil || !ip.Is4() || ip.IsUnspecified() || ip.IsMulticast() {
+	ip, e := health.ParseCanaryIP(body, p.CanaryFormat)
+	if e != nil || ip.IsUnspecified() || ip.IsMulticast() {
 		return errors.New("direct canary peer invalid")
 	}
 	return nil

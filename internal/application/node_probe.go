@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/singbox"
 	"net"
 	"net/http"
@@ -150,11 +151,15 @@ func (r *Runtime) ProbeNode(ctx context.Context, id string) (latency time.Durati
 		// A fresh local SOCKS5 connection reaches the fixed literal canary. The child
 		// final route is this node, so no global selector or DIRECT fallback is used.
 		proxyURL, _ := url.Parse("socks5://" + address)
-		transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), DisableKeepAlives: true}
+		tlsConfig, _, e := health.CanaryTLS(r.Profile.CanaryURL, r.Profile.CanaryServerName)
+		if e != nil {
+			return e
+		}
+		transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: tlsConfig, MaxResponseHeaderBytes: 16 << 10, DisableKeepAlives: true}
 		defer transport.CloseIdleConnections()
 		client := &http.Client{Transport: transport, Timeout: 3 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 		started := time.Now()
-		e = canaryRequest(ctx, client, r.Profile.CanaryURL)
+		e = canaryProfileRequest(ctx, client, r.Profile)
 		latency = time.Since(started)
 		if e == nil {
 			select {

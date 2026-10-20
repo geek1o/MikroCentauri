@@ -55,6 +55,8 @@ type Profile struct {
 	RealDNSAddress     string                `json:"real_dns_address"`
 	CanaryURL          string                `json:"canary_url"`
 	CanaryPeerIP       string                `json:"canary_peer_ip"`
+	CanaryPeerIPs      []string              `json:"canary_peer_ips,omitempty"`
+	CanaryServerName   string                `json:"canary_server_name,omitempty"`
 	CanaryFormat       string                `json:"canary_format,omitempty"`
 	Watchdog           routeros.WatchdogSpec `json:"watchdog"`
 	RuleSetDirectory   string                `json:"ruleset_directory,omitempty"`
@@ -133,6 +135,10 @@ func privateAddress(s string) (netip.Addr, int, error) {
 
 var ifacePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,14}$`)
 
+func (p Profile) canaryConfig() health.HTTPProbeConfig {
+	return health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ExpectedPeerIPs: p.CanaryPeerIPs, ServerName: p.CanaryServerName, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}
+}
+
 func (p Profile) Validate(m coreconfig.Model) error {
 	if (p.ControlPort == 0 && p.ControlSecret != "") || (p.ControlPort != 0 && (p.ControlPort == 5354 || p.ControlPort == 2080 || len(p.ControlSecret) < 32 || len(p.ControlSecret) > 256 || strings.ContainsAny(p.ControlSecret, "\x00\r\n"))) {
 		return errors.New("invalid private engine control profile")
@@ -151,7 +157,7 @@ func (p Profile) Validate(m coreconfig.Model) error {
 	if e != nil || !canary.Is4() || canary.IsUnspecified() || canary.IsMulticast() || canary.IsLoopback() {
 		return errors.New("independent canary requires literal unicast IPv4")
 	}
-	if _, e := health.NewHTTPProbe(health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}); e != nil {
+	if _, e := health.NewHTTPProbe(p.canaryConfig()); e != nil {
 		return e
 	}
 
@@ -232,7 +238,7 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 	if e != nil {
 		return nil, e
 	}
-	pc := health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}
+	pc := p.canaryConfig()
 	barrier, e := linuxbarrier.New(linuxbarrier.Options{Interface: p.IngressInterface, TUN: "mc-tun", Table: p.Table, RulePriority: p.RulePriority, LocalRulePriority: p.LocalRulePriority, TUNPrefix: netip.MustParsePrefix("172.31.255.1/30"), Native: native, Canary: pc, IndependentCanary: true})
 	if e != nil {
 		return nil, e
