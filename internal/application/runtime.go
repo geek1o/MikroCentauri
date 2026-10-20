@@ -36,6 +36,8 @@ import (
 // API drafts edit policy. The pinned profile is intentionally narrower than the
 // eventual release device matrix.
 type Profile struct {
+	ServiceDNSListen   string                `json:"service_dns_listen,omitempty"`
+	ServiceDNSOutbound string                `json:"service_dns_outbound,omitempty"`
 	ControlPort        uint16                `json:"control_port,omitempty"`
 	ControlSecret      string                `json:"control_secret,omitempty"`
 	Schema             int                   `json:"schema"`
@@ -58,6 +60,7 @@ type Profile struct {
 	CanaryPeerIPs      []string              `json:"canary_peer_ips,omitempty"`
 	CanaryServerName   string                `json:"canary_server_name,omitempty"`
 	CanaryFormat       string                `json:"canary_format,omitempty"`
+	CanaryTimeout      time.Duration         `json:"canary_timeout,omitempty"`
 	Watchdog           routeros.WatchdogSpec `json:"watchdog"`
 	RuleSetDirectory   string                `json:"ruleset_directory,omitempty"`
 }
@@ -136,10 +139,29 @@ func privateAddress(s string) (netip.Addr, int, error) {
 var ifacePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,14}$`)
 
 func (p Profile) canaryConfig() health.HTTPProbeConfig {
-	return health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ExpectedPeerIPs: p.CanaryPeerIPs, ServerName: p.CanaryServerName, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}
+	timeout := p.CanaryTimeout
+	if timeout == 0 {
+		timeout = 2 * time.Second
+	}
+	return health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ExpectedPeerIPs: p.CanaryPeerIPs, ServerName: p.CanaryServerName, ResponseFormat: p.CanaryFormat, Timeout: timeout}
 }
 
 func (p Profile) Validate(m coreconfig.Model) error {
+	if p.CanaryTimeout != 0 && (p.CanaryTimeout < time.Second || p.CanaryTimeout > 10*time.Second) {
+		return errors.New("canary timeout must be between one and ten seconds")
+	}
+	if p.ServiceDNSListen != "" {
+		ip, port, err := privateAddress(p.ServiceDNSListen)
+		dnsIP, _, dnsErr := privateAddress(p.DNSListen)
+		if err != nil || dnsErr != nil || ip != dnsIP || port < 1024 || p.ServiceDNSListen == p.DNSListen || p.ServiceDNSListen == p.ReadinessListen || port == 5354 || port == 2080 || port == int(p.ControlPort) {
+			return errors.New("invalid operator service DNS listener")
+		}
+		if err := coreconfig.ValidateServiceDNSOptions(m, coreconfig.Options{DNSPort: 5354, MixedPort: 2080, ControlPort: p.ControlPort, ServiceDNSListen: p.ServiceDNSListen, ServiceDNSOutbound: p.ServiceDNSOutbound}); err != nil {
+			return err
+		}
+	} else if p.ServiceDNSOutbound != "" {
+		return errors.New("service DNS listener required")
+	}
 	if (p.ControlPort == 0 && p.ControlSecret != "") || (p.ControlPort != 0 && (p.ControlPort == 5354 || p.ControlPort == 2080 || len(p.ControlSecret) < 32 || len(p.ControlSecret) > 256 || strings.ContainsAny(p.ControlSecret, "\x00\r\n"))) {
 		return errors.New("invalid private engine control profile")
 	}
@@ -216,8 +238,8 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 	if e != nil {
 		return nil, errors.Join(errors.New("native capability read unavailable"), e)
 	}
-	if (caps.Version != "7.24.5" && caps.Version != "7.24.5 (stable)") || caps.Architecture != "x86_64" || !strings.HasPrefix(caps.Board, "CHR ") {
-		return nil, errors.New("runtime profile is accepted only on CHR 7.24.5 x86_64")
+	if !routeros.NativePlatformCandidate(caps.Version, caps.Architecture, caps.Board) {
+		return nil, errors.New("runtime platform is outside the pinned native startup profiles")
 	}
 	dir, e := api.PrivateDirectory(p.Directory)
 	if e != nil {
@@ -289,7 +311,7 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 			return a, nil
 		}
 	}
-	t, e := coreactivation.NewTransition(coreactivation.TransitionOptions{Directory: filepath.Join(dir, "transitions"), Store: store, Model: m, ResolveRuleSets: resolve, Activation: coreactivation.Options{Ledger: ledger, Engine: alloc, Barrier: barrier, Prefix: prefix, Capacity: p.Capacity, Ports: coreconfig.Options{DNSPort: 5354, MixedPort: 2080, ControlPort: p.ControlPort, ControlSecret: p.ControlSecret}, RealDNSAddress: p.RealDNSAddress, Timeout: 25 * time.Second}, Process: supervisor.Options{Binary: binary, Directory: filepath.Join(dir, "process"), ReadyTimeout: 25 * time.Second, StopTimeout: 2 * time.Second}})
+	t, e := coreactivation.NewTransition(coreactivation.TransitionOptions{Directory: filepath.Join(dir, "transitions"), Store: store, Model: m, ResolveRuleSets: resolve, Activation: coreactivation.Options{Ledger: ledger, Engine: alloc, Barrier: barrier, Prefix: prefix, Capacity: p.Capacity, Ports: coreconfig.Options{DNSPort: 5354, MixedPort: 2080, ControlPort: p.ControlPort, ControlSecret: p.ControlSecret, ServiceDNSListen: p.ServiceDNSListen, ServiceDNSOutbound: p.ServiceDNSOutbound}, RealDNSAddress: p.RealDNSAddress, Timeout: 25 * time.Second}, Process: supervisor.Options{Binary: binary, Directory: filepath.Join(dir, "process"), ReadyTimeout: 25 * time.Second, StopTimeout: 2 * time.Second}})
 	if e != nil {
 		store.Close()
 		ledger.Close()

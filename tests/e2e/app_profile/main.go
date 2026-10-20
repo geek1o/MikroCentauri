@@ -30,9 +30,11 @@ func template(ip, ingress string) (coreconfig.Model, application.Profile) {
 
 func main() {
 	var fixture struct {
-		Model   coreconfig.Model    `json:"model"`
-		Profile application.Profile `json:"profile"`
-		Objects []routeros.Object   `json:"objects"`
+		Model          coreconfig.Model               `json:"model"`
+		Profile        application.Profile            `json:"profile"`
+		Objects        []routeros.Object              `json:"objects"`
+		ServiceOptions *routeros.ServicePolicyOptions `json:"service_options,omitempty"`
+		ServicePlan    *routeros.ServicePolicy        `json:"service_plan,omitempty"`
 	}
 	ip := flag.String("ip", "", "discovered isolated App IPv4")
 	ingress := flag.String("interface", "", "observed Linux ingress")
@@ -50,6 +52,14 @@ func main() {
 		fixture.Model.SourceDirect = []string{"192.168.88.30/32"}
 		fixture.Model.Rules = append(append(fixture.Model.Rules[:1:1], coreconfig.Rule{ID: "second-domain-direct", Domains: []string{"second.test"}, Outbound: "direct"}), fixture.Model.Rules[1:]...)
 		fixture.Model.SourceProxy = []coreconfig.SourcePolicy{{CIDRs: []string{"192.168.88.20/32"}, Outbound: "proxy"}}
+	}
+	if fixture.ServiceOptions != nil {
+		plan, err := routeros.PlanServicePolicy(fixture.Model, *fixture.ServiceOptions)
+		if err != nil {
+			panic(err)
+		}
+		fixture.ServicePlan = &plan
+		fixture.Profile.Watchdog.Targets = append(fixture.Profile.Watchdog.Targets, plan.Targets...)
 	}
 	p, m := fixture.Profile, fixture.Model
 	if err := p.Validate(m); err != nil {

@@ -45,11 +45,29 @@ func GenerateForNamespace(m Model, s namespace.Snapshot, o Options) ([]byte, err
 		return nil, errors.New("generated namespace JSON failure")
 	}
 	dns := cfg["dns"].(map[string]any)
+	var serviceServer any
+	if o.ServiceDNSListen != "" {
+		for _, raw := range dns["servers"].([]any) {
+			if raw.(map[string]any)["tag"] == "service-dns" {
+				serviceServer = raw
+			}
+		}
+	}
 	dns["servers"] = []object{{"type": "udp", "tag": "bootstrap", "server": m.DNS.Bootstrap}, {"type": "fakeip", "tag": "fakeip", "inet4_range": m.DNS.FakeIPRange}}
 	dns["rules"] = []object{{"domain": s.Known, "query_type": []string{"AAAA"}, "action": "predefined", "rcode": "NOERROR"}, {"domain": s.Known, "query_type": []string{"A"}, "action": "route", "server": "fakeip", "rewrite_ttl": 30}}
+	if o.ServiceDNSListen != "" {
+		if serviceServer == nil {
+			return nil, errors.New("service DNS server missing from namespace generation")
+		}
+		dns["servers"] = append(dns["servers"].([]object), serviceServer.(map[string]any))
+		dns["rules"] = append([]object{{"inbound": []string{"service-dns-in"}, "action": "route", "server": "service-dns"}}, dns["rules"].([]object)...)
+	}
 	route := cfg["route"].(map[string]any)
 	rules := route["rules"].([]any)
 	prefixCount := 1 + len(m.SourceProxy)
+	if o.ServiceDNSListen != "" {
+		prefixCount++
+	}
 	if len(m.SourceDirect) > 0 {
 		prefixCount++
 	}

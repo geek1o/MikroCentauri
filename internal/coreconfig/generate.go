@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"mikrocentauri.local/core/internal/rulesets"
+	"net"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +24,11 @@ type Options struct {
 	// CachePath is a trusted runtime mapping; callers must enforce private
 	// directory and file ownership. Application models cannot provide it.
 	CachePath string
+	// ServiceDNSListen and ServiceDNSOutbound are trusted operator inputs for
+	// RouterOS FWD address learning. This separate listener returns real answers
+	// over proxy-carried HTTPS DNS; it must never publish unadmitted FakeIP.
+	ServiceDNSListen   string
+	ServiceDNSOutbound string
 }
 
 func Generate(m Model) ([]byte, error) {
@@ -81,6 +88,14 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 		out = append(out, ob)
 	}
 	route := []object{{"inbound": []string{"dns-in"}, "action": "hijack-dns"}}
+	if o.ServiceDNSListen != "" {
+		if err := ValidateServiceDNSOptions(m, o); err != nil {
+			return nil, err
+		}
+		route = append(route, object{"inbound": []string{"service-dns-in"}, "action": "hijack-dns"})
+	} else if o.ServiceDNSOutbound != "" {
+		return nil, errors.New("service DNS listener required")
+	}
 	if len(m.SourceDirect) > 0 {
 		route = append(route, object{"source_ip_cidr": m.SourceDirect, "action": "route", "outbound": "direct"})
 	}
@@ -101,15 +116,27 @@ func GenerateWithOptions(m Model, o Options) ([]byte, error) {
 	}
 	servers := []object{{"type": "udp", "tag": "bootstrap", "server": m.DNS.Bootstrap}}
 	dnsRules := []object{}
+	if o.ServiceDNSListen != "" {
+		servers = append(servers, object{"type": "https", "tag": "service-dns", "server": "1.1.1.1", "server_port": 443, "path": "/dns-query", "tls": object{"enabled": true, "server_name": "cloudflare-dns.com"}, "detour": o.ServiceDNSOutbound})
+		dnsRules = append(dnsRules, object{"inbound": []string{"service-dns-in"}, "action": "route", "server": "service-dns"})
+	}
 	if m.Mode != "socksify" && len(m.DNS.SelectedDomains) > 0 {
 		servers = append(servers, object{"type": "fakeip", "tag": "fakeip", "inet4_range": m.DNS.FakeIPRange})
 		dnsRules = append(dnsRules, object{"domain": m.DNS.SelectedDomains, "query_type": []string{"AAAA"}, "action": "predefined", "rcode": "NOERROR"}, object{"domain": m.DNS.SelectedDomains, "query_type": []string{"A"}, "action": "route", "server": "fakeip", "rewrite_ttl": 30})
 	}
 	in := []object{{"type": "direct", "tag": "dns-in", "listen": "127.0.0.1", "listen_port": o.DNSPort}, {"type": "mixed", "tag": "explicit-in", "listen": "127.0.0.1", "listen_port": o.MixedPort}}
+	if o.ServiceDNSListen != "" {
+		host, port, _ := net.SplitHostPort(o.ServiceDNSListen)
+		n, _ := strconv.Atoi(port)
+		in = append(in, object{"type": "direct", "tag": "service-dns-in", "listen": host, "listen_port": n})
+	}
 	if m.Mode != "socksify" {
 		in = append(in, object{"type": "tun", "tag": "gateway-in", "interface_name": "mc-tun", "address": []string{"172.31.255.1/30"}, "mtu": 1500, "auto_route": false, "stack": "gvisor"})
 	}
 	result := object{"log": object{"level": "warn"}, "dns": object{"servers": servers, "rules": dnsRules, "final": "bootstrap"}, "inbounds": in, "outbounds": out, "route": object{"rules": route, "final": m.DefaultOutbound, "default_domain_resolver": "bootstrap"}, "experimental": object{"cache_file": object{"enabled": true, "path": cachePath, "store_fakeip": m.Mode != "socksify"}}}
+	if o.ServiceDNSListen != "" {
+		result["dns"].(object)["independent_cache"] = true
+	}
 	if o.ControlPort != 0 {
 		result["experimental"].(object)["clash_api"] = object{"external_controller": fmt.Sprintf("127.0.0.1:%d", o.ControlPort), "secret": o.ControlSecret, "access_control_allow_origin": []string{"http://127.0.0.1"}}
 	}

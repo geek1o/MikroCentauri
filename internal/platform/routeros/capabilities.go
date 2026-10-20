@@ -272,10 +272,10 @@ func (c *Client) Capabilities(ctx context.Context) (Capabilities, error) {
 		}
 		result.Resources[path] = available
 	}
-	result.VersionSupported = (result.Version == "7.24.5" || result.Version == "7.24.5 (stable)") && (result.Board == "CHR" || strings.HasPrefix(result.Board, "CHR ")) && result.Architecture == "x86_64" && result.Platform == "MikroTik"
-	result.VersionSupportReason = "outside the verified CHR x86_64 RouterOS 7.24.5 laboratory profile; production activation remains blocked"
+	result.VersionSupported = NativePlatformCandidate(result.Version, result.Architecture, result.Board) && result.Platform == "MikroTik"
+	result.VersionSupportReason = "outside the pinned native startup profiles; activation remains blocked"
 	if result.VersionSupported {
-		result.VersionSupportReason = "matches the verified CHR x86_64 RouterOS 7.24.5 laboratory profile; GET does not prove write permission, device-mode, TUN or production readiness"
+		result.VersionSupportReason = "matches a pinned native startup profile; GET does not prove write permission, device-mode, TUN or routing readiness"
 	}
 	return result, nil
 }

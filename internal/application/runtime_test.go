@@ -172,3 +172,21 @@ func TestStartupReadRetriesOnlyUnavailableTransport(t *testing.T) {
 		t.Fatal(err, calls)
 	}
 }
+
+func TestProfileServiceDNSAndCanaryBounds(t *testing.T) {
+	m := testModel(t)
+	p := testProfile()
+	p.ServiceDNSListen = "172.30.0.2:5355"
+	p.ServiceDNSOutbound = m.Groups[0].ID
+	p.CanaryTimeout = 8 * time.Second
+	if err := p.Validate(m); err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range []func(*Profile){func(v *Profile) { v.ServiceDNSListen = "172.30.0.3:5355" }, func(v *Profile) { v.ServiceDNSListen = v.DNSListen }, func(v *Profile) { v.ServiceDNSOutbound = "direct" }, func(v *Profile) { v.ServiceDNSListen = "" }, func(v *Profile) { v.CanaryTimeout = 11 * time.Second }, func(v *Profile) { v.CanaryTimeout = time.Millisecond }} {
+		v := p
+		change(&v)
+		if v.Validate(m) == nil {
+			t.Fatal("unsafe operator profile accepted")
+		}
+	}
+}
