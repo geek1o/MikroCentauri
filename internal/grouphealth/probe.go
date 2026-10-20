@@ -15,6 +15,7 @@ import (
 	"io"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/singbox"
 	"mikrocentauri.local/core/internal/wireguard"
 	"net"
@@ -38,18 +39,22 @@ type Canary struct {
 	ExpectedStatus   int
 	ExpectedEgressIP netip.Addr
 	MaxBytes         int64
+	ResponseFormat   string
 }
 type Observation struct {
 	coreconfig.Health
-	EndpointID string    `json:"endpoint_id"`
-	CheckedAt  time.Time `json:"checked_at"`
-	Failure    string    `json:"failure,omitempty"`
+	EndpointID    string    `json:"endpoint_id"`
+	CheckedAt     time.Time `json:"checked_at"`
+	Failure       string    `json:"failure,omitempty"`
+	EgressIP      string    `json:"egress_ip,omitempty"`
+	FailureDetail string    `json:"failure_detail,omitempty"`
 }
 type ProbeOptions struct {
 	Binary, Directory, Bootstrap string
 	Timeout, StopTimeout         time.Duration
 	TLSRoots                     *x509.CertPool
 	Concurrency                  int
+	FailureDiagnostics           bool
 }
 type Prober struct {
 	opts         ProbeOptions
@@ -176,13 +181,32 @@ func dedicatedWGPeer(active, probe wireguard.Endpoint) bool {
 	}
 	return true
 }
-func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig.Model, canary Canary) (Observation, error) {
+func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig.Model, canary Canary) (result Observation, probeErr error) {
 	ctx, cancel := context.WithTimeout(ctx, p.opts.Timeout)
 	defer cancel()
-	fail := func(code string) (Observation, error) { return p.record(identifier, 0, false, code), errors.New(code) }
+	var summary *errorSummary
+	if p.opts.FailureDiagnostics {
+		summary = &errorSummary{}
+	}
+	// This defer runs after the later child-stop defer has drained stderr.
+	defer func() {
+		if summary != nil && probeErr != nil {
+			result.FailureDetail = summary.Code()
+		}
+	}()
+	fail := func(code string) (Observation, error) {
+		observed := p.record(identifier, 0, false, code)
+		return observed, errors.New(code)
+	}
 	u, err := url.Parse(canary.URL)
 	if err != nil || len(canary.URL) > 8192 || u.Hostname() == "" || u.User != nil || u.Fragment != "" || (u.Scheme != "http" && u.Scheme != "https") {
 		return fail("invalid canary URL")
+	}
+	if canary.ResponseFormat != "" && canary.ResponseFormat != health.CanaryRemoteIPJSON && canary.ResponseFormat != health.CanaryCloudflareTrace {
+		return fail("invalid canary response format")
+	}
+	if canary.ResponseFormat == health.CanaryCloudflareTrace && u.Scheme != "https" {
+		return fail("public trace requires verified HTTPS")
 	}
 	if canary.ExpectedStatus == 0 {
 		canary.ExpectedStatus = 204
@@ -251,6 +275,10 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	cmd.Dir = dir
 	cmd.Stdout = io.Discard
 	cmd.Stderr = io.Discard
+	if summary != nil {
+		cmd.Stderr = summary
+		cmd.Stdout = summary
+	}
 	processAttributes(cmd)
 	if cmd.Start() != nil {
 		return fail("probe process failed")
@@ -301,11 +329,20 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	if response.StatusCode != canary.ExpectedStatus {
 		return fail("canary status mismatch")
 	}
-	if canary.ExpectedEgressIP.IsValid() {
-		observed, e := netip.ParseAddr(strings.TrimSpace(string(body)))
-		if e != nil || observed.Unmap() != canary.ExpectedEgressIP.Unmap() {
-			return fail("canary egress mismatch")
+	var observed netip.Addr
+	if canary.ResponseFormat != "" {
+		observed, err = health.ParseCanaryIP(body, canary.ResponseFormat)
+		if err != nil {
+			return fail("canary peer response invalid")
 		}
+	} else if canary.ExpectedEgressIP.IsValid() {
+		observed, err = netip.ParseAddr(strings.TrimSpace(string(body)))
+		if err != nil {
+			return fail("canary peer response invalid")
+		}
+	}
+	if canary.ExpectedEgressIP.IsValid() && (!observed.IsValid() || observed.Unmap() != canary.ExpectedEgressIP.Unmap()) {
+		return fail("canary egress mismatch")
 	}
 	select {
 	case <-done:
@@ -314,9 +351,9 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 		return fail("probe canceled")
 	default:
 	}
-	return p.record(identifier, latency, true, ""), nil
+	return p.record(identifier, latency, true, "", observed), nil
 }
-func (p *Prober) record(id string, latency time.Duration, available bool, code string) Observation {
+func (p *Prober) record(id string, latency time.Duration, available bool, code string, egress ...netip.Addr) Observation {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if _, exists := p.observations[id]; !exists && len(p.observations) >= 1024 {
@@ -335,6 +372,10 @@ func (p *Prober) record(id string, latency time.Duration, available bool, code s
 	o.CheckedAt = time.Now().UTC()
 	o.Available = available
 	o.Failure = code
+	o.EgressIP = ""
+	if available && len(egress) == 1 && egress[0].IsValid() {
+		o.EgressIP = egress[0].Unmap().String()
+	}
 	if available {
 		o.Latency = latency
 		o.LastSuccess = o.CheckedAt

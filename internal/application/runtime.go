@@ -55,6 +55,7 @@ type Profile struct {
 	RealDNSAddress     string                `json:"real_dns_address"`
 	CanaryURL          string                `json:"canary_url"`
 	CanaryPeerIP       string                `json:"canary_peer_ip"`
+	CanaryFormat       string                `json:"canary_format,omitempty"`
 	Watchdog           routeros.WatchdogSpec `json:"watchdog"`
 	RuleSetDirectory   string                `json:"ruleset_directory,omitempty"`
 }
@@ -150,7 +151,7 @@ func (p Profile) Validate(m coreconfig.Model) error {
 	if e != nil || !canary.Is4() || canary.IsUnspecified() || canary.IsMulticast() || canary.IsLoopback() {
 		return errors.New("independent canary requires literal unicast IPv4")
 	}
-	if _, e := health.NewHTTPProbe(health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, Timeout: 2 * time.Second}); e != nil {
+	if _, e := health.NewHTTPProbe(health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}); e != nil {
 		return e
 	}
 
@@ -231,7 +232,7 @@ func New(ctx context.Context, p Profile, m coreconfig.Model, c *routeros.Client,
 	if e != nil {
 		return nil, e
 	}
-	pc := health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, Timeout: 2 * time.Second}
+	pc := health.HTTPProbeConfig{SOCKSAddress: "127.0.0.1:2080", URL: p.CanaryURL, ExpectedPeerIP: p.CanaryPeerIP, ResponseFormat: p.CanaryFormat, Timeout: 2 * time.Second}
 	barrier, e := linuxbarrier.New(linuxbarrier.Options{Interface: p.IngressInterface, TUN: "mc-tun", Table: p.Table, RulePriority: p.RulePriority, LocalRulePriority: p.LocalRulePriority, TUNPrefix: netip.MustParsePrefix("172.31.255.1/30"), Native: native, Canary: pc, IndependentCanary: true})
 	if e != nil {
 		return nil, e

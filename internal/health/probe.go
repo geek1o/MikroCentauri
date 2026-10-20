@@ -4,7 +4,6 @@ package health
 import (
 	"context"
 	"encoding/binary"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -25,6 +24,7 @@ type HTTPProbeConfig struct {
 	SOCKSAddress   string
 	URL            string
 	ExpectedPeerIP string
+	ResponseFormat string
 	ExpectedStatus int
 	Timeout        time.Duration
 }
@@ -38,6 +38,12 @@ func NewHTTPProbe(c HTTPProbeConfig) (*HTTPProbe, error) {
 	u, err := url.Parse(c.URL)
 	if err != nil || u.Hostname() == "" || (u.Scheme != "http" && u.Scheme != "https") || u.User != nil || u.Fragment != "" {
 		return nil, errors.New("invalid canary URL")
+	}
+	if c.ResponseFormat != "" && c.ResponseFormat != CanaryRemoteIPJSON && c.ResponseFormat != CanaryCloudflareTrace {
+		return nil, errors.New("invalid canary response format")
+	}
+	if c.ResponseFormat == CanaryCloudflareTrace && u.Scheme != "https" {
+		return nil, errors.New("public trace requires verified HTTPS")
 	}
 	if _, _, err := net.SplitHostPort(c.SOCKSAddress); err != nil {
 		return nil, errors.New("invalid SOCKS address")
@@ -88,14 +94,11 @@ func (p *HTTPProbe) Check(ctx context.Context) error {
 	if err != nil || len(body) > 4096 {
 		return errors.New("canary response invalid")
 	}
-	var result struct {
-		RemoteIP string `json:"remote_ip"`
-	}
-	if json.Unmarshal(body, &result) != nil {
+	actual, err := ParseCanaryIP(body, p.config.ResponseFormat)
+	if err != nil {
 		return errors.New("canary response invalid")
 	}
-	actual := net.ParseIP(result.RemoteIP)
-	if actual == nil || !actual.Equal(net.ParseIP(p.config.ExpectedPeerIP)) {
+	if !net.ParseIP(actual.String()).Equal(net.ParseIP(p.config.ExpectedPeerIP)) {
 		return errors.New("canary egress mismatch")
 	}
 	return nil

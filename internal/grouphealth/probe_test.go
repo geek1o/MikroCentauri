@@ -4,8 +4,10 @@ import (
 	"context"
 	"crypto/x509"
 	"encoding/json"
+	"io"
 	"mikrocentauri.local/core/internal/coreconfig"
 	"mikrocentauri.local/core/internal/endpoints"
+	"mikrocentauri.local/core/internal/health"
 	"mikrocentauri.local/core/internal/singbox"
 	"net"
 	"net/http"
@@ -167,5 +169,38 @@ func TestPinnedHTTPSStatusRedirectAndBody(t *testing.T) {
 	ep.Enabled = false
 	if o, e := p.Probe(context.Background(), ep, Canary{URL: srv.URL}); e == nil || o.Available {
 		t.Fatal("disabled endpoint probed")
+	}
+}
+
+func TestPinnedPublicTraceThroughIsolatedEndpoint(t *testing.T) {
+	binary := os.Getenv("SING_BOX_BINARY")
+	if binary == "" {
+		t.Skip("set SING_BOX_BINARY for native proxy probes")
+	}
+	canary := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "fl=fixture\nip=203.0.113.9\ncolo=TEST\n")
+	}))
+	defer canary.Close()
+	roots := x509.NewCertPool()
+	roots.AddCert(canary.Certificate())
+	port := availablePort(t)
+	ssServer(t, binary, port, "trace-fixture-password")
+	endpoint, e := endpoints.ParseURI("ss://aes-256-gcm:trace-fixture-password@127.0.0.1:" + strconv.Itoa(int(port)) + "#trace")
+	if e != nil {
+		t.Fatal(e)
+	}
+	p, e := NewProber(ProbeOptions{Binary: binary, Directory: privateDir(t), Timeout: 3 * time.Second, TLSRoots: roots})
+	if e != nil {
+		t.Fatal(e)
+	}
+	cfg := Canary{URL: canary.URL, ExpectedStatus: 200, ResponseFormat: health.CanaryCloudflareTrace, ExpectedEgressIP: netip.MustParseAddr("203.0.113.9")}
+	seen, e := p.Probe(context.Background(), endpoint, cfg)
+	if e != nil || !seen.Available || seen.EgressIP != "203.0.113.9" {
+		t.Fatal("verified trace failed", e)
+	}
+	cfg.ExpectedEgressIP = netip.MustParseAddr("198.51.100.8")
+	seen, e = p.Probe(context.Background(), endpoint, cfg)
+	if e == nil || seen.Available || seen.EgressIP != "" {
+		t.Fatal("wrong egress accepted or stale success retained")
 	}
 }
