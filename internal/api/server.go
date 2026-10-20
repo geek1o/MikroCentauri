@@ -20,6 +20,7 @@ import (
 
 	"mikrocentauri.local/core/internal/coreactivation"
 	"mikrocentauri.local/core/internal/coreconfig"
+	"mikrocentauri.local/core/internal/endpoints"
 	"mikrocentauri.local/core/internal/subscriptions"
 	"mikrocentauri.local/core/internal/trafficlists"
 	"mikrocentauri.local/core/internal/webui"
@@ -38,6 +39,7 @@ type Options struct {
 	Runtime                Runtime
 	Router                 *RouterResources
 	Subscriptions          *SubscriptionResources
+	SubscriptionProxy      func(context.Context, endpoints.Endpoint, string, func(context.Context, subscriptions.DialContext) error) error
 	Validate               func(context.Context, coreconfig.Model) error
 	Origin                 string
 	Clients                []netip.Prefix
@@ -135,6 +137,11 @@ func New(o Options) (*Server, error) {
 	}
 	if e := s.loadRouterSetup(); e != nil {
 		return nil, e
+	}
+	if o.Subscriptions != nil {
+		o.Subscriptions.mu.Lock()
+		o.Subscriptions.proxy = s.withSubscriptionProxy
+		o.Subscriptions.mu.Unlock()
 	}
 	return s, nil
 }
@@ -466,7 +473,13 @@ func (s *Server) post(w http.ResponseWriter, r *http.Request, token, id string) 
 			reject(w, 400, "invalid_request")
 			return
 		}
-		result, e := s.opts.Subscriptions.Refresh(r.Context(), input.ID)
+		var result SubscriptionView
+		var e error
+		func() {
+			s.mu.Unlock()
+			defer s.mu.Lock()
+			result, e = s.opts.Subscriptions.Refresh(r.Context(), input.ID)
+		}()
 		if e != nil {
 			s.event("subscription_refresh_failed", id)
 			reply(w, 503, map[string]any{"error": "subscription_refresh_failed", "subscription": result})

@@ -1892,6 +1892,9 @@
                           },
                           "include": {
                             "type": "string"
+                          },
+                          "proxy_node": {
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -2705,6 +2708,9 @@
                         },
                         "include": {
                           "type": "string"
+                        },
+                        "proxy_node": {
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -3349,6 +3355,9 @@
                             "type": "string"
                           },
                           "include": {
+                            "type": "string"
+                          },
+                          "proxy_node": {
                             "type": "string"
                           }
                         },
@@ -4161,6 +4170,9 @@
                         },
                         "include": {
                           "type": "string"
+                        },
+                        "proxy_node": {
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -4805,6 +4817,9 @@
                             "type": "string"
                           },
                           "include": {
+                            "type": "string"
+                          },
+                          "proxy_node": {
                             "type": "string"
                           }
                         },
@@ -18968,6 +18983,9 @@
                       "offset": {
                         "type": "integer"
                       },
+                      "proxy_node": {
+                        "type": "string"
+                      },
                       "source_count": {
                         "type": "integer"
                       }
@@ -19209,6 +19227,11 @@
                     "type": "string"
                   },
                   "include": {
+                    "type": "string"
+                  },
+                  "proxy_node": {
+                    "maxLength": 64,
+                    "pattern": "^([a-f0-9]{64})?$",
                     "type": "string"
                   },
                   "url": {
@@ -20106,6 +20129,9 @@
                     "offset": {
                       "type": "integer"
                     },
+                    "proxy_node": {
+                      "type": "string"
+                    },
                     "source_count": {
                       "type": "integer"
                     }
@@ -20470,6 +20496,9 @@
                     "offset": {
                       "type": "integer"
                     },
+                    "proxy_node": {
+                      "type": "string"
+                    },
                     "source_count": {
                       "type": "integer"
                     }
@@ -20803,6 +20832,9 @@
                             "offset": {
                               "type": "integer"
                             },
+                            "proxy_node": {
+                              "type": "string"
+                            },
                             "source_count": {
                               "type": "integer"
                             }
@@ -21117,6 +21149,257 @@
                   "required": [
                     "interval_seconds",
                     "running"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation completed"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Authentication required"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Client/origin denied"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource absent"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Stale draft/plan"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Capacity or login limit"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Adapter not connected"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Runtime or persistence unavailable"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/api/v1/subscriptions/transport": {
+      "post": {
+        "operationId": "post_subscriptions_transport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+                    "type": "string"
+                  },
+                  "proxy_node": {
+                    "maxLength": 64,
+                    "pattern": "^([a-f0-9]{64})?$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "proxy_node"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "proxy_node": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "proxy_node"
                   ],
                   "type": "object"
                 }

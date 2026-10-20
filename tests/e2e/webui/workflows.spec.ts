@@ -14,7 +14,7 @@ test('subscription timeout explains direct fetching and an empty saved cache', a
   await expect(page.getByRole('heading',{name:'Обзор',exact:true})).toBeVisible();
   await page.getByRole('navigation').getByRole('link',{name:'Подписки',exact:true}).click();
   const source=page.locator('.row').filter({has:page.getByText('network-source',{exact:true})});
-  await expect(source).toContainText('Контейнер загружает подписку напрямую');
+  await expect(source).toContainText('Выбран прямой доступ');
   await source.getByRole('button',{name:'Выбрать узлы'}).click();
   await expect(page.getByText('Сохранённого списка пока нет.',{exact:false})).toBeVisible();
   await expect(page.getByText('Показан последний успешно загруженный список.',{exact:true})).toHaveCount(0);
@@ -31,6 +31,16 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   const errors:string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type()==='error' && /Content Security Policy|Refused to/.test(message.text())) errors.push(message.text()); });
+  const screenshot=async(name:string) => {
+    const start=errors.length;
+    await page.screenshot({path:'../../../.cache/webui/'+prefix+'-'+name+'.png',fullPage:true,caret:'initial'});
+    // Playwright 1.58's WebKit screenshotter injects a transient inline "body {}"
+    // stylesheet to synchronize animations. Our CSP correctly rejects that
+    // tooling operation; application navigation/forms must have zero violations.
+    const captureErrors=errors.splice(start);
+    if(prefix==='webkit') expect(captureErrors).toEqual(["Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."]);
+    else expect(captureErrors).toEqual([]);
+  };
   await page.goto('/');
   const login = page.waitForResponse(r => r.url().endsWith('/auth/login'));
   await page.getByLabel('Пароль администратора').fill('BrowserFixturePassword-2026');
@@ -141,6 +151,22 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
   await source.getByRole('button',{name:'Выбрать узлы'}).click();
   await page.getByLabel('Subscription node · ss',{exact:true}).check();
   await mutate('Импортировать выбранные','subscriptions/import');
+  const proxyNode=current.model.endpoints[0].ID;
+  await source.getByRole('combobox',{name:'Загрузка подписки '+prefix+'-provider'}).selectOption(proxyNode);
+  expect((await mutate('Сохранить способ загрузки','subscriptions/transport')).proxy_node).toBe(proxyNode);
+  await page.getByRole('button',{name:'↻ Обновить',exact:true}).click();
+  await expect(source.getByRole('combobox',{name:'Загрузка подписки '+prefix+'-provider'})).toHaveValue(proxyNode);
+  const sources=await (await request.get('/api/v1/subscriptions',{headers})).json();
+  expect(sources.find((s:any)=>s.id===prefix+'-provider').proxy_node).toBe(proxyNode);
+  expect(JSON.stringify(sources)).not.toContain('browser-private-token');
+  for(const width of [1280,390]){
+    await page.setViewportSize({width,height:900});
+    await screenshot('subscription-proxy-'+width);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  }
+  await page.setViewportSize({width:1280,height:900});
+  await source.getByRole('combobox',{name:'Загрузка подписки '+prefix+'-provider'}).selectOption('');
+  await mutate('Сохранить способ загрузки','subscriptions/transport');
   await page.getByLabel('Включить автообновление').check();
   await page.getByLabel('Интервал, минуты').fill('5');
   expect((await mutate('Сохранить расписание','subscriptions/schedule')).interval_seconds).toBe(300);
@@ -178,16 +204,6 @@ test('administrative workflow over real HTTPS API and pinned validator', async (
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
   }
   expect(errors).toEqual([]);
-  const screenshot=async(name:string) => {
-    const start=errors.length;
-    await page.screenshot({path:'../../../.cache/webui/'+prefix+'-'+name+'.png',fullPage:true,caret:'initial'});
-    // Playwright 1.58's WebKit screenshotter injects a transient inline "body {}"
-    // stylesheet to synchronize animations. Our CSP correctly rejects that
-    // tooling operation; application navigation/forms must have zero violations.
-    const captureErrors=errors.splice(start);
-    if(prefix==='webkit') expect(captureErrors).toEqual(["Refused to apply a stylesheet because its hash, its nonce, or 'unsafe-inline' does not appear in the style-src directive of the Content Security Policy."]);
-    else expect(captureErrors).toEqual([]);
-  };
   await screenshot('mobile');
   await page.setViewportSize({width:1440,height:1000});
   await navigate('Обзор');

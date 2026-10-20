@@ -59,29 +59,30 @@ func OpenAPI() map[string]any {
 	responses["200"] = map[string]any{"description": "Redacted fixed-name diagnostics archive", "content": map[string]any{"application/gzip": map[string]any{"schema": map[string]any{"type": "string", "format": "binary"}}}}
 	paths["/api/v1/diagnostics/bundle"] = map[string]any{"get": operation("get", "diagnostics/bundle", responses)}
 	objects := map[string]map[string]any{
-		"setup/router/test":      schema(reflect.TypeFor[RouterSetupInput]()),
-		"setup/router/save":      schema(reflect.TypeFor[RouterSetupInput]()),
-		"sections/save":          schema(reflect.TypeFor[SectionsRequest]()),
-		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListRequest]()),
-		"proxies/probe":          schema(reflect.TypeFor[NodeProbeRequest]()),
-		"engine/select":          schema(reflect.TypeFor[EngineSelectRequest]()),
-		"engine/delay":           schema(reflect.TypeFor[EngineDelayRequest]()),
-		"auth/login":             objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
-		"auth/logout":            {"type": "object", "additionalProperties": false},
-		"system/recover":         {"type": "object", "additionalProperties": false},
-		"subscriptions":          schema(reflect.TypeFor[subscriptions.Spec]()),
-		"subscriptions/inspect":  objectSchema(map[string]any{"id": subscriptionIDSchema(), "offset": map[string]any{"type": "integer", "minimum": 0}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 128}}),
-		"subscriptions/refresh":  objectSchema(map[string]any{"id": subscriptionIDSchema()}),
-		"subscriptions/delete":   schema(reflect.TypeFor[SubscriptionDeleteRequest]()),
-		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema()}),
-		"subscriptions/import":   schema(reflect.TypeFor[SubscriptionImportRequest]()),
-		"config/draft":           {"$ref": "#/components/schemas/CoreModel"},
-		"config/draft/policy":    schema(reflect.TypeFor[DraftPolicyRequest]()),
-		"proxies/import":         schema(reflect.TypeFor[ProxyImportRequest]()),
-		"proxies/update":         schema(reflect.TypeFor[ProxyUpdateRequest]()),
-		"proxies/delete":         schema(reflect.TypeFor[ProxyDeleteRequest]()),
-		"diagnostics/run":        schema(reflect.TypeFor[DiagnosticRequest]()),
-		"config/validate":        revisionSchema(), "config/plan": revisionSchema(),
+		"setup/router/test":       schema(reflect.TypeFor[RouterSetupInput]()),
+		"setup/router/save":       schema(reflect.TypeFor[RouterSetupInput]()),
+		"sections/save":           schema(reflect.TypeFor[SectionsRequest]()),
+		"traffic-lists/import":    schema(reflect.TypeFor[TrafficListRequest]()),
+		"proxies/probe":           schema(reflect.TypeFor[NodeProbeRequest]()),
+		"engine/select":           schema(reflect.TypeFor[EngineSelectRequest]()),
+		"engine/delay":            schema(reflect.TypeFor[EngineDelayRequest]()),
+		"auth/login":              objectSchema(map[string]any{"password": map[string]any{"type": "string", "maxLength": 1024}}),
+		"auth/logout":             {"type": "object", "additionalProperties": false},
+		"system/recover":          {"type": "object", "additionalProperties": false},
+		"subscriptions":           schema(reflect.TypeFor[subscriptions.Spec]()),
+		"subscriptions/inspect":   objectSchema(map[string]any{"id": subscriptionIDSchema(), "offset": map[string]any{"type": "integer", "minimum": 0}, "limit": map[string]any{"type": "integer", "minimum": 1, "maximum": 128}}),
+		"subscriptions/refresh":   objectSchema(map[string]any{"id": subscriptionIDSchema()}),
+		"subscriptions/delete":    schema(reflect.TypeFor[SubscriptionDeleteRequest]()),
+		"subscriptions/transport": schema(reflect.TypeFor[SubscriptionTransportRequest]()),
+		"subscriptions/schedule":  objectSchema(map[string]any{"interval_seconds": integerSchema()}),
+		"subscriptions/import":    schema(reflect.TypeFor[SubscriptionImportRequest]()),
+		"config/draft":            {"$ref": "#/components/schemas/CoreModel"},
+		"config/draft/policy":     schema(reflect.TypeFor[DraftPolicyRequest]()),
+		"proxies/import":          schema(reflect.TypeFor[ProxyImportRequest]()),
+		"proxies/update":          schema(reflect.TypeFor[ProxyUpdateRequest]()),
+		"proxies/delete":          schema(reflect.TypeFor[ProxyDeleteRequest]()),
+		"diagnostics/run":         schema(reflect.TypeFor[DiagnosticRequest]()),
+		"config/validate":         revisionSchema(), "config/plan": revisionSchema(),
 		"config/apply":           objectSchema(map[string]any{"plan_id": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}}),
 		"backup/restore-preview": schema(reflect.TypeFor[SafeExport]()),
 		"backup/restore-draft":   schema(reflect.TypeFor[SafeExport]()),
@@ -89,34 +90,35 @@ func OpenAPI() map[string]any {
 	}
 	revisionResponse := objectSchema(map[string]any{"draft_revision": integerSchema(), "base_revision": integerSchema()})
 	resultSchemas := map[string]map[string]any{
-		"setup/router/test":      schema(reflect.TypeFor[RouterSetupResult]()),
-		"setup/router/save":      schema(reflect.TypeFor[RouterSetupResult]()),
-		"sections/save":          schema(reflect.TypeFor[DraftPolicyResult]()),
-		"traffic-lists/import":   schema(reflect.TypeFor[TrafficListResult]()),
-		"proxies/probe":          schema(reflect.TypeFor[NodeProbeResult]()),
-		"engine/select":          schema(reflect.TypeFor[EngineState]()),
-		"engine/delay":           schema(reflect.TypeFor[EngineDelayResult]()),
-		"subscriptions/schedule": objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
-		"auth/login":             objectSchema(map[string]any{"access_token": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}, "token_type": map[string]any{"const": "Bearer"}, "expires_in": map[string]any{"const": 1800}}),
-		"auth/logout":            objectSchema(map[string]any{"logged_out": boolSchema()}),
-		"system/recover":         schema(reflect.TypeFor[RuntimeView]()),
-		"subscriptions":          objectSchema(map[string]any{"id": subscriptionIDSchema()}),
-		"subscriptions/delete":   objectSchema(map[string]any{"id": subscriptionIDSchema()}),
-		"subscriptions/inspect":  schema(reflect.TypeFor[SubscriptionView]()),
-		"subscriptions/refresh":  schema(reflect.TypeFor[SubscriptionView]()),
-		"subscriptions/import":   schema(reflect.TypeFor[SubscriptionImportResult]()),
-		"config/draft":           revisionResponse,
-		"config/draft/policy":    schema(reflect.TypeFor[DraftPolicyResult]()),
-		"proxies/import":         schema(reflect.TypeFor[SubscriptionImportResult]()),
-		"proxies/update":         schema(reflect.TypeFor[ProxyChangeResult]()),
-		"proxies/delete":         schema(reflect.TypeFor[ProxyChangeResult]()),
-		"diagnostics/run":        schema(reflect.TypeFor[DiagnosticResult]()),
-		"config/validate":        objectSchema(map[string]any{"valid": boolSchema()}),
-		"config/plan":            objectSchema(map[string]any{"plan_id": stringSchema(), "draft_revision": integerSchema(), "base_revision": integerSchema(), "expires_at": schema(reflect.TypeFor[time.Time]()), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]()), "apply_available": boolSchema(), "changed_sections": schema(reflect.TypeFor[[]string]())}),
-		"config/apply":           schema(reflect.TypeFor[RuntimeView]()),
-		"backup/restore-preview": schema(reflect.TypeFor[RestorePreview]()),
-		"backup/restore-draft":   schema(reflect.TypeFor[RestorePreview]()),
-		"preferences":            schema(reflect.TypeFor[Preferences]()),
+		"setup/router/test":       schema(reflect.TypeFor[RouterSetupResult]()),
+		"setup/router/save":       schema(reflect.TypeFor[RouterSetupResult]()),
+		"sections/save":           schema(reflect.TypeFor[DraftPolicyResult]()),
+		"traffic-lists/import":    schema(reflect.TypeFor[TrafficListResult]()),
+		"proxies/probe":           schema(reflect.TypeFor[NodeProbeResult]()),
+		"engine/select":           schema(reflect.TypeFor[EngineState]()),
+		"engine/delay":            schema(reflect.TypeFor[EngineDelayResult]()),
+		"subscriptions/schedule":  objectSchema(map[string]any{"interval_seconds": integerSchema(), "running": boolSchema()}),
+		"auth/login":              objectSchema(map[string]any{"access_token": map[string]any{"type": "string", "minLength": 64, "maxLength": 64}, "token_type": map[string]any{"const": "Bearer"}, "expires_in": map[string]any{"const": 1800}}),
+		"auth/logout":             objectSchema(map[string]any{"logged_out": boolSchema()}),
+		"system/recover":          schema(reflect.TypeFor[RuntimeView]()),
+		"subscriptions":           objectSchema(map[string]any{"id": subscriptionIDSchema()}),
+		"subscriptions/delete":    objectSchema(map[string]any{"id": subscriptionIDSchema()}),
+		"subscriptions/transport": schema(reflect.TypeFor[SubscriptionTransportRequest]()),
+		"subscriptions/inspect":   schema(reflect.TypeFor[SubscriptionView]()),
+		"subscriptions/refresh":   schema(reflect.TypeFor[SubscriptionView]()),
+		"subscriptions/import":    schema(reflect.TypeFor[SubscriptionImportResult]()),
+		"config/draft":            revisionResponse,
+		"config/draft/policy":     schema(reflect.TypeFor[DraftPolicyResult]()),
+		"proxies/import":          schema(reflect.TypeFor[SubscriptionImportResult]()),
+		"proxies/update":          schema(reflect.TypeFor[ProxyChangeResult]()),
+		"proxies/delete":          schema(reflect.TypeFor[ProxyChangeResult]()),
+		"diagnostics/run":         schema(reflect.TypeFor[DiagnosticResult]()),
+		"config/validate":         objectSchema(map[string]any{"valid": boolSchema()}),
+		"config/plan":             objectSchema(map[string]any{"plan_id": stringSchema(), "draft_revision": integerSchema(), "base_revision": integerSchema(), "expires_at": schema(reflect.TypeFor[time.Time]()), "model": schema(reflect.TypeFor[coreconfig.ModelPreview]()), "policy": schema(reflect.TypeFor[PolicyPreview]()), "apply_available": boolSchema(), "changed_sections": schema(reflect.TypeFor[[]string]())}),
+		"config/apply":            schema(reflect.TypeFor[RuntimeView]()),
+		"backup/restore-preview":  schema(reflect.TypeFor[RestorePreview]()),
+		"backup/restore-draft":    schema(reflect.TypeFor[RestorePreview]()),
+		"preferences":             schema(reflect.TypeFor[Preferences]()),
 	}
 	objects["config/draft/policy"]["properties"].(map[string]any)["groups"].(map[string]any)["items"].(map[string]any)["properties"].(map[string]any)["url"] = map[string]any{"type": "string", "const": ""}
 	objects["config/draft/policy"]["properties"].(map[string]any)["mode"] = map[string]any{"type": "string", "enum": []string{"hybrid", "full", "socksify"}}
@@ -124,12 +126,15 @@ func OpenAPI() map[string]any {
 		objects[path]["properties"].(map[string]any)["draft_revision"] = integerSchema()
 	}
 	objects["proxies/probe"]["properties"].(map[string]any)["id"] = map[string]any{"type": "string", "pattern": "^[a-f0-9]{64}$", "minLength": 64, "maxLength": 64}
+	for _, path := range []string{"subscriptions", "subscriptions/transport"} {
+		objects[path]["properties"].(map[string]any)["proxy_node"] = map[string]any{"type": "string", "pattern": "^([a-f0-9]{64})?$", "maxLength": 64}
+	}
 	objects["subscriptions/schedule"]["properties"].(map[string]any)["interval_seconds"] = map[string]any{"oneOf": []any{map[string]any{"type": "integer", "const": 0}, map[string]any{"type": "integer", "minimum": 60, "maximum": 86400}}}
 	objects["proxies/update"]["properties"].(map[string]any)["uri"] = map[string]any{"type": "string", "maxLength": 16384, "writeOnly": true}
 	objects["diagnostics/run"]["properties"].(map[string]any)["kind"] = map[string]any{"type": "string", "enum": []string{"routeros", "core", "dns", "direct", "proxy", "routing", "watchdog"}}
 	objects["proxies/import"]["properties"].(map[string]any)["uris"] = map[string]any{"type": "array", "minItems": 1, "maxItems": 128, "items": map[string]any{"type": "string", "maxLength": 16384, "writeOnly": true}}
 	objects["subscriptions/import"]["properties"].(map[string]any)["node_ids"] = map[string]any{"type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true, "items": stringSchema()}
-	for _, path := range []string{"subscriptions", "subscriptions/delete", "subscriptions/import"} {
+	for _, path := range []string{"subscriptions", "subscriptions/delete", "subscriptions/import", "subscriptions/transport"} {
 		objects[path]["properties"].(map[string]any)["id"] = subscriptionIDSchema()
 	}
 	for path, body := range objects {

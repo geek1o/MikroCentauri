@@ -82,10 +82,11 @@ type Policy struct {
 	MaxRedirects int
 }
 type Spec struct {
-	ID      string `json:"id"`
-	URL     string `json:"url"`
-	Include string `json:"include,omitempty"`
-	Exclude string `json:"exclude,omitempty"`
+	ID        string `json:"id"`
+	URL       string `json:"url"`
+	Include   string `json:"include,omitempty"`
+	Exclude   string `json:"exclude,omitempty"`
+	ProxyNode string `json:"proxy_node,omitempty"`
 }
 type State struct {
 	SourceCount   int                  `json:"source_count,omitempty"`
@@ -106,6 +107,7 @@ type Manager struct {
 }
 
 var identifier = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
+var proxyNodePattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
 func New(directory string, policy Policy) (*Manager, error) {
 	return NewWithParser(directory, policy, URIList{})
@@ -260,6 +262,16 @@ func (m *Manager) save(s State) error {
 	return nil
 }
 func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
+	return m.refresh(ctx, spec, nil)
+}
+
+// RefreshVia uses one composition-owned isolated proxy. No direct retry occurs
+// when that selected path is absent or fails. Source policy and TLS still apply.
+func (m *Manager) RefreshVia(ctx context.Context, spec Spec, dial DialContext) (State, error) {
+	return m.refresh(ctx, spec, dial)
+}
+
+func (m *Manager) refresh(ctx context.Context, spec Spec, dial DialContext) (State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	unlock, err := m.lock()
@@ -283,6 +295,14 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 	if len(spec.Include) > 4096 || len(spec.Exclude) > 4096 {
 		return fail("subscription filter exceeds size limit")
 	}
+	if spec.ProxyNode != "" && (!proxyNodePattern.MatchString(spec.ProxyNode) || dial == nil) {
+		s.FailureCode = "proxy_unavailable"
+		return fail("subscription proxy unavailable")
+	}
+	if spec.ProxyNode == "" && dial != nil {
+		s.FailureCode = "proxy_unavailable"
+		return fail("subscription proxy not selected")
+	}
 	var include, exclude *regexp.Regexp
 	if spec.Include != "" {
 		include, err = regexp.Compile(spec.Include)
@@ -296,7 +316,7 @@ func (m *Manager) Refresh(ctx context.Context, spec Spec) (State, error) {
 			return fail("invalid exclude filter")
 		}
 	}
-	b, err := m.download(ctx, spec.URL)
+	b, err := m.downloadVia(ctx, spec.URL, dial)
 	if err != nil {
 		s.FailureCode = downloadFailureCode(err)
 		return fail("subscription download failed")
@@ -396,6 +416,10 @@ func validURL(raw string) (*url.URL, error) {
 	return u, nil
 }
 func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
+	return m.downloadVia(ctx, raw, nil)
+}
+
+func (m *Manager) downloadVia(ctx context.Context, raw string, dial DialContext) ([]byte, error) {
 	u, err := validURL(raw)
 	if err != nil {
 		return nil, downloadFailure("invalid_url")
@@ -422,8 +446,12 @@ func (m *Manager) download(ctx context.Context, raw string) ([]byte, error) {
 			}
 		}
 		var conn net.Conn
+		connect := dial
+		if connect == nil {
+			connect = (&net.Dialer{}).DialContext
+		}
 		for _, ip := range ips {
-			conn, err = (&net.Dialer{}).DialContext(ctx, network, net.JoinHostPort(ip.String(), port))
+			conn, err = connect(ctx, network, net.JoinHostPort(ip.String(), port))
 			if err == nil {
 				return conn, nil
 			}

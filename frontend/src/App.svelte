@@ -154,7 +154,13 @@
     scheduleEnabled = $state(false),
     scheduleMinutes = $state(60),
     resourceErrors = $state<Record<string, string>>({});
-  let sub = $state({ id: "main", url: "", include: "", exclude: "" }),
+  let sub = $state({
+      id: "main",
+      url: "",
+      include: "",
+      exclude: "",
+      proxy_node: "",
+    }),
     selectedNodes = $state<string[]>([]),
     provider = $state<any>(),
     offset = $state(0);
@@ -1445,6 +1451,16 @@
                     bind:value={sub.exclude}
                   /></label
                 >
+                <label
+                  >Загрузка подписки<select bind:value={sub.proxy_node}>
+                    <option value="">Напрямую</option>
+                    {#each config.model.endpoints.filter((node) => node.Enabled !== false) as node}
+                      <option value={node.ID}
+                        >{node.Name || node.Server} · {node.Protocol}</option
+                      >
+                    {/each}
+                  </select></label
+                >
               </div>
               <button disabled={busy}>Сохранить подписку</button>
             </form>
@@ -1509,7 +1525,7 @@
                       : "Ошибок обновления нет"}
                   </p>
                   {#if s.failed}<p class="small">
-                      {subscriptionFailure(s.failure_code)}
+                      {subscriptionFailure(s.failure_code, s.proxy_node)}
                     </p>{/if}
                   <p class="muted small">
                     Последний успех: {s.last_success &&
@@ -1517,8 +1533,37 @@
                       ? date(s.last_success)
                       : "ещё не обновлялась"}
                   </p>
+                  <label
+                    >Загружать через<select
+                      aria-label={"Загрузка подписки " + s.id}
+                      bind:value={s.proxy_node}
+                    >
+                      <option value="">Напрямую</option>
+                      {#if s.proxy_node && !config.model.endpoints.some((node) => node.ID === s.proxy_node && node.Enabled !== false)}<option
+                          value={s.proxy_node}>Выбранный узел недоступен</option
+                        >{/if}
+                      {#each config.model.endpoints.filter((node) => node.Enabled !== false) as node}
+                        <option value={node.ID}
+                          >{node.Name || node.Server} · {node.Protocol}</option
+                        >
+                      {/each}
+                    </select></label
+                  >
                 </div>
                 <div class="actions">
+                  <button
+                    disabled={busy}
+                    onclick={() =>
+                      run(async () => {
+                        await api("subscriptions/transport", {
+                          id: s.id,
+                          proxy_node: s.proxy_node || "",
+                        });
+                        await load();
+                        notice =
+                          "Способ загрузки сохранён. Он используется при ручном и автоматическом обновлении подписки.";
+                      })}>Сохранить способ загрузки</button
+                  >
                   <button
                     disabled={busy}
                     onclick={() =>
@@ -1599,7 +1644,12 @@
                   </div>
                 </div>{/if}
               {#if provider.failed}<div class="error">
-                  <p>{subscriptionFailure(provider.failure_code)}</p>
+                  <p>
+                    {subscriptionFailure(
+                      provider.failure_code,
+                      provider.proxy_node,
+                    )}
+                  </p>
                   <p>
                     {provider.node_count > 0
                       ? "Показан последний успешно загруженный список."

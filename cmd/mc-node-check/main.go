@@ -40,31 +40,39 @@ type report struct {
 	Results      []result  `json:"results"`
 }
 
-func readDraft(path string) (coreconfig.Model, error) {
-	var empty coreconfig.Model
+func readPrivateInput(path string, limit int64) ([]byte, error) {
 	if !filepath.IsAbs(path) || filepath.Clean(path) != path {
-		return empty, errors.New("absolute private draft required")
+		return nil, errors.New("absolute private draft required")
 	}
 	resolved, e := filepath.EvalSymlinks(path)
 	if e != nil || resolved != path {
-		return empty, errors.New("private draft unavailable or contains symlink")
+		return nil, errors.New("private draft unavailable or contains symlink")
 	}
 	parent, e := os.Stat(filepath.Dir(path))
 	if e != nil || !parent.IsDir() || parent.Mode().Perm() != 0700 {
-		return empty, errors.New("draft directory must be private 0700")
+		return nil, errors.New("draft directory must be private 0700")
 	}
-	f, e := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	f, e := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if e != nil {
-		return empty, errors.New("private draft unavailable")
+		return nil, errors.New("private draft unavailable")
 	}
 	defer f.Close()
 	st, e := f.Stat()
-	if e != nil || !st.Mode().IsRegular() || st.Mode().Perm() != 0600 || st.Size() > 4<<20 {
-		return empty, errors.New("draft must be bounded regular 0600 file")
+	if e != nil || !st.Mode().IsRegular() || st.Mode().Perm() != 0600 || st.Size() > limit {
+		return nil, errors.New("draft must be bounded regular 0600 file")
 	}
-	b, e := io.ReadAll(io.LimitReader(f, 4<<20+1))
-	if e != nil || len(b) > 4<<20 {
-		return empty, errors.New("private draft read failed")
+	b, e := io.ReadAll(io.LimitReader(f, limit+1))
+	if e != nil || int64(len(b)) > limit {
+		return nil, errors.New("private draft read failed")
+	}
+	return b, nil
+}
+
+func readDraft(path string) (coreconfig.Model, error) {
+	var empty coreconfig.Model
+	b, e := readPrivateInput(path, 4<<20)
+	if e != nil {
+		return empty, e
 	}
 	var envelope struct {
 		Version int              `json:"version"`
@@ -86,6 +94,8 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	serverName := fs.String("tls-server-name", "", "verified TLS/HTTP name for a literal HTTPS destination; no DNS lookup")
 	draft := fs.String("draft", "", "absolute private API draft path")
 	nodeID := fs.String("node", "", "check one endpoint ID from the private draft")
+	sourceID := fs.String("subscription-id", "", "download one configured subscription through the selected draft node")
+	sourceSpecs := fs.String("subscription-specs", "", "private API subscription registry JSON; no source URL in arguments")
 	dir := fs.String("state", "", "dedicated private temporary probe directory")
 	binary := fs.String("sing-box", "/usr/bin/sing-box", "pinned proxy executable")
 	target := fs.String("url", "https://www.gstatic.com/generate_204", "public HTTPS test URL without credentials or query")
@@ -97,6 +107,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	u, e := url.Parse(*target)
 	if e != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || *parallel < 1 || *parallel > 4 || *timeout <= 0 || *timeout > 30*time.Second || fs.NArg() != 0 || (!*direct && *dir == "") || *status < 200 || *status > 299 || (*format != "" && *format != health.CanaryRemoteIPJSON && *format != health.CanaryCloudflareTrace) {
 		return errors.New("invalid isolated probe options")
+	}
+	if (*sourceID != "" || *sourceSpecs != "") && (*sourceID == "" || *sourceSpecs == "" || *nodeID == "" || *direct) {
+		return errors.New("isolated subscription requires a private registry, source ID and draft node")
 	}
 	tlsConfig, canaryHost, e := health.CanaryTLS(*target, *serverName)
 	if e != nil {
@@ -152,6 +165,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	p, e := grouphealth.NewProber(grouphealth.ProbeOptions{Binary: *binary, Directory: *dir, Bootstrap: m.DNS.Bootstrap, Timeout: *timeout, Concurrency: *parallel, FailureDiagnostics: true})
 	if e != nil {
 		return errors.New("isolated prober unavailable")
+	}
+	if *sourceID != "" {
+		return checkSubscription(ctx, p, m.Endpoints[0], *sourceID, *sourceSpecs, *dir, out)
 	}
 	r := report{Scope: "isolated HTTPS through draft endpoints; no RouterOS or LAN steering; latency excludes process startup", CheckedAt: time.Now().UTC(), Results: make([]result, len(m.Endpoints))}
 	var wg sync.WaitGroup
