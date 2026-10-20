@@ -225,29 +225,82 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	if canary.MaxBytes < 1 || canary.MaxBytes > 64<<10 {
 		return fail("invalid canary body bound")
 	}
+	var observed netip.Addr
+	var latency time.Duration
+	err = p.withProxyModel(ctx, m, summary, func(ctx context.Context, proxyURL *url.URL) error {
+		transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: tlsConfig, DisableKeepAlives: true, MaxResponseHeaderBytes: 16 << 10}
+		defer transport.CloseIdleConnections()
+		client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("canary redirect refused") }}
+		request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+		if err != nil {
+			return errors.New("canary request invalid")
+		}
+		request.Header.Set("Cache-Control", "no-store")
+		if canaryHost != "" {
+			request.Host = canaryHost
+		}
+		start := time.Now()
+		response, err := client.Do(request)
+		if err != nil {
+			return errors.New("canary request failed")
+		}
+		defer response.Body.Close()
+		body, err := io.ReadAll(io.LimitReader(response.Body, canary.MaxBytes+1))
+		latency = time.Since(start)
+		if err != nil || int64(len(body)) > canary.MaxBytes {
+			return errors.New("canary body invalid")
+		}
+		if response.StatusCode != canary.ExpectedStatus {
+			return errors.New("canary status mismatch")
+		}
+		if canary.ResponseFormat != "" {
+			observed, err = health.ParseCanaryIP(body, canary.ResponseFormat)
+			if err != nil {
+				return errors.New("canary peer response invalid")
+			}
+		} else if canary.ExpectedEgressIP.IsValid() {
+			observed, err = netip.ParseAddr(strings.TrimSpace(string(body)))
+			if err != nil {
+				return errors.New("canary peer response invalid")
+			}
+		}
+		if canary.ExpectedEgressIP.IsValid() && (!observed.IsValid() || observed.Unmap() != canary.ExpectedEgressIP.Unmap()) {
+			return errors.New("canary egress mismatch")
+		}
+		return nil
+	})
+	if err != nil {
+		return fail(err.Error())
+	}
+	return p.record(identifier, latency, true, "", observed), nil
+}
+
+// withProxyModel owns the complete lifetime of a temporary, loopback-only child.
+// The operation cannot outlive the child or retain its private credentials.
+func (p *Prober) withProxyModel(ctx context.Context, m coreconfig.Model, summary *errorSummary, operation func(context.Context, *url.URL) error) error {
 	select {
 	case p.sem <- struct{}{}:
 		defer func() { <-p.sem }()
 	case <-ctx.Done():
-		return fail("probe canceled")
+		return errors.New("probe canceled")
 	}
 	if privateParents(p.opts.Directory) != nil {
-		return fail("probe directory unsafe")
+		return errors.New("probe directory unsafe")
 	}
 	dir, err := os.MkdirTemp(p.opts.Directory, "probe-")
 	if err != nil {
-		return fail("probe directory unavailable")
+		return errors.New("probe directory unavailable")
 	}
 	defer os.RemoveAll(dir)
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
-		return fail("private probe port unavailable")
+		return errors.New("private probe port unavailable")
 	}
 	port := uint16(listener.Addr().(*net.TCPAddr).Port)
 	listener.Close()
 	secret := make([]byte, 32)
 	if _, err = rand.Read(secret); err != nil {
-		return fail("probe randomness unavailable")
+		return errors.New("probe randomness unavailable")
 	}
 	password := hex.EncodeToString(secret)
 	dnsPort := port + 1
@@ -256,25 +309,25 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	}
 	raw, err := coreconfig.GenerateWithOptions(m, coreconfig.Options{DNSPort: dnsPort, MixedPort: port})
 	if err != nil {
-		return fail("probe model invalid")
+		return errors.New("probe model invalid")
 	}
 	var cfg map[string]any
 	if json.Unmarshal(raw, &cfg) != nil {
-		return fail("probe configuration invalid")
+		return errors.New("probe configuration invalid")
 	}
 	cfg["inbounds"] = []any{map[string]any{"type": "mixed", "tag": "health-in", "listen": "127.0.0.1", "listen_port": port, "users": []any{map[string]any{"username": "health", "password": password}}}}
 	cfg["route"].(map[string]any)["rules"] = []any{}
 	delete(cfg, "experimental")
 	raw, err = json.Marshal(cfg)
 	if err != nil {
-		return fail("probe configuration invalid")
+		return errors.New("probe configuration invalid")
 	}
 	path := filepath.Join(dir, "candidate.json")
 	if os.WriteFile(path, raw, 0600) != nil {
-		return fail("probe configuration unavailable")
+		return errors.New("probe configuration unavailable")
 	}
 	if singbox.Check(ctx, p.opts.Binary, path) != nil {
-		return fail("probe core validation failed")
+		return errors.New("probe core validation failed")
 	}
 	cmd := exec.Command(p.opts.Binary, "run", "-c", path)
 	cmd.Dir = dir
@@ -286,7 +339,7 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	}
 	processAttributes(cmd)
 	if cmd.Start() != nil {
-		return fail("probe process failed")
+		return errors.New("probe process failed")
 	}
 	done := make(chan struct{})
 	go func() { _ = cmd.Wait(); close(done) }()
@@ -295,9 +348,9 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 	for {
 		select {
 		case <-done:
-			return fail("probe process exited")
+			return errors.New("probe process exited")
 		case <-ctx.Done():
-			return fail("probe startup canceled")
+			return errors.New("probe startup canceled")
 		default:
 		}
 		conn, e := (&net.Dialer{Timeout: 20 * time.Millisecond}).DialContext(ctx, "tcp", address)
@@ -308,59 +361,35 @@ func (p *Prober) probeModel(ctx context.Context, identifier string, m coreconfig
 		select {
 		case <-time.After(10 * time.Millisecond):
 		case <-ctx.Done():
-			return fail("probe startup canceled")
+			return errors.New("probe startup canceled")
 		}
 	}
 	proxyURL := &url.URL{Scheme: "http", Host: address, User: url.UserPassword("health", password)}
-	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL), TLSClientConfig: tlsConfig, DisableKeepAlives: true, MaxResponseHeaderBytes: 16 << 10}
-	defer transport.CloseIdleConnections()
-	client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("canary redirect refused") }}
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-	if err != nil {
-		return fail("canary request invalid")
-	}
-	request.Header.Set("Cache-Control", "no-store")
-	if canaryHost != "" {
-		request.Host = canaryHost
-	}
-	start := time.Now()
-	response, err := client.Do(request)
-	if err != nil {
-		return fail("canary request failed")
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(response.Body, canary.MaxBytes+1))
-	latency := time.Since(start)
-	if err != nil || int64(len(body)) > canary.MaxBytes {
-		return fail("canary body invalid")
-	}
-	if response.StatusCode != canary.ExpectedStatus {
-		return fail("canary status mismatch")
-	}
-	var observed netip.Addr
-	if canary.ResponseFormat != "" {
-		observed, err = health.ParseCanaryIP(body, canary.ResponseFormat)
-		if err != nil {
-			return fail("canary peer response invalid")
-		}
-	} else if canary.ExpectedEgressIP.IsValid() {
-		observed, err = netip.ParseAddr(strings.TrimSpace(string(body)))
-		if err != nil {
-			return fail("canary peer response invalid")
-		}
-	}
-	if canary.ExpectedEgressIP.IsValid() && (!observed.IsValid() || observed.Unmap() != canary.ExpectedEgressIP.Unmap()) {
-		return fail("canary egress mismatch")
+	if err := operation(ctx, proxyURL); err != nil {
+		return err
 	}
 	select {
 	case <-done:
-		return fail("probe exited before observation")
+		return errors.New("isolated proxy exited before operation completed")
 	case <-ctx.Done():
-		return fail("probe canceled")
+		return errors.New("isolated proxy operation canceled")
 	default:
+		return nil
 	}
-	return p.record(identifier, latency, true, "", observed), nil
 }
+
+// WithEndpointProxy runs a bounded operation through one enabled endpoint. It
+// does not publish a health observation, apply policy or use a DIRECT fallback.
+func (p *Prober) WithEndpointProxy(ctx context.Context, ep endpoints.Endpoint, operation func(context.Context, *url.URL) error) error {
+	if operation == nil || ep.Validate() != nil || ep.ID == "" || !ep.Enabled {
+		return errors.New("isolated proxy endpoint unavailable")
+	}
+	ctx, cancel := context.WithTimeout(ctx, p.opts.Timeout)
+	defer cancel()
+	m := coreconfig.Model{SchemaVersion: 2, Instance: "health-probe", Mode: "socksify", Endpoints: []endpoints.Endpoint{ep}, DefaultOutbound: ep.ID, DNS: coreconfig.DNS{Bootstrap: p.opts.Bootstrap, FakeIPRange: "198.18.0.0/15", CachePath: "/data/health-probe/cache.db"}}
+	return p.withProxyModel(ctx, m, nil, operation)
+}
+
 func (p *Prober) record(id string, latency time.Duration, available bool, code string, egress ...netip.Addr) Observation {
 	p.mu.Lock()
 	defer p.mu.Unlock()

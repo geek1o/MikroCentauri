@@ -229,7 +229,7 @@ func apiCommand(action string, args []string) error {
 	if owner != nil && profile.ControlPort != 0 {
 		engine = owner
 	}
-	handler, e := api.New(api.Options{DefaultRouterURL: defaultRouterSetupURL(), Engine: engine, Runtime: runtimeAdapter, Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
+	handler, e := api.New(api.Options{DefaultRouterURL: defaultRouterSetupURL(), Engine: engine, Runtime: runtimeAdapter, SubscriptionProxy: application.SubscriptionProxy(*binary, filepath.Join(directory, "subscription-probes")), Subscriptions: providers, Router: routerResources, Directory: directory, Auth: a, Model: m, Validate: validate, Origin: origin, Clients: allowed})
 	if e != nil {
 		return e
 	}

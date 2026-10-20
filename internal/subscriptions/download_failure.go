@@ -16,7 +16,7 @@ func (e downloadFailure) Error() string { return "subscription download: " + str
 // SafeFailureCode also sanitizes projections of old or externally supplied state.
 func SafeFailureCode(code string) string {
 	switch code {
-	case "invalid_url", "dns_failed", "destination_refused", "connect_failed", "timeout", "tls_failed", "redirect_refused", "http_error", "body_invalid", "request_failed":
+	case "proxy_unavailable", "invalid_url", "dns_failed", "destination_refused", "connect_failed", "timeout", "tls_failed", "redirect_refused", "http_error", "body_invalid", "request_failed":
 		return code
 	default:
 		return ""

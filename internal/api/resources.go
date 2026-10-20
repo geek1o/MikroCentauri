@@ -71,6 +71,7 @@ type SubscriptionView struct {
 	LastAttempt   time.Time                   `json:"last_attempt"`
 	LastSuccess   time.Time                   `json:"last_success"`
 	Failed        bool                        `json:"failed"`
+	ProxyNode     string                      `json:"proxy_node,omitempty"`
 	FailureCode   string                      `json:"failure_code,omitempty"`
 	ImportedCount int                         `json:"imported_count"`
 	Nodes         []endpoints.Preview         `json:"nodes"`
@@ -88,13 +89,14 @@ type SubscriptionResources struct {
 	poisoned       bool
 	schedule       *SubscriptionSchedule
 	scheduleNotify chan struct{}
+	proxy          func(context.Context, string, func(context.Context, subscriptions.DialContext) error) error
 }
 
 var subscriptionID = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
 
 func validateSpec(s subscriptions.Spec) error {
 	u, e := url.Parse(s.URL)
-	if !subscriptionID.MatchString(s.ID) || e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.Fragment != "" || len(s.URL) > 8192 || len(s.Include) > 4096 || len(s.Exclude) > 4096 {
+	if !subscriptionID.MatchString(s.ID) || e != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || u.Fragment != "" || len(s.URL) > 8192 || len(s.Include) > 4096 || len(s.Exclude) > 4096 || (s.ProxyNode != "" && !nodeProbeID.MatchString(s.ProxyNode)) {
 		return errors.New("invalid subscription specification")
 	}
 	for _, filter := range []string{s.Include, s.Exclude} {
@@ -213,7 +215,9 @@ func (s *SubscriptionResources) Inspect(id string, offset, limit int) (Subscript
 			if e != nil || offset > len(state.Nodes) {
 				return SubscriptionView{}, errors.New("subscription page unavailable")
 			}
-			return subscriptionPage(state, offset, limit), nil
+			v := subscriptionPage(state, offset, limit)
+			v.ProxyNode = spec.ProxyNode
+			return v, nil
 		}
 	}
 	return SubscriptionView{}, errors.New("subscription not configured")
@@ -230,7 +234,9 @@ func (s *SubscriptionResources) List() ([]SubscriptionView, error) {
 		if e != nil {
 			return nil, errors.New("subscription state unavailable")
 		}
-		result = append(result, subscriptionPreview(state))
+		v := subscriptionPreview(state)
+		v.ProxyNode = spec.ProxyNode
+		result = append(result, v)
 	}
 	return result, nil
 }
@@ -250,17 +256,46 @@ func (s *SubscriptionResources) Refresh(ctx context.Context, id string) (Subscri
 			break
 		}
 	}
+	runner := s.proxy
 	s.mu.Unlock()
 	if selected == nil {
 		return SubscriptionView{}, errors.New("subscription not configured")
 	}
-	state, e := s.manager.Refresh(ctx, *selected)
+	var state subscriptions.State
+	var e error
+	via, supportsProxy := s.manager.(interface {
+		RefreshVia(context.Context, subscriptions.Spec, subscriptions.DialContext) (subscriptions.State, error)
+	})
+	if selected.ProxyNode != "" && supportsProxy {
+		invoked := false
+		if runner != nil {
+			_ = runner(ctx, selected.ProxyNode, func(ctx context.Context, dial subscriptions.DialContext) error {
+				invoked = true
+				state, e = via.RefreshVia(ctx, *selected, dial)
+				return e
+			})
+		}
+		if !invoked {
+			state, e = via.RefreshVia(ctx, *selected, nil)
+		}
+	} else if selected.ProxyNode != "" {
+		state, e = s.manager.Load(selected.ID)
+		if e == nil {
+			state.Failure = "subscription proxy unavailable"
+			state.FailureCode = "proxy_unavailable"
+			e = errors.New("subscription proxy unavailable")
+		}
+	} else {
+		state, e = s.manager.Refresh(ctx, *selected)
+	}
 	if e != nil {
 		s.recordEvent("subscription_refresh_failed")
 	} else {
 		s.recordEvent("subscription_refreshed")
 	}
-	return subscriptionPreview(state), e
+	v := subscriptionPreview(state)
+	v.ProxyNode = selected.ProxyNode
+	return v, e
 }
 
 func (s *SubscriptionResources) Close() {

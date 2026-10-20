@@ -17,9 +17,14 @@ import (
 
 // SubscriptionMetadata intentionally omits the private provider URL.
 type SubscriptionMetadata struct {
-	ID      string `json:"id"`
-	Include string `json:"include,omitempty"`
-	Exclude string `json:"exclude,omitempty"`
+	ID        string `json:"id"`
+	Include   string `json:"include,omitempty"`
+	Exclude   string `json:"exclude,omitempty"`
+	ProxyNode string `json:"proxy_node,omitempty"`
+}
+type SubscriptionTransportRequest struct {
+	ID        string `json:"id"`
+	ProxyNode string `json:"proxy_node"`
 }
 type SubscriptionDeleteRequest struct {
 	ID string `json:"id"`
@@ -83,7 +88,7 @@ func (s *SubscriptionResources) Metadata() ([]SubscriptionMetadata, error) {
 	}
 	result := make([]SubscriptionMetadata, 0, len(s.specs))
 	for _, v := range s.specs {
-		result = append(result, SubscriptionMetadata{v.ID, v.Include, v.Exclude})
+		result = append(result, SubscriptionMetadata{ID: v.ID, Include: v.Include, Exclude: v.Exclude, ProxyNode: v.ProxyNode})
 	}
 	return result, nil
 }
@@ -103,6 +108,7 @@ func (s *SubscriptionResources) metadataLocked(metadata []SubscriptionMetadata) 
 			if spec.ID == v.ID {
 				spec.Include = v.Include
 				spec.Exclude = v.Exclude
+				spec.ProxyNode = v.ProxyNode
 				if validateSpec(spec) != nil {
 					return nil, errors.New("invalid subscription metadata")
 				}
@@ -175,11 +181,25 @@ func (s *SubscriptionResources) selected(id string, ids []string) ([]endpoints.E
 
 // subscriptionWorkflow is called with the Server mutation mutex held.
 func (s *Server) subscriptionWorkflow(w http.ResponseWriter, r *http.Request, raw []byte, requestID string) bool {
-	if r.URL.Path != "/api/v1/subscriptions/delete" && r.URL.Path != "/api/v1/subscriptions/import" {
+	if r.URL.Path != "/api/v1/subscriptions/delete" && r.URL.Path != "/api/v1/subscriptions/import" && r.URL.Path != "/api/v1/subscriptions/transport" {
 		return false
 	}
 	if s.opts.Subscriptions == nil {
 		reject(w, 501, "adapter_not_connected")
+		return true
+	}
+	if r.URL.Path == "/api/v1/subscriptions/transport" {
+		var in SubscriptionTransportRequest
+		if decode(raw, &in) != nil || !subscriptionID.MatchString(in.ID) || (in.ProxyNode != "" && !nodeProbeID.MatchString(in.ProxyNode)) {
+			reject(w, 400, "invalid_request")
+			return true
+		}
+		if s.opts.Subscriptions.SetTransport(in) != nil {
+			reject(w, 503, "subscription_persistence_failed")
+			return true
+		}
+		s.event("subscription_transport_configured", requestID)
+		reply(w, 200, in)
 		return true
 	}
 	if r.URL.Path == "/api/v1/subscriptions/delete" {

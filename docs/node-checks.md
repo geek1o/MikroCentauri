@@ -104,3 +104,22 @@ separate packet-path acceptance. This is not qualified by isolated node checks.
 The direct and isolated-node diagnostics use the profile's response format and
 TLS name as well. Successful diagnostics report reachability, whereas native
 readiness additionally checks the reviewed egress identity.
+
+## Diagnose a subscription through one draft endpoint
+
+The same isolated child can exercise the production subscription downloader,
+using a private existing registry instead of putting a credential-bearing URL in
+arguments. This does not change the registry selection, live cache or draft.
+Downloaded nodes are parsed in a temporary private cache that is removed before
+exit. Output contains counts and fixed failure codes, without URLs or node data.
+
+```sh
+mc-node-check -draft /data/api/draft.json \
+  -state /data/diagnostic/source-checks -node <canonical-id> \
+  -subscription-specs /data/api/subscription-registry/subscription-specs.json \
+  -subscription-id <configured-id> -timeout 12s
+```
+
+A failed network check is represented by `success: false`; invalid invocation or
+private input fails the command. `routing_ready` is always false. Run bounded
+foreground checks when using RouterOS container shell execution.
