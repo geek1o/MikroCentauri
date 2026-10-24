@@ -1,5 +1,9 @@
 # App listener reconciliation after a RouterOS container address change
 
+This report describes the repair before the router was reset. The subsequent
+fresh installation and live acceptance are documented in
+[the reset setup report](router-reset-selective-routing-2026-10-25.md).
+
 ## Outcome
 
 The physical RouterOS 7.23.8 long-term ARM64 management App (hAP ax^2) was
@@ -46,8 +50,9 @@ draft and subscription state were preserved byte-for-byte.
    regular 0600 files under the existing 0700 directories, with the settings file
    committed last as the marker.
 3. The helper verified both staged and installed SHA-256 values, then removed its
-   staging directory. No plaintext key, certificate, password or archive was left
-   on the router or in Git.
+   staging directory. No temporary staging copy of the key, password or archive remained on the
+   router, and none was committed to Git. The protected bootstrap TLS material
+   remains in the application volume as required for HTTPS startup.
 4. The temporary command and entrypoint overrides were unset with a bounded
    RouterOS script so the container again uses the image's own entrypoint and
    healthcheck command. The script was removed immediately.
@@ -84,8 +89,9 @@ RouterOS App container is re-created with a different private IPv4 address:
 
 - the persisted listener is moved to the current container address, keeping the
   configured port and public origin;
-- only bootstrap-owned TLS files (`<data>/bootstrap/`) are rotated; operator TLS
-  material causes a clear failure instead of an unannounced rotation;
+- only the standard bootstrap certificate is reissued using its existing private
+  key after verifying the bootstrap identity; operator TLS material causes a
+  clear failure instead of an unannounced replacement;
 - the previous listener address stays certified so an interrupted update can still
   serve the old settings until the new settings file is committed, and the
   settings file is written last;
@@ -109,3 +115,20 @@ This record covers management-plane startup and reachability on the observed ARM
 device only. It does not qualify native packet steering, proxy failure recovery,
 IPv6 or reboot persistence of the complete product, and it does not change the
 RouterOS App manifest, which continues to pin the container address it assigns.
+
+## Subsequent code review
+
+Review retained the listener repair and tightened its transaction boundaries.
+Reissuing a certificate with the existing key avoids a mismatched certificate/key
+pair if power fails between two file writes. Both the old and new listener names
+remain certified until the atomic settings commit, and the public-key identity
+stays stable. The standard filenames, self-signature, generated certificate
+identity and private key type are checked before replacement. Inputs use protected
+file reads, and invalid settings are rejected before any certificate write.
+
+A configured native runtime requires an explicit topology update after an App
+address change: changing only its management listener would leave DNS, readiness
+and RouterOS steering profiles pointing at the old address. Automatic management
+reconciliation therefore refuses that case. Tests cover interrupted settings
+commit recovery, unchanged key bytes and refusal without modifying protected
+files.
