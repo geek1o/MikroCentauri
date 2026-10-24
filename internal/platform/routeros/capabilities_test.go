@@ -211,3 +211,31 @@ func TestCapabilitiesPinnedARM64DoesNotClaimReadiness(t *testing.T) {
 		t.Fatalf("invalid ARM64 preflight: %+v %v", caps, err)
 	}
 }
+
+func TestCapabilitiesIgnoresOnlyExplicitUninstalledCatalogueEntries(t *testing.T) {
+	for _, tc := range []struct {
+		name, row string
+		wantError bool
+	}{
+		{"downloadable", `{"name":"dude","version":"","available":"true","disabled":"true"}`, false},
+		{"installed missing version", `{"name":"dude","version":"","available":"false","disabled":"true"}`, true},
+		{"ambiguous", `{"name":"dude","version":"","disabled":"true"}`, true},
+		{"enabled missing version", `{"name":"dude","version":"","available":"true","disabled":"false"}`, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fixture := capabilityFixture()
+			original := fixture["system/package"]
+			fixture["system/package"] = strings.TrimSuffix(original, "]") + "," + tc.row + "]"
+			c := capabilityClient(t, func(w http.ResponseWriter, r *http.Request) {
+				_, _ = w.Write([]byte(fixture[strings.TrimPrefix(r.URL.Path, "/rest/")]))
+			})
+			caps, err := c.Capabilities(context.Background())
+			if (err != nil) != tc.wantError {
+				t.Fatalf("unexpected parse result: %v", err)
+			}
+			if err == nil && len(caps.Packages) != 2 {
+				t.Fatal("catalogue row counted as installed capability")
+			}
+		})
+	}
+}
