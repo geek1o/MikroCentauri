@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -414,4 +415,90 @@ func pemBlock(t *testing.T, path string) *x509.Certificate {
 		t.Fatal(err)
 	}
 	return certificate
+}
+
+func TestBootstrapRebindRetainsKeyAndSupportsInterruptedSettingsCommit(t *testing.T) {
+	data, secret := bootstrapFixture(t)
+	if err := bootstrapApp(data, "172.30.99.10", "192.168.88.1", "8443", secret); err != nil {
+		t.Fatal(err)
+	}
+	settingsPath := filepath.Join(data, "bootstrap/app.json")
+	originalSettings, _ := os.ReadFile(settingsPath)
+	keyPath := filepath.Join(data, "bootstrap/api.key")
+	originalKey, _ := os.ReadFile(keyPath)
+	t.Setenv("MC_CONTAINER_IP", "172.30.99.11")
+	if err := bootstrapRouterOSApp(data, secret); err != nil {
+		t.Fatal(err)
+	}
+	currentKey, _ := os.ReadFile(keyPath)
+	if !bytes.Equal(originalKey, currentKey) {
+		t.Fatal("rebind rotated the private key")
+	}
+	if _, err := tls.LoadX509KeyPair(filepath.Join(data, "bootstrap/api.crt"), keyPath); err != nil {
+		t.Fatal(err)
+	}
+	// Simulate an interruption after certificate commit, before settings commit.
+	if err := os.WriteFile(settingsPath, originalSettings, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := bootstrapRouterOSApp(data, secret); err != nil {
+		t.Fatal("interrupted commit did not recover", err)
+	}
+	finalKey, _ := os.ReadFile(keyPath)
+	if !bytes.Equal(originalKey, finalKey) {
+		t.Fatal("retry changed key")
+	}
+}
+
+func TestBootstrapRebindRefusesNativeTopologyAndCustomBootstrapPaths(t *testing.T) {
+	for _, kind := range []string{"native", "custom-path", "custom-identity"} {
+		t.Run(kind, func(t *testing.T) {
+			data, secret := bootstrapFixture(t)
+			if err := bootstrapApp(data, "172.30.99.10", "192.168.88.1", "8443", secret); err != nil {
+				t.Fatal(err)
+			}
+			settingsPath := filepath.Join(data, "bootstrap/app.json")
+			var s appSettings
+			if err := privateJSON(settingsPath, &s, 65536); err != nil {
+				t.Fatal(err)
+			}
+			switch kind {
+			case "native":
+				s.RuntimeProfile = filepath.Join(data, "bootstrap/runtime.json")
+			case "custom-path":
+				s.TLSCert = filepath.Join(data, "bootstrap/operator.crt")
+			case "custom-identity":
+				cert := pemBlock(t, s.TLSCert)
+				cert.Subject.CommonName = "Operator identity"
+				cert.RawSubject = nil
+				pair, err := tls.LoadX509KeyPair(s.TLSCert, s.TLSKey)
+				if err != nil {
+					t.Fatal(err)
+				}
+				der, err := x509.CreateCertificate(rand.Reader, cert, cert, cert.PublicKey, pair.PrivateKey)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err = os.WriteFile(s.TLSCert, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}), 0600); err != nil {
+					t.Fatal(err)
+				}
+			}
+			raw, _ := json.Marshal(s)
+			if err := os.WriteFile(settingsPath, raw, 0600); err != nil {
+				t.Fatal(err)
+			}
+			beforeCert, _ := os.ReadFile(filepath.Join(data, "bootstrap/api.crt"))
+			beforeKey, _ := os.ReadFile(filepath.Join(data, "bootstrap/api.key"))
+			t.Setenv("MC_CONTAINER_IP", "172.30.99.11")
+			if err := bootstrapRouterOSApp(data, secret); err == nil {
+				t.Fatal("operator input silently reconciled")
+			}
+			afterSettings, _ := os.ReadFile(settingsPath)
+			afterCert, _ := os.ReadFile(filepath.Join(data, "bootstrap/api.crt"))
+			afterKey, _ := os.ReadFile(filepath.Join(data, "bootstrap/api.key"))
+			if !bytes.Equal(raw, afterSettings) || !bytes.Equal(beforeCert, afterCert) || !bytes.Equal(beforeKey, afterKey) {
+				t.Fatal("refusal changed protected files")
+			}
+		})
+	}
 }

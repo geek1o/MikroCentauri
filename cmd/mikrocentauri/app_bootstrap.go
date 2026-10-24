@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/json"
@@ -87,6 +89,9 @@ func reconcileAppListener(directory string) error {
 	if privateJSON(settingsPath, &current, 65536) != nil || current.SchemaVersion != 1 {
 		return nil // loadAppSettings reports the actual settings error.
 	}
+	if _, err := loadAppSettings(settingsPath); err != nil {
+		return err // Reject malformed operator settings before changing TLS.
+	}
 	listenHost, listenPort, err := net.SplitHostPort(current.Listen)
 	if err != nil || listenHost == containerIP {
 		return nil
@@ -95,8 +100,29 @@ func reconcileAppListener(directory string) error {
 	if err != nil || !persisted.Is4() || localInterfaceAddress(persisted) {
 		return nil // A locally assigned listener address is authoritative.
 	}
-	if !canonicalAppPath(directory) || filepath.Dir(current.TLSCert) != filepath.Join(directory, "bootstrap") || filepath.Dir(current.TLSKey) != filepath.Join(directory, "bootstrap") {
+	if current.RuntimeProfile != "" {
+		return errors.New("container address changed; native routing profile requires an explicit topology update")
+	}
+	if !canonicalAppPath(directory) || current.TLSCert != filepath.Join(directory, "bootstrap/api.crt") || current.TLSKey != filepath.Join(directory, "bootstrap/api.key") || current.TLSCA != "" {
 		return errors.New("management listener container address changed; operator TLS material requires an explicit update")
+	}
+	// Reissue with the existing bootstrap key. A single atomic certificate write
+	// remains compatible with both old and new settings even after interruption.
+	// A directory name alone is not evidence of bootstrap ownership.
+	certBytes, certErr := readRouterFile(current.TLSCert, 1<<20, false)
+	keyBytes, keyErr := readRouterFile(current.TLSKey, 1<<20, true)
+	if certErr != nil || keyErr != nil {
+		return errors.New("bootstrap TLS identity unavailable; explicit repair required")
+	}
+	defer clear(keyBytes)
+	pair, err := tls.X509KeyPair(certBytes, keyBytes)
+	if err != nil || len(pair.Certificate) != 1 {
+		return errors.New("bootstrap TLS identity unavailable; explicit repair required")
+	}
+	previous, err := x509.ParseCertificate(pair.Certificate[0])
+	key, bootstrapKey := pair.PrivateKey.(*ecdsa.PrivateKey)
+	if err != nil || !bootstrapKey || key.Curve != elliptic.P256() || previous.IsCA || previous.Subject.CommonName != "MikroCentauri local management" || !bytes.Equal(previous.RawIssuer, previous.RawSubject) || previous.CheckSignature(previous.SignatureAlgorithm, previous.RawTBSCertificate, previous.Signature) != nil {
+		return errors.New("management listener container address changed; operator TLS identity requires an explicit update")
 	}
 	// The previous listener address stays certified so an interrupted update can
 	// still serve the old settings until the new settings file is committed.
@@ -115,15 +141,9 @@ func reconcileAppListener(directory string) error {
 			dnsNames = append(dnsNames, origin.Hostname())
 		}
 	}
-	certificatePEM, keyPEM, err := bootstrapTLS(ipAddresses, dnsNames)
+	certificatePEM, _, err := bootstrapTLSWithKey(key, ipAddresses, dnsNames)
 	if err != nil {
 		return errors.New("management listener TLS generation failed")
-	}
-	if err := config.WriteAtomic(current.TLSCert, certificatePEM); err != nil {
-		return errors.New("management listener certificate update failed")
-	}
-	if err := config.WriteAtomic(current.TLSKey, keyPEM); err != nil {
-		return errors.New("management listener key update failed")
 	}
 	raw, err := readRouterFile(settingsPath, 65536, true)
 	if err != nil {
@@ -143,6 +163,9 @@ func reconcileAppListener(directory string) error {
 		return errors.New("management listener settings encoding failed")
 	}
 	updated = append(updated, '\n')
+	if err := config.WriteAtomic(current.TLSCert, certificatePEM); err != nil {
+		return errors.New("management listener certificate update failed")
+	}
 	if err := config.WriteAtomic(settingsPath, updated); err != nil {
 		return errors.New("management listener settings update failed")
 	}
@@ -177,6 +200,10 @@ func bootstrapTLS(ipAddresses, dnsNames []string) ([]byte, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	return bootstrapTLSWithKey(key, ipAddresses, dnsNames)
+}
+
+func bootstrapTLSWithKey(key *ecdsa.PrivateKey, ipAddresses, dnsNames []string) ([]byte, []byte, error) {
 	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
 	if err != nil {
 		return nil, nil, err
