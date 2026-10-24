@@ -227,6 +227,12 @@ func (c *Client) Capabilities(ctx context.Context) (Capabilities, error) {
 			return Capabilities{}, errors.New("duplicate RouterOS package")
 		}
 		seen[p.Name] = true
+		// The package catalogue also returns downloadable, uninstalled entries.
+		// Only this explicit state may omit a version; it is not an installed
+		// capability and must not make a healthy router appear unreachable.
+		if r["version"] == "" && r["available"] == "true" && r["disabled"] == "true" {
+			continue
+		}
 		if p.Version, e = capabilityVersion(r); e != nil {
 			return Capabilities{}, e
 		}
